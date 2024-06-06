@@ -41,7 +41,7 @@ return new class extends Migration
                 $table->index($columnNames['team_foreign_key'], 'roles_team_foreign_key_index');
             }
             $table->string('name');       // For MySQL 8.0 use string('name', 125);
-            $table->foreignId('client_type_id')->constrained();
+            $table->foreignId('client_type_id')->nullable()->constrained();
             $table->integer('client_platform_id')->nullable();
             $table->integer('platform_id')->nullable();
             $table->integer('shq_id')->nullable();

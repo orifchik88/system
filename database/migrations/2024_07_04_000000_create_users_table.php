@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->integer('project_id')->nullable();
             $table->integer('client_platform_id')->nullable();
-            $table->foreignId('client_type_id')->constrained();
+            $table->foreignId('client_type_id')->nullable()->constrained();
             $table->string('phone')->nullable();
             $table->string('email')->unique()->nullable();
             $table->string('login')->unique();
@@ -34,8 +34,8 @@ return new class extends Migration
             $table->string('middle_name')->nullable();
             $table->text('address')->nullable();
             $table->string('passport_number')->nullable();
-            $table->foreignId('region_id')->constrained();
-            $table->foreignId('district_id')->constrained();
+            $table->foreignId('region_id')->nullable()->constrained();
+            $table->foreignId('district_id')->nullable()->constrained();
             $table->string('organization_name')->nullable();
             $table->integer('company_id')->nullable();
             $table->foreignId('user_type_id')->constrained();

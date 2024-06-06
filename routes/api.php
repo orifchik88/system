@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\RegionController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\UserTypeController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\ClientTypeController;
+use App\Http\Controllers\Api\LoginController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -22,6 +24,10 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::get('profile', [ProfileController::class, 'profile'])->middleware('auth:api');
+
+Route::post('login', [LoginController::class, 'login']);
 
 Route::get('/user-type', [UserTypeController::class, 'index']);
 Route::post('/user-type/create', [UserTypeController::class, 'create']);

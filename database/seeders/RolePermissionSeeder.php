@@ -12,7 +12,7 @@ class RolePermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        $roleAdmin = Role::create(['name' => 'admin', 'client_type_id' => 1]);
+        $roleAdmin = Role::create(['name' => 'admin']);
         $permissions = [
             [
                 'group_name' => 'dashboard',
