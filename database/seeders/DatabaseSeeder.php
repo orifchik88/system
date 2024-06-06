@@ -18,8 +18,8 @@ class DatabaseSeeder extends Seeder
             UserStatusSeeder::class
         ]);
 
-//        UserType::factory(100)->create();
-//        ClientType::factory(50)->create();
+        UserType::factory(10)->create();
+        ClientType::factory(10)->create();
 
     }
 }

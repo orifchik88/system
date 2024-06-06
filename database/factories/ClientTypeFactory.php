@@ -21,7 +21,7 @@ class ClientTypeFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_type_id' => $this->faker->numberBetween(1,50),
+            'user_type_id' => $this->faker->numberBetween(1,10),
             'name' => $this->faker->text(50),
         ];
     }

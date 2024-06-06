@@ -38,7 +38,7 @@ return new class extends Migration
             $table->foreignId('district_id')->nullable()->constrained();
             $table->string('organization_name')->nullable();
             $table->integer('company_id')->nullable();
-            $table->foreignId('user_type_id')->constrained();
+            $table->foreignId('user_type_id')->nullable()->constrained();
             $table->boolean('is_activated')->default(false);
             $table->integer('shq_id')->nullable();
             $table->string('stir_org')->nullable();

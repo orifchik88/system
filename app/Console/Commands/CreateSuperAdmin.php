@@ -33,8 +33,6 @@ class CreateSuperAdmin extends Command
         $user->password = 'shahzod';
         $user->pinfl = '1234567894551';
         $user->user_status_id = 6;
-        $user->user_type_id = 16;
-        $user->client_type_id = 1;
         $user->save();
         $user->assignRole('admin');
     }
