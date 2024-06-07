@@ -49,6 +49,7 @@ Route::group([
     Route::post('/roles/create', [PermissionController::class, 'create']);
 
     Route::get('/users', [UserController::class, 'users']);
+    Route::post('/users/create', [UserController::class, 'create']);
     Route::get('/users/status', [UserController::class, 'status']);
 });
 
