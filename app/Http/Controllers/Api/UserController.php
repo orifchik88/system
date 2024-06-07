@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 
 use App\Http\Requests\UserRequest;
+use App\Http\Resources\UserResource;
 use App\Http\Resources\UserStatusResource;
 use App\Models\User;
 use App\Models\UserStatus;
@@ -14,7 +15,7 @@ class UserController extends BaseController
 {
     public function users(Request $request): JsonResponse
     {
-        return $this->sendSuccess(User::all(), 'All Users');
+        return $this->sendSuccess(UserResource::collection(User::all()), 'All Users');
     }
 
     public function create(UserRequest $request): JsonResponse

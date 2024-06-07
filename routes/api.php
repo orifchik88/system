@@ -21,28 +21,39 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-Route::get('profile', [ProfileController::class, 'profile'])->middleware('auth:api');
+//Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//    return $request->user();
+//});
 
 Route::post('login', [LoginController::class, 'login']);
 
-Route::get('/user-type', [UserTypeController::class, 'index']);
-Route::post('/user-type/create', [UserTypeController::class, 'create']);
-Route::post('/user-type/edit/{id}', [UserTypeController::class, 'edit']);
 
-Route::get('/client-type', [ClientTypeController::class, 'index']);
-Route::post('/client-type/create', [ClientTypeController::class, 'create']);
-Route::post('/client-type/edit/{id}', [ClientTypeController::class, 'edit']);
+Route::group([
+    'middleware' => 'auth:api'
+], function() {
+    Route::get('profile', [ProfileController::class, 'profile']);
+    Route::post('logout', [LoginController::class, 'logout']);
+    Route::get('/user-type', [UserTypeController::class, 'index']);
+    Route::post('/user-type/create', [UserTypeController::class, 'create']);
+    Route::post('/user-type/edit/{id}', [UserTypeController::class, 'edit']);
 
-Route::get('/regions', [RegionController::class, 'regions']);
-Route::get('/districts/{id}', [RegionController::class, 'districts']);
+    Route::get('/client-type', [ClientTypeController::class, 'index']);
+    Route::post('/client-type/create', [ClientTypeController::class, 'create']);
+    Route::post('/client-type/edit/{id}', [ClientTypeController::class, 'edit']);
 
-Route::get('/permissions', [PermissionController::class, 'permissions']);
-Route::get('/roles', [PermissionController::class, 'roles']);
-Route::post('/roles/create', [PermissionController::class, 'create']);
+    Route::get('/regions', [RegionController::class, 'regions']);
+    Route::get('/districts/{id}', [RegionController::class, 'districts']);
 
-Route::get('/users', [UserController::class, 'users']);
-Route::get('/users/status', [UserController::class, 'status']);
+    Route::get('/permissions', [PermissionController::class, 'permissions']);
+    Route::get('/roles', [PermissionController::class, 'roles']);
+    Route::post('/roles/create', [PermissionController::class, 'create']);
+
+    Route::get('/users', [UserController::class, 'users']);
+    Route::get('/users/status', [UserController::class, 'status']);
+});
+
+
+
+
+
+

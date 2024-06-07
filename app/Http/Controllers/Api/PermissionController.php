@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\RoleRequest;
 use App\Http\Resources\RoleResource;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Request;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -29,8 +30,13 @@ class PermissionController extends BaseController
         return $this->sendSuccess($groupedPermissions, 'All Permissions');
     }
 
-    public function roles(): JsonResponse
+    public function roles(Request $request): JsonResponse
     {
+        if ($request::input('id'))
+        {
+            $role = Role::findOrFail($request::input('id'));
+            return $this->sendSuccess(RoleResource::make($role), 'Role');
+        }
         return $this->sendSuccess(RoleResource::collection(Role::all()), 'All Roles');
     }
 

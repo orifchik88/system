@@ -23,4 +23,11 @@ class LoginController extends BaseController
             return $this->sendError('Unauthorised.', ['error' => 'Unauthorised'], 401);
         }
     }
+
+    public function logout()
+    {
+        $user = Auth::guard('api')->user();
+        $user->token()->revoke();
+        return $this->sendSuccess(null,'Logged out successfully.');
+    }
 }
