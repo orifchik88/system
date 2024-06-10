@@ -11,17 +11,16 @@ use Illuminate\Support\Facades\Request;
 
 class UserTypeController extends BaseController
 {
-    public function index(Request $request): JsonResponse
+    public function index(): JsonResponse
     {
         try {
-            $query = UserType::query();
-            if ($s = $request::input('s')) {
-                $query->whereRaw("type_name LIKE '%" . $s . "%'");
-            }
-            if ($sort = $request::input('sort')) {
-                $query->orderBy('id', $sort);
-            }
-            $query = $query->paginate($request::input('perPage', 10));
+            $query = UserType::query()
+                ->when(request('s'), function ($query) {
+                    $query->whereRaw("type_name LIKE '%" . \request('s') . "%'");
+                })
+                ->when(request('sort'), function ($query) {
+                    $query->orderById(request('sort'));
+            })->paginate(\request('perPage', 10));
 
             return $this->sendSuccess(UserTypeResource::collection($query), 'All users types', UserType::pagination($query));
         }catch (\Exception $exception){
