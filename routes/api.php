@@ -51,6 +51,8 @@ Route::group([
     Route::get('/users', [UserController::class, 'users']);
     Route::post('/users/create', [UserController::class, 'create']);
     Route::get('/users/status', [UserController::class, 'status']);
+
+    Route::get('/registers', [\App\Http\Controllers\Api\RegisterController::class, 'registers']);
 });
 
 
