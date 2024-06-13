@@ -20,9 +20,10 @@ class UserTypeController extends BaseController
                 })
                 ->when(request('sort'), function ($query) {
                     $query->orderById(request('sort'));
-            })->paginate(\request('perPage', 10));
+            })->get();
+//                ->paginate(\request('perPage', 10));
 
-            return $this->sendSuccess(UserTypeResource::collection($query), 'All users types', UserType::pagination($query));
+            return $this->sendSuccess(UserTypeResource::collection($query), 'All users types');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }

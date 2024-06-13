@@ -19,6 +19,8 @@ class DxaResponseResource extends JsonResource
         $region = Region::query()->where('soato', $this->region_id)->first();
         $district = District::query()->where('soato', $this->district_id)->first();
         return [
+            'id' =>$this->id,
+            'task_id' => $this->task_id,
             'organization_name' => $this->organization_name,
             'stir' => $this->application_stir_pinfl,
             'legal_opf' => $this->legal_opf,

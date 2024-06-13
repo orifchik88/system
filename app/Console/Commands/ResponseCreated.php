@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\DxaResponse;
 use App\Models\DxaResponseSupervisor;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -33,15 +34,14 @@ class ResponseCreated extends Command
     public function handle()
     {
 
-        DxaResponse::query()->truncate();
+//        DxaResponse::query()->truncate();
         $response = Http::withBasicAuth('qurilish.sohasida.nazorat.inspeksiya.201122919', 'Cx8]^]-Gk*mZK@.,S=c.g65>%[$TNRV75bYX<v+_')
             ->get('https://my.gov.uz/notice-beginning-construction-works-v4/rest-api/get-task?id=' . $this->argument('task_id'));
 
         $json = $response->json();
 
-
-
         $data = $json['entities']['NoticeBeginningConstructionWorks'];
+        $date = Carbon::now();
 //        DB::beginTransaction();
         try {
             $dxa = new DxaResponse();
@@ -84,10 +84,11 @@ class ResponseCreated extends Command
             $dxa->industrial_security_number = $data['industrial_security_number']['real_value'];
             $dxa->industrial_security_date = $data['industrial_security_date']['real_value'];
             $dxa->confirming_laboratory = $data['confirming_laboratory']['real_value'];
-            $dxa->specialists_certificates = $data['specialists_certificates']['real_value'];;
-            $dxa->contract_file = $data['contract_file']['real_value'];;
-            $dxa->organization_projects = $data['organization_projects']['real_value'];;
-            $dxa->file_energy_efficiency = $data['file_energy_efficiency']['real_value'];;
+            $dxa->specialists_certificates = $data['specialists_certificates']['real_value'];
+            $dxa->contract_file = $data['contract_file']['real_value'];
+            $dxa->organization_projects = $data['organization_projects']['real_value'];
+            $dxa->file_energy_efficiency = $data['file_energy_efficiency']['real_value'];
+            $dxa->deadline = $date->addDay();
             $dxa->save();
 
             foreach ($data['info_supervisory']['value'] as $key => $item) {

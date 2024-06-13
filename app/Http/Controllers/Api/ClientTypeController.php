@@ -21,9 +21,10 @@ class ClientTypeController extends BaseController
             if ($sort = $request::input('sort')) {
                 $query->orderBy('id', $sort);
             }
-            $query = $query->paginate($request::input('perPage', 10));
+//            $query = $query->paginate($request::input('perPage', 10));
+            $query->get();
 
-            return $this->sendSuccess(ClientTypeResource::collection($query), 'All Client Types', UserType::pagination($query));
+            return $this->sendSuccess(ClientTypeResource::collection($query), 'All Client Types');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage());
         }
