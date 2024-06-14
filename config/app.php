@@ -31,6 +31,11 @@ return [
 
     'env' => env('APP_ENV', 'production'),
 
+
+
+
+
+
     /*
     |--------------------------------------------------------------------------
     | Application Debug Mode
@@ -56,6 +61,12 @@ return [
     */
 
     'url' => env('APP_URL', 'http://localhost'),
+
+    'mygov' => [
+        'url' => env('MY_GOV_URL', 'https://my.gov.uz/notice-beginning-construction-works-v4/rest-api'),
+        'login' => env('MY_GOV_LOGIN', 'qurilish.sohasida.nazorat.inspeksiya.201122919'),
+        'password' => env('MY_GOV_PASS', 'Cx8]^]-Gk*mZK@.,S=c.g65>%[$TNRV75bYX<v+_'),
+    ],
 
     'asset_url' => env('ASSET_URL'),
 

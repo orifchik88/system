@@ -16,15 +16,30 @@ class DxaResponseResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $address = '';
         $region = Region::query()->where('soato', $this->region_id)->first();
         $district = District::query()->where('soato', $this->district_id)->first();
+        if ($this->user_type == 'Yuridik shaxs')
+        {
+            $address = $this->address;
+        }
+
+        if ($this->user_type == 'Jismoniy shaxs')
+        {
+            $address = $this->permit_address;
+        }
         return [
             'id' =>$this->id,
+            'user_type' => $this->user_type,
             'task_id' => $this->task_id,
+            'status' => $this->dxa_response_statuses_id,
+            'deadline' => $this->deadline,
             'organization_name' => $this->organization_name,
             'stir' => $this->application_stir_pinfl,
+            'pinfl' => $this->pinfl,
             'legal_opf' => $this->legal_opf,
-            'address' => $this->address,
+            'address' => $address,
+            'passport' => $this->passport,
             'phone' => $this->phone,
             'email' => $this->email,
             'object_name' => $this->object_name,
@@ -46,8 +61,8 @@ class DxaResponseResource extends JsonResource
             'object_state_program_date' => $this->object_state_program_date,
             'name_expertise' => $this->name_expertise,
             'positive_opinion_number' => $this->positive_opinion_number,
-            'contractor_licence_number' => $this->contractor_licence_number,
-            'contractor_licence_date' => $this->contractor_licence_date,
+            'contractor_license_number' => $this->contractor_license_number,
+            'contractor_license_date' => $this->contractor_license_date,
             'industrial_security_number' => $this->industrial_security_number,
             'industrial_security_date' => $this->industrial_security_date,
             'confirming_laboratory' => $this->confirming_laboratory,

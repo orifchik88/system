@@ -19,6 +19,7 @@ return new class extends Migration
             $table->boolean('is_accepted')->default(false);
             $table->foreignId('dxa_response_statuses_id')->nullable()->constrained();
             $table->integer('user_id')->nullable();
+            $table->string('user_type')->nullable();
             $table->string('email')->nullable();
             $table->string('organization_name')->nullable();
             $table->string('phone')->nullable();
@@ -35,6 +36,10 @@ return new class extends Migration
             $table->text('object_name')->nullable();
             $table->integer('region_id')->nullable();
             $table->integer('district_id')->nullable();
+            $table->string('pinfl')->nullable();
+            $table->string('full_name')->nullable();
+            $table->string('passport')->nullable();
+            $table->string('permit_address')->nullable()->comment('Jismoniy shaxs manzili');
             $table->integer('notification_type')->nullable();
             $table->string('cadastral_number')->nullable();
             $table->string('reestr_number')->nullable()->comment('reyestr raqami');

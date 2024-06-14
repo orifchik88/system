@@ -40,6 +40,7 @@ Route::group([
 
     Route::get('/registers', [RegisterController::class, 'registers']);
     Route::get('/register-status', [RegisterController::class, 'status']);
+    Route::get('/register-get-pdf', [RegisterController::class, 'getPDF']);
 });
 
 

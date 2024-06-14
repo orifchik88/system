@@ -6,6 +6,7 @@ use App\Http\Resources\DxaStatusResource;
 use App\Models\DxaResponse;
 use App\Models\DxaResponseStatus;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Http;
 
 class RegisterController extends BaseController
 {
@@ -31,5 +32,20 @@ class RegisterController extends BaseController
         }
         $statuses = DxaResponseStatus::query()->get();
         return $this->sendSuccess(DxaStatusResource::collection($statuses), 'All registers status  successfully.');
+    }
+
+    public function getPDF(): JsonResponse
+    {
+        try {
+            $response = Http::withBasicAuth(
+                config('app.mygov.login'),
+                config('app.mygov.password'),
+            )->get(config('app.mygov.url').'/get-pdf?id=' . request()->get('id'));
+
+            return $this->sendSuccess($response->json(), 'PDF file generated successfully.');
+
+        }catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
     }
 }
