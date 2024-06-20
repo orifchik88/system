@@ -37,6 +37,7 @@ class DxaResponseResource extends JsonResource
             'organization_name' => $this->organization_name,
             'stir' => $this->application_stir_pinfl,
             'pinfl' => $this->pinfl,
+            "full_name" => $this->full_name,
             'legal_opf' => $this->legal_opf,
             'address' => $address,
             'passport' => $this->passport,

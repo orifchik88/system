@@ -7,12 +7,15 @@ use App\Http\Resources\ClientTypeResource;
 use App\Models\ClientType;
 use App\Models\UserType;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
 
 class ClientTypeController extends BaseController
 {
     public function index(Request $request): JsonResponse
     {
+        Log::info("ClientTypeController@index");
         try {
             $query = ClientType::query();
             if ($s = $request::input('s')) {
