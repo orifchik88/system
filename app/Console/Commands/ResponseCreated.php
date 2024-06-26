@@ -107,6 +107,7 @@ class ResponseCreated extends Command
         $dxa->dxa_response_statuses_id = 3;
         $dxa->email = $email;
         $dxa->full_name = $data['full_name']['real_value'];
+        $dxa->name_expertise = $data['name_expertise']['real_value'];
         $dxa->pinfl = $data['ind_pinfl']['real_value'];
         $dxa->passport = $data['passport_number']['real_value'];
         $dxa->permit_address = $data['permit_address']['real_value'];

@@ -19,28 +19,32 @@ Route::group([
 ], function() {
     Route::get('profile', [ProfileController::class, 'profile']);
     Route::post('logout', [LoginController::class, 'logout']);
-    Route::get('/user-type', [UserTypeController::class, 'index']);
-    Route::post('/user-type/create', [UserTypeController::class, 'create']);
-    Route::post('/user-type/edit/{id}', [UserTypeController::class, 'edit']);
+    Route::post('refresh', [LoginController::class, 'refresh']);
+    Route::get('user-type', [UserTypeController::class, 'index']);
+    Route::post('user-type/create', [UserTypeController::class, 'create']);
+    Route::post('user-type/edit/{id}', [UserTypeController::class, 'edit']);
 
-    Route::get('/client-type', [ClientTypeController::class, 'index']);
-    Route::post('/client-type/create', [ClientTypeController::class, 'create']);
-    Route::post('/client-type/edit/{id}', [ClientTypeController::class, 'edit']);
+    Route::get('client-type', [ClientTypeController::class, 'index']);
+    Route::post('client-type/create', [ClientTypeController::class, 'create']);
+    Route::post('client-type/edit/{id}', [ClientTypeController::class, 'edit']);
 
-    Route::get('/regions', [RegionController::class, 'regions']);
-    Route::get('/districts/{id}', [RegionController::class, 'districts']);
+    Route::get('regions', [RegionController::class, 'regions']);
+    Route::get('districts/{id}', [RegionController::class, 'districts']);
 
-    Route::get('/permissions', [PermissionController::class, 'permissions']);
-    Route::get('/roles', [PermissionController::class, 'roles']);
-    Route::post('/roles/create', [PermissionController::class, 'create']);
+    Route::get('permissions', [PermissionController::class, 'permissions']);
+    Route::get('roles', [PermissionController::class, 'roles']);
+    Route::post('roles/create', [PermissionController::class, 'create']);
 
-    Route::get('/users', [UserController::class, 'users']);
-    Route::post('/users/create', [UserController::class, 'create']);
-    Route::get('/users/status', [UserController::class, 'status']);
+    Route::get('users', [UserController::class, 'users']);
+    Route::post('users/create', [UserController::class, 'create']);
+    Route::get('users/status', [UserController::class, 'status']);
 
-    Route::get('/registers', [RegisterController::class, 'registers']);
-    Route::get('/register-status', [RegisterController::class, 'status']);
-    Route::get('/register-get-pdf', [RegisterController::class, 'getPDF']);
+    Route::get('registers', [RegisterController::class, 'registers']);
+    Route::get('register-status', [RegisterController::class, 'status']);
+    Route::get('register-get-pdf', [RegisterController::class, 'getPDF']);
+
+    Route::post('/send-inspector', [RegisterController::class, 'sendInspector']);
+    Route::post('/send-register', [RegisterController::class, 'sendRegister']);
 });
 
 

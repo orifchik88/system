@@ -30,4 +30,15 @@ class LoginController extends BaseController
         $user->token()->revoke();
         return $this->sendSuccess(null,'Logged out successfully.');
     }
+
+    public function refresh()
+    {
+        $user = Auth::user();
+        \request()->user()->token()->revoke();
+
+        $success['token'] = $user->createToken('MyApp')->accessToken;
+        $success['name'] = $user->name;
+
+        return $this->sendSuccess($success, 'User refreshed successfully.');
+    }
 }

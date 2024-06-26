@@ -51,6 +51,7 @@ class DxaResponseResource extends JsonResource
             'location_building' => $this->location_building,
             'region' => $region->name_uz,
             'district' => $district->name_uz,
+            'inspector_sent_at' => $this->inspector_sent_at,
             'category_object_dictionary' => $this->category_object_dictionary,
             'construction_works' => $this->construction_works,
             'number_protocol' => $this->number_protocol,

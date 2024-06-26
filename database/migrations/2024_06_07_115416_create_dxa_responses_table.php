@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->json('task')->nullable();
             $table->text('inspector_commit')->nullable();
+            $table->integer('inspector_id')->nullable();
             $table->jsonb('inspector_images')->nullable();
             $table->boolean('is_accepted')->default(false);
             $table->foreignId('dxa_response_statuses_id')->nullable()->constrained();
@@ -37,6 +38,7 @@ return new class extends Migration
             $table->integer('region_id')->nullable();
             $table->integer('district_id')->nullable();
             $table->string('pinfl')->nullable();
+            $table->text('name_expertise')->nullable()->comment('Davlat ekspertiza organining nomi(Obyekt nomi)');
             $table->string('full_name')->nullable();
             $table->string('passport')->nullable();
             $table->string('permit_address')->nullable()->comment('Jismoniy shaxs manzili');
