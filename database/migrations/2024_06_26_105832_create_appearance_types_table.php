@@ -11,14 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('response_sectors', function (Blueprint $table) {
+        Schema::create('appearance_types', function (Blueprint $table) {
             $table->id();
-            $table->string('name_uz')->nullable();
-            $table->string('name_ru')->nullable();
+            $table->string('type');
             $table->string('description')->nullable();
-            $table->foreignId('response_type_id')->nullable()->constrained();
-            $table->integer('shq_id')->nullable();
-            $table->integer('min_id')->nullable();
             $table->timestamps();
         });
     }
@@ -28,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('response_sectors');
+        Schema::dropIfExists('appearance_types');
     }
 };

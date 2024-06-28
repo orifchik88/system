@@ -38,7 +38,6 @@ return new class extends Migration
             $table->integer('region_id')->nullable();
             $table->integer('district_id')->nullable();
             $table->string('pinfl')->nullable();
-            $table->text('name_expertise')->nullable()->comment('Davlat ekspertiza organining nomi(Obyekt nomi)');
             $table->string('full_name')->nullable();
             $table->string('passport')->nullable();
             $table->string('permit_address')->nullable()->comment('Jismoniy shaxs manzili');

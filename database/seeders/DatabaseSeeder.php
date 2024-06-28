@@ -15,12 +15,17 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-//            ResponseTypeSeeder::class
-        ResponseSectorSeeder::class,
-//            ResponseStatusSeeder::class,
-//            AdministrativeStatusSeeder::class,
-//            RolePermissionSeeder::class,
-//            UserStatusSeeder::class
+            AppearanceTypeSeeder::class,
+            FundingSourceSeeder::class,
+            ObjectStatusSeeder::class,
+            DifficultyCategorySeeder::class,
+            ConstructionTypesSeeder::class,
+            ObjectTypeSeeder::class,
+            ObjectSectorSeeder::class,
+            ResponseStatusSeeder::class,
+            AdministrativeStatusSeeder::class,
+            RolePermissionSeeder::class,
+            UserStatusSeeder::class
         ]);
 
         UserType::factory(10)->create();

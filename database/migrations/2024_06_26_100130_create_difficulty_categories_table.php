@@ -11,14 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('objects', function (Blueprint $table) {
+        Schema::create('difficulty_categories', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->foreignId('region_id')->constrained();
-            $table->foreignId('district_id')->constrained();
-            $table->foreignId('object_status_id')->constrained();
-            $table->string('address')->nullable();
-
+            $table->string('difficulty');
+            $table->string('description')->nullable();
             $table->timestamps();
         });
     }
@@ -28,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('objects');
+        Schema::dropIfExists('difficulty_categories');
     }
 };

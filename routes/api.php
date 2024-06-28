@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\ClientTypeController;
 use App\Http\Controllers\Api\LoginController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\RegisterController;
+use App\Http\Controllers\Api\ObjectController;
 
 
 Route::post('login', [LoginController::class, 'login']);
@@ -43,8 +44,12 @@ Route::group([
     Route::get('register-status', [RegisterController::class, 'status']);
     Route::get('register-get-pdf', [RegisterController::class, 'getPDF']);
 
-    Route::post('/send-inspector', [RegisterController::class, 'sendInspector']);
-    Route::post('/send-register', [RegisterController::class, 'sendRegister']);
+    Route::post('send-inspector', [RegisterController::class, 'sendInspector']);
+    Route::post('send-register', [RegisterController::class, 'sendRegister']);
+    Route::post('reject-register', [RegisterController::class, 'rejectRegister']);
+
+    Route::get('object-types', [ObjectController::class, 'objectTypes']);
+    Route::post('create', [ObjectController::class, 'create']);
 });
 
 

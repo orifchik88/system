@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('response_types', function (Blueprint $table) {
+        Schema::create('funding_sources', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable();
+            $table->string('name');
             $table->string('description')->nullable();
             $table->timestamps();
         });
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('response_types');
+        Schema::dropIfExists('funding_sources');
     }
 };

@@ -35,7 +35,15 @@ class DxaResponseService
         $response->save();
 
         $this->saveImages();
+        return $response;
+    }
 
+    public function sendReject(): DxaResponse
+    {
+        $response = $this->findResponse();
+        $response->dxa_response_statuses_id = DxaResponseStatusEnum::ARCHIVE;
+        $response->rejection_comment = $this->data['reject_comment'];
+        $response->save();
         return $response;
     }
 

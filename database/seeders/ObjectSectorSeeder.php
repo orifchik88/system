@@ -2,18 +2,17 @@
 
 namespace Database\Seeders;
 
-use App\Models\ResponseSector;
+use App\Models\ObjectSector;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class ResponseSectorSeeder extends Seeder
+class ObjectSectorSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-
         $data = [
             "Uy-joylar (PF-5886)",
             "Tashabbusli byudjet",
@@ -87,9 +86,9 @@ class ResponseSectorSeeder extends Seeder
             "Open byudjet 2024"
         ];
 
-        ResponseSector::query()->truncate();
+        ObjectSector::query()->truncate();
 
-        ResponseSector::create([
+        ObjectSector::create([
             'name_uz' =>"Tadbirkorlik (xususiy) obyektlari",
             'name_ru' =>"Tadbirkorlik (xususiy) obyektlari",
             'object_type_id' =>2,
@@ -97,10 +96,10 @@ class ResponseSectorSeeder extends Seeder
 
 
         foreach ($data as $datum) {
-            ResponseSector::create([
+            ObjectSector::create([
                 'name_uz' => $datum,
                 'name_ru' => $datum,
-                'response_type_id' => 1,
+                'object_type_id' => 1,
             ]);
         }
     }

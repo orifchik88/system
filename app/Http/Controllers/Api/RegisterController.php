@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 use App\Http\Requests\DxaResponseInspectorRequest;
 use App\Http\Requests\DxaResponseRegisterRequest;
+use App\Http\Requests\DxaResponseRejectRequest;
 use App\Http\Resources\DxaResponseResource;
 use App\Http\Resources\DxaStatusResource;
 use App\Models\DxaResponse;
@@ -91,6 +92,22 @@ class RegisterController extends BaseController
             }
 
             $response = $this->service->sendRegister();
+
+            return $this->sendSuccess(DxaResponseResource::make($response), 'Register successfully.');
+        }catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function rejectRegister(DxaResponseRejectRequest $request): JsonResponse
+    {
+        try {
+            $this->service->data = [
+                'task_id' => $request->post('task_id'),
+                'reject_comment' => $request->post('reject_comment'),
+            ];
+
+            $response = $this->service->sendReject();
 
             return $this->sendSuccess(DxaResponseResource::make($response), 'Register successfully.');
         }catch (\Exception $exception) {
