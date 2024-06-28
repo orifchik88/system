@@ -51,6 +51,7 @@ return new class extends Migration
             $table->string('role_in_object')->nullable();
             $table->string('previous_pinfl')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -28,8 +28,8 @@ return new class extends Migration
             $table->string('sertificate_number');
             $table->string('phone_number');
             $table->text('comment');
-
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

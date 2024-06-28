@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('shq_id')->nullable();
             $table->foreignId('funding_source_id')->nullable()->constrained();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

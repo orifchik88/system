@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('name_ru')->nullable();
             $table->foreignId('region_id')->constrained();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

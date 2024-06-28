@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('name_ru')->nullable();
             $table->text('requisite');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

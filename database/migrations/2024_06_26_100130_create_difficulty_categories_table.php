@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('difficulty');
             $table->string('description')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

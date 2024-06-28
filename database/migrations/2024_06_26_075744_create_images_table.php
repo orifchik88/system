@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('url')->nullable();
             $table->morphs('imageable');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

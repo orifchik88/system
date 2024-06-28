@@ -75,6 +75,7 @@ return new class extends Migration
             $table->dateTime('inspector_sent_at')->nullable();
             $table->dateTime('inspector_answered_at')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

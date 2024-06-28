@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('shq_id')->nullable();
             $table->integer('min_id')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

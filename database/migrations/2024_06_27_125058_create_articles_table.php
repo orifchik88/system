@@ -71,10 +71,8 @@ return new class extends Migration
             $table->integer('gnk_id')->nullable();
             $table->boolean('t_is_changed')->default(false);
             $table->string('reestr_number')->nullable();
-
-
-
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
