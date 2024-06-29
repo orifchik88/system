@@ -91,7 +91,7 @@ class ObjectSectorSeeder extends Seeder
         ObjectSector::create([
             'name_uz' =>"Tadbirkorlik (xususiy) obyektlari",
             'name_ru' =>"Tadbirkorlik (xususiy) obyektlari",
-            'object_type_id' =>2,
+            'funding_source_id' =>2,
         ]);
 
 
@@ -99,7 +99,7 @@ class ObjectSectorSeeder extends Seeder
             ObjectSector::create([
                 'name_uz' => $datum,
                 'name_ru' => $datum,
-                'object_type_id' => 1,
+                'funding_source_id' => 1,
             ]);
         }
     }

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name_uz')->nullable();
             $table->string('name_ru')->nullable();
             $table->string('description')->nullable();
-            $table->foreignId('object_type_id')->nullable()->constrained();
+            $table->foreignId('funding_source_id')->nullable()->constrained();
             $table->integer('shq_id')->nullable();
             $table->integer('min_id')->nullable();
             $table->timestamps();

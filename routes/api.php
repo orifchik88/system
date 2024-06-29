@@ -49,7 +49,9 @@ Route::group([
     Route::post('reject-register', [RegisterController::class, 'rejectRegister']);
 
     Route::get('object-types', [ObjectController::class, 'objectTypes']);
-    Route::post('create', [ObjectController::class, 'create']);
+    Route::get('funding-sources', [ObjectController::class, 'fundingSource']);
+    Route::get('object-sectors/{id}', [ObjectController::class, 'objectSectors']);
+    Route::post('object-create', [ObjectController::class, 'create']);
 });
 
 
