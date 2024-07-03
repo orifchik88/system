@@ -68,6 +68,8 @@ return [
         'password' => env('MY_GOV_PASS', 'Cx8]^]-Gk*mZK@.,S=c.g65>%[$TNRV75bYX<v+_'),
     ],
 
+    'rate_supervision' => 0.2,
+
     'asset_url' => env('ASSET_URL'),
 
     /*

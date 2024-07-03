@@ -19,11 +19,10 @@ class UserTypeController extends BaseController
                     $query->whereRaw("type_name LIKE '%" . \request('s') . "%'");
                 })
                 ->when(request('sort'), function ($query) {
-                    $query->orderById(request('sort'));
-            })->get();
-//                ->paginate(\request('perPage', 10));
+                    $query->orderBy('id', request('sort'));
+            })->paginate(\request('perPage', 10));
 
-            return $this->sendSuccess(UserTypeResource::collection($query), 'All users types');
+            return $this->sendSuccess(UserTypeResource::collection($query), 'All users types', UserType::pagination($query));
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }

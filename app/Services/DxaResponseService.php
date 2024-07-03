@@ -47,9 +47,9 @@ class DxaResponseService
         return $response;
     }
 
-    private function findResponse(): DxaResponse
+    private function findResponse(): ?DxaResponse
     {
-        return $this->dxaResponse->where('task_id', $this->data['task_id'])->first();
+        return $this->dxaResponse->where('task_id', $this->data['task_id'])->first() ?? null;
     }
 
     private function saveImages(): void

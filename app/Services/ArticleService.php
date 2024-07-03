@@ -3,21 +3,27 @@
 namespace App\Services;
 
 use App\DTO\ObjectDto;
+use App\Enums\DifficultyCategoryEnum;
+use App\Enums\ObjectStatusEnum;
 use App\Exceptions\NotFoundException;
 use App\Models\Article;
+use App\Models\DxaResponse;
 use App\Models\FundingSource;
 use App\Models\ObjectSector;
 use App\Models\ObjectType;
+use Carbon\Carbon;
 
 class ArticleService
 {
     protected ObjectDto $objectDto;
-    public function __construct(
-        protected Article $article,
-        protected ObjectType $objectType,
-        protected FundingSource $fundingSource,
-        protected ObjectSector $objectSector,
-    ){}
+
+    public function __construct(protected Article $article,
+                                protected ObjectType $objectType,
+                                protected FundingSource $fundingSource,
+                                protected ObjectSector $objectSector,
+                                protected DxaResponse $dxaResponse)
+    {
+    }
 
     public function setObjectDto(ObjectDto $objectDto): void
     {
@@ -42,6 +48,74 @@ class ArticleService
     public function getAllFundingSources(): object
     {
         return $this->fundingSource->all();
+    }
+
+    public function createObject()
+    {
+
+        $response = $this->dxaResponse->find($this->objectDto->responseId);
+        $article = new Article();
+        $article->name = $response->object_name;
+        $article->region_id = $response->region_id;
+        $article->district_id = $response->district_id;
+        $article->object_status_id = ObjectStatusEnum::NEW;
+        $article->address = $response->location_building;
+        $article->cadastral_number = $response->cadastral_number;
+        $article->name_expertise = $response->name_expertise;
+        $article->difficulty_category_id = DifficultyCategoryEnum::fromString($response->construction_works)->value;
+        $article->construction_cost = $response->cost;
+//        $article->object_images = $response->district_id;
+//        $article->object_type_id = $response->district_id;
+//        $article->property_type = $response->property_type;
+        $article->architectural_number_date_protocol = null;
+        $article->parallel_designobjc = null;
+        $article->objects_stateprog = null;
+        $article->name_date_posopin = null;
+        $article->name_date_licontr = null;
+//        $article->is_accepted = $response->property_type;
+        $article->organization_projects = $response->organization_projects;
+        $article->specialists_certificates = $response->specialists_certificates;
+        $article->contract_file = $response->contract_file;
+        $article->confirming_laboratory = $response->confirming_laboratory;
+        $article->file_energy_efficiency = $response->file_energy_efficiency;
+        $article->legal_opf = $response->legal_opf;
+        $article->lat = $response->lat;
+        $article->long = $response->long;
+//        $article->authority_id = $response->property_type;
+//        $article->lat_long_status = $response->property_type;
+        $article->dxa_response_id = $response->id;
+//        $article->company_id = $response->property_type;
+//        $article->applicant_id = $response->property_type;
+        $article->price_supervision_service = price_supervision($response->cost);
+        $article->task_id = $response->task_id;
+//        $article->costumer_id = $response->property_type;
+        $article->number_protocol = $response->number_protocol;
+        $article->positive_opinion_number = $response->positive_opinion_number;
+//        $article->positive_opinion_date = $response->property_type;
+        $article->date_protocol = $response->date_protocol;
+//        $article->object_specific_id ; // tarmoqli yoki bino
+        $article->funding_source_id = $this->objectDto->fundingSourceId;
+//        $article->re_formalized_object = $response->property_type;
+        $article->paid = 0; // tolangan summa
+        $article->payment_deadline = Carbon::now(); // tolov qilish sanasi
+//        $article->closed_at = $response->property_type;
+        $article->object_sector_id = $this->objectDto->objectSectorId;
+//        $article->object_category_id = $response->property_type;
+        $article->deadline = null;
+        $article->update_by = null;
+        $article->block_status_counter = null;
+        $article->costumer_cer_num = null;
+        $article->planned_object_id = null;
+        $article->min_ekonom_id = null;
+        $article->gnk_id = null;
+//        $article->t_is_changed = ;
+        $article->reestr_number = $response->reestr_number;
+        $article->save();
+        return $article;
+
+//        $fundingSource = $this->fundingSource->find($this->objectDto->fundingSourceId);
+//        $objectType = $this->objectSector->find($this->objectDto->objectSectorId);
+
     }
 
 

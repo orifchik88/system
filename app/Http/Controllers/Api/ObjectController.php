@@ -8,10 +8,12 @@ use App\Http\Resources\FundingSourceResource;
 use App\Http\Resources\ObjectSectorResource;
 use App\Http\Resources\ObjectTypeResource;
 use App\Services\ArticleService;
+use Illuminate\Http\FileHelpers;
 use Illuminate\Http\JsonResponse;
 
 class ObjectController extends BaseController
 {
+
 
     public function __construct(
         protected ArticleService $service,
@@ -45,14 +47,18 @@ class ObjectController extends BaseController
 
     public function create(ObjectRequest $request): JsonResponse
     {
-        $dto = new ObjectDto();
-        $dto->setObjectSectorId($request->object_sector_id)
-              ->setResponseId($request->response_id)
-              ->setFundingSourceId($request->funding_source_id);
+        try {
+            $dto = new ObjectDto();
+            $dto->setObjectSectorId($request->object_sector_id)
+                ->setResponseId($request->response_id)
+                ->setFundingSourceId($request->funding_source_id);
 
-        $this->service->setObjectDto($dto);
+            $this->service->setObjectDto($dto);
 
-
-
+            $object = $this->service->createObject();
+            return $this->sendSuccess([], 'Object created');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
     }
 }

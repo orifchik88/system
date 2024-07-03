@@ -7,6 +7,11 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserResource extends JsonResource
 {
+    public function __construct($resource, public ?array $permissions = null)
+    {
+        parent::__construct($resource);
+    }
+
     /**
      * Transform the resource into an array.
      *
@@ -24,7 +29,7 @@ class UserResource extends JsonResource
             'phone'=> $this->phone,
             'nps'=> $this->nps,
             'login' => $this->login,
-            'permissions' => PermissionResource::collection($this->getAllPermissions()),
+            'permits' => $this->permissions,
         ];
     }
 }

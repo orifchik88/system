@@ -15,6 +15,7 @@ class ObjectSectorResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'name_uz' => $this->name_uz,
             'name_ru' => $this->name_ru,
         ];

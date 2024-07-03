@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Exceptions\GeneralJsonException;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ObjectRequest extends FormRequest
@@ -22,9 +24,16 @@ class ObjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'response_id' => 'required|integer',
-            'funding_source_id' => 'required|integer',
-            'object_sector_id' => 'required|integer',
+            'response_id' => 'required|integer|exists:dxa_responses,id',
+            'funding_source_id' => 'required|integer|exists:funding_sources,id',
+            'object_sector_id' => 'required|integer|exists:object_sectors,id',
         ];
     }
+
+    public function failedValidation(Validator $validator)
+    {
+        throw new GeneralJsonException($validator->errors(), 422);
+    }
+
+
 }

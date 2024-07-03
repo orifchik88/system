@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Models\District;
 use App\Models\DxaResponse;
 use App\Models\DxaResponseSupervisor;
+use App\Models\Region;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -100,6 +102,9 @@ class ResponseCreated extends Command
             $phone = $data['phone']['real_value'];
         }
 
+        $region = Region::where('soato', $data['region_id']['real_value'])->first();
+
+        $district = District::where('soato', $data['district_id']['real_value'])->first();
         $dxa = new DxaResponse();
         $dxa->task_id = $taskId;
         $dxa->task = $responseBody;
@@ -118,8 +123,8 @@ class ResponseCreated extends Command
         $dxa->object_name = $data['name_building']['real_value'];
         $dxa->deadline = $date->addDay();
         $dxa->administrative_statuses_id = 1;
-        $dxa->region_id = $data['region_id']['real_value'];
-        $dxa->district_id = $data['district_id']['real_value'];
+        $dxa->region_id = $region->id;
+        $dxa->district_id = $district->id;
         $dxa->cadastral_number = $data['cadastral_number']['real_value'];
         $dxa->reestr_number = $data['reestr_number']['real_value'];
         $dxa->tip_object = $data['tip_object']['value'];
