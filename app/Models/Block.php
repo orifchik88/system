@@ -4,15 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Article extends Model
+class Block extends Model
 {
     use HasFactory, SoftDeletes;
 
-    public function blocks(): HasMany
+    protected $guarded = [];
+
+    public function object(): BelongsTo
     {
-        return $this->hasMany(Block::class);
+        return $this->belongsTo(Article::class, 'article_id');
     }
 }

@@ -13,6 +13,8 @@ class RolePermissionSeeder extends Seeder
     public function run(): void
     {
         $roleAdmin = Role::create(['name' => 'admin']);
+        $roleRegister = Role::create(['name' => 'register']);
+        $roleInspector = Role::create(['name' => 'inspector']);
         $permissions = [
             [
                 'group_name' => 'dashboard',
@@ -79,6 +81,12 @@ class RolePermissionSeeder extends Seeder
                 $permission = Permission::create(['name' => $permissions[$i]['permissions'][$j], 'group_name'=>$permissionGroup]);
                 $roleAdmin->givePermissionTo($permission);
                 $permission->assignRole($roleAdmin);
+
+                $roleRegister->givePermissionTo($permission);
+                $permission->assignRole($roleRegister);
+
+                $roleInspector->givePermissionTo($permission);
+                $permission->assignRole($roleInspector);
             }
         }
     }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\UserResource;
+use App\Http\Resources\UserResourceCollection;
 use App\Http\Resources\UserStatusResource;
 use App\Models\User;
 use App\Models\UserStatus;
@@ -16,7 +17,15 @@ class UserController extends BaseController
 {
     public function users(Request $request): JsonResponse
     {
-        return $this->sendSuccess(UserResource::collection(User::all()), 'All Users');
+        $query = User::query()
+            ->when(request('s'), function ($query) {
+//                $query->whereRaw("type_name LIKE '%" . \request('s') . "%'");
+            })
+            ->when(request('sort'), function ($query) {
+//                $query->orderBy('id', request('sort'));
+            })->paginate(\request('perPage', 10));
+
+        return $this->sendSuccess(new UserResourceCollection($query, []), 'All Users', pagination($query));
     }
 
     public function create(UserRequest $request): JsonResponse

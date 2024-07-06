@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\User;
 use Illuminate\Console\Command;
+use Spatie\Permission\Models\Role;
 
 class CreateSuperAdmin extends Command
 {
@@ -27,13 +28,5 @@ class CreateSuperAdmin extends Command
     public function handle()
     {
 
-        $user = new User();
-        $user->name = 'Super Admin';
-        $user->login = 'superadmin';
-        $user->password = 'shahzod';
-        $user->pinfl = '1234567894551';
-        $user->user_status_id = 6;
-        $user->save();
-        $user->assignRole('admin');
     }
 }

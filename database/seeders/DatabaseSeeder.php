@@ -15,6 +15,9 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            RolePermissionSeeder::class,
+            UserStatusSeeder::class,
+            UserSeeder::class,
             AppearanceTypeSeeder::class,
             FundingSourceSeeder::class,
             ObjectStatusSeeder::class,
@@ -24,8 +27,7 @@ class DatabaseSeeder extends Seeder
             ObjectSectorSeeder::class,
             ResponseStatusSeeder::class,
             AdministrativeStatusSeeder::class,
-            RolePermissionSeeder::class,
-            UserStatusSeeder::class
+            QuestionSeeder::class
         ]);
 
         UserType::factory(10)->create();

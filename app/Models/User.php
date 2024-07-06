@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -22,12 +23,14 @@ class User extends Authenticatable
 
     protected $guard_name = 'web';
 
+    protected $guarded = [];
 
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+
+//    protected $fillable = [
+//        'name',
+//        'email',
+//        'password',
+//    ];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -48,6 +51,11 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function questions(): HasMany
+    {
+        return $this->hasMany(Question::class, 'author_id', 'id');
+    }
 
 }
 

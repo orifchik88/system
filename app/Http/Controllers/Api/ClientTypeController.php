@@ -15,20 +15,27 @@ class ClientTypeController extends BaseController
 {
     public function index(Request $request): JsonResponse
     {
-        Log::info("ClientTypeController@index");
         try {
-            $query = ClientType::query();
-            if ($s = $request::input('s')) {
-                $query->whereRaw("type_name LIKE '%" . $s . "%'");
-            }
-            if ($sort = $request::input('sort')) {
-                $query->orderBy('id', $sort);
-            }
-//            $query = $query->paginate($request::input('perPage', 10));
-            $query = $query->get();
+//            $query = ClientType::query()
+//                ->when(request('s'), function ($query) {
+//                    $query->whereRaw("name LIKE '%" . \request('s') . "%'");
+//                })
+//                ->when(request('sort'), function ($query) {
+//                    $query->orderBy('id', request('sort'));
+//                })->paginate(\request('perPage', 10));
 
-            return $this->sendSuccess(ClientTypeResource::collection($query), 'All Client Types');
-        }catch (\Exception $exception){
+//            $query = ClientType::query()->select(['id', 'user_type_id', 'name'])->search(request('s'))
+//                ->when(request('sort'), function ($query) {
+//                    $query->orderBy('id', request('sort'));
+//                })->paginate(\request('perPage', 10));
+
+            $query = ClientType::search(request('s'))
+                ->when(request('sort'), function ($query) {
+                    $query->orderBy('id', request('sort'));
+                })->paginate(\request('perPage', 10));
+
+            return $this->sendSuccess(ClientTypeResource::collection($query), 'All Client Types', pagination($query));
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage());
         }
     }
@@ -40,7 +47,7 @@ class ClientTypeController extends BaseController
             $clientType->fill($request->validated());
             $clientType->save();
             return $this->sendSuccess(ClientTypeResource::make($clientType), 'Client type created');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }

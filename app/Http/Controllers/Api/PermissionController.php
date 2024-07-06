@@ -37,7 +37,8 @@ class PermissionController extends BaseController
             $role = Role::findOrFail($request::input('id'));
             return $this->sendSuccess(RoleResource::make($role), 'Role');
         }
-        return $this->sendSuccess(RoleResource::collection(Role::all()), 'All Roles');
+        $roles = Role::query()->paginate(request::input('page_size', 10));
+        return $this->sendSuccess(RoleResource::collection($roles), 'All Roles', pagination($roles));
     }
 
     public function create(RoleRequest $request): JsonResponse

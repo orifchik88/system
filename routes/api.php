@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\BlockController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\RegionController;
 use App\Http\Controllers\Api\UserController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Api\LoginController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\RegisterController;
 use App\Http\Controllers\Api\ObjectController;
+use App\Http\Controllers\Api\QuestionController;
 
 
 Route::post('login', [LoginController::class, 'login']);
@@ -52,6 +54,11 @@ Route::group([
     Route::get('funding-sources', [ObjectController::class, 'fundingSource']);
     Route::get('object-sectors/{id}', [ObjectController::class, 'objectSectors']);
     Route::post('object-create', [ObjectController::class, 'create']);
+
+    Route::get('blocks/{id}', [BlockController::class, 'index']);
+    Route::post('block-create', [BlockController::class, 'create']);
+
+    Route::get('question-users', [QuestionController::class, 'questionUsers']);
 });
 
 

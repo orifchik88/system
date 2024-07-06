@@ -7,7 +7,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserResource extends JsonResource
 {
-    public function __construct($resource, public ?array $permissions = null)
+    public function __construct($resource, public  $permissions = null)
     {
         parent::__construct($resource);
     }
