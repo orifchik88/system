@@ -47,7 +47,7 @@ return new class extends Migration
             $table->integer('dxa_response_id')->index();
             $table->integer('company_id')->nullable()->comment('bosh');
             $table->integer('applicant_id')->nullable()->comment('bosh');
-            $table->float('price_supervision_service')->nullable()->comment('0.2 foiz');
+            $table->string('price_supervision_service')->nullable()->comment('0.2 foiz');
             $table->integer('task_id')->nullable()->index();
             $table->foreignId('costumer_id')->nullable()->constrained();
             $table->integer('number_protocol')->nullable();

@@ -24,15 +24,20 @@ class LoginController extends BaseController
         }
     }
 
-    public function logout()
+    public function logout(): JsonResponse
     {
         $user = Auth::guard('api')->user();
         $user->token()->revoke();
         return $this->sendSuccess(null,'Logged out successfully.');
     }
 
-    public function refresh()
+    public function refresh(): JsonResponse
     {
+//        if (!Auth::guard('api')->user())
+//        {
+//            return $this->sendError('Unauthorised.', ['error' => 'Unauthorised'], 498);
+//        }
+
         $user = Auth::user();
         \request()->user()->token()->revoke();
 

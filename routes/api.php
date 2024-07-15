@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\BlockController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\RegionController;
+use App\Http\Controllers\Api\RegulationController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\UserTypeController;
 use App\Http\Controllers\Api\PermissionController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\Api\QuestionController;
 
 
 Route::post('login', [LoginController::class, 'login']);
+
 
 
 Route::group([
@@ -50,6 +52,7 @@ Route::group([
     Route::post('send-register', [RegisterController::class, 'sendRegister']);
     Route::post('reject-register', [RegisterController::class, 'rejectRegister']);
 
+    Route::get('objects', [ObjectController::class, 'index']);
     Route::get('object-types', [ObjectController::class, 'objectTypes']);
     Route::get('funding-sources', [ObjectController::class, 'fundingSource']);
     Route::get('object-sectors/{id}', [ObjectController::class, 'objectSectors']);
@@ -59,6 +62,12 @@ Route::group([
     Route::post('block-create', [BlockController::class, 'create']);
 
     Route::get('question-users', [QuestionController::class, 'questionUsers']);
+    Route::post('send-question', [QuestionController::class, 'sendQuestion']);
+    Route::get('levels', [QuestionController::class, 'levels']);
+
+    Route::get('monitoring', [RegulationController::class, 'monitoring']);
+
+
 });
 
 

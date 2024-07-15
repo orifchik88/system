@@ -18,6 +18,7 @@ return new class extends Migration
             $table->boolean('status')->default(false);
             $table->foreignId('object_type_id')->constrained();
             $table->foreignId('author_id')->constrained('roles');
+            $table->foreignId('level_id')->constrained();
             $table->softDeletes();
             $table->timestamps();
         });

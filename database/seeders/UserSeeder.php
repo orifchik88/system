@@ -14,8 +14,18 @@ class UserSeeder extends Seeder
     {
         $users = [
             [
+                'name' => 'Inspector',
+                'login' => 'inspector',
+                'phone' => '+998917894512',
+                'pinfl' => '1234567894551',
+                'password' => 'inspector',
+                'user_status_id' => 6,
+                'role' => 'inspector'
+            ],
+            [
                 'name' => 'Super Admin',
                 'login' => 'superadmin',
+                'phone' => '+998337071727',
                 'pinfl' => '1234567894551',
                 'password' => 'admin',
                 'user_status_id' => 6,
@@ -24,19 +34,13 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Register',
                 'login' => 'register',
+                'phone' => '+998941234567',
                 'pinfl' => '1234567894551',
                 'password' => 'register',
                 'user_status_id' => 6,
                 'role' => 'register'
             ],
-            [
-                'name' => 'Inspector',
-                'login' => 'inspector',
-                'pinfl' => '1234567894551',
-                'password' => 'inspector',
-                'user_status_id' => 6,
-                'role' => 'inspector'
-            ]
+
         ];
 
         foreach ($users as $userData) {

@@ -164,7 +164,7 @@ class ResponseCreated extends Command
         foreach ($supervisors as $key => $item) {
             $dxaResSupervisor = new DxaResponseSupervisor();
             $dxaResSupervisor->dxa_response_id = $dxaId;
-            $dxaResSupervisor->type = $key;
+            $dxaResSupervisor->type = $item['role']['real_value'];
             $dxaResSupervisor->role = $item['role']['value'];
             $dxaResSupervisor->organization_name = $item['name_org']['value'];
             $dxaResSupervisor->identification_number = (int)$item['tin_org']['real_value'];

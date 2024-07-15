@@ -12,9 +12,42 @@ class RolePermissionSeeder extends Seeder
      */
     public function run(): void
     {
+//        $generals =  [
+//            'group_name' => 'general',
+//            'permissions' =>[
+//                'is_inspector',
+//                'is_register',
+//                'is_author',
+//                'is_technical',
+//                'is_designer',
+//            ]
+//        ];
+
         $roleAdmin = Role::create(['name' => 'admin']);
         $roleRegister = Role::create(['name' => 'register']);
         $roleInspector = Role::create(['name' => 'inspector']);
+        $roleAuthor = Role::create(['name' => 'author']);
+        $roleTechnic = Role::create(['name' => 'technic']);
+        $roleDesigner = Role::create(['name' => 'designer']);
+
+        $register = Permission::create(['name' => 'is_register', 'group_name'=>'general']);
+        $inspector = Permission::create(['name' => 'is_inspector', 'group_name'=>'general']);
+        $author = Permission::create(['name' => 'is_author', 'group_name'=>'general']);
+        $technical = Permission::create(['name' => 'is_technical', 'group_name'=>'general']);
+        $designer = Permission::create(['name' => 'is_designer', 'group_name'=>'general']);
+
+        $roleRegister->givePermissionTo($register);
+        $roleInspector->givePermissionTo($inspector);
+        $roleAuthor->givePermissionTo($author);
+        $roleTechnic->givePermissionTo($technical);
+        $roleDesigner->givePermissionTo($designer);
+
+        $register->assignRole($roleRegister);
+        $inspector->assignRole($roleInspector);
+        $author->assignRole($roleAuthor);
+        $technical->assignRole($roleTechnic);
+        $designer->assignRole($roleDesigner);
+
         $permissions = [
             [
                 'group_name' => 'dashboard',

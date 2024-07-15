@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -52,10 +53,23 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function questions(): HasMany
+    public function objects(): BelongsToMany
     {
-        return $this->hasMany(Question::class, 'author_id', 'id');
+        return $this->belongsToMany(Article::class, 'article_users', 'user_id', 'article_id');
     }
+
+    public function inspectorObjects(): HasMany
+    {
+        return $this->hasMany(Article::class, 'author_id', 'id');
+    }
+
+
+
+
+//    public function questions(): HasMany
+//    {
+//        return $this->hasMany(Question::class, 'author_id', 'id');
+//    }
 
 }
 

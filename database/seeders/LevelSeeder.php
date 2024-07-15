@@ -2,18 +2,17 @@
 
 namespace Database\Seeders;
 
-use App\Models\Question;
+use App\Models\Level;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class QuestionSeeder extends Seeder
+class LevelSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        Question::query()->truncate();
-        Question::factory()->count(300)->create();
+        Level::factory()->count(10)->create();
     }
 }

@@ -11,13 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('checklists', function (Blueprint $table) {
+        Schema::create('act_statuses', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('object_id')->constrained('articles');
-            $table->integer('user_id')->index();
-            $table->foreignId('question_id')->constrained('questions');
-            $table->boolean('answer')->default(true);
-            $table->text('description')->nullable();
+            $table->string('status');
+            $table->string('description')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
@@ -28,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('checklists');
+        Schema::dropIfExists('act_statuses');
     }
 };
