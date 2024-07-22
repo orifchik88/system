@@ -61,4 +61,14 @@ class QuestionController extends BaseController
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
+
+    public function sendAnswer(): JsonResponse
+    {
+        try {
+            $this->questionService->createActViolation(\request('violations'));
+            return $this->sendSuccess([], 'Successfully send answer');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
 }

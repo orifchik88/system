@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('object_id')->constrained('articles');
             $table->integer('number')->nullable();
-            $table->string('regulation_ids')->nullable()->comment('bu notogri yozilgan regulationda monitoring id bolishi kerak');
             $table->foreignId('regulation_type_id')->constrained();
             $table->integer('created_by')->index();
             $table->string('dalolatnoma_pdf')->nullable();

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 
+use App\Http\Requests\UserEditRequest;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\UserResourceCollection;

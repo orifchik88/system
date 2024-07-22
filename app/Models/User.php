@@ -63,6 +63,11 @@ class User extends Authenticatable
         return $this->hasMany(Article::class, 'author_id', 'id');
     }
 
+    public function regulations(): HasMany
+    {
+        return $this->hasMany(Regulation::class, 'user_id', 'id');
+    }
+
 
 
 

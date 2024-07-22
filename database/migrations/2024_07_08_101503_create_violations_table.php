@@ -17,10 +17,7 @@ return new class extends Migration
             $table->text('title');
             $table->text('description');
             $table->string('doc')->nullable();
-            $table->string('blocks')->nullable()->comment('Keyinchalik relation qilish kerak');
-            $table->string('images')->nullable()->comment('bu ham relation boladi');
             $table->integer('status_id')->nullable()->comment('Bu status id ishlayilmaydi shekilli yana bir tekwirib korish kerak');
-            $table->string('users')->nullable()->comment('bu yerda violation users table ochish kerak');
             $table->foreignId('question_id')->nullable()->constrained();
             $table->boolean('check_list_status')->default(false);
             $table->timestamps();

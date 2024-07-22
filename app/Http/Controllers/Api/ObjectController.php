@@ -75,7 +75,7 @@ class ObjectController extends BaseController
             $this->service->setObjectDto($dto);
 
             $object = $this->service->createObject();
-            return $this->sendSuccess([], 'Object created');
+            return $this->sendSuccess($object, 'Object created');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }

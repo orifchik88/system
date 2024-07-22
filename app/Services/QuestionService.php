@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\DTO\QuestionDto;
 use App\Exceptions\NotFoundException;
+use App\Models\ActViolation;
 use App\Models\Article;
 use App\Models\Monitoring;
 use App\Models\Question;
@@ -53,11 +54,21 @@ class QuestionService
                 $question = Question::find($data['id']);
                 $violation = Violation::create([
                     'question_id' => $question->id,
-                    'images' => $data['images'],
                     'title' => $question->question,
                     'description' => $question->answer,
                     'level_id' => $dto->levelId,
                 ]);
+
+                if (isset($data['images'])) {
+                    foreach ($data['images'] as $image) {
+                        $imagePath = $image->store('violations', 'public');
+                        $violation->imageFiles()->create([
+                            'url' => $imagePath,
+                        ]);
+                    }
+                }
+
+                $violation->blockViolations()->attach($data['blocks']);
                 $violations[] = [
                     'violation_id' => $violation->id,
                     'roles' => $data['roles']
@@ -108,62 +119,41 @@ class QuestionService
 
     }
 
-
-    public function setChecklist($dto): void
+    public function createActViolation($data)
     {
-        DB::beginTransaction();
-        try {
-            $monitoring = new Monitoring();
-            $monitoring->object_id = $dto->objectId;
-            $monitoring->number = 123;
-            $monitoring->regulation_type_id = 1;
-            $monitoring->created_by = $this->user->id;
-            $monitoring->save();
 
-            $roleQuestions = [];
-            $data = array_filter($dto->meta, function($question) {
-                return !$question['status'];
-            });
+        foreach ($data as $key => $item) {
+            $act = ActViolation::create([
+                'violation_id' => $item['violation_id'],
+                'user_id' => Auth::id(),
+                'question_id' => $item['question_id'],
+                'comment' => $item['comment'],
+                'act_violation_type_id' => 1,
+            ]);
 
-            $object = Article::find($dto->objectId);
-
-            foreach ($data as $item) {
-                foreach ($item['roles'] as $roleId) {
-                    if (!isset($roleQuestions[$roleId])) {
-                        $roleQuestions[$roleId] = [];
-                    }
-                    $roleQuestions[$roleId][] = [
-                        'question_id' => $item['id'],
-                        'images' => $item['images'],
-                        'blocks' => $item['blocks'] ?? []
-                    ];
+            if (isset($item['files'])) {
+                foreach ($item['files'] as $file) {
+                    $filePath = $file->store('act_violation', 'public');
+                    $act->documents()->create([
+                        'url' => $filePath,
+                    ]);
+                }
+            }
+            if (isset($item['images'])) {
+                foreach ($item['images'] as $image) {
+                    $imagePath = $image->store('violations_images', 'public');
+                    $act->imagesFiles()->create([
+                        'url' => $imagePath,
+                    ]);
                 }
             }
 
-            foreach ($roleQuestions as $key =>$roleQuestion) {
-                $regulation = new Regulation();
-                $regulation->object_id = $dto->objectId;
-                $regulation->regulation_number = 123;
-                $regulation->deadline = Carbon::now();
-                $regulation->regulation_status_id = 1;
-                $regulation->regulation_type_id = 1;
-                $regulation->monitoring_id = $monitoring->id;
-                $regulation->act_status_id = 1;
-                $regulation->level_id = $dto->levelId;
-                $regulation->user_id  = $object->users()->wherePivot('role_id', $key)->pluck('users.id')->first();
-                $regulation->role_id = $key;
-                $regulation->regulation_number_id = 1;
-                $regulation->created_by_role_id = $object->roles()->where('user_id', \auth()->id())->first()->id;
-                $regulation->created_by_user_id = $object->users()->where('user_id', \auth()->id())->first()->id;
-                $regulation->save();
-            }
 
-
-            DB::commit();
-
-        }catch (\Exception $exception){
-            DB::rollBack();
-            dd($exception->getMessage(), $exception->getLine());
         }
+    }
+
+    private function saveImages()
+    {
+
     }
 }

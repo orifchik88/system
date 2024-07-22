@@ -24,7 +24,6 @@ return new class extends Migration
             $table->foreignId('difficulty_category_id')->nullable()->constrained();
             $table->string('construction_cost')->nullable();
             $table->string('object_images')->nullable()->comment('relation table ochib ketadi');
-            $table->string('blocks')->nullable()->comment('relation table ochib ketadi');
             $table->string('additional_categories')->nullable()->comment('Bilmadm keyin korib chiqish kerak');
             $table->foreignId('object_type_id')->nullable()->constrained();
             $table->integer('property_type')->nullable()->comment('manimcha kerak emas');

@@ -23,6 +23,7 @@ Route::group([
     'middleware' => 'auth:api'
 ], function() {
     Route::get('profile', [ProfileController::class, 'profile']);
+    Route::post('profile/edit', [ProfileController::class, 'edit']);
     Route::post('logout', [LoginController::class, 'logout']);
     Route::post('refresh', [LoginController::class, 'refresh']);
     Route::get('user-type', [UserTypeController::class, 'index']);
@@ -43,7 +44,7 @@ Route::group([
     Route::get('users', [UserController::class, 'users']);
     Route::post('users/create', [UserController::class, 'create']);
     Route::get('users/status', [UserController::class, 'status']);
-
+    Route::get('users/edit/{id}', [UserController::class, 'edit']);
     Route::get('registers', [RegisterController::class, 'registers']);
     Route::get('register-status', [RegisterController::class, 'status']);
     Route::get('register-get-pdf', [RegisterController::class, 'getPDF']);
@@ -63,9 +64,14 @@ Route::group([
 
     Route::get('question-users', [QuestionController::class, 'questionUsers']);
     Route::post('send-question', [QuestionController::class, 'sendQuestion']);
+    Route::post('send-answer', [QuestionController::class, 'sendAnswer']);
     Route::get('levels', [QuestionController::class, 'levels']);
 
     Route::get('monitoring', [RegulationController::class, 'monitoring']);
+    Route::get('regulations', [RegulationController::class, 'regulations']);
+    Route::get('violation', [RegulationController::class, 'violation']);
+
+    Route::get('test', [RegulationController::class, 'test']);
 
 
 });

@@ -60,7 +60,7 @@ class ArticleService
         return $this->fundingSource->all();
     }
 
-    public function createObject(): void
+    public function createObject()
     {
 
         DB::beginTransaction();
@@ -218,8 +218,9 @@ class ArticleService
             }
 
             $article->users()->attach($response->inspector_id, ['role_id' => $inspector->id]);
-
             DB::commit();
+            return $article;
+
         }catch (Exception $exception) {
             DB::rollBack();
             throw new NotFoundException($exception->getMessage(), $exception->getCode());
