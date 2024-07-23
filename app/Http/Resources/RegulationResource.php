@@ -38,7 +38,8 @@ class RegulationResource extends JsonResource
                 'role' => UserRoleEnum::getValueByKey($this->responsibleRole->name) ?? null,
                 'phone' => $responsibleUser->phone ?? null,
                 'fish' => $responsibleUser ? "{$responsibleUser->surname} {$responsibleUser->name} {$responsibleUser->middle_name}" : null,
-            ]
+            ],
+            'demands' => RegulationDemandResource::collection($this->demands),
         ];
     }
 }

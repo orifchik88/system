@@ -70,6 +70,7 @@ Route::group([
     Route::get('monitoring', [RegulationController::class, 'monitoring']);
     Route::get('regulations', [RegulationController::class, 'regulations']);
     Route::get('violation', [RegulationController::class, 'violation']);
+    Route::post('ask-date', [RegulationController::class, 'askDate']);
 
     Route::get('test', [RegulationController::class, 'test']);
 

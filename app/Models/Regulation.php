@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Permission\Models\Role;
 
 class Regulation extends Model
@@ -29,6 +30,16 @@ class Regulation extends Model
     public function actStatus(): BelongsTo
     {
         return $this->belongsTo(ActStatus::class);
+    }
+
+    public function object(): BelongsTo
+    {
+        return  $this->belongsTo(Article::class, 'object_id');
+    }
+
+    public function demands() : HasMany
+    {
+        return $this->hasMany(RegulationDemand::class);
     }
 
 
