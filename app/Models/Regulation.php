@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Spatie\Permission\Models\Role;
 
 class Regulation extends Model
@@ -30,6 +31,12 @@ class Regulation extends Model
     public function actStatus(): BelongsTo
     {
         return $this->belongsTo(ActStatus::class);
+    }
+
+
+    public function actViolations(): HasManyThrough
+    {
+        return $this->hasManyThrough(ActViolation::class, RegulationViolation::class, 'regulation_id', 'violation_id', 'id', 'violation_id');
     }
 
     public function object(): BelongsTo

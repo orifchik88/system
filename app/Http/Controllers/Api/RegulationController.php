@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RegulationAcceptRequest;
 use App\Http\Requests\RegulationDemandRequest;
 use App\Http\Resources\MonitoringResource;
 use App\Http\Resources\RegulationResource;
@@ -12,6 +13,7 @@ use App\Models\Regulation;
 use App\Models\RegulationDemand;
 use App\Models\Violation;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Queue\Jobs\SqsJob;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
@@ -83,7 +85,6 @@ class RegulationController extends BaseController
 
             $regulation->update([
                 'deadline_asked' => true,
-                'regulation_status_id' => 2,
                 'act_status_id' => 7
             ]);
 
@@ -98,6 +99,65 @@ class RegulationController extends BaseController
 
         }
     }
+
+    public function acceptDate(RegulationAcceptRequest $request): JsonResponse
+    {
+        try {
+            DB::beginTransaction();
+            $regulation = Regulation::query()->findOrFaiL($request->post('regulation_id'));
+
+            RegulationDemand::query()->create([
+                'user_id' => Auth::id(),
+                'regulation_id' => $regulation->id,
+                'act_violation_type_id' => 3,
+                'act_status_id' => 8,
+                'deadline' => $request->post('deadline'),
+                'comment' => $request->post('comment')
+            ]);
+
+            $regulation->update([
+                'act_status_id' => 8,
+                'deadline' => $request->post('deadline')
+            ]);
+
+            DB::commit();
+            return $this->sendSuccess('Data saved successfully', 201);
+
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return  $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function rejectDate(RegulationDemandRequest $request): JsonResponse
+    {
+        try {
+            DB::beginTransaction();
+            $regulation = Regulation::query()->findOrFaiL($request->post('regulation_id'));
+
+            RegulationDemand::query()->create([
+                'user_id' => Auth::id(),
+                'regulation_id' => $regulation->id,
+                'act_violation_type_id' => 3,
+                'act_status_id' => 9,
+                'comment' => $request->post('comment')
+            ]);
+
+            $regulation->update([
+                'act_status_id' => 9,
+                'deadline' => $request->post('deadline')
+            ]);
+
+            DB::commit();
+            return $this->sendSuccess('Data saved successfully', 201);
+
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return  $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+
 
     public function test()
     {

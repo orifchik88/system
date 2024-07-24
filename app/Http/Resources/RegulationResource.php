@@ -28,7 +28,9 @@ class RegulationResource extends JsonResource
             'regulation_type' => RegulationTypeResource::make($this->regulationType),
             'act_status' => ActStatusResource::make($this->actStatus),
             'violations' => ViolationResource::collection($this->violations),
+            'act_violations' => ActViolationResource::collection($this->actViolations),
             'created_at' => $this->created_at,
+            'deadline_asked' => $this->deadline_asked,
             'from_user' => [
                 'role' => UserRoleEnum::getValueByKey($this->createdByRole->name) ?? null,
                 'phone' => $fromUser->phone ?? null,

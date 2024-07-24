@@ -17,7 +17,8 @@ class RegulationDemandResource extends JsonResource
         return [
             'id' => $this->id,
             'comment' => $this->comment,
-            'status' => RegulationStatusResource::make($this->actStatus)
+            'created_at' => $this->created_at,
+            'status' => RegulationStatusResource::make($this->actStatus),
         ];
     }
 }

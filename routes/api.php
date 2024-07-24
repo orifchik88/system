@@ -71,6 +71,8 @@ Route::group([
     Route::get('regulations', [RegulationController::class, 'regulations']);
     Route::get('violation', [RegulationController::class, 'violation']);
     Route::post('ask-date', [RegulationController::class, 'askDate']);
+    Route::post('accept-date', [RegulationController::class, 'acceptDate']);
+    Route::post('reject-date', [RegulationController::class, 'rejectDate']);
 
     Route::get('test', [RegulationController::class, 'test']);
 

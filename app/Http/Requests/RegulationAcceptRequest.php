@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use App\Models\Regulation;
 use Illuminate\Foundation\Http\FormRequest;
 
-class RegulationDemandRequest extends FormRequest
+class RegulationAcceptRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,8 +23,9 @@ class RegulationDemandRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'deadline' => 'required|string|date_format:d.m.Y',
+            'regulation_id' => 'required|integer|exists:regulations,id',
             'comment' => 'required|string',
-            'regulation_id' => 'required|exists:regulations,id',
         ];
     }
 
