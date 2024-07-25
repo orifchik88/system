@@ -22,7 +22,7 @@ class ViolationResource extends JsonResource
             'question_id' => $this->question_id,
             'level' => LevelResource::make($this->level),
             'check_list_status' => true,
-            'blocks' => $this->blockViolations ? BlockResource::collection($this->blockViolations) : null,
+            'blocks' => $this->blockViolations ? BlockResource::collection($this->blockViolations) : [],
             'images' => ImageResource::collection($this->imageFiles)
         ];
     }

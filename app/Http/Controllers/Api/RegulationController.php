@@ -70,6 +70,7 @@ class RegulationController extends BaseController
         try {
             DB::beginTransaction();
             $regulation = Regulation::query()->findOrFaiL($request->post('regulation_id'));
+            dd($regulation->actViolations);
 
             RegulationDemand::query()->create([
                 'user_id' => Auth::id(),

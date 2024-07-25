@@ -28,6 +28,7 @@ class RegulationResource extends JsonResource
             'regulation_type' => RegulationTypeResource::make($this->regulationType),
             'act_status' => ActStatusResource::make($this->actStatus),
             'violations' => ViolationResource::collection($this->violations),
+            'demands' => RegulationDemandResource::collection($this->demands),
             'act_violations' => ActViolationResource::collection($this->actViolations),
             'created_at' => $this->created_at,
             'deadline_asked' => $this->deadline_asked,
@@ -41,7 +42,6 @@ class RegulationResource extends JsonResource
                 'phone' => $responsibleUser->phone ?? null,
                 'fish' => $responsibleUser ? "{$responsibleUser->surname} {$responsibleUser->name} {$responsibleUser->middle_name}" : null,
             ],
-            'demands' => RegulationDemandResource::collection($this->demands),
         ];
     }
 }

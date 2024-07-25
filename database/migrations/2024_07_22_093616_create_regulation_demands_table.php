@@ -17,6 +17,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained();
             $table->foreignId('act_status_id')->constrained();
             $table->foreignId('act_violation_type_id')->constrained();
+//            $table->foreignId('act_violation_id')->constrained();
+            $table->string('deadline')->nullable();
             $table->text('comment');
             $table->string('deadline')->nullable();
             $table->timestamps();
