@@ -38,8 +38,6 @@ class ResponseCreated extends Command
      */
     public function handle()
     {
-        echo "salom";
-        die;
 //        DxaResponse::query()->truncate();
 //        die();
         $taskId = $this->argument('task_id');
