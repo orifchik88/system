@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class RegulationDemand extends Model
 {
@@ -15,5 +16,15 @@ class RegulationDemand extends Model
     public function actStatus(): BelongsTo
     {
         return $this->belongsTo(ActStatus::class);
+    }
+
+    public function imagesFiles(): MorphMany
+    {
+        return $this->morphMany(Image::class, 'imageable');
+    }
+
+    public function documents(): MorphMany
+    {
+        return $this->morphMany(Document::class, 'documentable');
     }
 }

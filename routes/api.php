@@ -70,9 +70,14 @@ Route::group([
     Route::get('monitoring', [RegulationController::class, 'monitoring']);
     Route::get('regulations', [RegulationController::class, 'regulations']);
     Route::get('violation', [RegulationController::class, 'violation']);
-    Route::post('ask-date', [RegulationController::class, 'askDate']);
+    Route::post('accept-answer', [RegulationController::class, 'acceptAnswer']);
+    Route::post('accept-deed', [RegulationController::class, 'acceptDeed']);
     Route::post('accept-date', [RegulationController::class, 'acceptDate']);
+    Route::post('send-deed', [RegulationController::class, 'sendDeed']);
+    Route::post('ask-date', [RegulationController::class, 'askDate']);
     Route::post('reject-date', [RegulationController::class, 'rejectDate']);
+    Route::post('reject-deed', [RegulationController::class, 'rejectDeed']);
+    Route::post('reject-answer', [RegulationController::class, 'rejectAnswer']);
 
     Route::get('test', [RegulationController::class, 'test']);
 

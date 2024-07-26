@@ -9,6 +9,7 @@ use App\Models\Article;
 use App\Models\Monitoring;
 use App\Models\Question;
 use App\Models\Regulation;
+use App\Models\RegulationDemand;
 use App\Models\RegulationViolation;
 use App\Models\Violation;
 use Carbon\Carbon;
@@ -121,6 +122,12 @@ class QuestionService
 
     public function createActViolation($data)
     {
+        DB::beginTransaction();
+        try {
+
+        }catch (Excetion $exception) {
+
+        }
 
         foreach ($data as $key => $item) {
             $act = ActViolation::create([
@@ -131,10 +138,23 @@ class QuestionService
                 'act_violation_type_id' => 1,
             ]);
 
+            $demands = RegulationDemand::create([
+                'regulation_id' => $data->regulation_id,
+                'user_id' => Auth::id(),
+                'act_status_id' => 1,
+                'act_violation_type_id' => 1,
+                'comment' => $item['comment'],
+                'act_violation_id' => $act->id
+            ]);
+
             if (isset($item['files'])) {
                 foreach ($item['files'] as $file) {
                     $filePath = $file->store('act_violation', 'public');
                     $act->documents()->create([
+                        'url' => $filePath,
+                    ]);
+
+                    $demands->documents()->create([
                         'url' => $filePath,
                     ]);
                 }
@@ -143,6 +163,9 @@ class QuestionService
                 foreach ($item['images'] as $image) {
                     $imagePath = $image->store('violations_images', 'public');
                     $act->imagesFiles()->create([
+                        'url' => $imagePath,
+                    ]);
+                    $demands->imagesFiles()->create([
                         'url' => $imagePath,
                     ]);
                 }

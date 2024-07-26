@@ -158,6 +158,26 @@ class RegulationController extends BaseController
         }
     }
 
+    public function acceptAnswer()
+    {
+        
+    }
+
+    public function acceptDeed()
+    {
+        
+    }
+
+    public function rejectDeed()
+    {
+        
+    }
+
+    public function rejectAnswer()
+    {
+        
+    }
+
 
 
     public function test()

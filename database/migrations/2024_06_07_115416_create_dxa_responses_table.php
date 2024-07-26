@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('dxa_responses', function (Blueprint $table) {
             $table->id();
-            $table->json('task')->nullable();
+            $table->jsonb('task')->nullable();
             $table->text('inspector_commit')->nullable();
             $table->integer('inspector_id')->nullable();
             $table->jsonb('inspector_images')->nullable();
