@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\DTO\QuestionDto;
+use App\DTO\RegulationDto;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegulationAcceptRequest;
 use App\Http\Requests\RegulationDemandRequest;
@@ -12,6 +14,7 @@ use App\Models\Monitoring;
 use App\Models\Regulation;
 use App\Models\RegulationDemand;
 use App\Models\Violation;
+use App\Services\RegulationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Queue\Jobs\SqsJob;
 use Illuminate\Support\Facades\Auth;
@@ -20,6 +23,9 @@ use Spatie\Permission\Models\Role;
 
 class RegulationController extends BaseController
 {
+
+    public function __construct(protected RegulationService $regulationService){}
+
     public function monitoring(): JsonResponse
     {
         $monitorings = Monitoring::query()->where('object_id', \request('object_id'))->paginate(request('per_page', 10));
@@ -70,7 +76,6 @@ class RegulationController extends BaseController
         try {
             DB::beginTransaction();
             $regulation = Regulation::query()->findOrFaiL($request->post('regulation_id'));
-            dd($regulation->actViolations);
 
             RegulationDemand::query()->create([
                 'user_id' => Auth::id(),
@@ -80,9 +85,6 @@ class RegulationController extends BaseController
                 'comment' => $request->comment
             ]);
 
-//            $regulation->object->update([
-//                'object_status_id' => 2
-//            ]);
 
             $regulation->update([
                 'deadline_asked' => true,
@@ -90,13 +92,12 @@ class RegulationController extends BaseController
             ]);
 
 
-
             DB::commit();
             return $this->sendSuccess('Data saved successfully', 201);
 
         } catch (\Exception $exception) {
             DB::rollBack();
-           return  $this->sendError($exception->getMessage(), $exception->getCode());
+            return $this->sendError($exception->getMessage(), $exception->getCode());
 
         }
     }
@@ -126,7 +127,7 @@ class RegulationController extends BaseController
 
         } catch (\Exception $exception) {
             DB::rollBack();
-            return  $this->sendError($exception->getMessage(), $exception->getCode());
+            return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
 
@@ -154,30 +155,41 @@ class RegulationController extends BaseController
 
         } catch (\Exception $exception) {
             DB::rollBack();
-            return  $this->sendError($exception->getMessage(), $exception->getCode());
+            return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
 
     public function acceptAnswer()
     {
-        
+
     }
 
     public function acceptDeed()
     {
-        
+
     }
 
     public function rejectDeed()
     {
-        
+
     }
 
     public function rejectAnswer()
     {
-        
-    }
+        try {
+            $dto = new RegulationDto();
 
+            $dto->setRegulationId(request('regulation_id'))
+                ->setComment(request('comment'));
+
+            $this->regulationService->rejectToAnswer($dto);
+
+            return $this->sendSuccess('Data saved successfully', 201);
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+
+    }
 
 
     public function test()

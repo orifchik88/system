@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Models\District;
 use App\Models\Region;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -28,11 +29,15 @@ class DxaResponseResource extends JsonResource
         {
             $address = $this->permit_address;
         }
+
+        $inspector = User::query()->where('id', $this->inspector_id)->first();
+
+
         return [
             'id' =>$this->id,
             'user_type' => $this->user_type,
             'task_id' => $this->task_id,
-            'status' => $this->dxa_response_statuses_id,
+            'status' => DxaResponseStatusResource::make($this->status),
             'deadline' => $this->deadline,
             'organization_name' => $this->organization_name,
             'stir' => $this->application_stir_pinfl,
@@ -72,6 +77,10 @@ class DxaResponseResource extends JsonResource
             'contract_file' => $this->contract_file,
             'organization_projects' => $this->organization_projects,
             'file_energy_efficiency' => $this->file_energy_efficiency,
+            'inspector' => [
+                'id' => $inspector ? $inspector->id : null,
+                'name' =>  $inspector ? "{$inspector->surname} {$inspector->name} {$inspector->middle_name}" : null,
+            ],
             'created_at' => $this->created_at,
             'supervisors' => DxaResponseSupervisorResource::collection($this->supervisors)
         ];

@@ -124,7 +124,13 @@ class QuestionService
     {
         DB::beginTransaction();
         try {
-            foreach ($dto->meta as $key => $item) {
+            $regulation = Regulation::find($dto->regulationId);
+            $regulation->update([
+                'regulation_status_id' => 2,
+                'act_status_id' => 1,
+            ]);
+
+            foreach ($dto->meta as $item) {
                 $act = ActViolation::create([
                     'violation_id' => $item['violation_id'],
                     'user_id' => Auth::id(),

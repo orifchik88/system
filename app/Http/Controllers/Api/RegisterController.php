@@ -21,7 +21,6 @@ class RegisterController extends BaseController
 
     public function registers(): JsonResponse
     {
-
         if (request()->get('id'))
         {
             $register = DxaResponse::findOrFail(request()->get('id'));
