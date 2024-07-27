@@ -17,13 +17,15 @@ class QuestionController extends BaseController
 
     public function __construct(
         public QuestionService $questionService,
-    ){}
+    )
+    {
+    }
 
     public function questionUsers(): JsonResponse
     {
         try {
             return $this->sendSuccess(QuestionResource::collection($this->questionService->getQuestions()), 'Questions by user');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -40,7 +42,7 @@ class QuestionController extends BaseController
             $this->questionService->createViolation($dto);
 
             return $this->sendSuccess([], 'Successfully send question');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -48,7 +50,7 @@ class QuestionController extends BaseController
     public function levels(): JsonResponse
     {
         try {
-            if (\request('id')){
+            if (\request('id')) {
                 $level = Level::findOrFail(request('id'));
                 return $this->sendSuccess(LevelResource::make($level), 'Level by id');
             }
@@ -57,7 +59,7 @@ class QuestionController extends BaseController
                     $query->orderBy('id', request('sort'));
                 })->get();
             return $this->sendSuccess(LevelResource::collection($levels), 'All Levels');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -65,9 +67,13 @@ class QuestionController extends BaseController
     public function sendAnswer(): JsonResponse
     {
         try {
-            $this->questionService->createActViolation(\request('violations'));
+            $dto = new QuestionDTO();
+            $dto->setRegulationId(request('regulation_id'))
+                ->setMeta(request('violations'));
+
+            $this->questionService->createActViolation($dto);
             return $this->sendSuccess([], 'Successfully send answer');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }

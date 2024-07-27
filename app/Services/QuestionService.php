@@ -120,58 +120,57 @@ class QuestionService
 
     }
 
-    public function createActViolation($data)
+    public function createActViolation($dto)
     {
         DB::beginTransaction();
         try {
+            foreach ($dto->meta as $key => $item) {
+                $act = ActViolation::create([
+                    'violation_id' => $item['violation_id'],
+                    'user_id' => Auth::id(),
+                    'question_id' => $item['question_id'],
+                    'comment' => $item['comment'],
+                    'act_violation_type_id' => 1,
+                ]);
 
-        }catch (Excetion $exception) {
+                $demands = RegulationDemand::create([
+                    'regulation_id' => $dto->regulationId,
+                    'user_id' => Auth::id(),
+                    'act_status_id' => 1,
+                    'act_violation_type_id' => 1,
+                    'comment' => $item['comment'],
+                    'act_violation_id' => $act->id
+                ]);
 
-        }
+                if (isset($item['files'])) {
+                    foreach ($item['files'] as $file) {
+                        $filePath = $file->store('act_violation', 'public');
+                        $act->documents()->create([
+                            'url' => $filePath,
+                        ]);
 
-        foreach ($data as $key => $item) {
-            $act = ActViolation::create([
-                'violation_id' => $item['violation_id'],
-                'user_id' => Auth::id(),
-                'question_id' => $item['question_id'],
-                'comment' => $item['comment'],
-                'act_violation_type_id' => 1,
-            ]);
-
-            $demands = RegulationDemand::create([
-                'regulation_id' => $data->regulation_id,
-                'user_id' => Auth::id(),
-                'act_status_id' => 1,
-                'act_violation_type_id' => 1,
-                'comment' => $item['comment'],
-                'act_violation_id' => $act->id
-            ]);
-
-            if (isset($item['files'])) {
-                foreach ($item['files'] as $file) {
-                    $filePath = $file->store('act_violation', 'public');
-                    $act->documents()->create([
-                        'url' => $filePath,
-                    ]);
-
-                    $demands->documents()->create([
-                        'url' => $filePath,
-                    ]);
+                        $demands->documents()->create([
+                            'url' => $filePath,
+                        ]);
+                    }
                 }
-            }
-            if (isset($item['images'])) {
-                foreach ($item['images'] as $image) {
-                    $imagePath = $image->store('violations_images', 'public');
-                    $act->imagesFiles()->create([
-                        'url' => $imagePath,
-                    ]);
-                    $demands->imagesFiles()->create([
-                        'url' => $imagePath,
-                    ]);
+                if (isset($item['images'])) {
+                    foreach ($item['images'] as $image) {
+                        $imagePath = $image->store('violations_images', 'public');
+                        $act->imagesFiles()->create([
+                            'url' => $imagePath,
+                        ]);
+                        $demands->imagesFiles()->create([
+                            'url' => $imagePath,
+                        ]);
+                    }
                 }
             }
 
-
+            DB::commit();
+        }catch (\Exception $exception) {
+            DB::rollBack();
+            dd($exception->getMessage());
         }
     }
 

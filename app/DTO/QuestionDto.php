@@ -10,6 +10,8 @@ class QuestionDto
     public ?array $meta = [];
     public ?int $levelId;
 
+    public ?int $regulationId;
+
     public function setObject(int $objectId): self
     {
         $this->objectId = $objectId;
@@ -26,6 +28,12 @@ class QuestionDto
     public function setLevel(int $levelId): self
     {
         $this->levelId = $levelId;
+        return $this;
+    }
+
+    public function setRegulationId(int $regulationId): self
+    {
+        $this->regulationId = $regulationId;
         return $this;
     }
 }

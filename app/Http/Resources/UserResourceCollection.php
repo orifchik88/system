@@ -19,10 +19,8 @@ class UserResourceCollection extends ResourceCollection
     public function toArray($request)
     {
 
-        return [
-            'data' => $this->collection->map(function ($user) use($request) {
+        return $this->collection->map(function ($user) use($request) {
                 return (new UserResource($user, $this->permissions))->toArray($request);
-            }),
-        ];
+            });
     }
 }

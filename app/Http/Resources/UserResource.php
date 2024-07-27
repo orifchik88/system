@@ -30,7 +30,7 @@ class UserResource extends JsonResource
             'phone'=> $this->phone,
             'nps'=> $this->nps,
             'login' => $this->login,
-            'image' => Storage::disk('public')->url($this->image),
+            'image' => $this->image ? Storage::disk('public')->url($this->image) : null,
             'permits' => $this->permissions,
         ];
     }
