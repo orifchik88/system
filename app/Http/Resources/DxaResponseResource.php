@@ -82,6 +82,7 @@ class DxaResponseResource extends JsonResource
                 'id' => $inspector ? $inspector->id : null,
                 'name' =>  $inspector ? "{$inspector->surname} {$inspector->name} {$inspector->middle_name}" : null,
             ],
+            'images' => ImageResource::collection($this->images),
             'inspector_comment' => $this->inspector_commit ?? null,
             'created_at' => $this->created_at,
             'supervisors' => DxaResponseSupervisorResource::collection($this->supervisors)

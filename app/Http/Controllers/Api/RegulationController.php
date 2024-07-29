@@ -202,6 +202,11 @@ class RegulationController extends BaseController
 
     }
 
+    public function sendDeed()
+    {
+
+    }
+
 
     public function test()
     {
