@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\DTO\ObjectDto;
 use App\Enums\DifficultyCategoryEnum;
+use App\Enums\DxaResponseStatusEnum;
 use App\Enums\ObjectStatusEnum;
 use App\Exceptions\NotFoundException;
 use App\Models\Article;
@@ -84,7 +85,7 @@ class ArticleService
             $article->objects_stateprog = null;
             $article->name_date_posopin = null;
             $article->name_date_licontr = null;
-//        $article->is_accepted = $response->property_type;
+            $article->is_accepted = true;
             $article->organization_projects = $response->organization_projects;
             $article->specialists_certificates = $response->specialists_certificates;
             $article->contract_file = $response->contract_file;
@@ -218,6 +219,12 @@ class ArticleService
             }
 
             $article->users()->attach($response->inspector_id, ['role_id' => $inspector->id]);
+
+            $response->update([
+                'is_accepted' => true,
+                'dxa_response_statuses_id' => DxaResponseStatusEnum::ARCHIVE
+            ]);
+
             DB::commit();
             return $article;
 

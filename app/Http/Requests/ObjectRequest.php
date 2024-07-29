@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use App\Exceptions\GeneralJsonException;
+use App\Models\Article;
+use App\Models\DxaResponse;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -29,6 +31,20 @@ class ObjectRequest extends FormRequest
             'object_sector_id' => 'required|integer|exists:object_sectors,id',
         ];
     }
+
+    public function withValidator(Validator $validator)
+    {
+        $validator->after(function ($validator) {
+            $responseId = $this->input('response_id');
+            $response = DxaResponse::find($responseId);
+
+            if ($response && Article::where('task_id', $response->task_id)->exists()) {
+                $validator->errors()->add('response_id', 'The selected response_id has a task_id that exists in the articles table.');
+            }
+        });
+    }
+
+
 
     public function failedValidation(Validator $validator)
     {
