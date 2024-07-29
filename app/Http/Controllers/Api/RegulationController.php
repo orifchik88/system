@@ -161,7 +161,18 @@ class RegulationController extends BaseController
 
     public function acceptAnswer()
     {
+        try {
+            $dto = new RegulationDto();
 
+            $dto->setRegulationId(request('regulation_id'))
+                ->setComment(request('comment'));
+
+            $this->regulationService->acceptAnswer($dto);
+
+            return $this->sendSuccess('Data saved successfully', 201);
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
     }
 
     public function acceptDeed()

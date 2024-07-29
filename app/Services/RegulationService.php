@@ -50,9 +50,9 @@ class RegulationService
                 RegulationDemand::create([
                     'regulation_id' => $dto->regulationId,
                     'user_id' => Auth::id(),
-                    'act_status_id' => 3,
+                    'act_status_id' => 2,
                     'act_violation_type_id' => 1,
-                    'comment' => $dto->comment,
+                    'comment' => 'Chora tadbir ma\'qullandi',
                     'act_violation_id' => $violation->id
                 ]);
             }

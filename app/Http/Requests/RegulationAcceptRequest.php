@@ -29,13 +29,13 @@ class RegulationAcceptRequest extends FormRequest
         ];
     }
 
-    public function withValidator($validator)
-    {
-        $validator->after(function ($validator) {
-            $regulation = Regulation::find($this->regulation_id);
-            if ($regulation && $regulation->deadline_asked) {
-                $validator->errors()->add('regulation_id', 'Deadline has already been asked for this regulation.');
-            }
-        });
-    }
+//    public function withValidator($validator)
+//    {
+//        $validator->after(function ($validator) {
+//            $regulation = Regulation::find($this->regulation_id);
+//            if ($regulation && $regulation->deadline_asked) {
+//                $validator->errors()->add('regulation_id', 'Deadline has already been asked for this regulation.');
+//            }
+//        });
+//    }
 }
