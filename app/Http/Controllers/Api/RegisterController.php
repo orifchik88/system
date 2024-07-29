@@ -83,7 +83,7 @@ class RegisterController extends BaseController
         try {
             $this->service->data = [
                 'task_id' => $request->post('task_id'),
-                'object_status_id' => $request->post('object_status_id'),
+                'administrative_status_id' => $request->post('administrative_status_id'),
                 'long' => $request->post('long'),
                 'lat' => $request->post('lat'),
                 'commit' => $request->post('commit'),

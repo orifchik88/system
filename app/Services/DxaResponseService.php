@@ -28,6 +28,7 @@ class DxaResponseService
     {
         $response = $this->findResponse();
         $response->dxa_response_statuses_id = DxaResponseStatusEnum::CHECKED;
+        $response->administraive_statuses_id = $this->data['administrative_status_id'];
         $response->inspector_answered_at = Carbon::now();
         $response->long = $this->data['long'];
         $response->lat = $this->data['lat'];
