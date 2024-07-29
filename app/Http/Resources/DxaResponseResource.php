@@ -45,6 +45,7 @@ class DxaResponseResource extends JsonResource
             "full_name" => $this->full_name,
             'legal_opf' => $this->legal_opf,
             'address' => $address,
+            'administrative_status' => AdministrativeStatusResource::make($this->administrativeStatus),
             'passport' => $this->passport,
             'phone' => $this->phone,
             'email' => $this->email,
