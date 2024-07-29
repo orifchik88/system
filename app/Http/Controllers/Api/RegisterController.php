@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+use App\Enums\DxaResponseStatusEnum;
 use App\Http\Requests\DxaResponseInspectorRequest;
 use App\Http\Requests\DxaResponseRegisterRequest;
 use App\Http\Requests\DxaResponseRejectRequest;
@@ -26,9 +27,11 @@ class RegisterController extends BaseController
             $register = DxaResponse::findOrFail(request()->get('id'));
             return $this->sendSuccess(DxaResponseResource::make($register), 'Register successfully.');
         }
-        $registers = DxaResponse::query()->get();
+        $registers = DxaResponse::query()->when(request()->get('status_id'), function ($query) {
+            return $query->where('dxa_response_statuses_id', request()->get('status_id'));
+        })->where('dxa_response_statuses_id', '!=', DxaResponseStatusEnum::ARCHIVE)->paginate(request()->get('per_page', 10));
 
-        return $this->sendSuccess(DxaResponseResource::collection($registers), 'All registers  successfully.');
+        return $this->sendSuccess(DxaResponseResource::collection($registers), 'All registers  successfully.', pagination($registers));
     }
 
     public function status(): JsonResponse
