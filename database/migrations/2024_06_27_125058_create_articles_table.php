@@ -49,7 +49,7 @@ return new class extends Migration
             $table->string('price_supervision_service')->nullable()->comment('0.2 foiz');
             $table->integer('task_id')->nullable()->index();
             $table->foreignId('costumer_id')->nullable()->constrained();
-            $table->integer('number_protocol')->nullable();
+            $table->string('number_protocol')->nullable();
             $table->string('positive_opinion_number')->nullable();
             $table->string('positive_opinion_date')->nullable();
             $table->string('date_protocol')->nullable();
