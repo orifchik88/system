@@ -27,9 +27,16 @@ class RegisterController extends BaseController
             $register = DxaResponse::findOrFail(request()->get('id'));
             return $this->sendSuccess(DxaResponseResource::make($register), 'Register successfully.');
         }
-        $registers = DxaResponse::query()->when(request()->get('status_id'), function ($query) {
-            return $query->where('dxa_response_statuses_id', request()->get('status_id'));
-        })->where('dxa_response_statuses_id', '!=', DxaResponseStatusEnum::ARCHIVE)->paginate(request()->get('per_page', 10));
+        if (request('status_id'))
+        {
+            $registers = DxaResponse::query()
+                ->where('dxa_response_statuses_id', DxaResponseStatusEnum::ARCHIVE)
+                ->paginate(request()->get('per_page', 10));
+        }else{
+            $registers = DxaResponse::query()
+                ->where('dxa_response_statuses_id', '!=', DxaResponseStatusEnum::ARCHIVE)
+                ->paginate(request()->get('per_page', 10));
+        }
 
         return $this->sendSuccess(DxaResponseResource::collection($registers), 'All registers  successfully.', pagination($registers));
     }
