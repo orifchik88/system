@@ -16,7 +16,7 @@ class ObjectStatusResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'status' => $this->name,
+            'name' => $this->name,
         ];
     }
 }

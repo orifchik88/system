@@ -8,8 +8,10 @@ use App\Http\Requests\ObjectRequest;
 use App\Http\Resources\ArticleResource;
 use App\Http\Resources\FundingSourceResource;
 use App\Http\Resources\ObjectSectorResource;
+use App\Http\Resources\ObjectStatusResource;
 use App\Http\Resources\ObjectTypeResource;
 use App\Models\Article;
+use App\Models\ObjectStatus;
 use App\Services\ArticleService;
 use Illuminate\Http\FileHelpers;
 use Illuminate\Http\JsonResponse;
@@ -129,5 +131,17 @@ class ObjectController extends BaseController
             }
         }
         return $inactiveBlocks;
+    }
+
+    public function status()
+    {
+        try {
+            if (request('id')) {
+                return $this->sendSuccess(ObjectStatusResource::make(ObjectStatus::find(request('id'))), 'Object Status');
+            }
+            return $this->sendSuccess(ObjectStatusResource::collection(ObjectStatus::all()), 'All Object Statuses');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
     }
 }
