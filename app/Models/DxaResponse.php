@@ -14,7 +14,7 @@ class DxaResponse extends Model
     use HasFactory, SoftDeletes;
 
     protected  $guarded =[];
-    protected  $fillable = ['url'];
+//    protected  $fillable = ['url'];
 
 
     public function supervisors(): HasMany

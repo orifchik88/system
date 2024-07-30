@@ -67,6 +67,11 @@ class ArticleService
         DB::beginTransaction();
         try {
             $response = $this->dxaResponse->find($this->objectDto->responseId);
+            $response->update([
+                'is_accepted' => true,
+                'dxa_response_statuses_id' => DxaResponseStatusEnum::ARCHIVE
+            ]);
+
             $article = new Article();
             $article->name = $response->object_name;
             $article->region_id = $response->region_id;
@@ -220,10 +225,7 @@ class ArticleService
 
             $article->users()->attach($response->inspector_id, ['role_id' => $inspector->id]);
 
-            $response->update([
-                'is_accepted' => true,
-                'dxa_response_statuses_id' => DxaResponseStatusEnum::ARCHIVE
-            ]);
+
 
             DB::commit();
             return $article;
