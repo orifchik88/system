@@ -58,6 +58,7 @@ Route::group([
     Route::get('funding-sources', [ObjectController::class, 'fundingSource']);
     Route::get('object-sectors/{id}', [ObjectController::class, 'objectSectors']);
     Route::post('object-create', [ObjectController::class, 'create']);
+    Route::post('check-object', [ObjectController::class, 'checkObject']);
 
     Route::get('blocks/{id}', [BlockController::class, 'index']);
     Route::post('block-create', [BlockController::class, 'create']);

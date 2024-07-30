@@ -62,4 +62,16 @@ class RegulationService
             dd($exception->getMessage());
         }
     }
+
+    public function sendToDeed($dto)
+    {
+        DB::beginTransaction();
+        try {
+
+            DB::commit();
+        }catch (\Exception $exception){
+            DB::rollBack();
+            dd($exception->getMessage());
+        }
+    }
 }

@@ -189,7 +189,6 @@ class RegulationController extends BaseController
     {
         try {
             $dto = new RegulationDto();
-
             $dto->setRegulationId(request('regulation_id'))
                 ->setComment(request('comment'));
 
@@ -204,7 +203,17 @@ class RegulationController extends BaseController
 
     public function sendDeed()
     {
+        try {
+            $dto = new RegulationDto();
+            $dto->setRegulationId(request('regulation_id'))
+                ->setMeta(request('violations'));
 
+            $this->regulationService->sendToDeed($dto);
+
+            return $this->sendSuccess('Data saved successfully', 201);
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
     }
 
 
