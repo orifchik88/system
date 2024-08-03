@@ -12,86 +12,68 @@ use Illuminate\Support\Facades\DB;
 
 class ViolationController extends BaseController
 {
-    public function actViolations(): JsonResponse
-    {
-        $type = request('type');
-
-        try {
-            $regulation = Regulation::findOrFail(request('regulation_id'));
-
-            $actViolations = $regulation->actViolations()
-                ->orderBy('violation_id')
-                ->with('violation')
-                ->get();
-
-            $demands = $regulation->demands()
-                ->where('act_violation_type_id', $type)
-                ->with(['actViolation.violation'])
-                ->get();
-
-            $sortedDemands = $demands->sortBy(function ($demand) use ($actViolations) {
-                return [
-                    array_search($demand->act_violation_id, $actViolations->pluck('id')->toArray()),
-                    $demand->created_at
-                ];
-            });
-
-            return $this->sendSuccess(RegulationDemandResource::collection($sortedDemands->values()), 'Act violations');
-
-        } catch (\Exception $exception) {
-            return $this->sendError($exception->getMessage());
-        }
-    }
-
-//    public function actViolations()
+//    public function actViolations(): JsonResponse
 //    {
+//        $type = request('type');
+//
 //        try {
 //            $regulation = Regulation::findOrFail(request('regulation_id'));
+//
 //            $actViolations = $regulation->actViolations()
 //                ->orderBy('violation_id')
-//                ->orderBy('created_at')
+//                ->with('violation')
 //                ->get();
-//
-//            $actViolationIds = $actViolations->pluck('id')->toArray();
-//
-//            $orderByClause = 'CASE';
-//            foreach ($actViolationIds as $index => $id) {
-//                $orderByClause .= " WHEN act_violation_id = {$id} THEN {$index}";
-//            }
-//            $orderByClause .= ' END';
 //
 //            $demands = $regulation->demands()
-//                ->whereIn('act_violation_id', $actViolationIds)
+//                ->where('act_violation_type_id', $type)
 //                ->with(['actViolation.violation'])
-//                ->orderByRaw($orderByClause)
-//                ->orderBy('created_at')
 //                ->get();
 //
+//            $sortedDemands = $demands->sortBy(function ($demand) use ($actViolations) {
+//                return [
+//                    array_search($demand->act_violation_id, $actViolations->pluck('id')->toArray()),
+//                    $demand->created_at
+//                ];
+//            })->values()->paginate(request('per_page', 10));
 //
+//            dd($sortedDemands);
 //
-////            $demands = $regulation->demands()
-////                ->with(['actViolation.violation'])
-////                ->orderBy('created_at')
-////                ->get()
-////                ->groupBy('act_violation_id');
+//            return $this->sendSuccess(RegulationDemandResource::collection($sortedDemands), 'Act violations');
 //
-////            $orderedDemands = $demands->flatMap(function ($group) {
-////                return $group->sortBy('created_at');
-////            });
-//
-//
-//            $dd = RegulationDemandResource::collection($demands);
-//            return response()->json($dd);
-////            $actViolations = $regulation->actViolations()
-////                ->with(['demands' => function($query) {
-////                    $query->orderBy('act_violation_id')->orderBy('created_at');
-////                }])
-////                ->get();
-////            return response()->json($actViolations);
-//
-//
-//        }catch (\Exception $exception){
+//        } catch (\Exception $exception) {
 //            return $this->sendError($exception->getMessage());
 //        }
 //    }
+
+    public function actViolations()
+    {
+        try {
+            $regulation = Regulation::findOrFail(request('regulation_id'));
+            $actViolations = $regulation->actViolations()
+                ->orderBy('violation_id')
+                ->orderBy('created_at')
+                ->get();
+
+            $actViolationIds = $actViolations->pluck('id')->toArray();
+
+            $orderByClause = 'CASE';
+            foreach ($actViolationIds as $index => $id) {
+                $orderByClause .= " WHEN act_violation_id = {$id} THEN {$index}";
+            }
+            $orderByClause .= ' END';
+
+            $demands = $regulation->demands()
+                ->whereIn('act_violation_id', $actViolationIds)
+                ->where('act_violation_type_id', request('type'))
+                ->with(['actViolation.violation'])
+                ->orderByRaw($orderByClause)
+                ->orderBy('created_at')
+                ->paginate(request('per_page', 10));
+
+           return $this->sendSuccess(RegulationDemandResource::collection($demands), 'Act violations', pagination($demands));
+
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage());
+        }
+    }
 }
