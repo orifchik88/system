@@ -167,6 +167,7 @@ class RegulationController extends BaseController
             $dto->setRegulationId(request('regulation_id'))
                 ->setComment(request('comment'));
 
+
             $this->regulationService->acceptAnswer($dto);
 
             return $this->sendSuccess('Data saved successfully', 201);
@@ -177,13 +178,21 @@ class RegulationController extends BaseController
 
     public function acceptDeed()
     {
+        try {
+            $dto = new RegulationDto();
 
+            $dto->setRegulationId(request('regulation_id'))
+                ->setComment(request('comment'));
+
+            $this->regulationService->acceptDeed($dto);
+
+            return $this->sendSuccess('Data saved successfully', 201);
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
     }
 
-    public function rejectDeed()
-    {
 
-    }
 
     public function rejectAnswer()
     {
@@ -209,6 +218,21 @@ class RegulationController extends BaseController
                 ->setMeta(request('violations'));
 
             $this->regulationService->sendToDeed($dto);
+
+            return $this->sendSuccess('Data saved successfully', 201);
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function rejectDeed()
+    {
+        try {
+            $dto = new RegulationDto();
+            $dto->setRegulationId(request('regulation_id'))
+                ->setComment(request('comment'));
+
+            $this->regulationService->rejectDeed($dto);
 
             return $this->sendSuccess('Data saved successfully', 201);
         }catch (\Exception $exception){

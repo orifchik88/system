@@ -27,4 +27,9 @@ class RegulationDemand extends Model
     {
         return $this->morphMany(Document::class, 'documentable');
     }
+
+    public function actViolation(): BelongsTo
+    {
+        return $this->belongsTo(ActViolation::class);
+    }
 }

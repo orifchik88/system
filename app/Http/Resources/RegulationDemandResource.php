@@ -17,8 +17,12 @@ class RegulationDemandResource extends JsonResource
         return [
             'id' => $this->id,
             'comment' => $this->comment,
-            'created_at' => $this->created_at,
-            'status' => RegulationStatusResource::make($this->actStatus),
+            'act_status' => ActStatusResource::make($this->actStatus),
+            'act_violation_type' => $this->act_violation_type_id,
+            'title' => $this->actViolation->violation->title,
+            'description' => $this->actViolation->violation->description,
+            'images' => ImageResource::collection($this->whenLoaded('imagesFiles')),
+            'documents' => DocumentResource::collection($this->whenLoaded('documents')),
         ];
     }
 }

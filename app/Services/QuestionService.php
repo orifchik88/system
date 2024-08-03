@@ -13,6 +13,7 @@ use App\Models\RegulationDemand;
 use App\Models\RegulationViolation;
 use App\Models\Violation;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -125,6 +126,14 @@ class QuestionService
         DB::beginTransaction();
         try {
             $regulation = Regulation::find($dto->regulationId);
+
+            $hasStatusOne = $regulation->actViolations->contains(function ($actViolation) {
+                return $actViolation->status == 1;
+            });
+
+            if ($hasStatusOne) {
+                throw new NotFoundException('Faol chora tadbir mavjud');
+            }
             $regulation->update([
                 'regulation_status_id' => 2,
                 'act_status_id' => 1,
@@ -133,10 +142,12 @@ class QuestionService
             foreach ($dto->meta as $item) {
                 $act = ActViolation::create([
                     'violation_id' => $item['violation_id'],
+                    'regulation_id' => $dto->regulationId,
                     'user_id' => Auth::id(),
                     'question_id' => $item['question_id'],
                     'comment' => $item['comment'],
                     'act_violation_type_id' => 1,
+                    'status' => ActViolation::PROGRESS
                 ]);
 
                 $demands = RegulationDemand::create([
@@ -145,7 +156,8 @@ class QuestionService
                     'act_status_id' => 1,
                     'act_violation_type_id' => 1,
                     'comment' => $item['comment'],
-                    'act_violation_id' => $act->id
+                    'act_violation_id' => $act->id,
+                    'status' => ActViolation::PROGRESS
                 ]);
 
                 if (isset($item['files'])) {
@@ -176,7 +188,7 @@ class QuestionService
             DB::commit();
         }catch (\Exception $exception) {
             DB::rollBack();
-            dd($exception->getMessage());
+            throw $exception;
         }
     }
 

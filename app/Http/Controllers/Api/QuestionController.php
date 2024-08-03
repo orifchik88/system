@@ -70,7 +70,6 @@ class QuestionController extends BaseController
             $dto = new QuestionDTO();
             $dto->setRegulationId(request('regulation_id'))
                 ->setMeta(request('violations'));
-
             $this->questionService->createActViolation($dto);
             return $this->sendSuccess([], 'Successfully send answer');
         } catch (\Exception $exception) {

@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\UserTypeController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\ClientTypeController;
 use App\Http\Controllers\Api\LoginController;
+use App\Http\Controllers\Api\ViolationController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\RegisterController;
 use App\Http\Controllers\Api\ObjectController;
@@ -80,6 +81,8 @@ Route::group([
     Route::post('reject-date', [RegulationController::class, 'rejectDate']);
     Route::post('reject-deed', [RegulationController::class, 'rejectDeed']);
     Route::post('reject-answer', [RegulationController::class, 'rejectAnswer']);
+
+    Route::get('act-violations', [ViolationController::class, 'actViolations']);
 
     Route::get('test', [RegulationController::class, 'test']);
 
