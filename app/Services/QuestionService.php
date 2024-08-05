@@ -31,18 +31,21 @@ class QuestionService
 
     public function getQuestions()
     {
-        if (!request('level') || !request('object_type_id')){
+        if (!request('level') || !request('object_type_id')) {
             throw new NotFoundException('level and object_type_id are required.');
         }
 
-        $firstRole = $this->user->roles->first();
+        $role = $this->user->roles->first();
 
-        if ($firstRole && $firstRole->questions) {
-             return  $firstRole->questions->where('level_id', request('level'))
-                ->where('object_type_id', request('object_type_id'));
-        }
+        $questions = $this->questions
+            ->where('level_id', request('level'))
+            ->where('author_id', $role->id)
+            ->where('object_type_id', request('object_type_id'))->get();
 
-        throw new NotFoundException('level and object_type_id are required.');
+        if (!$questions)
+            throw new NotFoundException('User has no roles or role has no questions.');
+
+        return $questions;
     }
 
     public function createViolation($dto)
