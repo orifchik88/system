@@ -24,7 +24,7 @@ Route::group([
     'middleware' => 'auth:api'
 ], function() {
     Route::get('profile', [ProfileController::class, 'profile']);
-    Route::post('profile/edit', [ProfileController::class, 'edit']);
+    Route::post('profile-edit', [ProfileController::class, 'edit']);
     Route::post('logout', [LoginController::class, 'logout']);
     Route::post('refresh', [LoginController::class, 'refresh']);
     Route::get('user-type', [UserTypeController::class, 'index']);
@@ -61,10 +61,12 @@ Route::group([
     Route::get('object-sectors/{id}', [ObjectController::class, 'objectSectors']);
     Route::post('object-create', [ObjectController::class, 'create']);
     Route::post('check-object', [ObjectController::class, 'checkObject']);
+    Route::post('change-object-status', [ObjectController::class, 'changeObjectStatus']);
 
     Route::get('blocks/{id}', [BlockController::class, 'index']);
     Route::post('block-create', [BlockController::class, 'create']);
-    Route::post('block-create', [BlockController::class, 'create']);
+    Route::post('block-delete', [BlockController::class, 'delete']);
+    Route::post('block-edit', [BlockController::class, 'edit']);
 
     Route::get('question-users', [QuestionController::class, 'questionUsers']);
     Route::post('send-question', [QuestionController::class, 'sendQuestion']);

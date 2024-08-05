@@ -133,13 +133,24 @@ class ObjectController extends BaseController
         return $inactiveBlocks;
     }
 
-    public function status()
+    public function status(): JsonResponse
     {
         try {
             if (request('id')) {
                 return $this->sendSuccess(ObjectStatusResource::make(ObjectStatus::find(request('id'))), 'Object Status');
             }
             return $this->sendSuccess(ObjectStatusResource::collection(ObjectStatus::all()), 'All Object Statuses');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function changeObjectStatus(): JsonResponse
+    {
+        try {
+
+             Article::findOrFail(request('object_id'))->update(['object_status_id' => request('status')]);
+             return $this->sendSuccess(null, 'Object status updated');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }

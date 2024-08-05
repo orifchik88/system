@@ -39,9 +39,24 @@ class BlockController extends BaseController
     public function delete(): JsonResponse
     {
         try {
-            $block = Block::findOrFail(request('id'));
+            $block = Block::find(request('id'));
+            if (!$block) throw new NotFoundException('Block not found', 404);
             $block->delete();
             return $this->sendSuccess(null, 'Block deleted');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage());
+        }
+    }
+
+    public function edit(): JsonResponse
+    {
+        try {
+            $block = Block::find(request('id'));
+            if (!$block) throw new NotFoundException('Block not found', 404);
+            $block->update([
+               'name' => request('name'),
+            ]);
+            return $this->sendSuccess(new BlockResource($block), 'Block updated');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage());
         }

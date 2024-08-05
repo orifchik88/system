@@ -14,6 +14,8 @@ class Article extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $guarded = [];
+
     public function articleBlocks(): HasMany
     {
         return $this->hasMany(Block::class);

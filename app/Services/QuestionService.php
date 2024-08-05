@@ -34,7 +34,15 @@ class QuestionService
         if (!request('level') || !request('object_type_id')){
             throw new NotFoundException('level and object_type_id are required.');
         }
-        return $this->user->roles->first()->questions->where('level_id', request('level'))->where('object_type_id', request('object_type_id'));
+
+        $firstRole = $this->user->roles->first();
+
+        if ($firstRole && $firstRole->questions) {
+             return  $firstRole->questions->where('level_id', request('level'))
+                ->where('object_type_id', request('object_type_id'));
+        }
+
+        throw new NotFoundException('level and object_type_id are required.');
     }
 
     public function createViolation($dto)

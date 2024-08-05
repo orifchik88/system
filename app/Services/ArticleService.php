@@ -77,7 +77,8 @@ class ArticleService
             $article->region_id = $response->region_id;
             $article->district_id = $response->district_id;
             $article->object_status_id = ObjectStatusEnum::NEW;
-            $article->address = $response->location_building;
+            $article->address = $response->address;
+            $article->location_building = $response->location_building;
             $article->cadastral_number = $response->cadastral_number;
             $article->name_expertise = $response->name_expertise;
             $article->difficulty_category_id = DifficultyCategoryEnum::fromString($response->construction_works)->value;
