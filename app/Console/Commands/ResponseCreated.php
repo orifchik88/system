@@ -89,17 +89,21 @@ class ResponseCreated extends Command
     {
         $email = '';
         $phone = '';
+        $organizationName = '';
 
         if ($userType == 'Yuridik shaxs')
         {
             $email = $data['legal_entity_email']['real_value'];
             $phone = $data['legal_entity_phone_number']['real_value'];
+            $organizationName = $data['legal_entity_name']['real_value'];
         }
 
         if ($userType == 'Jismoniy shaxs')
         {
             $email = $data['email']['real_value'];
             $phone = $data['phone']['real_value'];
+            $organizationName = $data['name_rep']['real_value'];
+
         }
 
         $region = Region::where('soato', $data['region_id']['real_value'])->first();
@@ -117,7 +121,7 @@ class ResponseCreated extends Command
         $dxa->passport = $data['passport_number']['real_value'];
         $dxa->permit_address = $data['permit_address']['real_value'];
         $dxa->address = $data['legal_entity_address']['real_value'];
-        $dxa->organization_name = $data['legal_entity_name']['real_value'];
+        $dxa->organization_name = $organizationName;
         $dxa->legal_opf = $data['legal_opf']['real_value'];
         $dxa->phone = $phone;
         $dxa->object_name = $data['name_building']['real_value'];

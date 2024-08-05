@@ -64,6 +64,7 @@ Route::group([
 
     Route::get('blocks/{id}', [BlockController::class, 'index']);
     Route::post('block-create', [BlockController::class, 'create']);
+    Route::post('block-create', [BlockController::class, 'create']);
 
     Route::get('question-users', [QuestionController::class, 'questionUsers']);
     Route::post('send-question', [QuestionController::class, 'sendQuestion']);

@@ -91,7 +91,6 @@ class RegulationController extends BaseController
                 'act_status_id' => 7
             ]);
 
-
             DB::commit();
             return $this->sendSuccess('Data saved successfully', 201);
 

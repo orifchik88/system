@@ -3,14 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Exceptions\NotFoundException;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\BlockRequest;
 use App\Http\Resources\BlockResource;
 use App\Models\Article;
 use App\Models\Block;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class BlockController extends BaseController
 {
@@ -37,5 +34,16 @@ class BlockController extends BaseController
         $block = Block::create($request->validated());
 
         return $this->sendSuccess(new BlockResource($block), 'Block created');
+    }
+
+    public function delete(): JsonResponse
+    {
+        try {
+            $block = Block::findOrFail(request('id'));
+            $block->delete();
+            return $this->sendSuccess(null, 'Block deleted');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage());
+        }
     }
 }
