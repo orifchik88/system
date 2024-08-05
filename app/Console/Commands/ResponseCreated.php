@@ -102,7 +102,7 @@ class ResponseCreated extends Command
         {
             $email = $data['email']['real_value'];
             $phone = $data['phone']['real_value'];
-            $organizationName = $data['name_rep']['real_value'];
+            $organizationName = $data['full_name']['real_value'];
 
         }
 
