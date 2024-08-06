@@ -54,6 +54,11 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+    public function getFullNameAttribute()
+    {
+        return ucwords("{$this->surname} {$this->name} {$this->middle_name}");
+    }
+
     public function objects(): BelongsToMany
     {
         return $this->belongsToMany(Article::class, 'article_users', 'user_id', 'article_id');
@@ -68,6 +73,16 @@ class User extends Authenticatable
     {
         return $this->hasMany(Regulation::class, 'user_id', 'id');
     }
+
+    public function scopeSearchByFullName($query, $searchTerm)
+    {
+        $searchTerm = strtolower($searchTerm);
+        return $query->whereRaw('LOWER(name) LIKE ?', ['%' . $searchTerm . '%'])
+            ->orWhereRaw('LOWER(middle_name) LIKE ?', ['%' . $searchTerm . '%'])
+            ->orWhereRaw('LOWER(surname) LIKE ?', ['%' . $searchTerm . '%']);
+    }
+
+
 
 
 

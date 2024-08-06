@@ -34,7 +34,20 @@ class ObjectController extends BaseController
             return $this->sendSuccess(ArticleResource::make($user->objects->find(request()->get('id'))), "Object retrieved successfully.");
         }
 
-        $objects = $user->objects()->paginate(\request('perPage', 10));
+
+        $objects = $user->objects()
+            ->when(request('status'), function ($query){
+                return $query->whereIn('status', request('status'));
+            })
+            ->when(request('name_task'), function ($query) {
+                $query->searchByNameOrTaskId(request('name_task'));
+            })
+            ->when(request('user_search'), function ($query) {
+                $query->whereHas('users', function ($query) {
+                    $query->searchByFullName(request('user_search'));
+                });
+            })
+            ->paginate(\request('perPage', 10));
         return $this->sendSuccess(ArticleResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
     }
 
@@ -126,7 +139,7 @@ class ObjectController extends BaseController
     {
         $inactiveBlocks = [];
         foreach ($object->articleBlocks as $block) {
-            if (!$block->status){
+            if (!$block->status) {
                 $inactiveBlocks[] = $block->name;
             }
         }
@@ -140,7 +153,7 @@ class ObjectController extends BaseController
                 return $this->sendSuccess(ObjectStatusResource::make(ObjectStatus::find(request('id'))), 'Object Status');
             }
             return $this->sendSuccess(ObjectStatusResource::collection(ObjectStatus::all()), 'All Object Statuses');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -149,9 +162,9 @@ class ObjectController extends BaseController
     {
         try {
 
-             Article::findOrFail(request('object_id'))->update(['object_status_id' => request('status')]);
-             return $this->sendSuccess(null, 'Object status updated');
-        }catch (\Exception $exception){
+            Article::findOrFail(request('object_id'))->update(['object_status_id' => request('status')]);
+            return $this->sendSuccess(null, 'Object status updated');
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }

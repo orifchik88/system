@@ -126,7 +126,7 @@ class QuestionService
             DB::commit();
         }catch (\Exception $exception){
             DB::rollBack();
-            dd($exception->getMessage());
+            throw $exception;
         }
 
 

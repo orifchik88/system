@@ -60,4 +60,15 @@ class Article extends Model
     {
         return $this->belongsTo(ObjectSector::class, 'object_sector_id');
     }
+
+    public function scopeSearchByNameOrTaskId($query, $searchTerm)
+    {
+        $searchTerm = strtolower($searchTerm);
+
+        return $query->whereRaw('LOWER(name) LIKE ?', ['%' . $searchTerm . '%'])
+            ->orWhere('task_id', 'like', '%' . $searchTerm . '%');
+    }
+
+
+
 }
