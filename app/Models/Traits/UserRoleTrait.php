@@ -28,4 +28,12 @@ trait UserRoleTrait
     {
         return $this->hasPermissionTo('is_designer');
     }
+
+    public function scopeSearchByFullName($query, $searchTerm)
+    {
+        $searchTerm = strtolower($searchTerm);
+        return $query->whereRaw('LOWER(name) LIKE ?', ['%' . $searchTerm . '%'])
+            ->orWhereRaw('LOWER(middle_name) LIKE ?', ['%' . $searchTerm . '%'])
+            ->orWhereRaw('LOWER(surname) LIKE ?', ['%' . $searchTerm . '%']);
+    }
 }

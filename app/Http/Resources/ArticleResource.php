@@ -20,8 +20,9 @@ class ArticleResource extends JsonResource
             'region' => RegionResource::make($this->region),
             'district' => DistrictResource::make($this->district),
             'task_id' => $this->task_id,
-            'address' => $this->address,
+            'address' => $this->location_building,
             'costumer' => [
+                'address' => $this->address,
                 ''
             ],
             'cadastral_number' => $this->cadastral_number,

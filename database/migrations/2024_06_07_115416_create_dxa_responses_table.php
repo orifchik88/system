@@ -13,12 +13,11 @@ return new class extends Migration
     {
         Schema::create('dxa_responses', function (Blueprint $table) {
             $table->id();
-            $table->jsonb('task')->nullable();
             $table->text('inspector_commit')->nullable();
             $table->integer('inspector_id')->nullable();
-            $table->jsonb('inspector_images')->nullable();
             $table->boolean('is_accepted')->default(false);
-            $table->foreignId('dxa_response_statuses_id')->nullable()->constrained();
+            $table->foreignId('dxa_response_status_id')->nullable()->constrained();
+            $table->foreignId('appearance_type_id')->nullable()->constrained();
             $table->integer('user_id')->nullable();
             $table->string('user_type')->nullable();
             $table->string('email')->nullable();
@@ -31,7 +30,7 @@ return new class extends Migration
             $table->string('legal_opf')->nullable()->comment('Tashkiliy-huquqiy shakli');
             $table->dateTime('deadline')->nullable();
             $table->json('administrative_files')->nullable();
-            $table->foreignId('administrative_statuses_id')->nullable()->constrained();
+            $table->foreignId('administrative_status_id')->nullable()->constrained();
             $table->integer('task_id')->nullable();
             $table->integer('old_task_id')->nullable();
             $table->text('object_name')->nullable();

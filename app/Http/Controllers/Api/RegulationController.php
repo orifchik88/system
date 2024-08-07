@@ -239,6 +239,20 @@ class RegulationController extends BaseController
         }
     }
 
+    public function regulationOwner(): JsonResponse
+    {
+        try {
+            $regulations = Regulation::query()->where('created_by_user_id', Auth::id())->paginate(request('per_page', 10));
+            return $this->sendSuccess(
+                RegulationResource::collection($regulations),
+                'Regulations',
+                pagination($regulations)
+            );
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
 
     public function test()
     {

@@ -8,6 +8,7 @@ use App\Enums\DxaResponseStatusEnum;
 use App\Enums\ObjectStatusEnum;
 use App\Exceptions\NotFoundException;
 use App\Models\Article;
+use App\Models\Costumer;
 use App\Models\DxaResponse;
 use App\Models\FundingSource;
 use App\Models\ObjectSector;
@@ -71,6 +72,8 @@ class ArticleService
                 'is_accepted' => true,
                 'dxa_response_statuses_id' => DxaResponseStatusEnum::ARCHIVE
             ]);
+
+            $tinOrPinfl = $response->pinfl ?? $response->application_stir_number;
 
             $article = new Article();
             $article->name = $response->object_name;
