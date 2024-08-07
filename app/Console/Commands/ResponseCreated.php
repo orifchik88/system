@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Customer;
 use App\Models\District;
 use App\Models\DxaResponse;
 use App\Models\DxaResponseSupervisor;
@@ -51,6 +52,7 @@ class ResponseCreated extends Command
         try {
             $dxa = $this->saveDxaResponse($taskId, $data, $userType, $response->body(), $json, $date);
             $this->saveSupervisors($data['info_supervisory']['value'], $dxa->id);
+            $this->saveCompany($response->body());
 
             DB::commit();
         } catch (\Exception $exception) {
@@ -184,5 +186,11 @@ class ResponseCreated extends Command
             $dxaResSupervisor->comment = $item['comment']['real_value'];
             $dxaResSupervisor->save();
         }
+    }
+
+    protected function saveCompany($response)
+    {
+        $tinOrPinfl = $response['tin_or_pinfl']['real_value'];
+       $company = Customer::query()->where('id', $response['id'])->first();
     }
 }

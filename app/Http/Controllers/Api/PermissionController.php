@@ -49,6 +49,6 @@ class PermissionController extends BaseController
 
         $role->syncPermissions($permissions);
 
-        return $this->sendSuccess(RoleResource::make($role), 'Role created');
+        return $this->sendSuccess(new RoleResource($role, true), 'Role created');
     }
 }
