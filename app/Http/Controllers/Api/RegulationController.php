@@ -34,31 +34,36 @@ class RegulationController extends BaseController
 
     public function regulations(): JsonResponse
     {
-        try {
-            $user = Auth::user();
-            if (request('id')) {
-                return $this->sendSuccess(RegulationResource::make($user->regulations()->findOrFail(request('id'))), 'Regulation');
-            }
 
-            $query = $user->regulations();
+        $regulation = Regulation::query()->findOrFail(request('id'));
 
-            if (request()->boolean('is_state')) {
-                $query->withInspectorRole();
-            } else {
-                $query->withoutInspectorRole();
-            }
+        return $this->sendSuccess(RegulationResource::make($regulation), 'adsf');
 
-            $regulations = $query->paginate(request('per_page', 10));
-
-            return $this->sendSuccess(
-                RegulationResource::collection($regulations),
-                'Regulations',
-                pagination($regulations)
-            );
-
-        } catch (\Exception $exception) {
-            return $this->sendError($exception->getMessage(), $exception->getCode());
-        }
+//        try {
+//            $user = Auth::user();
+//            if (request('id')) {
+//                return $this->sendSuccess(RegulationResource::make($user->regulations()->findOrFail(request('id'))), 'Regulation');
+//            }
+//
+//            $query = $user->regulations();
+//
+//            if (request()->boolean('is_state')) {
+//                $query->withInspectorRole();
+//            } else {
+//                $query->withoutInspectorRole();
+//            }
+//
+//            $regulations = $query->paginate(request('per_page', 10));
+//
+//            return $this->sendSuccess(
+//                RegulationResource::collection($regulations),
+//                'Regulations',
+//                pagination($regulations)
+//            );
+//
+//        } catch (\Exception $exception) {
+//            return $this->sendError($exception->getMessage(), $exception->getCode());
+//        }
     }
 
     public function violation(): JsonResponse
@@ -260,7 +265,17 @@ class RegulationController extends BaseController
 
     public function test()
     {
-        $violation = Violation::find(request('id'));
+        $roles = collect();
+
+        foreach (request('questions') as $question) {
+            foreach ($question['violations'] as $violation) {
+                $roles = $roles->merge($violation['roles']);
+            }
+        }
+
+        $uniqueRoles = $roles->unique();
+dd($uniqueRoles);
+        dd(request('questions'));
 
         dd($violation);
     }

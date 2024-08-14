@@ -88,7 +88,7 @@ Route::group([
 
     Route::get('act-violations', [ViolationController::class, 'actViolations']);
 
-    Route::get('test', [RegulationController::class, 'test']);
+    Route::post('test', [RegulationController::class, 'test']);
 
 
 });

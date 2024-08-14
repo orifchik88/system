@@ -39,4 +39,9 @@ class Violation extends Model
     {
         return $this->belongsTo(Level::class);
     }
+
+    public function blocks()
+    {
+        return $this->belongsToMany(Block::class, 'regulation_violation_blocks', 'violation_id', 'block_id');
+    }
 }

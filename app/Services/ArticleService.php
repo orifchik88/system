@@ -70,7 +70,7 @@ class ArticleService
             $response = $this->dxaResponse->find($this->objectDto->responseId);
             $response->update([
                 'is_accepted' => true,
-                'dxa_response_statuses_id' => DxaResponseStatusEnum::ARCHIVE
+                'dxa_response_status_id' => DxaResponseStatusEnum::ARCHIVE
             ]);
 
             $tinOrPinfl = $response->pinfl ?? $response->application_stir_number;
@@ -81,7 +81,7 @@ class ArticleService
             $article->district_id = $response->district_id;
             $article->object_status_id = ObjectStatusEnum::NEW;
             $article->address = $response->address;
-            $article->location_building = $response->location_building;
+//            $article->location_building = $response->location_building;
             $article->cadastral_number = $response->cadastral_number;
             $article->name_expertise = $response->name_expertise;
             $article->difficulty_category_id = DifficultyCategoryEnum::fromString($response->construction_works)->value;
@@ -94,6 +94,7 @@ class ArticleService
             $article->objects_stateprog = null;
             $article->name_date_posopin = null;
             $article->name_date_licontr = null;
+            $article->appearance_type_id = 1;
             $article->is_accepted = true;
             $article->organization_projects = $response->organization_projects;
             $article->specialists_certificates = $response->specialists_certificates;
@@ -171,7 +172,7 @@ class ArticleService
                             'date_issue_diploma' => $supervisor->diplom_date,
                         ]);
                         $user->assignRole($author->id);
-                        $article->users()->attach($user->id, ['role_id' => $author->id]);
+                        $article->users()->attach($user->id, ['role_id' => $author->id, 'organization_id' => 1]);
                     }
 
                 }
@@ -196,7 +197,7 @@ class ArticleService
                             'date_issue_diploma' => $supervisor->diplom_date,
                         ]);
                         $user->assignRole($designer->id);
-                        $article->users()->attach($user->id, ['role_id' => $designer->id]);
+                        $article->users()->attach($user->id, ['role_id' => $designer->id, 'organization_id' => 1]);
                     }
 
                 }
@@ -222,12 +223,12 @@ class ArticleService
                             'date_issue_diploma' => $supervisor->diplom_date,
                         ]);
                         $user->assignRole($technic->id);
-                        $article->users()->attach($user->id, ['role_id' => $technic->id]);
+                        $article->users()->attach($user->id, ['role_id' => $technic->id, 'organization_id' => 1]);
                     }
                 }
             }
 
-            $article->users()->attach($response->inspector_id, ['role_id' => $inspector->id]);
+            $article->users()->attach($response->inspector_id, ['role_id' => $inspector->id, 'organization_id' => 1]);
 
 
 

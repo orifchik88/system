@@ -52,7 +52,6 @@ class ResponseCreated extends Command
         try {
             $dxa = $this->saveDxaResponse($taskId, $data, $userType, $response->body(), $json, $date);
             $this->saveSupervisors($data['info_supervisory']['value'], $dxa->id);
-            $this->saveCompany($response->body());
 
             DB::commit();
         } catch (\Exception $exception) {
@@ -113,9 +112,8 @@ class ResponseCreated extends Command
         $district = District::where('soato', $data['district_id']['real_value'])->first();
         $dxa = new DxaResponse();
         $dxa->task_id = $taskId;
-        $dxa->task = $responseBody;
         $dxa->user_type = $userType;
-        $dxa->dxa_response_statuses_id = 3;
+        $dxa->dxa_response_status_id = 3;
         $dxa->email = $email;
         $dxa->full_name = $data['full_name']['real_value'];
         $dxa->name_expertise = $data['name_expertise']['real_value'];
@@ -128,7 +126,7 @@ class ResponseCreated extends Command
         $dxa->phone = $phone;
         $dxa->object_name = $data['name_building']['real_value'];
         $dxa->deadline = $date->addDay();
-        $dxa->administrative_statuses_id = 1;
+        $dxa->administrative_status_id = 1;
         $dxa->region_id = $region->id;
         $dxa->district_id = $district->id;
         $dxa->cadastral_number = $data['cadastral_number']['real_value'];
@@ -185,12 +183,18 @@ class ResponseCreated extends Command
             $dxaResSupervisor->phone_number = $item['phone_number']['real_value'];
             $dxaResSupervisor->comment = $item['comment']['real_value'];
             $dxaResSupervisor->save();
+
         }
     }
 
-    protected function saveCompany($response)
-    {
-        $tinOrPinfl = $response['tin_or_pinfl']['real_value'];
-       $company = Customer::query()->where('id', $response['id'])->first();
-    }
+//    protected function saveCompany($response)
+//    {
+//        $tinOrPinfl = $response['tin_or_pinfl']['real_value'] ??  $response['ind_pinfl']['real_value'];
+//       $company = Customer::query()->where('id', $response['id'])->first();
+//
+//       if (!$company){
+//           $company = new Customer();
+//
+//       }
+//    }
 }

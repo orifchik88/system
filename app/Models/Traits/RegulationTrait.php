@@ -31,7 +31,9 @@ trait RegulationTrait
     }
     public function violations(): BelongsToMany
     {
-        return $this->belongsToMany(Violation::class, 'regulation_violations', 'regulation_id', 'violation_id');
+        return $this->belongsToMany(Violation::class, 'regulation_violation_blocks', 'regulation_id', 'violation_id')
+            ->withPivot('block_id')
+            ->distinct('violation_id');
     }
 
     public function object(): BelongsTo

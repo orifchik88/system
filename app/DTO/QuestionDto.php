@@ -8,6 +8,8 @@ class QuestionDto
 {
     public ?int $objectId;
     public ?array $meta = [];
+
+    public ?array $deadline = [];
     public ?int $levelId;
 
     public ?int $regulationId;
@@ -22,6 +24,12 @@ class QuestionDto
     public function setMeta(array $meta): self
     {
         $this->meta = $meta;
+        return $this;
+    }
+
+    public function setDeadline(array $deadline): self
+    {
+        $this->deadline = $deadline;
         return $this;
     }
 

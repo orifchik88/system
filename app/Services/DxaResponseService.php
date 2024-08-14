@@ -17,7 +17,7 @@ class DxaResponseService
     public function sendInspector(): DxaResponse
     {
         $response = $this->findResponse();
-        $response->dxa_response_statuses_id = DxaResponseStatusEnum::SEND_INSPECTOR;
+        $response->dxa_response_status_id = DxaResponseStatusEnum::SEND_INSPECTOR;
         $response->inspector_sent_at = Carbon::now();
         $response->inspector_id = $this->data['inspector_id'];
         $response->save();
@@ -27,8 +27,8 @@ class DxaResponseService
     public function sendRegister(): DxaResponse
     {
         $response = $this->findResponse();
-        $response->dxa_response_statuses_id = DxaResponseStatusEnum::CHECKED;
-        $response->administrative_statuses_id = $this->data['administrative_status_id'];
+        $response->dxa_response_status_id = DxaResponseStatusEnum::CHECKED;
+        $response->administrative_status_id = $this->data['administrative_status_id'];
         $response->inspector_answered_at = Carbon::now();
         $response->long = $this->data['long'];
         $response->lat = $this->data['lat'];
@@ -42,7 +42,7 @@ class DxaResponseService
     public function sendReject(): DxaResponse
     {
         $response = $this->findResponse();
-        $response->dxa_response_statuses_id = DxaResponseStatusEnum::ARCHIVE;
+        $response->dxa_response_status_id = DxaResponseStatusEnum::ARCHIVE;
         $response->rejection_comment = $this->data['reject_comment'];
         $response->save();
         return $response;
@@ -58,7 +58,7 @@ class DxaResponseService
         $model = $this->findResponse();
 
         foreach ($this->data['images'] as $image) {
-            $path = $image->store('images', 'public');
+            $path = $image->store('images/response', 'public');
             $model->images()->create(['url' => $path]);
         }
     }
