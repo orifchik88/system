@@ -10,6 +10,7 @@ use App\Http\Requests\RegulationDemandRequest;
 use App\Http\Resources\MonitoringResource;
 use App\Http\Resources\RegulationResource;
 use App\Http\Resources\ViolationResource;
+use App\Models\Article;
 use App\Models\Monitoring;
 use App\Models\Regulation;
 use App\Models\RegulationDemand;
@@ -240,7 +241,16 @@ class RegulationController extends BaseController
                 $regulation = Regulation::query()->findOrFaiL(request('id'));
                 return $this->sendSuccess(RegulationResource::make($regulation), 'Get data successfully');
             }
-            $regulations = Regulation::query()->where('created_by_user_id', Auth::id())->paginate(request('per_page', 10));
+
+            if (request('object_id')){
+                $object = Article::query()->findOrFaiL(request('object_id'));
+                return $this->sendSuccess(RegulationResource::collection($object->regulations()->where('created_by_user_id', Auth::id())->get()), 'Get data successfully');
+            }
+
+            $regulations = Regulation::query()
+                ->where('created_by_user_id', Auth::id())
+                ->whereIn('act_status_id', [1,4,7])
+                ->paginate(request('per_page', 10));
             return $this->sendSuccess(
                 RegulationResource::collection($regulations),
                 'Regulations',

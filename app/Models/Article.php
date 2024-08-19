@@ -69,6 +69,11 @@ class Article extends Model
             ->orWhere('task_id', 'like', '%' . $searchTerm . '%');
     }
 
+    public function regulations(): HasMany
+    {
+        return $this->hasMany(Regulation::class, 'object_id');
+    }
+
 
 
 }
