@@ -30,11 +30,11 @@ class RegisterController extends BaseController
         if (request('status_id'))
         {
             $registers = DxaResponse::query()
-                ->where('dxa_response_statuses_id', DxaResponseStatusEnum::ARCHIVE)
+                ->where('dxa_response_status_id', DxaResponseStatusEnum::ARCHIVE)
                 ->paginate(request()->get('per_page', 10));
         }else{
             $registers = DxaResponse::query()
-                ->where('dxa_response_statuses_id', '!=', DxaResponseStatusEnum::ARCHIVE)
+                ->where('dxa_response_status_id', '!=', DxaResponseStatusEnum::ARCHIVE)
                 ->paginate(request()->get('per_page', 10));
         }
 
