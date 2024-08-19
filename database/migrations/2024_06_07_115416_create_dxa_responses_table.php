@@ -17,7 +17,7 @@ return new class extends Migration
             $table->integer('inspector_id')->nullable();
             $table->boolean('is_accepted')->default(false);
             $table->foreignId('dxa_response_status_id')->nullable()->constrained();
-            $table->foreignId('appearance_type_id')->nullable()->constrained();
+            $table->foreignId('appearance_type_id')->nullable()->constrained('appearance_types');
             $table->integer('user_id')->nullable();
             $table->string('user_type')->nullable();
             $table->string('email')->nullable();
