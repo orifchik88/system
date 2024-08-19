@@ -76,7 +76,6 @@ Route::group([
     Route::get('monitoring', [RegulationController::class, 'monitoring']);
     Route::get('regulations', [RegulationController::class, 'regulations']);
     Route::get('regulation-owner', [RegulationController::class, 'regulationOwner']);
-    Route::get('violation', [RegulationController::class, 'violation']);
     Route::post('accept-answer', [RegulationController::class, 'acceptAnswer']);
     Route::post('accept-deed', [RegulationController::class, 'acceptDeed']);
     Route::post('accept-date', [RegulationController::class, 'acceptDate']);
@@ -87,6 +86,7 @@ Route::group([
     Route::post('reject-answer', [RegulationController::class, 'rejectAnswer']);
 
     Route::get('act-violations', [ViolationController::class, 'actViolations']);
+    Route::get('violations', [ViolationController::class, 'violations']);
 
     Route::post('test', [RegulationController::class, 'test']);
 

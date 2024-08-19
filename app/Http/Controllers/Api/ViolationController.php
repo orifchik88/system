@@ -4,48 +4,18 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\RegulationDemandResource;
+use App\Http\Resources\ViolationResource;
+use App\Models\ActViolation;
 use App\Models\Regulation;
 use App\Models\RegulationDemand;
+use App\Models\Violation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ViolationController extends BaseController
 {
-//    public function actViolations(): JsonResponse
-//    {
-//        $type = request('type');
-//
-//        try {
-//            $regulation = Regulation::findOrFail(request('regulation_id'));
-//
-//            $actViolations = $regulation->actViolations()
-//                ->orderBy('violation_id')
-//                ->with('violation')
-//                ->get();
-//
-//            $demands = $regulation->demands()
-//                ->where('act_violation_type_id', $type)
-//                ->with(['actViolation.violation'])
-//                ->get();
-//
-//            $sortedDemands = $demands->sortBy(function ($demand) use ($actViolations) {
-//                return [
-//                    array_search($demand->act_violation_id, $actViolations->pluck('id')->toArray()),
-//                    $demand->created_at
-//                ];
-//            })->values()->paginate(request('per_page', 10));
-//
-//            dd($sortedDemands);
-//
-//            return $this->sendSuccess(RegulationDemandResource::collection($sortedDemands), 'Act violations');
-//
-//        } catch (\Exception $exception) {
-//            return $this->sendError($exception->getMessage());
-//        }
-//    }
-
-    public function actViolations()
+    public function actViolations(): JsonResponse
     {
         try {
             $regulation = Regulation::findOrFail(request('regulation_id'));
@@ -62,6 +32,7 @@ class ViolationController extends BaseController
             }
             $orderByClause .= ' END';
 
+
             $demands = $regulation->demands()
                 ->whereIn('act_violation_id', $actViolationIds)
                 ->where('act_violation_type_id', request('type'))
@@ -74,6 +45,24 @@ class ViolationController extends BaseController
 
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage());
+        }
+    }
+
+    public function violations(): JsonResponse
+    {
+        try {
+            if (request('id')  && request('regulation_id')) {
+                $violation = Violation::query()->findOrFail(request('id'));
+                return $this->sendSuccess(new ViolationResource($violation, \request('regulation_id')), 'Violation');
+            }
+            if (request('regulation_id')) {
+                $regulation = Regulation::query()->findOrFail(request('regulation_id'));
+                $violations = $regulation->violations()->paginate(request('per_page', 10));
+                return $this->sendSuccess(ViolationResource::collection($violations, $regulation->id), 'Violations', pagination($violations));
+            }
+            return $this->sendSuccess([], 'Violations not found');
+        } catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
 }

@@ -19,9 +19,10 @@ class RegulationResource extends JsonResource
     public function toArray(Request $request): array
     {
 
-        $violations = $this->violations->groupBy('id')->map(function ($group) {
-                return new ViolationResource($group, $this->id);
-            })->values()->all();
+//        $violations = $this->violations->groupBy('id')->map(function ($group) {
+//                return new ViolationResource($group, $this->id);
+//            })->values()->all();
+
 
         $fromUser = $this->createdByUser;
         $responsibleUser = $this->responsibleUser;
@@ -33,9 +34,9 @@ class RegulationResource extends JsonResource
             'regulation_status' => RegulationStatusResource::make($this->regulationStatus),
             'regulation_type' => RegulationTypeResource::make($this->regulationType),
             'act_status' => ActStatusResource::make($this->actStatus),
-            'violations' => $violations,
-            'demands' => RegulationDemandResource::collection($this->demands),
-            'act_violations' => ActViolationResource::collection($this->actViolations),
+//            'violations' => $violations,
+//            'demands' => RegulationDemandResource::collection($this->demands),
+//            'act_violations' => ActViolationResource::collection($this->actViolations),
             'created_at' => $this->created_at,
             'deadline_asked' => $this->deadline_asked,
             'from_user' => [

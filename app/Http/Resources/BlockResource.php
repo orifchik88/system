@@ -9,7 +9,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class BlockResource extends JsonResource
 {
 
-    public function __construct($resource, public int $regulationViolationBlockId)
+    public function __construct($resource, public ?int $regulationViolationBlockId = null)
     {
         parent::__construct($resource);
     }
@@ -21,11 +21,21 @@ class BlockResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $regulationViolationBlock = RegulationViolationBlock::query()->find($this->regulationViolationBlockId);
+        $images = [];
+        if ($this->regulationViolationBlockId) {
+            $regulationViolationBlock = RegulationViolationBlock::query()->find($this->regulationViolationBlockId);
+            if ($regulationViolationBlock) {
+                $images = ImageResource::collection($regulationViolationBlock->images);
+            }
+        }
+
         return [
             'id' => $this->id,
             'name' => $this->name,
             'status' => $this->status,
+//            'comment' => $comment,
+//            'files' => DocumentResource::collection($this->documents),
+            'images' => $images,
         ];
     }
 }

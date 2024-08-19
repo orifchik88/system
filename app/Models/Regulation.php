@@ -34,9 +34,14 @@ class Regulation extends Model
     }
 
 
-    public function actViolations(): HasManyThrough
+//    public function actViolations(): HasManyThrough
+//    {
+//        return $this->hasManyThrough(ActViolation::class, RegulationViolationBlock::class, 'regulation_id', 'violation_id', 'id', 'violation_id');
+//    }
+
+    public function actViolations(): HasMany
     {
-        return $this->hasManyThrough(ActViolation::class, RegulationViolation::class, 'regulation_id', 'violation_id', 'id', 'violation_id');
+        return $this->hasMany(ActViolation::class);
     }
 
     public function object(): BelongsTo

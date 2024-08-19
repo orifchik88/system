@@ -16,13 +16,11 @@ class RegulationDemandResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'comment' => $this->comment,
             'act_status' => ActStatusResource::make($this->actStatus),
             'act_violation_type' => $this->act_violation_type_id,
             'title' => $this->actViolation->violation->title,
-            'description' => $this->actViolation->violation->description,
-            'images' => ImageResource::collection($this->whenLoaded('imagesFiles')),
-            'documents' => DocumentResource::collection($this->whenLoaded('documents')),
+            'violation_id' => $this->actViolation->violation->id,
+            'blocks' => ActBlockResource::collection($this->actViolation->blocks, $this->actViolation->id)
         ];
     }
 }

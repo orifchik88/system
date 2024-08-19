@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
@@ -37,5 +38,12 @@ class ActViolation extends Model
     public function violation(): BelongsTo
     {
         return $this->belongsTo(Violation::class);
+    }
+
+    public function blocks(): BelongsToMany
+    {
+        return $this->belongsToMany(Block::class, 'act_violation_blocks', 'act_violation_id', 'block_id')
+            ->withPivot('comment')
+            ->with('documents');
     }
 }

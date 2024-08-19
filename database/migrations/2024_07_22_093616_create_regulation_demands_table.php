@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('act_violation_type_id')->constrained();
             $table->foreignId('act_violation_id')->nullable()->constrained();
             $table->string('deadline')->nullable();
-            $table->text('comment');
+            $table->text('comment')->nullable();
             $table->tinyInteger('status');
             $table->boolean('is_rejected')->default(false);
             $table->timestamps();

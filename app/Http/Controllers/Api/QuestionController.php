@@ -32,15 +32,12 @@ class QuestionController extends BaseController
 
     public function sendQuestion(/*QuestionRequest $request*/): JsonResponse
     {
-
         try {
             $dto = new QuestionDTO();
             $dto->setObject(\request('object_id'))
                 ->setMeta(request('questions'))
                 ->setDeadline(request('deadlines'))
                 ->setLevel(request('level'));
-
-
 
             $this->questionService->createViolation($dto);
 
@@ -69,12 +66,10 @@ class QuestionController extends BaseController
 
     public function sendAnswer(): JsonResponse
     {
-
         try {
             $dto = new QuestionDTO();
             $dto->setRegulationId(request('regulation_id'))
                 ->setMeta(request('violations'));
-
             $this->questionService->createActViolation($dto);
             return $this->sendSuccess([], 'Successfully send answer');
         } catch (\Exception $exception) {

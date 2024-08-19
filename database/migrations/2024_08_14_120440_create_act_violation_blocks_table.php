@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('act_violation_blocks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('act_demands')->constrained()->onDelete('cascade');
-
-            $table->timestamps();
+            $table->foreignId('act_violation_id')->constrained()->onDelete('cascade');
+            $table->foreignId('block_id')->constrained();
+            $table->text('comment')->nullable();
         });
     }
 

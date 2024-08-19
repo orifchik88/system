@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Exceptions\NotFoundException;
 use App\Models\Block;
 use App\Models\RegulationViolationBlock;
 use App\Models\Violation;
@@ -10,9 +11,16 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class ViolationResource extends JsonResource
 {
-    public function __construct($resource, public int $regulation_id)
+    public function __construct($resource, public ?int $regulation_id)
     {
         parent::__construct($resource);
+    }
+
+    public static function collection($resource, $regulation_id = null)
+    {
+        return tap(new ViolationResourceCollection($resource, $regulation_id), function ($collection) {
+            $collection->collects = static::class;
+        });
     }
 
     /**
@@ -22,24 +30,31 @@ class ViolationResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $violation = $this->resource;
+
+        if (!$violation) {
+            return [];
+        }
+
         $array = RegulationViolationBlock::query()
             ->where('regulation_id', $this->regulation_id)
-            ->where('violation_id', $this->resource->first()->id)
+            ->where('violation_id', $violation->id)
             ->pluck('id', 'block_id');
 
+        if ($array->isEmpty()){
+            throw  new NotFoundException('Violation not found');
+        }
 
         $blocks = $array->map(function ($value, $key) {
             return new BlockResource(Block::query()->find($key), $value);
         })->values();
 
 
-
-
         return [
-            'id' => $this->resource->first()->id,
-            'title' => $this->resource->first()->title,
-            'description' => $this->resource->first()->description,
-            'level' => LevelResource::make($this->resource->first()->level),
+            'id' => $violation->id,
+            'title' => $violation->title,
+            'description' => $violation->description,
+            'level' => LevelResource::make($violation->level),
             'check_list_status' => true,
             'blocks' => $blocks,
         ];
