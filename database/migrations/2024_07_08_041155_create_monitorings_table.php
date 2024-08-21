@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('object_id')->constrained('articles');
             $table->integer('number')->nullable();
             $table->foreignId('regulation_type_id')->constrained();
+//            $table->text('comment')->nullable()->after('created_by');
             $table->integer('created_by')->index();
             $table->string('dalolatnoma_pdf')->nullable();
             $table->string('code')->nullable();

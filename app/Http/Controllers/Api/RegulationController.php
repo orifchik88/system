@@ -28,11 +28,7 @@ class RegulationController extends BaseController
 
     public function __construct(protected RegulationService $regulationService){}
 
-    public function monitoring(): JsonResponse
-    {
-        $monitorings = Monitoring::query()->where('object_id', \request('object_id'))->paginate(request('per_page', 10));
-        return $this->sendSuccess(MonitoringResource::collection($monitorings), 'Monitorings', pagination($monitorings));
-    }
+
 
     public function regulations(): JsonResponse
     {
@@ -244,7 +240,7 @@ class RegulationController extends BaseController
 
             if (request('object_id')){
                 $object = Article::query()->findOrFaiL(request('object_id'));
-                $data = $object->regulations()->where('created_by_user_id', Auth::id())->get();
+                $data = $object->regulations()->where('created_by_user_id', Auth::id())->paginate(request('per_page', 10));
                 return $this->sendSuccess(RegulationResource::collection($data), 'Get data successfully', pagination($data));
             }
 

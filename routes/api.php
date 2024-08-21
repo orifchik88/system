@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\RegisterController;
 use App\Http\Controllers\Api\ObjectController;
 use App\Http\Controllers\Api\QuestionController;
+use App\Http\Controllers\Api\MonitoringController;
 
 
 Route::post('login', [LoginController::class, 'login']);
@@ -73,7 +74,8 @@ Route::group([
     Route::post('send-answer', [QuestionController::class, 'sendAnswer']);
     Route::get('levels', [QuestionController::class, 'levels']);
 
-    Route::get('monitoring', [RegulationController::class, 'monitoring']);
+    Route::get('monitoring', [MonitoringController::class, 'monitoring']);
+    Route::post('monitoring-create', [MonitoringController::class, 'create']);
     Route::get('regulations', [RegulationController::class, 'regulations']);
     Route::get('regulation-owner', [RegulationController::class, 'regulationOwner']);
     Route::post('accept-answer', [RegulationController::class, 'acceptAnswer']);
