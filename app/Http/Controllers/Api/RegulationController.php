@@ -158,7 +158,7 @@ class RegulationController extends BaseController
 
             $this->regulationService->acceptAnswer($dto);
 
-            return $this->sendSuccess('Data saved successfully', 201);
+            return $this->sendSuccess([], "Data saved successfully");
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
