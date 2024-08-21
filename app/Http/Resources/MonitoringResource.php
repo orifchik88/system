@@ -17,9 +17,10 @@ class MonitoringResource extends JsonResource
         return [
             'id' => $this->id,
             'regulation_type' => RegulationTypeResource::make($this->regulationType),
-            'regulation_count' => $this->regulations()->count(),
+            'regulation_count' => $this->regulations()->where('')->count(),
             'active_count' => $this->regulations()->where('status', 2)->count(),
-            'cl_count' => $this->regulations()->where('status', 2)->count(),
+            'closed_count' => $this->regulations()->where('status', 6)->count(),
+//            'closed_count' => $this->regulations()->where('status', 6)->count(),
             'comment' => $this->comment,
             'is_monitoring' => $this->comment ? true : false,
             'images' => ImageResource::collection($this->images)

@@ -195,7 +195,7 @@ class RegulationService
                 throw new NotFoundException('Chora tadbir topilmadi');
             }
             $regulation->update([
-                'act_status_id' => 3,
+                'act_status_id' => 6,
             ]);
 
             foreach ($violations as $violation) {
