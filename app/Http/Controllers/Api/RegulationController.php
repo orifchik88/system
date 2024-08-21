@@ -10,6 +10,7 @@ use App\Http\Requests\RegulationDemandRequest;
 use App\Http\Resources\MonitoringResource;
 use App\Http\Resources\RegulationResource;
 use App\Http\Resources\ViolationResource;
+use App\Models\ActViolation;
 use App\Models\Article;
 use App\Models\Monitoring;
 use App\Models\Regulation;
@@ -72,6 +73,7 @@ class RegulationController extends BaseController
                 'regulation_id' => $regulation->id,
                 'act_status_id' => 7,
                 'act_violation_type_id' => 3,
+                'status' => ActViolation::PROGRESS,
                 'comment' => $request->comment
             ]);
 
@@ -102,6 +104,7 @@ class RegulationController extends BaseController
                 'regulation_id' => $regulation->id,
                 'act_violation_type_id' => 3,
                 'act_status_id' => 8,
+                'status' => ActViolation::ACCEPTED,
                 'deadline' => $request->post('deadline'),
                 'comment' => $request->post('comment')
             ]);
@@ -131,6 +134,7 @@ class RegulationController extends BaseController
                 'regulation_id' => $regulation->id,
                 'act_violation_type_id' => 3,
                 'act_status_id' => 9,
+                'status' => ActViolation::REJECTED,
                 'comment' => $request->post('comment')
             ]);
 
