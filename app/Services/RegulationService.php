@@ -63,7 +63,7 @@ class RegulationService
 
             $regulation->update([
                 'regulation_status_id' => 2,
-                'act_status_id' => 1,
+                'act_status_id' => 2,
             ]);
 
             foreach ($actViolations as $actViolation) {

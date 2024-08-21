@@ -244,7 +244,8 @@ class RegulationController extends BaseController
 
             if (request('object_id')){
                 $object = Article::query()->findOrFaiL(request('object_id'));
-                return $this->sendSuccess(RegulationResource::collection($object->regulations()->where('created_by_user_id', Auth::id())->get()), 'Get data successfully');
+                $data = $object->regulations()->where('created_by_user_id', Auth::id())->get();
+                return $this->sendSuccess(RegulationResource::collection($data), 'Get data successfully', pagination($data));
             }
 
             $regulations = Regulation::query()

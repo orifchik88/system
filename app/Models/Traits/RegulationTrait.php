@@ -12,6 +12,37 @@ use Spatie\Permission\Models\Role;
 
 trait RegulationTrait
 {
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $model->regulation_number = self::generateRegulationNumber();
+        });
+    }
+
+    protected static function generateRegulationNumber()
+    {
+        $prefix = date('ym');;
+
+        $maxNumber = self::where('regulation_number', 'LIKE', "$prefix%")
+            ->orderBy('regulation_number', 'desc')
+            ->first();
+
+        if ($maxNumber) {
+            $lastNumber = intval(substr($maxNumber->regulation_number, 5, 7)) + 1;
+        } else {
+            $lastNumber = 1;
+        }
+
+        $number = str_pad($lastNumber, 7, '0', STR_PAD_LEFT);
+
+        $suffix = rand(1,3);
+
+        return $prefix . '-' . $number . '/'.$suffix;
+    }
+
     public function scopeWithInspectorRole(Builder $query): Builder
     {
         return $query->whereHas('role', function($query) {

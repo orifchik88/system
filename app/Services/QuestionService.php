@@ -94,7 +94,7 @@ class QuestionService
                 $deadline = collect($dto->deadline)->firstWhere('role_id', $role);
                 $regulation = Regulation::create([
                     'object_id' => $dto->objectId,
-                    'regulation_number' => '123',
+//                    'regulation_number' => '123',
                     'regulation_number_id' => 1,
                     'deadline' => $deadline['deadline'],
                     'level_id' => $dto->levelId,
@@ -105,7 +105,7 @@ class QuestionService
                     'user_id' => $object->users()->wherePivot('role_id', $role)->pluck('users.id')->first(),
                     'monitoring_id' => $monitoring->id,
                     'role_id' => $role,
-                    'act_status_id' => 1,
+//                    'act_status_id' => 1,
                 ]);
                 foreach ($violations as $violationData) {
                     foreach ($violationData['violations'] as $item) {
