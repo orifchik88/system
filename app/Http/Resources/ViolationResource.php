@@ -53,6 +53,7 @@ class ViolationResource extends JsonResource
         return [
             'id' => $violation->id,
             'title' => $violation->title,
+            'question_id' => $violation->question_id,
             'description' => $violation->description,
             'level' => LevelResource::make($violation->level),
             'check_list_status' => true,
