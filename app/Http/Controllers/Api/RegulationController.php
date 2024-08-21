@@ -82,7 +82,7 @@ class RegulationController extends BaseController
             ]);
 
             DB::commit();
-            return $this->sendSuccess('Data saved successfully', 201);
+            return $this->sendSuccess([], 'Data saved successfully');
 
         } catch (\Exception $exception) {
             DB::rollBack();
@@ -112,7 +112,7 @@ class RegulationController extends BaseController
             ]);
 
             DB::commit();
-            return $this->sendSuccess('Data saved successfully', 201);
+            return $this->sendSuccess([], 'Data saved successfully');
 
         } catch (\Exception $exception) {
             DB::rollBack();
@@ -140,7 +140,7 @@ class RegulationController extends BaseController
             ]);
 
             DB::commit();
-            return $this->sendSuccess('Data saved successfully', 201);
+            return $this->sendSuccess([], 'Data saved successfully');
 
         } catch (\Exception $exception) {
             DB::rollBack();
@@ -174,7 +174,7 @@ class RegulationController extends BaseController
 
             $this->regulationService->acceptDeed($dto);
 
-            return $this->sendSuccess('Data saved successfully', 201);
+            return $this->sendSuccess([], 'Data saved successfully');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
@@ -192,7 +192,7 @@ class RegulationController extends BaseController
 
             $this->regulationService->rejectToAnswer($dto);
 
-            return $this->sendSuccess('Data saved successfully', 201);
+            return $this->sendSuccess([], 'Data saved successfully');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
@@ -209,7 +209,7 @@ class RegulationController extends BaseController
 
             $this->regulationService->sendToDeed($dto);
 
-            return $this->sendSuccess('Data saved successfully', 201);
+            return $this->sendSuccess([], 'Data saved successfully');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
@@ -224,7 +224,7 @@ class RegulationController extends BaseController
 
             $this->regulationService->rejectDeed($dto);
 
-            return $this->sendSuccess('Data saved successfully', 201);
+            return $this->sendSuccess([], 'Data saved successfully');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
