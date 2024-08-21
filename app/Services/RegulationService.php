@@ -233,6 +233,7 @@ class RegulationService
 
             $regulation->update([
                 'act_status_id' => 5,
+                'regulation_status_id' => 3,
             ]);
 
             foreach ($violations as $violation) {
