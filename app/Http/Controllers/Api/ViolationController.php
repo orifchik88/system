@@ -40,7 +40,7 @@ class ViolationController extends BaseController
                                  ->orderByRaw($orderByClause);
                 })
                 ->orderBy('created_at')
-                ->paginate(request('per_page', 10));;
+                ->paginate(request('per_page', 10));
 
             return $this->sendSuccess(RegulationDemandResource::collection($demands), 'Act violations', pagination($demands));
 
