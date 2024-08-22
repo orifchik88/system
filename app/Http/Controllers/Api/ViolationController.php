@@ -32,14 +32,24 @@ class ViolationController extends BaseController
             }
             $orderByClause .= ' END';
 
-
             $demands = $regulation->demands()
                 ->whereIn('act_violation_id', $actViolationIds)
                 ->where('act_violation_type_id', request('type'))
                 ->with(['actViolation.violation'])
-                ->orderByRaw($orderByClause)
+                ->when(request('type') != 3, function ($query) use ($orderByClause) {
+                    return $query->orderByRaw($orderByClause);
+                })
                 ->orderBy('created_at')
                 ->paginate(request('per_page', 10));
+
+
+//            $demands = $regulation->demands()
+//                ->whereIn('act_violation_id', $actViolationIds)
+//                ->where('act_violation_type_id', request('type'))
+//                ->with(['actViolation.violation'])
+//                ->orderByRaw($orderByClause)
+//                ->orderBy('created_at')
+//                ->paginate(request('per_page', 10));
 
            return $this->sendSuccess(RegulationDemandResource::collection($demands), 'Act violations', pagination($demands));
 

@@ -68,6 +68,8 @@ class RegulationController extends BaseController
             DB::beginTransaction();
             $regulation = Regulation::query()->findOrFaiL($request->post('regulation_id'));
 
+            if ($regulation->deadline_asked) return $this->sendError('Muddat oldin  soralgan');
+
             RegulationDemand::query()->create([
                 'user_id' => Auth::id(),
                 'regulation_id' => $regulation->id,
