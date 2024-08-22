@@ -34,17 +34,17 @@ class ViolationController extends BaseController
 
             $demands = $regulation->demands()
                 ->where('act_violation_type_id', request('type'))
-                ->with(['actViolation.violation'])
                 ->when(request('type') != 3, function ($query) use ($orderByClause, $actViolationIds) {
                     return $query->whereIn('act_violation_id', $actViolationIds)
+                                 ->with(['actViolation.violation'])
                                  ->orderByRaw($orderByClause);
                 })
                 ->orderBy('created_at')
                 ->paginate(request('per_page', 10));;
 
-           return $this->sendSuccess(RegulationDemandResource::collection($demands), 'Act violations', pagination($demands));
+            return $this->sendSuccess(RegulationDemandResource::collection($demands), 'Act violations', pagination($demands));
 
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage());
         }
     }
@@ -52,7 +52,7 @@ class ViolationController extends BaseController
     public function violations(): JsonResponse
     {
         try {
-            if (request('id')  && request('regulation_id')) {
+            if (request('id') && request('regulation_id')) {
                 $violation = Violation::query()->findOrFail(request('id'));
                 return $this->sendSuccess(new ViolationResource($violation, \request('regulation_id')), 'Violation');
             }
