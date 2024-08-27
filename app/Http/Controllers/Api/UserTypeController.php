@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\UserStatusEnum;
 use App\Http\Requests\UserTypeRequest;
 use App\Http\Resources\UserTypeResource;
+use App\Models\User;
 use App\Models\UserType;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Request;
@@ -23,6 +25,26 @@ class UserTypeController extends BaseController
             })->paginate(\request('perPage', 10));
 
             return $this->sendSuccess(UserTypeResource::collection($query), 'All users types', UserType::pagination($query));
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function count(): JsonResponse
+    {
+        try {
+            $data = [
+                'all' => User::all()->count(),
+                'active' => User::query()->where('user_status_id', UserStatusEnum::ACTIVE)->count(),
+                'additional_leave' => User::query()->where('user_status_id', UserStatusEnum::ADDITIONAL_LEAVE)->count(),
+                'sick_leave' => User::query()->where('user_status_id', UserStatusEnum::SICK_LEAVE)->count(),
+                'journey_leave' => User::query()->where('user_status_id', UserStatusEnum::JOURNEY_LEAVE)->count(),
+                'study_leave' => User::query()->where('user_status_id', UserStatusEnum::STUDY_LEAVE)->count(),
+                'without_reason' => User::query()->where('user_status_id', UserStatusEnum::WITHOUT_REASON)->count(),
+                'not_active' => User::query()->where('user_status_id', UserStatusEnum::NOT_ACTIVE)->count(),
+                'released' => User::query()->where('user_status_id', UserStatusEnum::RELEASED)->count(),
+            ];
+            return $this->sendSuccess($data, 'All users count');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }

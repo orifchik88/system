@@ -36,4 +36,15 @@ trait UserRoleTrait
             ->orWhereRaw('LOWER(middle_name) LIKE ?', ['%' . $searchTerm . '%'])
             ->orWhereRaw('LOWER(surname) LIKE ?', ['%' . $searchTerm . '%']);
     }
+
+    public function scopeSearchByPinfOrPhone($query, $searchTerm)
+    {
+        return $query->where('pinfl LIKE ?', ['%' . $searchTerm . '%'])
+            ->orWhereRaw('phone LIKE ?', ['%' . $searchTerm . '%']);
+    }
+    public function getFullNameAttribute()
+    {
+        return ucwords("{$this->surname} {$this->name} {$this->middle_name}");
+    }
+
 }

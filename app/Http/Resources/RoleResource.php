@@ -26,6 +26,7 @@ class RoleResource extends JsonResource
             'name' => UserRoleEnum::getValueByKey($this->name) ?? $this->name,
         ];
 
+
         if ($this->showPermissions) {
             $data['permissions'] = PermissionResource::collection($this->permissions);
         }

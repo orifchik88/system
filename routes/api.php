@@ -31,6 +31,7 @@ Route::group([
     Route::get('user-type', [UserTypeController::class, 'index']);
     Route::post('user-type/create', [UserTypeController::class, 'create']);
     Route::post('user-type/edit/{id}', [UserTypeController::class, 'edit']);
+    Route::get('users-count', [UserTypeController::class, 'count']);
 
     Route::get('client-type', [ClientTypeController::class, 'index']);
     Route::post('client-type/create', [ClientTypeController::class, 'create']);
@@ -87,7 +88,7 @@ Route::group([
     Route::post('reject-deed', [RegulationController::class, 'rejectDeed']);
     Route::post('reject-answer', [RegulationController::class, 'rejectAnswer']);
 
-    Route::get('act-violations', [ViolationController::class, 'actViolations']);
+    Route::get('act-violations', [ViolationController::class, 'actVioleations']);
     Route::get('violations', [ViolationController::class, 'violations']);
 
     Route::post('test', [RegulationController::class, 'test']);

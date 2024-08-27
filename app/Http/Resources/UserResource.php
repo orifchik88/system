@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Permission\Models\Role;
 
 class UserResource extends JsonResource
 {
@@ -24,12 +25,17 @@ class UserResource extends JsonResource
             'id'=>$this->id,
             'surname' => $this->surname,
             'name' => $this->name,
+            'region' => RegionResource::make($this->region) ?? null,
+            'district' => DistrictResource::make($this->district) ?? null,
             'middle_name' => $this->middle_name,
             'address' => $this->address,
             'organization_name' => $this->organization_name,
+            'roles' => RoleResource::collection($this->roles),
+            'count_objects' => $this->objects ?  $this->objects()->count() : null,
             'phone'=> $this->phone,
-            'nps'=> $this->nps,
+            'pinfl'=> $this->pinfl,
             'login' => $this->login,
+            'status' => UserStatusResource::make($this->status),
             'image' => $this->image ? Storage::disk('public')->url($this->image) : null,
             'permits' => $this->permissions,
         ];

@@ -16,14 +16,24 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends BaseController
 {
-    public function users(Request $request): JsonResponse
+    public function users(): JsonResponse
     {
         $query = User::query()
-            ->when(request('s'), function ($query) {
-//                $query->whereRaw("type_name LIKE '%" . \request('s') . "%'");
+            ->when(request('search'), function ($query) {
+                $query->searchByFullName(request('search'))
+                    ->searchByPinfOrPhone(request('search'));
             })
-            ->when(request('sort'), function ($query) {
-//                $query->orderBy('id', request('sort'));
+            ->when(request('region_id'), function ($query) {
+                $query->where('region_id', request('region_id'));
+            })
+            ->when(request('district_id'), function ($query) {
+                $query->where('district_id', request('district_id'));
+            })
+            ->when(request('role_id'), function ($query) {
+                $query->where('role_id', request('role_id'));
+            })
+            ->when(request('status'), function ($query) {
+                $query->where('user_status_id', request('status'));
             })->paginate(\request('perPage', 10));
 
         return $this->sendSuccess(new UserResourceCollection($query, []), 'All Users', pagination($query));
