@@ -9,12 +9,15 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ProfileController extends BaseController
 {
     public function profile()
     {
         $user = Auth::guard('api')->user();
+
+        $roleId = JWTAuth::parseToken()->getClaim('role_id');
 
         $permissions = $user->getAllPermissions()->groupBy('group_name')->map(function ($group) {
             return [
@@ -29,7 +32,7 @@ class ProfileController extends BaseController
         })->values()->all();
 
 
-        return $this->sendSuccess(new UserResource($user, $permissions), 'User found.');
+        return $this->sendSuccess(new UserResource($user, $permissions, $roleId), 'User found.');
     }
 
     public function edit(ProfileEditRequest $request): JsonResponse

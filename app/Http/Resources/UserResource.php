@@ -9,7 +9,7 @@ use Spatie\Permission\Models\Role;
 
 class UserResource extends JsonResource
 {
-    public function __construct($resource, public  $permissions = null)
+    public function __construct($resource, public  $permissions = null, public  $roleId = null)
     {
         parent::__construct($resource);
     }
@@ -31,6 +31,7 @@ class UserResource extends JsonResource
             'address' => $this->address,
             'organization_name' => $this->organization_name,
             'roles' => RoleResource::collection($this->roles),
+            'role_id' => $this->roleId,
             'count_objects' => $this->objects ?  $this->objects()->count() : null,
             'phone'=> $this->phone,
             'pinfl'=> $this->pinfl,

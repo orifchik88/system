@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class LoginController extends BaseController
 {
@@ -13,14 +14,18 @@ class LoginController extends BaseController
     {
         if (Auth::attempt(['login' => request('username'), 'password' => request('password')])) {
             $user = Auth::user();
-            $success['token'] = $user->createToken('MyApp')->accessToken;
+            $role_id = request('role_id');
+
+            $token = JWTAuth::claims(['role_id' => $role_id])->fromUser($user);
+
+            $success['token'] = $token;
             $success['name'] = $user->name;
 
             return $this->sendSuccess($success, 'User logged in successfully.');
 
         }
         else{
-            return $this->sendError('Unauthorised.', ['error' => 'Unauthorised'], 401);
+            return $this->sendError('Unauthorised.', code: 401);
         }
     }
 
