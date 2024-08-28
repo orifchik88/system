@@ -17,11 +17,11 @@ class EGovService
         $this->client = new Client();
     }
 
-    public function getInfo(string $pinfl, string $sender_pinfl, string $birth_date)
+    public function getInfo(string $pinfl, string $birth_date)
     {
         $apiCredentials = env('BANK_USERNAME') . ':' . env('BANK_PASSWORD');
         try {
-            $resClient = $this->client->post($this->apiUrl . '?pinfl=' . $pinfl . '&sender_pinfl=' . $sender_pinfl . '&birth_date=' . $birth_date,
+            $resClient = $this->client->post($this->apiUrl . '?pinfl=' . $pinfl . '&birth_date=' . $birth_date,
                 [
                     'headers' => [
                         'Authorization' => 'Basic ' . base64_encode($apiCredentials),

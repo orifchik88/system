@@ -17,7 +17,7 @@ class EGovController
 
     public function getPassportInfo(PinflRequest $request)
     {
-        return $this->govService->getInfo($request->get('pinfl'), '31102975540014', $request->get('birth_date'));
+        return $this->govService->getInfo($request->get('pinfl'), $request->get('birth_date'));
     }
 
 }
