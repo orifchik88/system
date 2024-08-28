@@ -14,23 +14,26 @@ class EGovService
 
     public function __construct()
     {
-        $this->client = new Client(['headers' => ['Authorization' => 'Basic ' . base64_encode(env('BANK_USERNAME' . ':' . env('BANK_PASSWORD')))]]);
+        $this->client = new Client();
     }
 
     public function getInfo(string $pinfl, string $sender_pinfl, string $birth_date)
     {
+        $apiCredentials = env('BANK_USERNAME') . ':' . env('BANK_PASSWORD');
         try {
-            $resClient = $this->client->post($this->apiUrl . '?pinfl=' . $pinfl . '&sender_pinfl=' . $sender_pinfl . '&birth_date=' . $birth_date);
+            $resClient = $this->client->post($this->apiUrl . '?pinfl=' . $pinfl . '&sender_pinfl=' . $sender_pinfl . '&birth_date=' . $birth_date,
+                [
+                    'headers' => [
+                        'Authorization' => 'Basic ' . base64_encode($apiCredentials),
+                    ]
+                ]);
 
-            $response = $resClient->getBody();
-            $statusCode = $resClient->getStatusCode();
-
+            $response = json_decode($resClient->getBody(), true);
         } catch (BadResponseException $ex) {
             $response = $ex->getResponse()->getBody()->getContents();
-            $statusCode = $ex->getResponse()->getStatusCode();
         }
 
-        return [$response, $statusCode];
+        return $response;
     }
 
 }
