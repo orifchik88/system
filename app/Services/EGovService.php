@@ -9,74 +9,18 @@ use Illuminate\Http\Request;
 
 class EGovService
 {
-    private string $tokenUrl = 'https://iskm.egov.uz:9444/oauth2/token';
-    private string $apiUrl = 'https://apimgw.egov.uz:8243/gcp/docrest/v1';
-    private string $token = "";
-
+    private string $apiUrl = 'https://api.shaffofqurilish.uz/api/v1/get-egov-token';
     private Client $client;
 
     public function __construct()
     {
-        $headers = [
-            'Authorization' => 'Basic SXVnQ2h4XzFabkxsQWhkMEp4OWVtTjZqV3AwYToxUzlrWGxLQzBhWnd3bHNzb28xSzJmM1NRN3dh'
-        ];
-
-        $this->client = new Client(['headers' => $headers]);
-        $this->token = $this->getToken();
+        $this->client = new Client(['headers' => ['Authorization' => 'Basic ' . base64_encode(env('BANK_USERNAME' . ':' . env('BANK_PASSWORD')))]]);
     }
 
-    private function getToken()
+    public function getInfo(string $pinfl, string $sender_pinfl, string $birth_date)
     {
         try {
-            if (Cache::has('egov_token')) {
-                $token = Cache::get('egov_token');
-            } else {
-                $resClient = $this->client->post($this->tokenUrl,
-                    [
-                        'form_params' => [
-                            'grant_type' => 'password',
-                            'username' => 'qv-user',
-                            'password' => '8F5zl2w68GU1itlyGF0w',
-                        ]
-                    ]
-                );
-
-                $token = json_decode($resClient->getBody(), true)["access_token"];
-                $tokenExpireTime = now()->addMinutes(30);
-
-                Cache::put('egov_token', $token, $tokenExpireTime);
-            }
-
-        } catch (BadResponseException $ex) {
-            Cache::forget('egov_token');
-            return $ex->getResponse()->getBody()->getContents();
-        }
-
-        dd($token);
-        return $token;
-    }
-
-    public function getInfo(string $pinfl)
-    {
-        $headers = [
-            'Authorization' => "Bearer $this->token"
-        ];
-
-        $this->client = new Client(['headers' => $headers]);
-
-        try {
-            $resClient = $this->client->post($this->apiUrl,
-                [
-                    'json' => [
-                        'sender_pinfl' => $pinfl,
-                        'is_photo' => 'Y',
-                        'Sender' => 'P',
-                        'langId' => 1,
-                        'is_consent' => 'Y',
-                        'transaction_id' => 123
-                    ]
-                ]
-            );
+            $resClient = $this->client->post($this->apiUrl . '?pinfl=' . $pinfl . '&sender_pinfl=' . $sender_pinfl . '&birth_date=' . $birth_date);
 
             $response = $resClient->getBody();
             $statusCode = $resClient->getStatusCode();
