@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\PinflRequest;
 use App\Services\EGovService;
 use Illuminate\Http\Request;
 
@@ -13,9 +14,9 @@ class EGovController
         $this->govService = $govService;
     }
 
-    public function getPassportInfo(Request $request)
+    public function getPassportInfo(PinflRequest $request)
     {
-        return $this->govService->getInfo($request);
+        return $this->govService->getInfo($request->get('pinfl'));
     }
 
 }
