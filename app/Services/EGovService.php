@@ -42,7 +42,9 @@ class EGovService
                 );
 
                 $token = json_decode($resClient->getBody(), true)["access_token"];
+                $tokenExpireTime = now()->addMinutes(30);
 
+                Cache::put('egov_token', $token, $tokenExpireTime);
             }
 
         } catch (BadResponseException $ex) {
