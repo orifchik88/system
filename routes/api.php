@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\BlockController;
+use App\Http\Controllers\Api\EGovController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\RegionController;
 use App\Http\Controllers\Api\RegulationController;
@@ -19,7 +20,7 @@ use App\Http\Controllers\Api\MonitoringController;
 
 Route::post('login', [LoginController::class, 'login']);
 
-
+Route::post('test-api', [EGovController::class, 'getPassportInfo']);
 
 Route::group([
     'middleware' => 'auth:api'
