@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\DTO\ObjectDto;
 use App\Enums\ObjectCheckEnum;
+use App\Enums\ObjectStatusEnum;
 use App\Http\Requests\ObjectRequest;
 use App\Http\Resources\ArticleResource;
 use App\Http\Resources\FundingSourceResource;
@@ -27,20 +28,33 @@ class ObjectController extends BaseController
     {
     }
 
-    public function index()
+    public function index(): JsonResponse
     {
         $user = Auth::user();
         if (request()->get('id')) {
             return $this->sendSuccess(ArticleResource::make($user->objects->find(request()->get('id'))), "Object retrieved successfully.");
         }
 
+        if ($user->isIspector())
+        {
+
+        }
 
         $objects = $user->objects()
             ->when(request('status'), function ($query){
                 return $query->whereIn('status', request('status'));
             })
-            ->when(request('name_task'), function ($query) {
-                $query->searchByNameOrTaskId(request('name_task'));
+            ->when(request('name'), function ($query) {
+                $query->searchByName(request('name'));
+            })
+            ->when(request('task_id'), function ($query) {
+                $query->searchByTaskId(request('task_id'));
+            })
+            ->when(request('region_id'), function ($query) {
+                $query->where('region_id', request('region_id'));
+            })
+            ->when(request('district_id'), function ($query) {
+                $query->where('district_id', request('district_id'));
             })
             ->when(request('user_search'), function ($query) {
                 $query->whereHas('users', function ($query) {
@@ -154,6 +168,23 @@ class ObjectController extends BaseController
             }
             return $this->sendSuccess(ObjectStatusResource::collection(ObjectStatus::all()), 'All Object Statuses');
         } catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function objectCount(): JsonResponse
+    {
+        try {
+            $data = [
+                'all' => Article::query()->count(),
+                'new' => Article::query()->where('object_status_id', ObjectStatusEnum::NEW)->count(),
+                'progress' => Article::query()->where('object_status_id', ObjectStatusEnum::PROGRESS)->count(),
+                'frozen' => Article::query()->where('object_status_id', ObjectStatusEnum::FROZEN)->count(),
+                'suspended' => Article::query()->where('object_status_id', ObjectStatusEnum::SUSPENDED)->count(),
+                'submitted' => Article::query()->where('object_status_id', ObjectStatusEnum::SUBMITTED)->count(),
+            ];
+            return $this->sendSuccess($data, 'Object count retrieved successfully.');
+        }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }

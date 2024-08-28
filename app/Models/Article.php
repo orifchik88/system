@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ObjectStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,6 +16,10 @@ class Article extends Model
     use HasFactory, SoftDeletes;
 
     protected $guarded = [];
+
+    protected $casts = [
+        'object_status_id' => ObjectStatusEnum::class
+    ];
 
     public function articleBlocks(): HasMany
     {
@@ -61,13 +66,21 @@ class Article extends Model
         return $this->belongsTo(ObjectSector::class, 'object_sector_id');
     }
 
-    public function scopeSearchByNameOrTaskId($query, $searchTerm)
+    public function scopeSearchByName($query, $searchTerm)
     {
         $searchTerm = strtolower($searchTerm);
 
-        return $query->whereRaw('LOWER(name) LIKE ?', ['%' . $searchTerm . '%'])
-            ->orWhere('task_id', 'like', '%' . $searchTerm . '%');
+        return $query->whereRaw('LOWER(name) LIKE ?', ['%' . $searchTerm . '%']);
+
     }
+    public function scopeSearchByTaskId($query, $searchTerm)
+    {
+        $searchTerm = strtolower($searchTerm);
+
+        return $query->where('task_id', 'like', '%' . $searchTerm . '%')
+                ->orWhere('id', 'like', '%' . $searchTerm . '%');
+    }
+
 
     public function regulations(): HasMany
     {

@@ -59,6 +59,7 @@ Route::group([
     Route::get('objects', [ObjectController::class, 'index']);
     Route::get('object-status', [ObjectController::class, 'status']);
     Route::get('object-types', [ObjectController::class, 'objectTypes']);
+    Route::get('object-count', [ObjectController::class, 'objectCount']);
     Route::get('funding-sources', [ObjectController::class, 'fundingSource']);
     Route::get('object-sectors/{id}', [ObjectController::class, 'objectSectors']);
     Route::post('object-create', [ObjectController::class, 'create']);
