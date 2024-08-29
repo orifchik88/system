@@ -13,8 +13,7 @@ use App\Models\User;
 use App\Models\UserStatus;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Request;
-use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends BaseController
 {
@@ -27,28 +26,32 @@ class UserController extends BaseController
 
     public function create(UserRequest $request): JsonResponse
     {
+        $imagePath = null;
 
-        $role = Role::query()->findOrFail($request->input('role_id'));
+        if ($request->hasFile('image'))
+        {
+            $imagePath = $request->file('image')->store('user', 'public');
+        }
 
-        $user = new User();
-        $user->pinfl = $request->input('pinfl');
-        $user->surname = $request->input('surname');
-        $user->name = $request->input('name');
-        $user->middle_name = $request->input('middle_name');
-        $user->address = $request->input('address');
-        $user->passport_number = $request->input('passport_number');
-        $user->phone = $request->input('phone');
-        $user->region_id = $request->input('region_id');
-        $user->district_id = $request->input('district_id');
-        $user->login = $request->input('login');
-        $user->password = bcrypt($request->input('password'));
-        $user->user_status_id = $request->input('user_status_id');
+       $user = User::query()->create([
+           "name" => $request->name,
+           "phone" => $request->phone,
+           "pinfl" => $request->pinfl,
+           'password' => Hash::make($request->phone),
+           'login' => $request->phone,
+           "user_status_id" => $request->user_status_id,
+           "surname" => $request->surname,
+           "middle_name" => $request->middle_name,
+           "region_id" => $request->region_id,
+           "district_id" => $request->district_id,
+           'image' => $imagePath,
+       ]);
 
+        if ($request->filled('role_ids')) {
+            $user->roles()->attach($request->role_ids);
+        }
 
-        $user->save();
-        $user->assignRole($role->name);
-
-        return $this->sendSuccess($user, 'User Created Successfully');
+        return $this->sendSuccess(new UserResource($user),  'User Created Successfully');
     }
 
     public function edit(): JsonResponse

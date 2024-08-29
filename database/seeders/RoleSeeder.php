@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -12,9 +13,11 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        $meta[] = [
-            'Registrator' => 'Registrator',
+        $meta = [
+            'Respublika Kadr' => 'Respublika Kadr',
+            'Viloyat Kadr' => 'Viloyat Kadr',
             'Inspector' => 'Inspector',
+            'Registrator' => 'Registrator',
             'Quruvchi' => 'Ichki nazorat',
             'Buyurtmachi' => 'Texnik nazorat',
             'Operator' => 'Operator',
@@ -26,8 +29,20 @@ class RoleSeeder extends Seeder
             'Nogironlar jamiyati' => 'Nogironlar jamiyati',
             'Nogironlar assotsatsiyasi' => 'Nogironlar assotsatsiyasi',
             'Uy-joy inspeksiyasi' => 'Uy-joy inspeksiyasi',
-            'Viloyat kuzatuvchi' => 'Viloyat kuzatuvchi',
-
+            'SES Respublika Kadr' => 'SES Respublika Kadr',
+            'SES Viloyat Kadr' => 'SES Viloyat Kadr',
+            'MCHS Respublika Kadr' => 'MCHS Respublika Kadr',
+            'MCHS Viloyat Kadr' => 'MCHS Viloyat Kadr',
+            'Respublika Nogironlar Jamiyati Kadr' => 'Respublika Nogironlar Jamiyati Kadr',
+            'Respublika Nogironlar Assotsatsiya Kadr' => 'Respublika Nogironlar Assotsatsiya Kadr',
+            'Respublika Uy-Joy Inspeksiya Kadr' => 'Respublika Uy-Joy Inspeksiya Kadr'
         ];
+
+        foreach ($meta as $key => $role) {
+            Role::query()->create([
+                'name' => $key,
+                'description' => $role
+            ]);
+        }
     }
 }

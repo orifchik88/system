@@ -12,13 +12,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Spatie\Permission\Traits\HasRoles;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasFactory, Notifiable, HasRoles,SoftDeletes, UserRoleTrait;
+    use HasFactory, Notifiable,SoftDeletes, UserRoleTrait;
 
 
     public function getJWTIdentifier()
@@ -49,6 +48,11 @@ class User extends Authenticatable implements JWTSubject
         'password' => 'hashed',
         'user_status_id' => UserStatusEnum::class
     ];
+
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class, 'user_roles', 'user_id', 'role_id');
+    }
 
     public function region(): BelongsTo
     {

@@ -15,12 +15,12 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            RoleSeeder::class,
             ActViolationTypeSeeder::class,
             ActStatusSeeder::class,
             RegulationStatusSeeder::class,
             RegulationTypeSeeder::class,
             RegionSeeder::class,
-            RolePermissionSeeder::class,
             UserStatusSeeder::class,
             UserSeeder::class,
             AppearanceTypeSeeder::class,
@@ -35,8 +35,5 @@ class DatabaseSeeder extends Seeder
             LevelSeeder::class,
             QuestionSeeder::class,
         ]);
-
-        UserType::factory(10)->create();
-        ClientType::factory(10)->create();
     }
 }

@@ -12,46 +12,16 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        $users = [
-            [
-                'name' => 'Inspector',
-                'login' => 'inspector',
-                'phone' => '+998917894512',
-                'pinfl' => '1234567894551',
-                'password' => 'inspector',
-                'user_status_id' => 1,
-                'role' => 'inspector'
-            ],
-            [
-                'name' => 'Super Admin',
-                'login' => 'superadmin',
-                'phone' => '+998337071727',
-                'pinfl' => '1234567894551',
-                'password' => 'admin',
-                'user_status_id' => 1,
-                'role' => 'admin'
-            ],
-            [
-                'name' => 'Register',
-                'login' => 'register',
-                'phone' => '+998941234567',
-                'pinfl' => '1234567894551',
-                'password' => 'register',
-                'user_status_id' => 1,
-                'role' => 'register'
-            ],
+        $resKadr = User::query()->create([
+            'name' => 'Res Kadr',
+            'login' => 'reskadr',
+            'phone' => '+998917894512',
+            'pinfl' => '1234567894551',
+            'password' => 'reskadr',
+            'user_status_id' => 1,
+        ]);
 
-        ];
+        $resKadr->roles()->attach(1);
 
-        foreach ($users as $userData) {
-            $user = User::create([
-                'name' => $userData['name'],
-                'login' => $userData['login'],
-                'pinfl' => $userData['pinfl'],
-                'password' => $userData['password'],
-                'user_status_id' => $userData['user_status_id'],
-            ]);
-            $user->assignRole($userData['role']);
-        }
     }
 }

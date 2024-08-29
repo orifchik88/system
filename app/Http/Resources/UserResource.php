@@ -9,10 +9,10 @@ use Spatie\Permission\Models\Role;
 
 class UserResource extends JsonResource
 {
-    public function __construct($resource, public  $permissions = null, public  $roleId = null)
-    {
-        parent::__construct($resource);
-    }
+//    public function __construct($resource, public  $permissions = null, public  $roleId = null)
+//    {
+//        parent::__construct($resource);
+//    }
 
     /**
      * Transform the resource into an array.
@@ -28,17 +28,13 @@ class UserResource extends JsonResource
             'region' => RegionResource::make($this->region) ?? null,
             'district' => DistrictResource::make($this->district) ?? null,
             'middle_name' => $this->middle_name,
-            'address' => $this->address,
-            'organization_name' => $this->organization_name,
             'roles' => RoleResource::collection($this->roles),
-            'role_id' => $this->roleId,
             'count_objects' => $this->objects ?  $this->objects()->count() : null,
             'phone'=> $this->phone,
             'pinfl'=> $this->pinfl,
             'login' => $this->login,
             'status' => UserStatusResource::make($this->status),
             'image' => $this->image ? Storage::disk('public')->url($this->image) : null,
-            'permits' => $this->permissions,
         ];
     }
 }

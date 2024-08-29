@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\UserStatusEnum;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UserRequest extends FormRequest
@@ -27,31 +28,19 @@ class UserRequest extends FormRequest
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg',
             "pinfl" => "required|integer|digits:14",
             "user_status_id" => "required|exists:user_statuses,id",
-            "doc_number" => "string",
-            "diplom" => "file",
-            "objective" => "file",
-            "attestation" => "string",
-            "nps" => "string",
             "surname" => "string",
             "middle_name" => "string",
-            "address" => "string",
-            "passport_number" => "string",
             "region_id" => "required|exists:regions,id",
             "district_id" => "required|exists:districts,id",
-            "organization_name" => "string",
-            "company_id" => "integer",
-            "user_type_id" => "exists:user_types,id",
-            "is_activated" => "boolean",
-            "shq_id" => "integer",
-            "stir_org" => "string",
-            "datenm_contract" => "string",
-            "name_graduate_study" => "string",
-            "diplom_number" => "string",
-            "date_issue_diploma" => "string",
-            "certificate_courses" => "string",
-            "specialization" => "string",
-            "role_in_object" => "string",
-            "role_id" => "integer",
+            "role_ids" => "required|array",
+            "role_ids.*" => "required|integer|exists:roles,id",
         ];
+    }
+
+    public function prepareForValidation()
+    {
+        $this->merge([
+            'user_status_id' => UserStatusEnum::ACTIVE->value,
+        ]);
     }
 }
