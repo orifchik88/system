@@ -26,7 +26,6 @@ class UserController extends BaseController
 
     public function create(UserRequest $request): JsonResponse
     {
-        return $this->sendError('bla bla', code: 400);
 
         try {
             $imagePath = null;
