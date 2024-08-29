@@ -26,32 +26,38 @@ class UserController extends BaseController
 
     public function create(UserRequest $request): JsonResponse
     {
-        $imagePath = null;
+        return $this->sendError('bla bla', code: 400);
 
-        if ($request->hasFile('image'))
-        {
-            $imagePath = $request->file('image')->store('user', 'public');
+        try {
+            $imagePath = null;
+
+            if ($request->hasFile('image'))
+            {
+                $imagePath = $request->file('image')->store('user', 'public');
+            }
+
+            $user = User::query()->create([
+                "name" => $request->name,
+                "phone" => $request->phone,
+                "pinfl" => $request->pinfl,
+                'password' => Hash::make($request->phone),
+                'login' => $request->phone,
+                "user_status_id" => $request->user_status_id,
+                "surname" => $request->surname,
+                "middle_name" => $request->middle_name,
+                "region_id" => $request->region_id,
+                "district_id" => $request->district_id,
+                'image' => $imagePath,
+            ]);
+
+            if ($request->filled('role_ids')) {
+                $user->roles()->attach($request->role_ids);
+            }
+
+            return $this->sendSuccess(new UserResource($user),  'User Created Successfully');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
         }
-
-       $user = User::query()->create([
-           "name" => $request->name,
-           "phone" => $request->phone,
-           "pinfl" => $request->pinfl,
-           'password' => Hash::make($request->phone),
-           'login' => $request->phone,
-           "user_status_id" => $request->user_status_id,
-           "surname" => $request->surname,
-           "middle_name" => $request->middle_name,
-           "region_id" => $request->region_id,
-           "district_id" => $request->district_id,
-           'image' => $imagePath,
-       ]);
-
-        if ($request->filled('role_ids')) {
-            $user->roles()->attach($request->role_ids);
-        }
-
-        return $this->sendSuccess(new UserResource($user),  'User Created Successfully');
     }
 
     public function edit(): JsonResponse
