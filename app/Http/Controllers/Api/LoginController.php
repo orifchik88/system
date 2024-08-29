@@ -31,8 +31,8 @@ class LoginController extends BaseController
 
     public function logout(): JsonResponse
     {
-        $user = Auth::guard('api')->user();
-        $user->token()->revoke();
+        JWTAuth::invalidate(JWTAuth::getToken());
+
         return $this->sendSuccess(null,'Logged out successfully.');
     }
 
