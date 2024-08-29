@@ -66,7 +66,6 @@ class UserController extends BaseController
            $meta = [
                'pinfl' => $data['current_pinpp'],
                'name' => $data['namelat'],
-               'passport_number' => $data['current_document'],
                'surname' => $data['surnamelat'],
                'middle_name' => $data['patronymlat'],
                'image' => $data['photo'],
