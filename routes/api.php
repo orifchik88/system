@@ -49,6 +49,8 @@ Route::group([
     Route::post('users/create', [UserController::class, 'create']);
     Route::get('users/status', [UserController::class, 'status']);
     Route::get('users/edit/{id}', [UserController::class, 'edit']);
+    Route::get('passport-info', [UserController::class, 'getPassportInfo']);
+
     Route::get('registers', [RegisterController::class, 'registers']);
     Route::get('register-status', [RegisterController::class, 'status']);
     Route::get('register-get-pdf', [RegisterController::class, 'getPDF']);

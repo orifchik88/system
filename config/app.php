@@ -68,6 +68,12 @@ return [
         'password' => env('MY_GOV_PASS', 'Cx8]^]-Gk*mZK@.,S=c.g65>%[$TNRV75bYX<v+_'),
     ],
 
+    "passport" => [
+        "url" => 'https://api.shaffofqurilish.uz/api/v1/get-egov-token',
+        "login" => env('BANK_USERNAME', 'dev@gasn'),
+        "password" => env('BANK_PASSWORD', 'EkN`9?@{3v0j'),
+    ],
+
     'rate_supervision' => 0.2,
 
     'asset_url' => env('ASSET_URL'),
