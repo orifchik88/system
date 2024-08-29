@@ -65,8 +65,7 @@ class UserTypeController extends BaseController
             $userType->fill($request->validated());
             $userType->save();
             return $this->sendSuccess(UserTypeResource::make($userType), 'User type updated');
-        } catch (\Exception $exception)
-        {
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
