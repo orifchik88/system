@@ -19,7 +19,7 @@ class UserSeeder extends Seeder
                 'phone' => '+998917894512',
                 'pinfl' => '1234567894551',
                 'password' => 'inspector',
-                'user_status_id' => 6,
+                'user_status_id' => 1,
                 'role' => 'inspector'
             ],
             [
@@ -28,7 +28,7 @@ class UserSeeder extends Seeder
                 'phone' => '+998337071727',
                 'pinfl' => '1234567894551',
                 'password' => 'admin',
-                'user_status_id' => 6,
+                'user_status_id' => 1,
                 'role' => 'admin'
             ],
             [
@@ -37,7 +37,7 @@ class UserSeeder extends Seeder
                 'phone' => '+998941234567',
                 'pinfl' => '1234567894551',
                 'password' => 'register',
-                'user_status_id' => 6,
+                'user_status_id' => 1,
                 'role' => 'register'
             ],
 

@@ -14,13 +14,8 @@ class UserStatusSeeder extends Seeder
     public function run(): void
     {
         $meta = [
-           "Qo'shimcha ta'tili",
-            "Kasalllik ta'tili",
-            "Sayohat ta'tili",
-            "O'qish ta'tili",
-            "Sababsiz",
             "Faol",
-            "Nofaol",
+            "Tatilda",
             "Bo'shatilgan",
         ];
 
