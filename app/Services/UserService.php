@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
+use function Symfony\Component\Translation\t;
 
 class UserService
 {
@@ -44,10 +45,11 @@ class UserService
                 ]);
 
             $response = json_decode($resClient->getBody(), true);
-        } catch (BadResponseException $ex) {
-            $response = $ex->getResponse()->getBody()->getContents();
-        }
 
-        return $response['result']['data']['data'][0];
+            return $response['result']['data']['data'][0];
+
+        } catch (BadResponseException $ex) {
+            throw new \Exception($ex->getMessage());
+        }
     }
 }

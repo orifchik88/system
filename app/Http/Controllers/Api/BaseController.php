@@ -13,7 +13,9 @@ class BaseController extends Controller
         $response = [
             'success' => true,
             'message' => $message,
-            'data' => $result,
+            'result' => [
+                'data' => $result,
+            ],
         ];
 
         if (!empty($meta)) {
@@ -28,7 +30,7 @@ class BaseController extends Controller
         $response = [
             'success' => false,
             'message' => $error,
-            'code'=> $code,
+            'code' => $code,
         ];
 
         if (!empty($errorMessages)) {
