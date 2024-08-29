@@ -23,14 +23,8 @@ class UserRequest extends FormRequest
     {
         return [
             "name" => "required|string",
-            "project_id" => "integer",
-            "client_platform_id" => "integer",
-            "client_type_id" => "required|exists:client_types,id",
             "phone" => "string",
-            "login" => "required|string|unique:users",
-            "password" => "required|string",
-            "active" => "integer",
-            "image" => "string",
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg',
             "pinfl" => "required|integer|digits:14",
             "user_status_id" => "required|exists:user_statuses,id",
             "doc_number" => "string",
