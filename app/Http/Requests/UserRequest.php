@@ -25,9 +25,9 @@ class UserRequest extends FormRequest
     {
         return [
             "name" => "required|string",
-            "phone" => "string",
+            "phone" => "required|string|unique:users,phone",
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg',
-            "pinfl" => "required|integer|digits:14",
+            "pinfl" => "required|integer|digits:14|unique:users,pinfl",
             "user_status_id" => "required|exists:user_statuses,id",
             "surname" => "string",
             "middle_name" => "string",
