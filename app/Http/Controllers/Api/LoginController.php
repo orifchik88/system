@@ -2,7 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\UserStatusEnum;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\DistrictResource;
+use App\Http\Resources\ImageResource;
+use App\Http\Resources\RegionResource;
+use App\Http\Resources\RoleResource;
+use App\Http\Resources\UserStatusResource;
+use App\Models\Role;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,12 +21,19 @@ class LoginController extends BaseController
     {
         if (Auth::attempt(['login' => request('username'), 'password' => request('password')])) {
             $user = Auth::user();
-            $role_id = request('role_id');
-
-            $token = JWTAuth::claims(['role_id' => $role_id])->fromUser($user);
+            if ($user->user_status_id != UserStatusEnum::ACTIVE) return $this->sendError('Kirish huquqi mavjud emas', code: 401);
+            $roleId = request('role_id');
+            $role = Role::query()->find($roleId);
+            $token = JWTAuth::claims(['role_id' => $roleId])->fromUser($user);
 
             $success['token'] = $token;
-            $success['name'] = $user->name;
+            $success['full_name'] = $user->full_name;
+            $success['pinfl'] = $user->pinfl;
+            $success['role'] = new RoleResource($role);
+            $success['status'] = new UserStatusResource($user->status);
+            $success['region'] = $user->region_id ? new RegionResource($user->region) : null;
+            $success['district'] = $user->district_id ?  new DistrictResource($user->district) : null;
+            $success['image'] = $user->image ?  new ImageResource($user->image) : null;
 
             return $this->sendSuccess($success, 'User logged in successfully.');
 
