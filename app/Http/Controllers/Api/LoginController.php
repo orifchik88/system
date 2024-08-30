@@ -34,7 +34,7 @@ class LoginController extends BaseController
             $success['status'] = new UserStatusResource($user->status);
             $success['region'] = $user->region_id ? new RegionResource($user->region) : null;
             $success['district'] = $user->district_id ?  new DistrictResource($user->district) : null;
-            $success['image'] = $user->image ?  Storage::disk('public')->url($this->image): null;
+            $success['image'] = $user->image ?  Storage::disk('public')->url($user->image): null;
 
             return $this->sendSuccess($success, 'User logged in successfully.');
 
