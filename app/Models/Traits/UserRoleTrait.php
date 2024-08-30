@@ -11,7 +11,7 @@ trait UserRoleTrait
 
     public function isKadr(): bool
     {
-        return $this->roles()->where('id', 1)->exists();
+        return $this->roles()->where('role_id', 1)->exists();
     }
 
     public function isRegister($roleId): bool
