@@ -13,6 +13,7 @@ use App\Models\Role;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class LoginController extends BaseController
@@ -33,7 +34,7 @@ class LoginController extends BaseController
             $success['status'] = new UserStatusResource($user->status);
             $success['region'] = $user->region_id ? new RegionResource($user->region) : null;
             $success['district'] = $user->district_id ?  new DistrictResource($user->district) : null;
-            $success['image'] = $user->image ?  new ImageResource($user->image) : null;
+            $success['image'] = $user->image ?  Storage::disk('public')->url($this->image): null;
 
             return $this->sendSuccess($success, 'User logged in successfully.');
 
