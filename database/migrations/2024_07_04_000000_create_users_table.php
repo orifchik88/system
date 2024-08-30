@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('middle_name')->nullable();
             $table->string('password');
             $table->tinyInteger('active')->default(0);
+            $table->integer('created_by')->index()->nullable();
             $table->string('image')->nullable();
             $table->string('pinfl')->index();
             $table->foreignId('user_status_id')->constrained();

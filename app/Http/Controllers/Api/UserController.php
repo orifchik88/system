@@ -34,7 +34,6 @@ class UserController extends BaseController
             {
                 $imagePath = $request->file('image')->store('user', 'public');
             }
-
             $user = User::query()->create([
                 "name" => $request->name,
                 "phone" => $request->phone,
@@ -46,6 +45,7 @@ class UserController extends BaseController
                 "middle_name" => $request->middle_name,
                 "region_id" => $request->region_id,
                 "district_id" => $request->district_id,
+                "created_by" => $request->created_by,
                 'image' => $imagePath,
             ]);
 

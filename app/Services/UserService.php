@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
+use Illuminate\Support\Facades\Auth;
 use function Symfony\Component\Translation\t;
 
 class UserService
@@ -15,7 +16,8 @@ class UserService
 
     public function getAllUsers(): object
     {
-        return  $this->user->query()
+        $auth = Auth::user();
+        $users = $this->user->query()
             ->when(request('search'), function ($query) {
                 $query->searchByFullName(request('search'))
                     ->searchByPinfOrPhone(request('search'));
@@ -31,7 +33,13 @@ class UserService
             })
             ->when(request('status'), function ($query) {
                 $query->where('user_status_id', request('status'));
-            })->paginate(\request('perPage', 10));
+            });
+
+        if ($auth->isKadr()){
+            return $users->paginate(\request('perPage', 10));
+        }else{
+            return $users->where('created_by', $auth->id)->paginate(\request('perPage', 10));
+        }
     }
 
     public function getInfo(string $pinfl, string $birth_date)

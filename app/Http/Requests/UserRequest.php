@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\UserStatusEnum;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class UserRequest extends FormRequest
 {
@@ -34,6 +35,7 @@ class UserRequest extends FormRequest
             "district_id" => "required|exists:districts,id",
             "role_ids" => "required|array",
             "role_ids.*" => "required|integer|exists:roles,id",
+            'created_by' => "required|exists:users,id",
         ];
     }
 
@@ -41,6 +43,7 @@ class UserRequest extends FormRequest
     {
         $this->merge([
             'user_status_id' => UserStatusEnum::ACTIVE->value,
+            'created_by' => Auth::id(),
         ]);
     }
 }

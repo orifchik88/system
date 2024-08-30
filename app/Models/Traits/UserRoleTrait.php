@@ -9,9 +9,9 @@ trait UserRoleTrait
 //        return ;
 //    }
 
-    public function isKadr($roleId): bool
+    public function isKadr(): bool
     {
-
+        return $this->roles()->where('id', 1)->exists();
     }
 
     public function isRegister($roleId): bool
