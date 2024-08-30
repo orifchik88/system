@@ -24,6 +24,8 @@ class RoleResource extends JsonResource
         $data = [
             'id' => $this->id,
             'name' => UserRoleEnum::getValueByKey($this->name) ?? $this->name,
+            'type' => $this->type,
+            'description' => $this->description
         ];
 
 
