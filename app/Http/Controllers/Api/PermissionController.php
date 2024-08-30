@@ -30,16 +30,19 @@ class PermissionController extends BaseController
         return $this->sendSuccess($groupedPermissions, 'All Permissions');
     }
 
-    public function roles(Request $request): JsonResponse
+    public function roles(): JsonResponse
     {
-        if ($request::input('id'))
+        if (request('id'))
         {
-            $role = Role::findOrFail($request::input('id'));
+            $role = Role::findOrFail(request('id'));
             return $this->sendSuccess(RoleResource::make($role), 'Role');
+        }
+        if (request('type'))
+        {
+            $roles = Role::query()->where('type', request('type'))->paginate(request('per_page', 10));
+            return $this->sendSuccess(RoleResource::collection($roles), 'Roles by type', pagination($roles));
         }
         $roles = Role::query()->paginate(request::input('page_size', 10));
         return $this->sendSuccess(RoleResource::collection($roles), 'All Roles', pagination($roles));
     }
-
-
 }
