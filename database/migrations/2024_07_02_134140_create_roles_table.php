@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('description')->nullable();
             $table->tinyInteger('type')->nullable();
             $table->boolean('status')->default(true);
+            $table->json('children')->nullable();
             $table->timestamps();
         });
     }

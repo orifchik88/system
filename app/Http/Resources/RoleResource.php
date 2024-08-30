@@ -8,12 +8,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class RoleResource extends JsonResource
 {
-
-//    public function __construct($resource, protected $showPermissions)
-//    {
-//        parent::__construct($resource);
-//    }
-
     /**
      * Transform the resource into an array.
      *
@@ -27,12 +21,6 @@ class RoleResource extends JsonResource
             'type' => $this->type,
             'description' => $this->description
         ];
-
-
-//        if ($this->showPermissions) {
-//            $data['permissions'] = PermissionResource::collection($this->permissions);
-//        }
-
         return $data;
     }
 }

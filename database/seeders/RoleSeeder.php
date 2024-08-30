@@ -159,5 +159,33 @@ class RoleSeeder extends Seeder
                 'type' => $role['type'],
             ]);
         }
+
+        $role1 = Role::query()->find(1)->update([
+            'children' => [2, 3, 4, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,26]
+        ]);
+        $role2 = Role::query()->find(2)->update([
+            'children' => [3, 4, 11, 13, 15, 16, 17, 18, 19, 21, 23]
+        ]);
+        $role20 = Role::query()->find(20)->update([
+            'children' => [21, 16]
+        ]);
+        $role21 = Role::query()->find(21)->update([
+            'children' => [16]
+        ]);
+        $role22 = Role::query()->find(22)->update([
+            'children' => [23 , 15]
+        ]);
+        $role23 = Role::query()->find(23)->update([
+            'children' => [15]
+        ]);
+        $role24 = Role::query()->find(24)->update([
+            'children' => [17]
+        ]);
+        $role25 = Role::query()->find(25)->update([
+            'children' => [18]
+        ]);
+        $role26 = Role::query()->find(26)->update([
+            'children' => [19]
+        ]);
     }
 }

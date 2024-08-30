@@ -13,6 +13,7 @@ class Role extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'type' => RoleTypeEnum::class
+        'type' => RoleTypeEnum::class,
+        'children' => 'array'
     ];
 }

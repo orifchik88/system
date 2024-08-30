@@ -35,14 +35,11 @@ class PermissionController extends BaseController
         if (request('id'))
         {
             $role = Role::findOrFail(request('id'));
-            return $this->sendSuccess(RoleResource::make($role), 'Role');
+
+            $roles =  Role::query()->whereIn('id', $role->children)->paginate(10);
+
+            return $this->sendSuccess(RoleResource::collection($roles), 'Roles', pagination($roles));
         }
-        if (request('type'))
-        {
-            $roles = Role::query()->where('type', request('type'))->paginate(request('per_page', 10));
-            return $this->sendSuccess(RoleResource::collection($roles), 'Roles by type', pagination($roles));
-        }
-        $roles = Role::query()->paginate(request::input('page_size', 10));
-        return $this->sendSuccess(RoleResource::collection($roles), 'All Roles', pagination($roles));
+        return $this->sendSuccess([], 'Roles');
     }
 }
