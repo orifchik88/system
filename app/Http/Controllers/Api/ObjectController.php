@@ -31,14 +31,9 @@ class ObjectController extends BaseController
     public function index(): JsonResponse
     {
         $user = Auth::user();
-        if (request()->get('id')) {
-            return $this->sendSuccess(ArticleResource::make($user->objects->find(request()->get('id'))), "Object retrieved successfully.");
-        }
-
-        if ($user->isIspector())
-        {
-
-        }
+//        if (request()->get('id')) {
+//            return $this->sendSuccess(ArticleResource::make($user->objects->find(request()->get('id'))), "Object retrieved successfully.");
+//        }
 
         $objects = $user->objects()
             ->when(request('status'), function ($query){
@@ -63,6 +58,16 @@ class ObjectController extends BaseController
             })
             ->paginate(\request('perPage', 10));
         return $this->sendSuccess(ArticleResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
+    }
+
+    public function getObject($id): JsonResponse
+    {
+        try {
+           $object = Article::query()->findOrFail($id);
+           return  $this->sendSuccess(ArticleResource::make($object), 'Object retrieved successfully.');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
     }
 
     public function objectTypes(): JsonResponse
