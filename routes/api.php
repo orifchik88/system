@@ -52,6 +52,7 @@ Route::group([
     Route::post('passport-info', [UserController::class, 'getPassportInfo']);
 
     Route::get('registers', [RegisterController::class, 'registers']);
+    Route::get('register/{id}', [RegisterController::class, 'getRegister']);
     Route::get('register-status', [RegisterController::class, 'status']);
     Route::get('register-get-pdf', [RegisterController::class, 'getPDF']);
 
