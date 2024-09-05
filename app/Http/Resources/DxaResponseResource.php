@@ -36,7 +36,9 @@ class DxaResponseResource extends JsonResource
         return [
             'id' =>$this->id,
             'user_type' => $this->user_type,
-            'task_id' => $this->task_id,
+            'task_id' => [
+                $this->task_id
+            ],
             'status' => DxaResponseStatusResource::make($this->status),
             'deadline' => $this->deadline,
             'organization_name' => $this->organization_name,

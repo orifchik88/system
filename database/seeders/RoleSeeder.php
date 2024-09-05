@@ -27,8 +27,8 @@ class RoleSeeder extends Seeder
             ],
 
             [
-                'name' => 'Inspector',
-                'description' => 'Inspector',
+                'name' => 'Inspektor',
+                'description' => 'Inspektor',
                 'type' => RoleTypeEnum::DISTRICT
             ],
             [
