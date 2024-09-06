@@ -136,6 +136,24 @@ class RegisterController extends BaseController
         }
     }
 
+    public function registerCount(): JsonResponse
+    {
+        try {
+            $data = [
+                'all' => DxaResponse::query()->count(),
+                'new' => DxaResponse::query()->where('dxa_response_status_id', DxaResponseStatusEnum::NEW)->count(),
+                'in_inspector' => DxaResponse::query()->where('dxa_response_status_id', DxaResponseStatusEnum::SEND_INSPECTOR)->count(),
+                'in_register' => DxaResponse::query()->where('dxa_response_status_id', DxaResponseStatusEnum::IN_REGISTER)->count(),
+                'accepted' => DxaResponse::query()->where('dxa_response_status_id', DxaResponseStatusEnum::ACCEPTED)->count(),
+                'rejected' => DxaResponse::query()->where('dxa_response_status_id', DxaResponseStatusEnum::REJECTED)->count(),
+                'canceled' => DxaResponse::query()->where('dxa_response_status_id', DxaResponseStatusEnum::CANCELED)->count(),
+            ];
+            return $this->sendSuccess($data, 'Response count retrieved successfully.');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
 
 
     public function rejectRegister(DxaResponseRejectRequest $request): JsonResponse
