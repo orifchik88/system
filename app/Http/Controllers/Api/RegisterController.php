@@ -22,7 +22,11 @@ class RegisterController extends BaseController
 
     public function registers(): JsonResponse
     {
-
+        if (request()->get('id'))
+        {
+            $register = DxaResponse::findOrFail(request()->get('id'));
+            return $this->sendSuccess(DxaResponseResource::make($register), 'Register successfully.');
+        }
         if (request('status_id'))
         {
             $registers = DxaResponse::query()
@@ -35,16 +39,6 @@ class RegisterController extends BaseController
         }
 
         return $this->sendSuccess(DxaResponseResource::collection($registers), 'All registers  successfully.', pagination($registers));
-    }
-
-    public function getRegister($id): JsonResponse
-    {
-        try {
-            $register = DxaResponse::query()->findOrFail($id);
-            return $this->sendSuccess(DxaResponseResource::make($register), 'Register successfully.');
-        }catch (\Exception $exception){
-            return $this->sendError($exception->getMessage(), $exception->getCode());
-        }
     }
 
     public function status(): JsonResponse
@@ -64,7 +58,7 @@ class RegisterController extends BaseController
             $response = Http::withBasicAuth(
                 config('app.mygov.login'),
                 config('app.mygov.password'),
-            )->get(config('app.mygov.url').'/get-pdf?id=' . request()->get('id'));
+            )->get(config('app.mygov.url').'/get-pdf?id=' . request('id'));
 
             return $this->sendSuccess($response->json(), 'PDF file generated successfully.');
 

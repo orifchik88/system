@@ -99,7 +99,6 @@ Route::group([
 
     Route::post('test', [RegulationController::class, 'test']);
 
-
 });
 
 

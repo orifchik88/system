@@ -60,13 +60,13 @@ class RoleSeeder extends Seeder
             ],
 
             [
-                'name' => 'Loyihachi',
+                'name' => 'Loyiha tashkiloti',
                 'description' => 'Loyihachi yuridik Shaxs',
                 'type' => null
             ],
             [
-                'name' => 'Quruvchi',
-                'description' => 'Quruvchi',
+                'name' => 'Qurilish tashkiloti',
+                'description' => 'Quruvchi yuridik Shaxs',
                 'type' => null
             ],
             [
@@ -75,28 +75,28 @@ class RoleSeeder extends Seeder
                 'type' => RoleTypeEnum::REGION
             ],
             [
-                'name' => 'Boshliq',
-                'description' => 'Boshliq',
+                'name' => 'Inspeksiya boshlig\'i',
+                'description' => 'Inspeksiya boshlig\'i',
                 'type' => RoleTypeEnum::REGION
             ],
             [
-                'name' => 'Kuzatuvchi',
+                'name' => 'Hududiy kuzatuvchi',
                 'description' => 'Viloyat Kuzatuvchi',
                 'type' => RoleTypeEnum::REGION
             ],
             [
-                'name' => 'Kuzatuvchi',
+                'name' => 'Respublika kuzatuvchi',
                 'description' => 'Respublika Kuzatuvchi',
                 'type' => RoleTypeEnum::REPUBLIC
             ],
             [
-                'name' => 'O\'t O\'chirish',
-                'description' => 'O\'t O\'chirish',
+                'name' => 'Tuman FVB',
+                'description' => 'O\'t O\'chirish tuman',
                 'type' => RoleTypeEnum::DISTRICT
             ],
             [
-                'name' => 'SES',
-                'description' => 'SES',
+                'name' => 'Tuman SEOM',
+                'description' => 'SES tuman',
                 'type' => RoleTypeEnum::DISTRICT
             ],
             [
@@ -115,22 +115,22 @@ class RoleSeeder extends Seeder
                 'type' => RoleTypeEnum::REGION
             ],
             [
-                'name' => 'SES Kadr',
+                'name' => 'SEOM Respublika kadr',
                 'description' => 'SES Kadr Respublika',
                 'type' => RoleTypeEnum::REPUBLIC
             ],
             [
-                'name' => 'SES Kadr',
+                'name' => 'SEOM viloyat kadr',
                 'description' => 'SES Kadr Viloyat',
                 'type' => RoleTypeEnum::REGION
             ],
             [
-                'name' => 'MCHS  Kadr',
+                'name' => 'FVV kadr',
                 'description' => 'MCHS  Kadr Respublika',
                 'type' => RoleTypeEnum::REPUBLIC
             ],
             [
-                'name' => 'MCHS  Kadr',
+                'name' => 'FVB kadr',
                 'description' => 'MCHS  Kadr Viloyat',
                 'type' => RoleTypeEnum::REGION
             ],
@@ -142,11 +142,6 @@ class RoleSeeder extends Seeder
             [
                 'name' => 'Nogironlar Assotsatsiya Kadr',
                 'description' => 'Respublika Nogironlar Assotsatsiya Kadr',
-                'type' => RoleTypeEnum::REPUBLIC
-            ],
-            [
-                'name' => 'Uy-Joy Inspeksiya Kadr',
-                'description' => 'Respublika Uy-Joy Inspeksiya Kadr',
                 'type' => RoleTypeEnum::REPUBLIC
             ],
         ];

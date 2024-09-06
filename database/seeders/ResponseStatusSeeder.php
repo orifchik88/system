@@ -14,10 +14,11 @@ class ResponseStatusSeeder extends Seeder
 
     public function run(): void
     {
-        DxaResponseStatus::create(['status' => 'Tekshirilgan', 'name' => 'checked']);
-        DxaResponseStatus::create(['status' => 'Arxiv', 'name' => 'archive']);
         DxaResponseStatus::create(['status' => 'Yangi', 'name' => 'new']);
-        DxaResponseStatus::create(['status' => 'Qayta rasmiylashtirish', 'name' => 're_registration']);
         DxaResponseStatus::create(['status' => 'Inspektorga yuborilgan', 'name' => 'send_inspector']);
+        DxaResponseStatus::create(['status' => 'Registratorda', 'name' => 'in_register']);
+        DxaResponseStatus::create(['status' => 'Qabul qilingan', 'name' => 'accepted']);
+        DxaResponseStatus::create(['status' => 'Rad etilgan', 'name' => 'rejected']);
+        DxaResponseStatus::create(['status' => 'Bekor qilingan', 'name' => 'canceled']);
     }
 }
