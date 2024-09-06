@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\DxaResponseStatusEnum;
 use App\Models\Customer;
 use App\Models\District;
 use App\Models\DxaResponse;
@@ -113,7 +114,7 @@ class ResponseCreated extends Command
         $dxa = new DxaResponse();
         $dxa->task_id = $taskId;
         $dxa->user_type = $userType;
-        $dxa->dxa_response_status_id = 3;
+        $dxa->dxa_response_status_id = DxaResponseStatusEnum::NEW;
         $dxa->email = $email;
         $dxa->full_name = $data['full_name']['real_value'];
         $dxa->name_expertise = $data['name_expertise']['real_value'];

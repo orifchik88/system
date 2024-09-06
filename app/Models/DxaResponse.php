@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\DxaResponseStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,8 +14,12 @@ class DxaResponse extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected  $guarded =[];
+    protected $guarded = [];
 //    protected  $fillable = ['url'];
+
+    protected $casts = [
+        'dxa_response_status_id' => DxaResponseStatusEnum::class
+    ];
 
 
     public function supervisors(): HasMany
