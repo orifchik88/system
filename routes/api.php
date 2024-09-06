@@ -56,6 +56,7 @@ Route::group([
     Route::get('register/{id}', [RegisterController::class, 'getRegister']);
     Route::get('register-status', [RegisterController::class, 'status']);
     Route::get('register-get-pdf', [RegisterController::class, 'getPDF']);
+    Route::get('sphere', [RegisterController::class, 'sphere']);
 
     Route::post('send-inspector', [RegisterController::class, 'sendInspector']);
     Route::post('send-register', [RegisterController::class, 'sendRegister']);

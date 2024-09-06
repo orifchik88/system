@@ -115,6 +115,18 @@ class RegisterController extends BaseController
         }
     }
 
+    public function sphere(): JsonResponse
+    {
+        try {
+            $data = Http::get('https://api-monitoring.mc.uz/api/soha-list');
+            $json = $data->json();
+            return $this->sendSuccess($json['data'], 'Sphere successfully.');
+
+        } catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
     public function rejectRegister(DxaResponseRejectRequest $request): JsonResponse
     {
         try {
