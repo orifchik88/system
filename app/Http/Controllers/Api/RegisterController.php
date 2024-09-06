@@ -118,9 +118,23 @@ class RegisterController extends BaseController
     public function sphere(): JsonResponse
     {
         try {
-            $data = Http::get('https://api-monitoring.mc.uz/api/soha-list');
-            $json = $data->json();
-            return $this->sendSuccess($json['data'], 'Sphere successfully.');
+
+
+            $response =  Http::withBasicAuth(
+                'dev@gasn',
+                'EkN`9?@{3v0j'
+            )->post('https://api.shaffofqurilish.uz/api/v1/request/monitoring-soha');
+
+            if ($response->successful()) {
+                $json = $response->json();
+                if (isset($json['data'])) {
+                    return $this->sendSuccess($json['data'], 'Sphere successfully.');
+                } else {
+                    return $this->sendError('No data found in the response.', 404);
+                }
+            } else {
+                return $this->sendError('API request failed.', $response->status());
+            }
 
         } catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
