@@ -146,7 +146,7 @@ class RegisterController extends BaseController
                 'in_register' => DxaResponse::query()->where('dxa_response_status_id', DxaResponseStatusEnum::IN_REGISTER)->count(),
                 'accepted' => DxaResponse::query()->where('dxa_response_status_id', DxaResponseStatusEnum::ACCEPTED)->count(),
                 'rejected' => DxaResponse::query()->where('dxa_response_status_id', DxaResponseStatusEnum::REJECTED)->count(),
-                'canceled' => DxaResponse::query()->where('dxa_response_status_id', DxaResponseStatusEnum::CANCELED)->count(),
+                'cancelled' => DxaResponse::query()->where('dxa_response_status_id', DxaResponseStatusEnum::CANCELED)->count(),
             ];
             return $this->sendSuccess($data, 'Response count retrieved successfully.');
         }catch (\Exception $exception){
