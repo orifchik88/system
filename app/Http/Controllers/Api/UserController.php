@@ -65,7 +65,7 @@ class UserController extends BaseController
             $inspectors = User::query()
                 ->where('district_id', request('district_id'))
                 ->whereHas('roles', function ($query) {
-                    $query->where('id', 3);
+                    $query->where('roles.id', 3);
                 })
                 ->paginate(request('per_page', 10));
             return $this->sendSuccess(UserResource::collection($inspectors), 'All inspectors', pagination($inspectors));
