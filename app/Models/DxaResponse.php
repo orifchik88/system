@@ -36,4 +36,14 @@ class DxaResponse extends Model
     {
         return $this->belongsTo(AdministrativeStatus::class, 'administrative_status_id');
     }
+
+    public function region(): BelongsTo
+    {
+        return $this->belongsTo(Region::class, 'region_id');
+    }
+
+    public function district(): BelongsTo
+    {
+        return $this->belongsTo(District::class, 'district_id');
+    }
 }
