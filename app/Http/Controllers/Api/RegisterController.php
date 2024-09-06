@@ -10,6 +10,7 @@ use App\Http\Resources\DxaStatusResource;
 use App\Models\DxaResponse;
 use App\Models\DxaResponseStatus;
 use App\Services\DxaResponseService;
+use GuzzleHttp\Client;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
@@ -118,24 +119,19 @@ class RegisterController extends BaseController
     public function sphere(): JsonResponse
     {
         try {
+            $client = new Client();
+            $apiCredentials = config('app.passport.login') . ':' . config('app.passport.password');
 
+            $resClient = $client->post('https://api.shaffofqurilish.uz/api/v1/request/monitoring-soha',
+                     [
+                         'headers' => [
+                             'Authorization' => 'Basic ' . base64_encode($apiCredentials),
+                         ]
+                     ]);
 
-            $response =  Http::withBasicAuth(
-                'dev@gasn',
-                'EkN`9?@{3v0j'
-            )->post('https://api.shaffofqurilish.uz/api/v1/request/monitoring-soha');
+            $response = json_decode($resClient->getBody(), true);
 
-            if ($response->successful()) {
-                $json = $response->json();
-                if (isset($json['data'])) {
-                    return $this->sendSuccess($json['data'], 'Sphere successfully.');
-                } else {
-                    return $this->sendError('No data found in the response.', 404);
-                }
-            } else {
-                return $this->sendError('API request failed.', $response->status());
-            }
-
+            return $this->sendSuccess($response['result']['data']['data'], 'Register successfully.');
         } catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
