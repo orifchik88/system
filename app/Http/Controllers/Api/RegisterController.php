@@ -26,12 +26,11 @@ class RegisterController extends BaseController
         if (request('status_id'))
         {
             $registers = DxaResponse::query()
-                ->where('dxa_response_status_id', DxaResponseStatusEnum::ARCHIVE)
+                ->where('dxa_response_status_id', request('status_id'))
                 ->orderBy('id', 'desc')
                 ->paginate(request('per_page', 10));
         }else{
             $registers = DxaResponse::query()
-                ->where('dxa_response_status_id', '!=', DxaResponseStatusEnum::ARCHIVE)
                 ->orderBy('id', 'desc')
                 ->paginate(request('per_page', 10));
         }
@@ -131,11 +130,13 @@ class RegisterController extends BaseController
 
             $response = json_decode($resClient->getBody(), true);
 
-            return $this->sendSuccess($response['result']['data']['data'], 'Register successfully.');
+            return $this->sendSuccess($response['result']['data']['data'], 'Sphere successfully.');
         } catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
+
+
 
     public function rejectRegister(DxaResponseRejectRequest $request): JsonResponse
     {
