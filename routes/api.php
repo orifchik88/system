@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\RegisterController;
 use App\Http\Controllers\Api\ObjectController;
 use App\Http\Controllers\Api\QuestionController;
 use App\Http\Controllers\Api\MonitoringController;
+use App\Http\Controllers\Api\InformationController;
 
 
 Route::post('login', [LoginController::class, 'login']);
@@ -33,6 +34,11 @@ Route::group([
     Route::post('user-type/create', [UserTypeController::class, 'create']);
     Route::post('user-type/edit/{id}', [UserTypeController::class, 'edit']);
     Route::get('users-count', [UserTypeController::class, 'count']);
+
+    Route::get('monitoring-objects', [InformationController::class, 'monitoringObjects']);
+    Route::get('programs', [InformationController::class, 'programs']);
+    Route::get('reestr', [InformationController::class, 'reestr']);
+    Route::get('rating', [InformationController::class, 'rating']);
 
     Route::get('client-type', [ClientTypeController::class, 'index']);
     Route::post('client-type/create', [ClientTypeController::class, 'create']);

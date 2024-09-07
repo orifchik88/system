@@ -153,9 +153,6 @@ class RegisterController extends BaseController
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
-
-
-
     public function rejectRegister(DxaResponseRejectRequest $request): JsonResponse
     {
         try {
