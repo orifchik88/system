@@ -20,6 +20,8 @@ use App\Http\Controllers\Api\InformationController;
 
 
 Route::post('login', [LoginController::class, 'login']);
+Route::get('check-pinfl', [InformationController::class, 'checkPinfl']);
+
 
 Route::post('test-api', [EGovController::class, 'getPassportInfo']);
 
@@ -40,7 +42,6 @@ Route::group([
     Route::get('reestr', [InformationController::class, 'reestr']);
     Route::get('rating', [InformationController::class, 'rating']);
     Route::get('conference', [InformationController::class, 'conference']);
-    Route::get('check-pinfl', [InformationController::class, 'checkPinfl']);
 
     Route::get('client-type', [ClientTypeController::class, 'index']);
     Route::post('client-type/create', [ClientTypeController::class, 'create']);
