@@ -152,15 +152,59 @@ class RegisterController extends BaseController
 
     public function registerCount(): JsonResponse
     {
+
+        $user = Auth::user();
         try {
             $data = [
-                'all' => DxaResponse::query()->count(),
-                'new' => DxaResponse::query()->where('dxa_response_status_id', DxaResponseStatusEnum::NEW)->count(),
-                'in_inspector' => DxaResponse::query()->where('dxa_response_status_id', DxaResponseStatusEnum::SEND_INSPECTOR)->count(),
-                'in_register' => DxaResponse::query()->where('dxa_response_status_id', DxaResponseStatusEnum::IN_REGISTER)->count(),
-                'accepted' => DxaResponse::query()->where('dxa_response_status_id', DxaResponseStatusEnum::ACCEPTED)->count(),
-                'rejected' => DxaResponse::query()->where('dxa_response_status_id', DxaResponseStatusEnum::REJECTED)->count(),
-                'cancelled' => DxaResponse::query()->where('dxa_response_status_id', DxaResponseStatusEnum::CANCELED)->count(),
+                'all' => DxaResponse::query()
+                    ->when($user->inspector(), function ($query) use ($user) {
+                            return $query->where('district_id', $user->district_id);
+                        })
+                    ->when($user->register(), function ($query) use ($user) {
+                        return $query->where('region_id', $user->region_id);
+                    })->count(),
+                'new' => DxaResponse::query()->where('dxa_response_status_id', DxaResponseStatusEnum::NEW)
+                    ->when($user->inspector(), function ($query) use ($user) {
+                        return $query->where('district_id', $user->district_id);
+                    })
+                    ->when($user->register(), function ($query) use ($user) {
+                        return $query->where('region_id', $user->region_id);
+                    })->count(),
+                'in_inspector' => DxaResponse::query()->where('dxa_response_status_id', DxaResponseStatusEnum::SEND_INSPECTOR)
+                    ->when($user->inspector(), function ($query) use ($user) {
+                        return $query->where('district_id', $user->district_id);
+                    })
+                    ->when($user->register(), function ($query) use ($user) {
+                        return $query->where('region_id', $user->region_id);
+                    })->count(),
+                'in_register' => DxaResponse::query()->where('dxa_response_status_id', DxaResponseStatusEnum::IN_REGISTER)
+                    ->when($user->inspector(), function ($query) use ($user) {
+                        return $query->where('district_id', $user->district_id);
+                    })
+                    ->when($user->register(), function ($query) use ($user) {
+                        return $query->where('region_id', $user->region_id);
+                    })->count(),
+                'accepted' => DxaResponse::query()->where('dxa_response_status_id', DxaResponseStatusEnum::ACCEPTED)
+                    ->when($user->inspector(), function ($query) use ($user) {
+                        return $query->where('district_id', $user->district_id);
+                    })
+                    ->when($user->register(), function ($query) use ($user) {
+                        return $query->where('region_id', $user->region_id);
+                    })->count(),
+                'rejected' => DxaResponse::query()->where('dxa_response_status_id', DxaResponseStatusEnum::REJECTED)
+                    ->when($user->inspector(), function ($query) use ($user) {
+                        return $query->where('district_id', $user->district_id);
+                    })
+                    ->when($user->register(), function ($query) use ($user) {
+                        return $query->where('region_id', $user->region_id);
+                    })->count(),
+                'cancelled' => DxaResponse::query()->where('dxa_response_status_id', DxaResponseStatusEnum::CANCELED)
+                    ->when($user->inspector(), function ($query) use ($user) {
+                        return $query->where('district_id', $user->district_id);
+                    })
+                    ->when($user->register(), function ($query) use ($user) {
+                        return $query->where('region_id', $user->region_id);
+                    })->count(),
             ];
             return $this->sendSuccess($data, 'Response count retrieved successfully.');
         }catch (\Exception $exception){
