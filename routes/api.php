@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\InformationController;
 
 
 Route::post('login', [LoginController::class, 'login']);
+Route::post('auth', [LoginController::class, 'auth']);
 Route::post('check-user', [InformationController::class, 'checkUser']);
 
 
