@@ -71,6 +71,7 @@ class InformationController extends BaseController
             $response = json_decode($resClient->getBody(), true);
 
 
+
             $client = new Client();
             $url = 'https://sso.egov.uz/sso/oauth/Authorization.do?grant_type=one_access_token_identify&client_id=ccnis_uz&client_secret=ZSSlVilzjEXH42GgxO878ost&access_token='.$response['access_token'].'&scope='.$response['scope'];
             $resClient = $client->post($url);
@@ -87,6 +88,7 @@ class InformationController extends BaseController
             $meta = [
                 'roles'=>RoleResource::collection($user->roles),
                 'access_token' => $encodedData,
+                'full_name' => $user->full_name
             ];
 
             return $this->sendSuccess($meta, 'Success');
