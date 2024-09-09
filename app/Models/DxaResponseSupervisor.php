@@ -13,7 +13,7 @@ class DxaResponseSupervisor extends Model
 
     protected $guarded = [];
 
-    public function role(): BelongsTo
+    public function position(): BelongsTo
     {
         return $this->belongsTo(Role::class, 'role_id');
     }
