@@ -74,6 +74,14 @@ return [
         "password" => env('BANK_PASSWORD', 'EkN`9?@{3v0j'),
     ],
 
+    'gasn' => [
+        'monitoring' => 'https://api.shaffofqurilish.uz/api/v1/request/monitoring-objects',
+        'programs' => 'https://api.shaffofqurilish.uz/api/v1/request/monitoring-dasturlar',
+        'reestr' => 'https://api.shaffofqurilish.uz/api/v1/request/opendata-reestr?reestr_number',
+        'rating' => 'https://api.shaffofqurilish.uz/api/v1/request/reyting?INN',
+        'conference' => 'https://api.shaffofqurilish.uz/api/v1/request/dx-kengash?conc',
+    ],
+
     'rate_supervision' => 0.2,
 
     'asset_url' => env('ASSET_URL'),

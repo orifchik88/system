@@ -39,6 +39,7 @@ Route::group([
     Route::get('programs', [InformationController::class, 'programs']);
     Route::get('reestr', [InformationController::class, 'reestr']);
     Route::get('rating', [InformationController::class, 'rating']);
+    Route::get('conference', [InformationController::class, 'conference']);
 
     Route::get('client-type', [ClientTypeController::class, 'index']);
     Route::post('client-type/create', [ClientTypeController::class, 'create']);

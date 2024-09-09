@@ -12,17 +12,8 @@ class InformationController extends BaseController
     public function monitoringObjects(): JsonResponse
     {
         try {
-            $client = new Client();
-            $apiCredentials = config('app.passport.login') . ':' . config('app.passport.password');
-
-            $resClient = $client->post('https://api.shaffofqurilish.uz/api/v1/request/monitoring-objects',
-                [
-                    'headers' => [
-                        'Authorization' => 'Basic ' . base64_encode($apiCredentials),
-                    ]
-                ]);
-            $response = json_decode($resClient->getBody(), true);
-            return $this->sendSuccess($response['result']['data']['result']['data'], 'Monitoring objects successfully.');
+            $data = getData(config('app.gasn.monitoring'));
+            return $this->sendSuccess($data['data']['result']['data'], 'Monitoring objects successfully.');
         } catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
@@ -31,17 +22,9 @@ class InformationController extends BaseController
     public function programs(): JsonResponse
     {
         try {
-            $client = new Client();
-            $apiCredentials = config('app.passport.login') . ':' . config('app.passport.password');
+            $data = getData(config('app.gasn.programs'));
+            return $this->sendSuccess($data['data']['data'], 'Dastur');
 
-            $resClient = $client->post('https://api.shaffofqurilish.uz/api/v1/request/monitoring-dasturlar',
-                [
-                    'headers' => [
-                        'Authorization' => 'Basic ' . base64_encode($apiCredentials),
-                    ]
-                ]);
-            $response = json_decode($resClient->getBody(), true);
-            return $this->sendSuccess($response['result']['data']['data'], 'Monitoring objects successfully.');
         } catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
@@ -50,36 +33,28 @@ class InformationController extends BaseController
     public function reestr(): JsonResponse
     {
         try {
-            $client = new Client();
-            $apiCredentials = config('app.passport.login') . ':' . config('app.passport.password');
-
-            $resClient = $client->post('https://api.shaffofqurilish.uz/api/v1/request/opendata-reestr?reestr_number='.request('reestr_number'),
-                [
-                    'headers' => [
-                        'Authorization' => 'Basic ' . base64_encode($apiCredentials),
-                    ]
-                ]);
-            $response = json_decode($resClient->getBody(), true);
-            return $this->sendSuccess($response['result']['data']['data'], 'Monitoring objects successfully.');
+            $data = getData(config('app.gasn.reestr'), \request('reestr_number'));
+            return $this->sendSuccess($data['data']['data'], 'Reestr');
         } catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
 
-    public function reyting(): JsonResponse
+    public function rating(): JsonResponse
     {
         try {
-            $client = new Client();
-            $apiCredentials = config('app.passport.login') . ':' . config('app.passport.password');
+            $data = getData(config('app.gasn.rating'), \request('inn'));
+            return $this->sendSuccess($data['data']['data'], 'Reyting');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
 
-            $resClient = $client->post('https://api.shaffofqurilish.uz/api/v1/request/reyting?INN='.request('inn'),
-                [
-                    'headers' => [
-                        'Authorization' => 'Basic ' . base64_encode($apiCredentials),
-                    ]
-                ]);
-            $response = json_decode($resClient->getBody(), true);
-            return $this->sendSuccess($response['result']['data']['data'], 'Monitoring objects successfully.');
+    public function conference(): JsonResponse
+    {
+        try {
+            $data = getData(config('app.gasn.conference'), \request('conc'));
+            return $this->sendSuccess($data['data'], 'Kengash');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
