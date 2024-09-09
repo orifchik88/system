@@ -36,7 +36,7 @@ class InformationController extends BaseController
     {
         try {
             $data = getData(config('app.gasn.reestr'), \request('reestr_number'));
-            return $this->sendSuccess($data['data']['data'], 'Reestr');
+            return $this->sendSuccess($data['data'], 'Reestr');
         } catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }

@@ -70,7 +70,7 @@ class ArticleService
             $response = $this->dxaResponse->find($this->objectDto->responseId);
             $response->update([
                 'is_accepted' => true,
-                'dxa_response_status_id' => DxaResponseStatusEnum::ARCHIVE
+                'dxa_response_status_id' => DxaResponseStatusEnum::ACCEPTED
             ]);
 
             $tinOrPinfl = $response->pinfl ?? $response->application_stir_number;

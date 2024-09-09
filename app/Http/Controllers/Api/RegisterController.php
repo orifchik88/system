@@ -12,6 +12,7 @@ use App\Models\DxaResponseStatus;
 use App\Services\DxaResponseService;
 use GuzzleHttp\Client;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 
@@ -23,14 +24,27 @@ class RegisterController extends BaseController
 
     public function registers(): JsonResponse
     {
-        if (request('status_id'))
+        $user = Auth::user();
+        if (request('status'))
         {
             $registers = DxaResponse::query()
-                ->where('dxa_response_status_id', request('status_id'))
+                ->when($user->inspector(), function ($query) use ($user) {
+                    return $query->where('district_id', $user->district_id);
+                })
+                ->when($user->register(), function ($query) use ($user) {
+                    return $query->where('region_id', $user->region_id);
+                })
+                ->where('dxa_response_status_id', request('status'))
                 ->orderBy('id', 'desc')
                 ->paginate(request('per_page', 10));
         }else{
             $registers = DxaResponse::query()
+                ->when($user->inspector(), function ($query) use ($user) {
+                    return $query->where('district_id', $user->district_id);
+                })
+                ->when($user->register(), function ($query) use ($user) {
+                    return $query->where('region_id', $user->region_id);
+                })
                 ->orderBy('id', 'desc')
                 ->paginate(request('per_page', 10));
         }
