@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Resources\RoleResource;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use GuzzleHttp\Client;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 
@@ -60,12 +62,35 @@ class InformationController extends BaseController
         }
     }
 
-    public function checkPinfl(): JsonResponse
+    public function checkUser(): JsonResponse
     {
         try {
-            $user = User::query()->where('pinfl', request('pinfl'))->first();
+            $client = new Client();
+            $url = 'https://sso.egov.uz/sso/oauth/Authorization.do?grant_type=one_authorization_code&client_id=ccnis_uz&client_secret=ZSSlVilzjEXH42GgxO878ost&code=6c11ecd1-cbf6-4105-96c6-b53a9d3e8f79&redirect_url=https://ccnis.devmc.uz/login/oneid';
+            $resClient = $client->post($url);
+            $response = json_decode($resClient->getBody(), true);
+
+
+            $client = new Client();
+            $url = 'https://sso.egov.uz/sso/oauth/Authorization.do?grant_type=one_access_token_identify&client_id=ccnis_uz&client_secret=ZSSlVilzjEXH42GgxO878ost&access_token='.$response['access_token'].'&scope='.$response['scope'];
+            $resClient = $client->post($url);
+            $data = json_decode($resClient->getBody(), true);
+
+            $user = User::query()->where('pinfl', $data['pin'])->first();
+
             if (!$user) throw new ModelNotFoundException('Foydalanuvchi topilmadi');
-            return $this->sendSuccess(UserResource::make($user), 'user');
+
+            $combinedData = $data['pin'] . ':' . $response['access_token'];
+
+            $encodedData = base64_encode($combinedData);
+
+            $meta = [
+                'roles'=>RoleResource::collection($user->roles),
+                'access_token' => $encodedData,
+            ];
+
+            return $this->sendSuccess($meta, 'Success');
+
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }

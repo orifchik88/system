@@ -16,10 +16,10 @@ class DxaResponseSupervisorResource extends JsonResource
     {
         return [
           'id' => $this->id,
-          'role' => $this->role,
+          'role' => RoleResource::make($this->role),
           'organization_name' => $this->organization_name,
           'identification_number' => $this->identification_number,
-          'pinfl' => $this->pinfl,
+          'stir_or_pinfl' => $this->pinfl,
           'fish' => $this->fish,
           'passport_number' => $this->passport_number,
           'name_graduate_study' => $this->name_graduate_study,

@@ -3,9 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\UserStatusEnum;
-use App\Http\Controllers\Controller;
 use App\Http\Resources\DistrictResource;
-use App\Http\Resources\ImageResource;
 use App\Http\Resources\RegionResource;
 use App\Http\Resources\RoleResource;
 use App\Http\Resources\UserStatusResource;
@@ -18,9 +16,14 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class LoginController extends BaseController
 {
-    public function login(Request $request): JsonResponse
+    public function login(): JsonResponse
     {
-        if (Auth::attempt(['login' => request('username'), 'password' => request('password')])) {
+
+        $encodedData = request('token');
+        $decodedData = base64_decode($encodedData);
+        list($pinfl, $accessToken) = explode(':', $decodedData);
+
+        if (Auth::attempt(['pinfl' => $pinfl])) {
             $user = Auth::user();
             if ($user->user_status_id != UserStatusEnum::ACTIVE) return $this->sendError('Kirish huquqi mavjud emas', code: 401);
             $roleId = request('role_id');

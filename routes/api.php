@@ -20,7 +20,7 @@ use App\Http\Controllers\Api\InformationController;
 
 
 Route::post('login', [LoginController::class, 'login']);
-Route::get('check-pinfl', [InformationController::class, 'checkPinfl']);
+Route::post('check-user', [InformationController::class, 'checkUser']);
 
 
 Route::post('test-api', [EGovController::class, 'getPassportInfo']);

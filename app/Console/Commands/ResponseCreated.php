@@ -167,23 +167,97 @@ class ResponseCreated extends Command
     protected function saveSupervisors($supervisors, $dxaId)
     {
         foreach ($supervisors as $key => $item) {
-            $dxaResSupervisor = new DxaResponseSupervisor();
-            $dxaResSupervisor->dxa_response_id = $dxaId;
-            $dxaResSupervisor->type = $item['role']['real_value'];
-            $dxaResSupervisor->role = $item['role']['value'];
-            $dxaResSupervisor->organization_name = $item['name_org']['value'];
-            $dxaResSupervisor->identification_number = (int)$item['tin_org']['real_value'];
-            $dxaResSupervisor->pinfl = (int)$item['head_pinfl']['real_value'];
-            $dxaResSupervisor->fish = $item['head_fname']['real_value'];
-            $dxaResSupervisor->passport_number = $item['passpnm_data_series']['real_value'];
-            $dxaResSupervisor->name_graduate_study = $item['name_graduate_study']['real_value'];
-            $dxaResSupervisor->specialization = $item['specialization']['real_value'];
-            $dxaResSupervisor->diplom_number = $item['diploma_number']['real_value'];
-            $dxaResSupervisor->diplom_date = $item['date_issue_diploma']['real_value'];
-            $dxaResSupervisor->sertificate_number = $item['certificate_courses']['real_value'];
-            $dxaResSupervisor->phone_number = $item['phone_number']['real_value'];
-            $dxaResSupervisor->comment = $item['comment']['real_value'];
-            $dxaResSupervisor->save();
+            if ($item['role']['real_value'] ==1) {
+                $dxaResSupervisor = new DxaResponseSupervisor();
+                $dxaResSupervisor->dxa_response_id = $dxaId;
+                $dxaResSupervisor->type = $item['role']['real_value'];
+                $dxaResSupervisor->role = 8;
+                $dxaResSupervisor->organization_name = $item['name_org']['value'];
+                $dxaResSupervisor->identification_number = (int)$item['tin_org']['real_value'];
+                $dxaResSupervisor->stir_or_pinfl = (int)$item['tin_org']['real_value'];
+                $dxaResSupervisor->comment = $item['comment']['real_value'];
+                $dxaResSupervisor->save();
+
+                $dxaResSupervisor = new DxaResponseSupervisor();
+                $dxaResSupervisor->dxa_response_id = $dxaId;
+                $dxaResSupervisor->type = $item['role']['real_value'];
+                $dxaResSupervisor->role = $item['role']['value'];
+                $dxaResSupervisor->role_id = 6;
+                $dxaResSupervisor->organization_name = $item['name_org']['value'];
+                $dxaResSupervisor->identification_number = (int)$item['tin_org']['real_value'];
+                $dxaResSupervisor->stir_or_pinfl = (int)$item['head_pinfl']['real_value'];
+                $dxaResSupervisor->fish = $item['head_fname']['real_value'];
+                $dxaResSupervisor->passport_number = $item['passpnm_data_series']['real_value'];
+                $dxaResSupervisor->name_graduate_study = $item['name_graduate_study']['real_value'];
+                $dxaResSupervisor->specialization = $item['specialization']['real_value'];
+                $dxaResSupervisor->diplom_number = $item['diploma_number']['real_value'];
+                $dxaResSupervisor->diplom_date = $item['date_issue_diploma']['real_value'];
+                $dxaResSupervisor->sertificate_number = $item['certificate_courses']['real_value'];
+                $dxaResSupervisor->phone_number = $item['phone_number']['real_value'];
+                $dxaResSupervisor->comment = $item['comment']['real_value'];
+                $dxaResSupervisor->save();
+            }
+            if ($item['role']['real_value'] ==2) {
+                $dxaResSupervisor = new DxaResponseSupervisor();
+                $dxaResSupervisor->dxa_response_id = $dxaId;
+                $dxaResSupervisor->type = $item['role']['real_value'];
+                $dxaResSupervisor->role = 9;
+                $dxaResSupervisor->organization_name = $item['name_org']['value'];
+                $dxaResSupervisor->identification_number = (int)$item['tin_org']['real_value'];
+                $dxaResSupervisor->stir_or_pinfl = (int)$item['tin_org']['real_value'];
+                $dxaResSupervisor->comment = $item['comment']['real_value'];
+                $dxaResSupervisor->save();
+
+                $dxaResSupervisor = new DxaResponseSupervisor();
+                $dxaResSupervisor->dxa_response_id = $dxaId;
+                $dxaResSupervisor->type = $item['role']['real_value'];
+                $dxaResSupervisor->role = $item['role']['value'];
+                $dxaResSupervisor->role_id = 7;
+                $dxaResSupervisor->organization_name = $item['name_org']['value'];
+                $dxaResSupervisor->identification_number = (int)$item['tin_org']['real_value'];
+                $dxaResSupervisor->stir_or_pinfl = (int)$item['head_pinfl']['real_value'];
+                $dxaResSupervisor->fish = $item['head_fname']['real_value'];
+                $dxaResSupervisor->passport_number = $item['passpnm_data_series']['real_value'];
+                $dxaResSupervisor->name_graduate_study = $item['name_graduate_study']['real_value'];
+                $dxaResSupervisor->specialization = $item['specialization']['real_value'];
+                $dxaResSupervisor->diplom_number = $item['diploma_number']['real_value'];
+                $dxaResSupervisor->diplom_date = $item['date_issue_diploma']['real_value'];
+                $dxaResSupervisor->sertificate_number = $item['certificate_courses']['real_value'];
+                $dxaResSupervisor->phone_number = $item['phone_number']['real_value'];
+                $dxaResSupervisor->comment = $item['comment']['real_value'];
+                $dxaResSupervisor->save();
+            }
+            if ($item['role']['real_value'] ==3) {
+                $dxaResSupervisor = new DxaResponseSupervisor();
+                $dxaResSupervisor->dxa_response_id = $dxaId;
+                $dxaResSupervisor->type = $item['role']['real_value'];
+                $dxaResSupervisor->role = 10;
+                $dxaResSupervisor->organization_name = $item['name_org']['value'];
+                $dxaResSupervisor->identification_number = (int)$item['tin_org']['real_value'];
+                $dxaResSupervisor->stir_or_pinfl = (int)$item['tin_org']['real_value'];
+                $dxaResSupervisor->comment = $item['comment']['real_value'];
+                $dxaResSupervisor->save();
+
+                $dxaResSupervisor = new DxaResponseSupervisor();
+                $dxaResSupervisor->dxa_response_id = $dxaId;
+                $dxaResSupervisor->type = $item['role']['real_value'];
+                $dxaResSupervisor->role = $item['role']['value'];
+                $dxaResSupervisor->role_id = 5;
+                $dxaResSupervisor->organization_name = $item['name_org']['value'];
+                $dxaResSupervisor->identification_number = (int)$item['tin_org']['real_value'];
+                $dxaResSupervisor->stir_or_pinfl = (int)$item['head_pinfl']['real_value'];
+                $dxaResSupervisor->fish = $item['head_fname']['real_value'];
+                $dxaResSupervisor->passport_number = $item['passpnm_data_series']['real_value'];
+                $dxaResSupervisor->name_graduate_study = $item['name_graduate_study']['real_value'];
+                $dxaResSupervisor->specialization = $item['specialization']['real_value'];
+                $dxaResSupervisor->diplom_number = $item['diploma_number']['real_value'];
+                $dxaResSupervisor->diplom_date = $item['date_issue_diploma']['real_value'];
+                $dxaResSupervisor->sertificate_number = $item['certificate_courses']['real_value'];
+                $dxaResSupervisor->phone_number = $item['phone_number']['real_value'];
+                $dxaResSupervisor->comment = $item['comment']['real_value'];
+                $dxaResSupervisor->save();
+            }
+
 
         }
     }
