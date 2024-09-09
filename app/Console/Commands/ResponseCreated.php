@@ -172,17 +172,6 @@ class ResponseCreated extends Command
                 $dxaResSupervisor->dxa_response_id = $dxaId;
                 $dxaResSupervisor->type = $item['role']['real_value'];
                 $dxaResSupervisor->role = $item['role']['value'];
-                $dxaResSupervisor->role_id = 8;
-                $dxaResSupervisor->organization_name = $item['name_org']['value'];
-                $dxaResSupervisor->identification_number = (int)$item['tin_org']['real_value'];
-                $dxaResSupervisor->stir_or_pinfl = (int)$item['tin_org']['real_value'];
-                $dxaResSupervisor->comment = $item['comment']['real_value'];
-                $dxaResSupervisor->save();
-
-                $dxaResSupervisor = new DxaResponseSupervisor();
-                $dxaResSupervisor->dxa_response_id = $dxaId;
-                $dxaResSupervisor->type = $item['role']['real_value'];
-                $dxaResSupervisor->role = $item['role']['value'];
                 $dxaResSupervisor->role_id = 6;
                 $dxaResSupervisor->organization_name = $item['name_org']['value'];
                 $dxaResSupervisor->identification_number = (int)$item['tin_org']['real_value'];
@@ -197,19 +186,21 @@ class ResponseCreated extends Command
                 $dxaResSupervisor->phone_number = $item['phone_number']['real_value'];
                 $dxaResSupervisor->comment = $item['comment']['real_value'];
                 $dxaResSupervisor->save();
-            }
-            if ($item['role']['real_value'] ==2) {
+
                 $dxaResSupervisor = new DxaResponseSupervisor();
                 $dxaResSupervisor->dxa_response_id = $dxaId;
                 $dxaResSupervisor->type = $item['role']['real_value'];
-                $dxaResSupervisor->role_id = 9;
                 $dxaResSupervisor->role = $item['role']['value'];
+                $dxaResSupervisor->role_id = 8;
                 $dxaResSupervisor->organization_name = $item['name_org']['value'];
                 $dxaResSupervisor->identification_number = (int)$item['tin_org']['real_value'];
                 $dxaResSupervisor->stir_or_pinfl = (int)$item['tin_org']['real_value'];
                 $dxaResSupervisor->comment = $item['comment']['real_value'];
                 $dxaResSupervisor->save();
 
+
+            }
+            if ($item['role']['real_value'] ==2) {
                 $dxaResSupervisor = new DxaResponseSupervisor();
                 $dxaResSupervisor->dxa_response_id = $dxaId;
                 $dxaResSupervisor->type = $item['role']['real_value'];
@@ -228,12 +219,11 @@ class ResponseCreated extends Command
                 $dxaResSupervisor->phone_number = $item['phone_number']['real_value'];
                 $dxaResSupervisor->comment = $item['comment']['real_value'];
                 $dxaResSupervisor->save();
-            }
-            if ($item['role']['real_value'] ==3) {
+
                 $dxaResSupervisor = new DxaResponseSupervisor();
                 $dxaResSupervisor->dxa_response_id = $dxaId;
                 $dxaResSupervisor->type = $item['role']['real_value'];
-                $dxaResSupervisor->role_id = 10;
+                $dxaResSupervisor->role_id = 9;
                 $dxaResSupervisor->role = $item['role']['value'];
                 $dxaResSupervisor->organization_name = $item['name_org']['value'];
                 $dxaResSupervisor->identification_number = (int)$item['tin_org']['real_value'];
@@ -241,6 +231,9 @@ class ResponseCreated extends Command
                 $dxaResSupervisor->comment = $item['comment']['real_value'];
                 $dxaResSupervisor->save();
 
+
+            }
+            if ($item['role']['real_value'] ==3) {
                 $dxaResSupervisor = new DxaResponseSupervisor();
                 $dxaResSupervisor->dxa_response_id = $dxaId;
                 $dxaResSupervisor->type = $item['role']['real_value'];
@@ -259,6 +252,19 @@ class ResponseCreated extends Command
                 $dxaResSupervisor->phone_number = $item['phone_number']['real_value'];
                 $dxaResSupervisor->comment = $item['comment']['real_value'];
                 $dxaResSupervisor->save();
+
+                $dxaResSupervisor = new DxaResponseSupervisor();
+                $dxaResSupervisor->dxa_response_id = $dxaId;
+                $dxaResSupervisor->type = $item['role']['real_value'];
+                $dxaResSupervisor->role_id = 10;
+                $dxaResSupervisor->role = $item['role']['value'];
+                $dxaResSupervisor->organization_name = $item['name_org']['value'];
+                $dxaResSupervisor->identification_number = (int)$item['tin_org']['real_value'];
+                $dxaResSupervisor->stir_or_pinfl = (int)$item['tin_org']['real_value'];
+                $dxaResSupervisor->comment = $item['comment']['real_value'];
+                $dxaResSupervisor->save();
+
+
             }
 
 

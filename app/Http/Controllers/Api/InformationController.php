@@ -77,6 +77,7 @@ class InformationController extends BaseController
             $resClient = $client->post($url);
             $data = json_decode($resClient->getBody(), true);
 
+
             $user = User::query()->where('pinfl', $data['pin'])->first();
 
             if (!$user) throw new ModelNotFoundException('Foydalanuvchi topilmadi');
