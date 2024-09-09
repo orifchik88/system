@@ -142,8 +142,8 @@ class ResponseCreated extends Command
         $dxa->cost = $data['cost']['real_value'];
         $dxa->number_protocol = $data['number_protocol']['real_value'];
         $dxa->date_protocol = $data['date_protocol']['real_value'];
-        $dxa->category_object_dictionary = $data['category_object_dictionary']['real_value'];
-        $dxa->construction_works = $data['category_object_dictionary']['value'];
+        $dxa->category_object_dictionary = $data['category_object_dictionary']['value'];
+        $dxa->construction_works = $data['construction_works']['value'];
         $dxa->object_parallel_design_number = $data['object_parallel_design_number']['real_value'];
         $dxa->object_parallel_design_date = $data['object_parallel_design_date']['real_value'];
         $dxa->object_state_program_number = $data['object_state_program_number']['real_value'];
