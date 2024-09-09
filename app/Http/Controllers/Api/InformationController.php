@@ -66,7 +66,7 @@ class InformationController extends BaseController
     {
         try {
             $client = new Client();
-            $url = 'https://sso.egov.uz/sso/oauth/Authorization.do?grant_type=one_authorization_code&client_id=ccnis_uz&client_secret=ZSSlVilzjEXH42GgxO878ost&code=6c11ecd1-cbf6-4105-96c6-b53a9d3e8f79&redirect_url=https://ccnis.devmc.uz/login/oneid';
+            $url = 'https://sso.egov.uz/sso/oauth/Authorization.do?grant_type=one_authorization_code&client_id=ccnis_uz&client_secret=ZSSlVilzjEXH42GgxO878ost&code='.request('code').'&redirect_url=https://ccnis.devmc.uz/login/oneid';
             $resClient = $client->post($url);
             $response = json_decode($resClient->getBody(), true);
 
