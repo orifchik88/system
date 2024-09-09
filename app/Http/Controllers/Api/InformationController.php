@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use GuzzleHttp\Client;
+use App\Http\Resources\UserResource;
+use App\Models\User;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class InformationController extends BaseController
 {
@@ -55,6 +55,17 @@ class InformationController extends BaseController
         try {
             $data = getData(config('app.gasn.conference'), \request('conc'));
             return $this->sendSuccess($data['data'], 'Kengash');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function checkPinfl(): JsonResponse
+    {
+        try {
+            $user = User::query()->where('pinfl', request('pinfl'))->first();
+            if (!$user) throw new ModelNotFoundException('Foydalanuvchi topilmadi');
+            return $this->sendSuccess(UserResource::make($user), 'user');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }

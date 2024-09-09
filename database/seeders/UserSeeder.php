@@ -16,7 +16,7 @@ class UserSeeder extends Seeder
             'name' => 'Res Kadr',
             'login' => 'reskadr',
             'phone' => '+998917894512',
-            'pinfl' => '1234567894551',
+            'pinfl' => '31910932610085',
             'password' => 'reskadr',
             'user_status_id' => 1,
         ]);
