@@ -171,7 +171,8 @@ class ResponseCreated extends Command
                 $dxaResSupervisor = new DxaResponseSupervisor();
                 $dxaResSupervisor->dxa_response_id = $dxaId;
                 $dxaResSupervisor->type = $item['role']['real_value'];
-                $dxaResSupervisor->role = 8;
+                $dxaResSupervisor->role = $item['role']['value'];
+                $dxaResSupervisor->role_id = 8;
                 $dxaResSupervisor->organization_name = $item['name_org']['value'];
                 $dxaResSupervisor->identification_number = (int)$item['tin_org']['real_value'];
                 $dxaResSupervisor->stir_or_pinfl = (int)$item['tin_org']['real_value'];
@@ -201,7 +202,8 @@ class ResponseCreated extends Command
                 $dxaResSupervisor = new DxaResponseSupervisor();
                 $dxaResSupervisor->dxa_response_id = $dxaId;
                 $dxaResSupervisor->type = $item['role']['real_value'];
-                $dxaResSupervisor->role = 9;
+                $dxaResSupervisor->role_id = 9;
+                $dxaResSupervisor->role = $item['role']['value'];
                 $dxaResSupervisor->organization_name = $item['name_org']['value'];
                 $dxaResSupervisor->identification_number = (int)$item['tin_org']['real_value'];
                 $dxaResSupervisor->stir_or_pinfl = (int)$item['tin_org']['real_value'];
@@ -231,7 +233,8 @@ class ResponseCreated extends Command
                 $dxaResSupervisor = new DxaResponseSupervisor();
                 $dxaResSupervisor->dxa_response_id = $dxaId;
                 $dxaResSupervisor->type = $item['role']['real_value'];
-                $dxaResSupervisor->role = 10;
+                $dxaResSupervisor->role_id = 10;
+                $dxaResSupervisor->role = $item['role']['value'];
                 $dxaResSupervisor->organization_name = $item['name_org']['value'];
                 $dxaResSupervisor->identification_number = (int)$item['tin_org']['real_value'];
                 $dxaResSupervisor->stir_or_pinfl = (int)$item['tin_org']['real_value'];
