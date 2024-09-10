@@ -63,6 +63,16 @@ class InformationController extends BaseController
         }
     }
 
+    public function expertiseFiles(): JsonResponse
+    {
+        try {
+            $data = getData(config('app.gasn.expertise'), \request('reestr_number'));
+            return $this->sendSuccess($data['data']['data'], 'Expertise Files');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
 
     public function checkUser(): JsonResponse
     {

@@ -44,6 +44,7 @@ Route::group([
     Route::get('reestr', [InformationController::class, 'reestr']);
     Route::get('rating', [InformationController::class, 'rating']);
     Route::get('conference', [InformationController::class, 'conference']);
+    Route::get('expertise-files', [InformationController::class, 'expertiseFiles']);
 
 
     Route::get('sphere', [SphereController::class, 'spheres']);

@@ -82,6 +82,7 @@ return [
         'rating' => 'https://api.shaffofqurilish.uz/api/v1/request/reyting?INN',
         'conference' => 'https://api.shaffofqurilish.uz/api/v1/request/dx-kengash?conc',
         'sphere' => 'https://api.shaffofqurilish.uz/api/v1/request/monitoring-soha',
+        'expertise' => 'https://api.shaffofqurilish.uz/api/v1/request/opendata-ekspertiza?reestr_number',
     ],
 
     'rate_supervision' => 0.2,

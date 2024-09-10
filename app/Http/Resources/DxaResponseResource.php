@@ -18,7 +18,7 @@ class DxaResponseResource extends JsonResource
     public function toArray(Request $request): array
     {
         $address = '';
-        $monitoring = '';
+        $monitoring = [];
         $region = Region::query()->find($this->region_id)->first();
         $district = District::query()->find($this->district_id)->first();
         if ($this->user_type == 'Yuridik shaxs')
@@ -32,7 +32,10 @@ class DxaResponseResource extends JsonResource
         }
 
         if ($this->gnk_id){
-            $monitoring = getData(config('app.gasn.get_monitoring'), $this->gnk_id);
+            $data = getData(config('app.gasn.get_monitoring'), $this->gnk_id);
+
+            $monitoring = $data['data']['result']['data'];
+
         }
 
         $inspector = User::query()->where('id', $this->inspector_id)->first();
@@ -46,7 +49,7 @@ class DxaResponseResource extends JsonResource
             'status' => DxaResponseStatusResource::make($this->status),
             'deadline' => $this->deadline,
             'funding_source' => FundingSourceResource::make($this->fundingSource) ?? [],
-            'monitoring_object' => $monitoring['data']['result']['data'],
+            'monitoring_object' => !empty($monitoring) ? $monitoring : null,
             'price_supervision_service' => $this->price_supervision_service,
             'end_term_work' => $this->end_term_work,
             'sphere' => SphereResource::make($this->sphere),

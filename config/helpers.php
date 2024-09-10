@@ -37,6 +37,7 @@ if (!function_exists('getData')) {
         $apiCredentials = config('app.passport.login') . ':' . config('app.passport.password');
         $url = $param ? $baseUrl.'='.$param : $baseUrl;
 
+
         $resClient = $client->post($url,
             [
                 'headers' => [
