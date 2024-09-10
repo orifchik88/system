@@ -44,7 +44,6 @@ class BlockRequest extends FormRequest
         $this->merge([
             'created_by' => Auth::guard('api')->user()->id,
             'status' => true,
-            'dxa_response_id' => $this->input('response_id'),
         ]);
     }
 

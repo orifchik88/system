@@ -16,6 +16,7 @@ use App\Models\ObjectType;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use PHPUnit\Exception;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -24,11 +25,11 @@ class ArticleService
 {
     protected ObjectDto $objectDto;
 
-    public function __construct(protected Article $article,
-                                protected ObjectType $objectType,
+    public function __construct(protected Article       $article,
+                                protected ObjectType    $objectType,
                                 protected FundingSource $fundingSource,
-                                protected ObjectSector $objectSector,
-                                protected DxaResponse $dxaResponse)
+                                protected ObjectSector  $objectSector,
+                                protected DxaResponse   $dxaResponse)
     {
     }
 
@@ -143,18 +144,18 @@ class ArticleService
                 $query->where('name', 'is_technical');
             })->first();
 
-            $designer =  Role::whereHas('permissions', function ($query) {
+            $designer = Role::whereHas('permissions', function ($query) {
                 $query->where('name', 'is_designer');
             })->first();
-           $inspector =  Role::whereHas('permissions', function ($query) {
+            $inspector = Role::whereHas('permissions', function ($query) {
                 $query->where('name', 'is_inspector');
             })->first();
 
             foreach ($response->supervisors as $supervisor) {
                 $fish = $this->generateFish($supervisor->fish);
-                if ($supervisor->type == 1){
+                if ($supervisor->type == 1) {
                     $user = User::where('passport_number', $supervisor->passport_number)->first();
-                    if (!$user){
+                    if (!$user) {
                         $user = User::create([
                             'name' => $fish[1],
                             'surname' => $fish[0],
@@ -176,10 +177,9 @@ class ArticleService
                     }
 
                 }
-                if ($supervisor->type == 2){
+                if ($supervisor->type == 2) {
                     $user = User::where('passport_number', $supervisor->passport_number)->first();
-                    if (!$user)
-                    {
+                    if (!$user) {
                         $user = User::create([
                             'name' => $fish[1],
                             'surname' => $fish[0],
@@ -202,10 +202,9 @@ class ArticleService
 
                 }
 
-                if ($supervisor->type == 3){
+                if ($supervisor->type == 3) {
                     $user = User::where('passport_number', $supervisor->passport_number)->first();
-                    if (!$user)
-                    {
+                    if (!$user) {
                         $user = User::create([
                             'name' => $fish[1],
                             'surname' => $fish[0],
@@ -231,15 +230,13 @@ class ArticleService
             $article->users()->attach($response->inspector_id, ['role_id' => $inspector->id, 'organization_id' => 1]);
 
 
-
             DB::commit();
             return $article;
 
-        }catch (Exception $exception) {
+        } catch (Exception $exception) {
             DB::rollBack();
             throw new NotFoundException($exception->getMessage(), $exception->getCode());
         }
-
 
 
 //        $fundingSource = $this->fundingSource->find($this->objectDto->fundingSourceId);
@@ -247,7 +244,23 @@ class ArticleService
 
     }
 
-    protected function generateFish($name): array
+
+    private function acceptResponse($taskId, $amount)
+    {
+        return Http::withBasicAuth(
+            'qurilish.sohasida.nazorat.inspeksiya.201122919',
+            'Cx8]^]-Gk*mZK@.,S=c.g65>%[$TNRV75bYX<v+_'
+        )->post('https://my.gov.uz/notice-beginning-construction-works-v4/rest-api/update/id/' . $taskId . '/action/issue-amount', [
+            "IssueAmountV4FormNoticeBeginningConstructionWorks" => [
+                "requisites" => "example",
+                "loacation_rep" => "example",
+                "name_rep" => "example",
+                "amount" => $amount
+            ]
+        ]);
+    }
+
+    private function generateFish($name): array
     {
         $parts = explode(' ', $name);
         $array = [
