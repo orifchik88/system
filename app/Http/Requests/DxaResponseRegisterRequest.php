@@ -30,7 +30,8 @@ class DxaResponseRegisterRequest extends FormRequest
             'lat' => 'required|required',
             'administrative_status_id' => 'integer|required',
             'task_id' => 'integer|required|exists:dxa_responses,task_id',
-            'images.*' => 'required|image|mimes:jpg,jpeg,png',
+            'images.*' => 'image|mimes:jpg,jpeg,png',
+//            'images.*' => 'required|image|mimes:jpg,jpeg,png',
             'blocks.*' => 'required',
         ];
     }
