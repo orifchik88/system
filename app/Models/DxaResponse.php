@@ -71,5 +71,4 @@ class DxaResponse extends Model
     {
         return $this->belongsTo(Program::class, 'program_id');
     }
-
 }
