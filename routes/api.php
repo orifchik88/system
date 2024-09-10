@@ -85,6 +85,9 @@ Route::group([
     Route::post('change-object-status', [ObjectController::class, 'changeObjectStatus']);
 
     Route::get('blocks/{id}', [BlockController::class, 'index']);
+    Route::get('response-blocks/{id}', [BlockController::class, 'responseBlock']);
+    Route::get('block-modes', [BlockController::class, 'blockModes']);
+    Route::get('block-types', [BlockController::class, 'blockTypes']);
     Route::post('block-create', [BlockController::class, 'create']);
     Route::post('block-delete', [BlockController::class, 'delete']);
     Route::post('block-edit', [BlockController::class, 'edit']);

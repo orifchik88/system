@@ -25,8 +25,15 @@ class BlockRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'article_id' => 'required|integer|exists:articles,id',
+            'dxa_response_id' => 'required|integer|exists:dxa_responses,id',
             'name' => 'required|string',
+            'floor' => 'nullable|string',
+            'construction_area' => 'nullable|string',
+            'count_apartments' => 'nullable|string',
+            'height' => 'nullable|string',
+            'length' => 'nullable|string',
+            'block_mode_id' => 'required|integer|exists:block_modes,id',
+            'block_type_id' => 'required|integer|exists:block_types,id',
             'created_by' => 'required|integer|exists:users,id',
             'status' => 'required|boolean',
         ];
@@ -37,7 +44,7 @@ class BlockRequest extends FormRequest
         $this->merge([
             'created_by' => Auth::guard('api')->user()->id,
             'status' => true,
-            'article_id' => $this->input('object_id'),
+            'dxa_response_id' => $this->input('response_id'),
         ]);
     }
 

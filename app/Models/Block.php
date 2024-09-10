@@ -20,6 +20,21 @@ class Block extends Model
         return $this->belongsTo(Article::class, 'article_id');
     }
 
+    public function response(): BelongsTo
+    {
+        return $this->belongsTo(DxaResponse::class, 'dxa_response_id');
+    }
+
+    public function mode(): BelongsTo
+    {
+        return $this->belongsTo(BlockMode::class, 'block_mode_id');
+    }
+
+    public function type(): BelongsTo
+    {
+        return $this->belongsTo(BlockType::class, 'block_type_id');
+    }
+
     public function documents(): MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');

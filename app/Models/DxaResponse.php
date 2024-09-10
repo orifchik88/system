@@ -51,4 +51,9 @@ class DxaResponse extends Model
     {
         return $this->belongsTo(District::class, 'district_id');
     }
+
+    public function blocks(): HasMany
+    {
+        return $this->hasMany(Block::class, 'dxa_response_id');
+    }
 }
