@@ -54,7 +54,7 @@ return new class extends Migration
             $table->string('number_protocol')->nullable()->comment('Arxitektura-shaharsozlik kengashi bayonnomasining raqami');
             $table->string('date_protocol')->nullable()->comment('Arxitektura-shaharsozlik kengashi bayonnomasining sanasi');
             $table->string('technic_org_name')->nullable()->comment('Tashkilot nomi');
-            $table->integer('category_object_dictionary')->nullable()->comment('Obyekt murakkabligi kategoriyasi');
+            $table->string('category_object_dictionary')->nullable()->comment('Obyekt murakkabligi kategoriyasi');
             $table->string('construction_works')->nullable()->comment('Qurilish ishlari turi');
             $table->string('object_parallel_design_number')->nullable()->comment('Parallel loyihalash ob\'ektlari uchun raqami');
             $table->string('object_parallel_design_date')->nullable()->comment('Parallel loyihalash ob\'ektlari uchun sana');
