@@ -67,4 +67,9 @@ class DxaResponse extends Model
         return $this->belongsTo(Sphere::class, 'sphere_id');
     }
 
+    public function program(): BelongsTo
+    {
+        return $this->belongsTo(Program::class, 'program_id');
+    }
+
 }

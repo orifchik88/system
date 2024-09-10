@@ -26,7 +26,7 @@ class InformationController extends BaseController
     {
         try {
             $data = getData(config('app.gasn.programs'));
-            return $this->sendSuccess($data['data']['data'], 'Dastur');
+            return $this->sendSuccess($data, 'Dastur');
 
         } catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());

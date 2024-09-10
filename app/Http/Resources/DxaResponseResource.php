@@ -53,7 +53,7 @@ class DxaResponseResource extends JsonResource
             'price_supervision_service' => $this->price_supervision_service,
             'end_term_work' => $this->end_term_work,
             'sphere' => SphereResource::make($this->sphere),
-            'program' => $this->program_id,
+            'program' => ProgramResource::make($this->program) ?? null,
             'organization_name' => $this->organization_name,
             'stir' => $this->application_stir_pinfl,
             'pinfl' => $this->pinfl,
