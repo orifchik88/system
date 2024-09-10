@@ -22,16 +22,6 @@ class InformationController extends BaseController
         }
 
     }
-    public function programs(): JsonResponse
-    {
-        try {
-            $data = getData(config('app.gasn.programs'));
-            return $this->sendSuccess($data, 'Dastur');
-
-        } catch (\Exception $exception){
-            return $this->sendError($exception->getMessage(), $exception->getCode());
-        }
-    }
 
     public function reestr(): JsonResponse
     {

@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\QuestionController;
 use App\Http\Controllers\Api\MonitoringController;
 use App\Http\Controllers\Api\InformationController;
 use App\Http\Controllers\Api\SphereController;
+use App\Http\Controllers\Api\ProgramController;
 
 
 Route::post('login', [LoginController::class, 'login']);
@@ -40,7 +41,6 @@ Route::group([
     Route::get('users-count', [UserTypeController::class, 'count']);
 
     Route::get('monitoring-objects', [InformationController::class, 'monitoringObjects']);
-    Route::get('programs', [InformationController::class, 'programs']);
     Route::get('reestr', [InformationController::class, 'reestr']);
     Route::get('rating', [InformationController::class, 'rating']);
     Route::get('conference', [InformationController::class, 'conference']);
@@ -48,6 +48,7 @@ Route::group([
 
 
     Route::get('sphere', [SphereController::class, 'spheres']);
+    Route::get('programs', [ProgramController::class, 'programs']);
 
     Route::get('client-type', [ClientTypeController::class, 'index']);
     Route::post('client-type/create', [ClientTypeController::class, 'create']);
