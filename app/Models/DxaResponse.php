@@ -56,4 +56,10 @@ class DxaResponse extends Model
     {
         return $this->hasMany(Block::class, 'dxa_response_id');
     }
+
+    public function fundingSource(): BelongsTo
+    {
+        return $this->belongsTo(FundingSource::class, 'funding_source_id');
+    }
+
 }

@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::table('dxa_responses', function (Blueprint $table) {
             $table->bigInteger('gnk_id')->nullable()->comment('Monitoringdan kelgan object');
+            $table->foreignId('funding_source_id')->nullable()->comment('Moliyalashtirish manbai')->constrained()->onDelete('set null');
+            $table->string('price_supervision_service')->nullable()->comment('Tolanadigan pul miqdori');
+            $table->string('end_term_work')->nullable()->comment('Obyekt tugallanishi kerak bolagan sana');
+            $table->integer('sphere_id')->nullable()->comment('Soha idsi');
+            $table->integer('program_id')->nullable()->comment('Dastur idsi');
         });
     }
 
