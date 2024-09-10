@@ -62,4 +62,9 @@ class DxaResponse extends Model
         return $this->belongsTo(FundingSource::class, 'funding_source_id');
     }
 
+    public function sphere(): BelongsTo
+    {
+        return $this->belongsTo(Sphere::class, 'sphere_id');
+    }
+
 }

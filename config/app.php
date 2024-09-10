@@ -76,10 +76,12 @@ return [
 
     'gasn' => [
         'monitoring' => 'https://api.shaffofqurilish.uz/api/v1/request/monitoring-objects?ekspertiza_number',
+        'get_monitoring' => 'https://api.shaffofqurilish.uz/api/v1/request/monitoring-objects?gnk_id=',
         'programs' => 'https://api.shaffofqurilish.uz/api/v1/request/monitoring-dasturlar',
         'reestr' => 'https://api.shaffofqurilish.uz/api/v1/request/opendata-reestr?reestr_number',
         'rating' => 'https://api.shaffofqurilish.uz/api/v1/request/reyting?INN',
         'conference' => 'https://api.shaffofqurilish.uz/api/v1/request/dx-kengash?conc',
+        'sphere' => 'https://api.shaffofqurilish.uz/api/v1/request/monitoring-soha',
     ],
 
     'rate_supervision' => 0.2,

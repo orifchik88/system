@@ -63,6 +63,7 @@ class InformationController extends BaseController
         }
     }
 
+
     public function checkUser(): JsonResponse
     {
         try {

@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\ObjectController;
 use App\Http\Controllers\Api\QuestionController;
 use App\Http\Controllers\Api\MonitoringController;
 use App\Http\Controllers\Api\InformationController;
+use App\Http\Controllers\Api\SphereController;
 
 
 Route::post('login', [LoginController::class, 'login']);
@@ -44,6 +45,9 @@ Route::group([
     Route::get('rating', [InformationController::class, 'rating']);
     Route::get('conference', [InformationController::class, 'conference']);
 
+
+    Route::get('sphere', [SphereController::class, 'spheres']);
+
     Route::get('client-type', [ClientTypeController::class, 'index']);
     Route::post('client-type/create', [ClientTypeController::class, 'create']);
     Route::post('client-type/edit/{id}', [ClientTypeController::class, 'edit']);
@@ -67,7 +71,6 @@ Route::group([
     Route::get('register/{id}', [RegisterController::class, 'getRegister']);
     Route::get('register-status', [RegisterController::class, 'status']);
     Route::get('register-get-pdf', [RegisterController::class, 'getPDF']);
-    Route::get('sphere', [RegisterController::class, 'sphere']);
 
     Route::post('send-inspector', [RegisterController::class, 'sendInspector']);
     Route::post('send-register', [RegisterController::class, 'sendRegister']);
