@@ -26,6 +26,11 @@ class DxaResponseInspectorRequest extends FormRequest
         return [
             'task_id' => 'required|integer|exists:dxa_responses,task_id',
             'inspector_id' => 'required|integer|exists:users,id',
+            'funding_source_id' => 'required|string|exists:funding_sources,id',
+            'sphere_id' => 'required|integer',
+            'program_id' => 'sometimes|integer',
+            'end_term_work' => 'required|string',
+            'gnk_id' => 'sometimes|integer',
         ];
     }
 

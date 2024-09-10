@@ -93,7 +93,12 @@ class RegisterController extends BaseController
         try {
             $this->service->data = [
                 'task_id' => $request->post('task_id'),
-                'inspector_id' => $request->post('inspector_id')
+                'inspector_id' => $request->post('inspector_id'),
+                'gnk_id' => $request->post('gnk_id'),
+                'funding_source_id' => $request->post('funding_source_id'),
+                'sphere_id' => $request->post('sphere_id'),
+                'program_id' => $request->post('program_id'),
+                'end_term_work' => $request->post('end_term_work'),
             ];
 
             $response = $this->service->sendInspector();
