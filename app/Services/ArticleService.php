@@ -228,7 +228,7 @@ class ArticleService
             }
 
             $article->users()->attach($response->inspector_id, ['role_id' => $inspector->id, 'organization_id' => 1]);
-
+            $this->acceptResponse($response);
 
             DB::commit();
             return $article;
@@ -245,17 +245,17 @@ class ArticleService
     }
 
 
-    private function acceptResponse($taskId, $amount)
+    private function acceptResponse($response)
     {
         return Http::withBasicAuth(
             'qurilish.sohasida.nazorat.inspeksiya.201122919',
             'Cx8]^]-Gk*mZK@.,S=c.g65>%[$TNRV75bYX<v+_'
-        )->post('https://my.gov.uz/notice-beginning-construction-works-v4/rest-api/update/id/' . $taskId . '/action/issue-amount', [
+        )->post('https://my.gov.uz/notice-beginning-construction-works-v4/rest-api/update/id/' . $response->task_id . '/action/issue-amount', [
             "IssueAmountV4FormNoticeBeginningConstructionWorks" => [
-                "requisites" => "example",
-                "loacation_rep" => "example",
-                "name_rep" => "example",
-                "amount" => $amount
+                "requisites" => "rekvisite",
+                "loacation_rep" => $response->location_building,
+                "name_rep" => $response->organization_name,
+                "amount" => price_supervision($response->cost)
             ]
         ]);
     }

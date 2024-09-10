@@ -3,8 +3,10 @@
 namespace App\Services;
 
 use App\Enums\DxaResponseStatusEnum;
+use App\Models\Block;
 use App\Models\DxaResponse;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class DxaResponseService
 {
@@ -41,7 +43,26 @@ class DxaResponseService
         $response->save();
 
         $this->saveImages();
+        $this->saveBlocks();
         return $response;
+    }
+
+    private function saveBlocks(){
+        foreach ($this->data['blocks'] as $block) {
+             Block::create([
+                 'dxa_response_id' => $block['dxa_response_id'],
+                 'name' => $block['name'],
+                 'floor' => $block['floor'],
+                 'construction_area' => $block['construction_area'],
+                 'count_apartments' => $block['count_apartments'],
+                 'height' => $block['height'],
+                 'length' => $block['length'],
+                 'block_mode_id' => $block['block_mode_id'],
+                 'block_type_id' => $block['block_type_id'],
+                 'created_by' => Auth::id(),
+                 'status' => true,
+             ]);
+        }
     }
 
     public function sendReject(): DxaResponse

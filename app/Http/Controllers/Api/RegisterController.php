@@ -120,6 +120,7 @@ class RegisterController extends BaseController
                 'long' => $request->post('long'),
                 'lat' => $request->post('lat'),
                 'commit' => $request->post('commit'),
+                'blocks' => $request->post('blocks')
             ];
 
             if ($request->hasFile('images')) {
