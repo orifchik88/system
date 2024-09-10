@@ -14,7 +14,8 @@ class InformationController extends BaseController
     public function monitoringObjects(): JsonResponse
     {
         try {
-            $data = getData(config('app.gasn.monitoring'), request('customer_inn'));
+            $data = getData(config('app.gasn.monitoring'), request('expertise_number'));
+
             return $this->sendSuccess($data['data']['result']['data'], 'Monitoring objects successfully.');
         } catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
