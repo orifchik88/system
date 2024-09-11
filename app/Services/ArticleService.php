@@ -137,90 +137,88 @@ class ArticleService
 //            $article->reestr_number = (int)$response->reestr_number;
             $article->save();
 
-            $author = Role::whereHas('permissions', function ($query) {
-                $query->where('name', 'is_author');
-            })->first();
+//            $author = Role::query()->where('id', )->first();
+//
+//            $technic = Role::whereHas('permissions', function ($query) {
+//                $query->where('name', 'is_technical');
+//            })->first();
+//
+//            $designer = Role::whereHas('permissions', function ($query) {
+//                $query->where('name', 'is_designer');
+//            })->first();
+//            $inspector = Role::whereHas('permissions', function ($query) {
+//                $query->where('name', 'is_inspector');
+//            })->first();
 
-            $technic = Role::whereHas('permissions', function ($query) {
-                $query->where('name', 'is_technical');
-            })->first();
-
-            $designer = Role::whereHas('permissions', function ($query) {
-                $query->where('name', 'is_designer');
-            })->first();
-            $inspector = Role::whereHas('permissions', function ($query) {
-                $query->where('name', 'is_inspector');
-            })->first();
-
-            foreach ($response->supervisors as $supervisor) {
-                $fish = $this->generateFish($supervisor->fish);
-                if ($supervisor->type == 1) {
-                    $user = User::where('pinfl', $supervisor->pinfl)->first();
-                    if (!$user) {
-                        $user = User::create([
-                            'name' => $fish[1],
-                            'surname' => $fish[0],
-                            'middle_name' => $fish[2],
-                            'phone' => $supervisor->phone_number,
-                            'login' => $supervisor->passport_number,
-                            'password' => bcrypt($supervisor->stir_or_pinfl),
-                            'user_status_id' => 6,
-                            'pinfl' => $supervisor->stir_or_pinfl,
-                        ]);
-                        $user->assignRole($author->id);
-                        $article->users()->attach($user->id, ['role_id' => $author->id, 'organization_id' => 1]);
-                    }
-
-                }
-                if ($supervisor->type == 2) {
-                    $user = User::where('passport_number', $supervisor->passport_number)->first();
-                    if (!$user) {
-                        $user = User::create([
-                            'name' => $fish[1],
-                            'surname' => $fish[0],
-                            'middle_name' => $fish[2],
-                            'email' => $supervisor->email,
-                            'phone' => $supervisor->phone_number,
-                            'login' => $supervisor->passport_number,
-                            'password' => bcrypt($supervisor->passport_number),
-                            'passport_number' => $supervisor->passport_number,
-                            'user_status_id' => 6,
-                            'pinfl' => $supervisor->pinfl,
-                            'name_graduate_study' => $supervisor->name_graduate_study,
-                            'diplom_number' => $supervisor->diplom_number,
-                            'specialization' => $supervisor->specialization,
-                            'date_issue_diploma' => $supervisor->diplom_date,
-                        ]);
-                        $user->assignRole($designer->id);
-                        $article->users()->attach($user->id, ['role_id' => $designer->id, 'organization_id' => 1]);
-                    }
-
-                }
-
-                if ($supervisor->type == 3) {
-                    $user = User::where('passport_number', $supervisor->passport_number)->first();
-                    if (!$user) {
-                        $user = User::create([
-                            'name' => $fish[1],
-                            'surname' => $fish[0],
-                            'middle_name' => $fish[2],
-                            'email' => $supervisor->email,
-                            'phone' => $supervisor->phone_number,
-                            'login' => $supervisor->passport_number,
-                            'password' => bcrypt($supervisor->passport_number),
-                            'passport_number' => $supervisor->passport_number,
-                            'user_status_id' => 6,
-                            'pinfl' => $supervisor->pinfl,
-                            'name_graduate_study' => $supervisor->name_graduate_study,
-                            'diplom_number' => $supervisor->diplom_number,
-                            'specialization' => $supervisor->specialization,
-                            'date_issue_diploma' => $supervisor->diplom_date,
-                        ]);
-                        $user->assignRole($technic->id);
-                        $article->users()->attach($user->id, ['role_id' => $technic->id, 'organization_id' => 1]);
-                    }
-                }
-            }
+//            foreach ($response->supervisors as $supervisor) {
+//                $fish = $this->generateFish($supervisor->fish);
+//                if ($supervisor->type == 1) {
+//                    $user = User::where('pinfl', $supervisor->pinfl)->first();
+//                    if (!$user) {
+//                        $user = User::create([
+//                            'name' => $fish[1],
+//                            'surname' => $fish[0],
+//                            'middle_name' => $fish[2],
+//                            'phone' => $supervisor->phone_number,
+//                            'login' => $supervisor->passport_number,
+//                            'password' => bcrypt($supervisor->stir_or_pinfl),
+//                            'user_status_id' => 6,
+//                            'pinfl' => $supervisor->stir_or_pinfl,
+//                        ]);
+//                        $user->assignRole($author->id);
+//                        $article->users()->attach($user->id, ['role_id' => $author->id, 'organization_id' => 1]);
+//                    }
+//
+//                }
+////                if ($supervisor->type == 2) {
+////                    $user = User::where('passport_number', $supervisor->passport_number)->first();
+////                    if (!$user) {
+////                        $user = User::create([
+////                            'name' => $fish[1],
+////                            'surname' => $fish[0],
+////                            'middle_name' => $fish[2],
+////                            'email' => $supervisor->email,
+////                            'phone' => $supervisor->phone_number,
+////                            'login' => $supervisor->passport_number,
+////                            'password' => bcrypt($supervisor->passport_number),
+////                            'passport_number' => $supervisor->passport_number,
+////                            'user_status_id' => 6,
+////                            'pinfl' => $supervisor->pinfl,
+////                            'name_graduate_study' => $supervisor->name_graduate_study,
+////                            'diplom_number' => $supervisor->diplom_number,
+////                            'specialization' => $supervisor->specialization,
+////                            'date_issue_diploma' => $supervisor->diplom_date,
+////                        ]);
+////                        $user->assignRole($designer->id);
+////                        $article->users()->attach($user->id, ['role_id' => $designer->id, 'organization_id' => 1]);
+////                    }
+////
+////                }
+////
+////                if ($supervisor->type == 3) {
+////                    $user = User::where('passport_number', $supervisor->passport_number)->first();
+////                    if (!$user) {
+////                        $user = User::create([
+////                            'name' => $fish[1],
+////                            'surname' => $fish[0],
+////                            'middle_name' => $fish[2],
+////                            'email' => $supervisor->email,
+////                            'phone' => $supervisor->phone_number,
+////                            'login' => $supervisor->passport_number,
+////                            'password' => bcrypt($supervisor->passport_number),
+////                            'passport_number' => $supervisor->passport_number,
+////                            'user_status_id' => 6,
+////                            'pinfl' => $supervisor->pinfl,
+////                            'name_graduate_study' => $supervisor->name_graduate_study,
+////                            'diplom_number' => $supervisor->diplom_number,
+////                            'specialization' => $supervisor->specialization,
+////                            'date_issue_diploma' => $supervisor->diplom_date,
+////                        ]);
+////                        $user->assignRole($technic->id);
+////                        $article->users()->attach($user->id, ['role_id' => $technic->id, 'organization_id' => 1]);
+////                    }
+////                }
+//            }
 
             $article->users()->attach($response->inspector_id, ['role_id' => $inspector->id, 'organization_id' => 1]);
             $this->acceptResponse($response);
