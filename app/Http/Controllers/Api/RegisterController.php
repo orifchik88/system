@@ -76,12 +76,24 @@ class RegisterController extends BaseController
     public function getPDF(): JsonResponse
     {
         try {
-            $response = Http::withBasicAuth(
-                config('app.mygov.login'),
-                config('app.mygov.password'),
-            )->get(config('app.mygov.url').'/get-pdf?id=' . request('id'));
+            if (request('type') == 1){
+                $response = Http::withBasicAuth(
+                    config('app.mygov.login'),
+                    config('app.mygov.password'),
+                )->get(config('app.mygov.linear').'/get-pdf?id=' . request('id'));
+                return $this->sendSuccess($response->json(), 'PDF file generated successfully.');
 
-            return $this->sendSuccess($response->json(), 'PDF file generated successfully.');
+            }
+            if (request('type') == 2){
+                $response = Http::withBasicAuth(
+                    config('app.mygov.login'),
+                    config('app.mygov.password'),
+                )->get(config('app.mygov.url').'/get-pdf?id=' . request('id'));
+                return $this->sendSuccess($response->json(), 'PDF file generated successfully.');
+            }
+            return $this->sendSuccess(null, 'File not found');
+
+
 
         }catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());

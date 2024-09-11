@@ -114,14 +114,14 @@ class NetworkResponseCommand extends Command
         $dxa->organization_name = $organizationName;
         $dxa->legal_opf = $data['legal_kopf']['real_value'];
         $dxa->phone = $phone;
-        $dxa->object_name = $data['name_building']['real_value'];
+        $dxa->object_name = $data['object_name']['real_value'];
         $dxa->deadline = $date->addDay();
         $dxa->administrative_status_id = 1;
         $dxa->object_type_id = 1;
         $dxa->region_id = $region->id;
         $dxa->district_id = $district->id;
 //        $dxa->cadastral_number = $data['cadastral_number']['real_value'];
-        $dxa->reestr_number = $data['reestr_number']['real_value'];
+        $dxa->reestr_number = $data['positive_opinion_number']['real_value'];
 //        $dxa->tip_object = $data['tip_object']['value'];
 //        $dxa->vid_object = $data['vid_object']['value'];
         $dxa->location_building = $data['location_building']['value'];

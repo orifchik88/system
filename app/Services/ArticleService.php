@@ -118,20 +118,20 @@ class ArticleService
 //        $article->positive_opinion_date = $response->property_type;
             $article->date_protocol = $response->date_protocol;
 //        $article->object_specific_id ; // tarmoqli yoki bino
-            $article->funding_source_id = $this->objectDto->fundingSourceId;
+            $article->funding_source_id = $response->funding_source_id;
 //        $article->re_formalized_object = $response->property_type;
             $article->paid = 0; // tolangan summa
             $article->payment_deadline = Carbon::now(); // tolov qilish sanasi
 //        $article->closed_at = $response->property_type;
             $article->object_sector_id = $this->objectDto->objectSectorId;
 //        $article->object_category_id = $response->property_type;
-            $article->deadline = null;
+            $article->deadline = $response->end_term_work;
             $article->update_by = null;
             $article->block_status_counter = null;
             $article->costumer_cer_num = null;
             $article->planned_object_id = null;
             $article->min_ekonom_id = null;
-            $article->gnk_id = null;
+            $article->gnk_id = $response->gnk_id;
 //        $article->t_is_changed = ;
             $article->reestr_number = $response->reestr_number;
             $article->save();
@@ -154,23 +154,17 @@ class ArticleService
             foreach ($response->supervisors as $supervisor) {
                 $fish = $this->generateFish($supervisor->fish);
                 if ($supervisor->type == 1) {
-                    $user = User::where('passport_number', $supervisor->passport_number)->first();
+                    $user = User::where('pinfl', $supervisor->pinfl)->first();
                     if (!$user) {
                         $user = User::create([
                             'name' => $fish[1],
                             'surname' => $fish[0],
                             'middle_name' => $fish[2],
                             'phone' => $supervisor->phone_number,
-                            'email' => $supervisor->email,
                             'login' => $supervisor->passport_number,
-                            'password' => bcrypt($supervisor->passport_number),
-                            'passport_number' => $supervisor->passport_number,
+                            'password' => bcrypt($supervisor->stir_or_pinfl),
                             'user_status_id' => 6,
-                            'pinfl' => $supervisor->pinfl,
-                            'name_graduate_study' => $supervisor->name_graduate_study,
-                            'diplom_number' => $supervisor->diplom_number,
-                            'specialization' => $supervisor->specialization,
-                            'date_issue_diploma' => $supervisor->diplom_date,
+                            'pinfl' => $supervisor->stir_or_pinfl,
                         ]);
                         $user->assignRole($author->id);
                         $article->users()->attach($user->id, ['role_id' => $author->id, 'organization_id' => 1]);
