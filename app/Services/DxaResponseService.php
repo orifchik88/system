@@ -21,7 +21,7 @@ class DxaResponseService
 
     public function sendInspector(): DxaResponse
     {
-        $monitoring = $this->saveMonitoringObject($this->data['gnk_id']);
+
         $response = $this->findResponse();
         $response->dxa_response_status_id = DxaResponseStatusEnum::SEND_INSPECTOR;
         $response->inspector_sent_at = Carbon::now();
@@ -31,7 +31,10 @@ class DxaResponseService
         $response->sphere_id = $this->data['sphere_id'];
         $response->program_id = $this->data['program_id'];
         $response->end_term_work = $this->data['end_term_work'];
-        $response->monitoring_object_id = $monitoring->id;
+        if ($this->data['funding_source_id'] == 2){
+            $monitoring = $this->saveMonitoringObject($this->data['gnk_id']);
+            $response->monitoring_object_id = $monitoring->id;
+        }
         $response->save();
         return $response;
     }
@@ -39,7 +42,7 @@ class DxaResponseService
     private function saveMonitoringObject($gnkId): MonitoringObject
     {
         $data = getData(config('app.gasn.get_monitoring'), $gnkId);
-        $monitoring = $data['data']['result']['data'];
+        $monitoring = $data['data']['result']['data'][0];
 
         $object = new MonitoringObject();
         $object->monitoring_object_id = $monitoring['id'];

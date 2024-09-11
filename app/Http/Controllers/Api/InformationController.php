@@ -6,6 +6,7 @@ use App\Http\Resources\RoleResource;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use GuzzleHttp\Client;
+use Hamcrest\Arrays\SeriesMatchingOnce;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 
@@ -21,6 +22,28 @@ class InformationController extends BaseController
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
 
+    }
+
+    public function monitoringCustomer(): JsonResponse
+    {
+        try {
+            $client = new Client();
+            $apiCredentials = config('app.passport.login') . ':' . config('app.passport.password');
+
+            $url = 'https://api.shaffofqurilish.uz/api/v1/request/monitoring-objects?customer_inn='.request('customer_inn').'&pudrat_inn='.request('pudrat_inn');
+
+
+            $resClient = $client->post($url,
+                [
+                    'headers' => [
+                        'Authorization' => 'Basic ' . base64_encode($apiCredentials),
+                    ]
+                ]);
+            $response = json_decode($resClient->getBody(), true);
+            return response()->json($response, 200);
+        } catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
     }
 
     public function reestr(): JsonResponse
