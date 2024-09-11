@@ -85,7 +85,7 @@ class ArticleService
 //            $article->location_building = $response->location_building;
             $article->cadastral_number = $response->cadastral_number;
             $article->name_expertise = $response->name_expertise;
-            $article->difficulty_category_id = DifficultyCategoryEnum::fromString($response->construction_works)->value;
+//            $article->difficulty_category_id = DifficultyCategoryEnum::fromString($response->construction_works)->value;
             $article->construction_cost = $response->cost;
 //        $article->object_images = $response->district_id;
 //        $article->object_type_id = $response->district_id;
