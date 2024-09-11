@@ -101,9 +101,7 @@ class ObjectController extends BaseController
     {
         try {
             $dto = new ObjectDto();
-            $dto->setObjectSectorId($request->object_sector_id)
-                ->setResponseId($request->response_id)
-                ->setFundingSourceId($request->funding_source_id);
+            $dto->setResponseId($request->response_id);
 
             $this->service->setObjectDto($dto);
 

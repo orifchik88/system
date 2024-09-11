@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\DxaResponseStatusEnum;
 use App\Models\Block;
 use App\Models\DxaResponse;
+use App\Models\MonitoringObject;
 use App\Models\Rekvizit;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -20,6 +21,7 @@ class DxaResponseService
 
     public function sendInspector(): DxaResponse
     {
+        $monitoring = $this->saveMonitoringObject($this->data['gnk_id']);
         $response = $this->findResponse();
         $response->dxa_response_status_id = DxaResponseStatusEnum::SEND_INSPECTOR;
         $response->inspector_sent_at = Carbon::now();
@@ -29,8 +31,25 @@ class DxaResponseService
         $response->sphere_id = $this->data['sphere_id'];
         $response->program_id = $this->data['program_id'];
         $response->end_term_work = $this->data['end_term_work'];
+        $response->monitoring_object_id = $monitoring->id;
         $response->save();
         return $response;
+    }
+
+    private function saveMonitoringObject($gnkId): MonitoringObject
+    {
+        $data = getData(config('app.gasn.get_monitoring'), $gnkId);
+        $monitoring = $data['data']['result']['data'];
+
+        $object = new MonitoringObject();
+        $object->monitoring_object_id = $monitoring['id'];
+        $object->project_type_id = $monitoring['project_type_id'];
+        $object->name = $monitoring['name'];
+        $object->gnk_id = $monitoring['gnk_id'];
+        $object->end_term_work_days = $monitoring['end_term_work_days'];
+        $object->save();
+
+        return $object;
     }
 
     public function sendRegister(): DxaResponse

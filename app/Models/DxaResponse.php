@@ -81,4 +81,9 @@ class DxaResponse extends Model
     {
         return $this->belongsTo(ObjectType::class, 'object_type_id');
     }
+    public function monitoring(): BelongsTo
+    {
+        return $this->belongsTo(MonitoringObject::class, 'monitoring_object_id');
+    }
+
 }

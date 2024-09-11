@@ -125,6 +125,7 @@ class NetworkResponseCommand extends Command
 //        $dxa->tip_object = $data['tip_object']['value'];
 //        $dxa->vid_object = $data['vid_object']['value'];
         $dxa->location_building = $data['location_building']['value'];
+        $dxa->linear_type = $data['line_feature_type']['value'];
         $dxa->application_stir_pinfl = (int)$data['legal_tin']['real_value'];
         $dxa->application_name = $data['legal_name']['real_value'];
         $dxa->current_note = $json['task']['current_node'];
