@@ -29,7 +29,7 @@ class RegisterController extends BaseController
         {
             $registers = DxaResponse::query()
                 ->when($user->inspector(), function ($query) use ($user) {
-                    return $query->where('district_id', $user->district_id);
+                    return $query->where('inspector_id', $user->id);
                 })
                 ->when($user->register(), function ($query) use ($user) {
                     return $query->where('region_id', $user->region_id);
@@ -163,7 +163,7 @@ class RegisterController extends BaseController
             $user = Auth::user();
             $query = DxaResponse::query()
                 ->when($user->inspector(), function ($query) use ($user) {
-                    return $query->where('district_id', $user->district_id);
+                    return $query->where('inspector_id', $user->id);
                 })
                 ->when($user->register(), function ($query) use ($user) {
                     return $query->where('region_id', $user->region_id);
