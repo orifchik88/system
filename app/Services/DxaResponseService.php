@@ -113,7 +113,7 @@ class DxaResponseService
         return Http::withBasicAuth(
             'qurilish.sohasida.nazorat.inspeksiya.201122919',
             'Cx8]^]-Gk*mZK@.,S=c.g65>%[$TNRV75bYX<v+_'
-        )->post('https://my.gov.uz/notice-beginning-construction-works-v4/rest-api/update/id/' . $response->task_id . '/action/issue-amount', [
+        )->post('https://my.gov.uz/notice-beginning-construction-works-v4/rest-api/update/id/' . $response->task_id . '/action/reject-notice', [
             "RejectNoticeV4FormNoticeBeginningConstructionWorks" => [
                 "reject_reason" => $response->rejection_comment,
             ]
