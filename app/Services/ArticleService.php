@@ -123,7 +123,7 @@ class ArticleService
             $article->paid = 0; // tolangan summa
             $article->payment_deadline = Carbon::now(); // tolov qilish sanasi
 //        $article->closed_at = $response->property_type;
-            $article->object_sector_id = $this->objectDto->objectSectorId;
+//            $article->object_sector_id = $this->objectDto->objectSectorId;
 //        $article->object_category_id = $response->property_type;
             $article->deadline = $response->end_term_work;
             $article->update_by = null;
