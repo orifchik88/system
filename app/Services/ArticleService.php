@@ -17,6 +17,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use PHPUnit\Exception;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
