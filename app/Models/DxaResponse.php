@@ -57,7 +57,7 @@ class DxaResponse extends Model
         return $this->hasMany(Block::class, 'dxa_response_id');
     }
 
-    public function rekvisit(): BelongsTo
+    public function rekvizit(): BelongsTo
     {
         return $this->belongsTo(Rekvizit::class, 'rekvizit_id');
     }
