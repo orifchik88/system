@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\DxaResponseStatusEnum;
 use App\Models\Block;
 use App\Models\DxaResponse;
+use App\Models\Rekvizit;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -44,7 +45,17 @@ class DxaResponseService
 
         $this->saveImages();
         $this->saveBlocks();
+        $this->saveRekvizit();
         return $response;
+    }
+
+    private function saveRekvizit()
+    {
+        $response = $this->findResponse();
+        $rekvizit = Rekvizit::query()->where('region_id', $response->region_id)->first();
+        $response->update([
+            'rekvizit_id' => $rekvizit->id,
+        ]);
     }
 
     private function saveBlocks(){

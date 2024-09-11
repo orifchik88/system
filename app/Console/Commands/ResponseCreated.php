@@ -128,6 +128,7 @@ class ResponseCreated extends Command
         $dxa->object_name = $data['name_building']['real_value'];
         $dxa->deadline = $date->addDay();
         $dxa->administrative_status_id = 1;
+        $dxa->object_type = 2;
         $dxa->region_id = $region->id;
         $dxa->district_id = $district->id;
         $dxa->cadastral_number = $data['cadastral_number']['real_value'];

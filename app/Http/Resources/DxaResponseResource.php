@@ -68,6 +68,7 @@ class DxaResponseResource extends JsonResource
             'cadastre_number' => $this->cadastral_number,
             'reestr_number' => $this->reestr_number,
             'tip_object' => $this->tip_object,
+            'object_type' => ObjectTypeResource::make($this->objectType),
             'vid_object' => $this->vid_object,
             'is_accepted' => $this->is_accepted,
             'location_building' => $this->location_building,
@@ -103,7 +104,8 @@ class DxaResponseResource extends JsonResource
             'blocks' => ResponseBlockResource::collection($this->blocks) ?? null,
             'inspector_comment' => $this->inspector_commit ?? null,
             'created_at' => $this->created_at,
-            'supervisors' => DxaResponseSupervisorResource::collection($this->supervisors)
+            'supervisors' => DxaResponseSupervisorResource::collection($this->supervisors),
+            'rekvizit' => RekvizitResource::make($this->rekvizit) ?? null,
         ];
     }
 }

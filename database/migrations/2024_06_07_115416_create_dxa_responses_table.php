@@ -48,6 +48,14 @@ return new class extends Migration
             $table->string('location_building')->nullable()->comment('Bino joylashuvi');
             $table->integer('application_stir_pinfl')->nullable();
             $table->string('application_name')->nullable();
+            $table->integer('rekvizit_id')->index()->nullable();
+            $table->bigInteger('gnk_id')->nullable()->comment('Monitoringdan kelgan object');
+            $table->foreignId('funding_source_id')->nullable()->comment('Moliyalashtirish manbai')->constrained()->onDelete('set null');
+            $table->string('price_supervision_service')->nullable()->comment('Tolanadigan pul miqdori');
+            $table->string('end_term_work')->nullable()->comment('Obyekt tugallanishi kerak bolagan sana');
+            $table->integer('sphere_id')->nullable()->comment('Soha idsi');
+            $table->integer('program_id')->nullable()->comment('Dastur idsi');
+            $table->integer('object_type_id')->nullable()->index()->comment('Tarmoqli yoki bino');
             $table->string('current_note')->nullable();
             $table->string('dxa_status')->nullable();
             $table->string('cost')->nullable()->comment('Qurilish-montaj ishlarining qiymati:');

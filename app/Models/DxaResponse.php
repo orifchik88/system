@@ -57,6 +57,11 @@ class DxaResponse extends Model
         return $this->hasMany(Block::class, 'dxa_response_id');
     }
 
+    public function rekvisit(): BelongsTo
+    {
+        return $this->belongsTo(Rekvizit::class, 'rekvizit_id');
+    }
+
     public function fundingSource(): BelongsTo
     {
         return $this->belongsTo(FundingSource::class, 'funding_source_id');
@@ -70,5 +75,10 @@ class DxaResponse extends Model
     public function program(): BelongsTo
     {
         return $this->belongsTo(Program::class, 'program_id');
+    }
+
+    public function objectType(): BelongsTo
+    {
+        return $this->belongsTo(ObjectType::class, 'object_type_id');
     }
 }
