@@ -24,15 +24,15 @@ class InformationController extends BaseController
             $data = getData(config('app.gasn.monitoring'), request('expertise_number'))['data']['result']['data'];
             if (!empty($data))
             {
-                if ($data['end_term_work_days']){
+                if ($data[0]['end_term_work_days']){
                     $meta[] = $this->informationService->customer($customerInn, $pudratInn);
                 }
                 $meta[] = [
-                    'id' => $data['id'],
-                    'gnk_id' => $data['gnk_id'],
-                    'project_type_id' => $data['project_type_id'],
-                    'name' => $data['name'],
-                    'end_term_work_days' => $data['end_term_work_days'],
+                    'id' => $data[0]['id'],
+                    'gnk_id' => $data[0]['gnk_id'],
+                    'project_type_id' => $data[0]['project_type_id'],
+                    'name' => $data[0]['name'],
+                    'end_term_work_days' => $data[0]['end_term_work_days'],
                 ];
             }else{
                 $meta[] = $this->informationService->customer($customerInn, $pudratInn);
