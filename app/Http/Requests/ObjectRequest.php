@@ -27,22 +27,20 @@ class ObjectRequest extends FormRequest
     {
         return [
             'response_id' => 'required|integer|exists:dxa_responses,id',
-            'funding_source_id' => 'required|integer|exists:funding_sources,id',
-            'object_sector_id' => 'required|integer|exists:object_sectors,id',
         ];
     }
 
-    public function withValidator(Validator $validator)
-    {
-        $validator->after(function ($validator) {
-            $responseId = $this->input('response_id');
-            $response = DxaResponse::find($responseId);
-
-            if ($response && Article::where('task_id', $response->task_id)->exists()) {
-                $validator->errors()->add('response_id', 'The selected response_id has a task_id that exists in the articles table.');
-            }
-        });
-    }
+//    public function withValidator(Validator $validator)
+//    {
+//        $validator->after(function ($validator) {
+//            $responseId = $this->input('response_id');
+//            $response = DxaResponse::find($responseId);
+//
+//            if ($response && Article::where('task_id', $response->task_id)->exists()) {
+//                $validator->errors()->add('response_id', 'The selected response_id has a task_id that exists in the articles table.');
+//            }
+//        });
+//    }
 
 
 
