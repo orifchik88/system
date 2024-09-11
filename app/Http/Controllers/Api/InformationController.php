@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Resources\RoleResource;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Services\InformationService;
 use GuzzleHttp\Client;
 use Hamcrest\Arrays\SeriesMatchingOnce;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -12,12 +13,33 @@ use Illuminate\Http\JsonResponse;
 
 class InformationController extends BaseController
 {
+
+    public function __construct(public InformationService $informationService){}
+
     public function monitoringObjects(): JsonResponse
     {
+        $customerInn = request('customer_inn');
+        $pudratInn = request('pudrat_inn');
         try {
-            $data = getData(config('app.gasn.monitoring'), request('expertise_number'));
+            $data = getData(config('app.gasn.monitoring'), request('expertise_number'))['data']['result']['data'];
+            if (!empty($data))
+            {
+                if ($data['end_term_work_days']){
+                    $meta[] = $this->informationService->customer($customerInn, $pudratInn);
+                }
+                $meta[] = [
+                    'id' => $data['id'],
+                    'gnk_id' => $data['gnk_id'],
+                    'project_type_id' => $data['project_type_id'],
+                    'name' => $data['name'],
+                    'end_term_work_days' => $data['end_term_work_days'],
+                ];
+            }else{
+                $meta[] = $this->informationService->customer($customerInn, $pudratInn);
+            }
 
-            return $this->sendSuccess($data['data']['result']['data'], 'Monitoring objects successfully.');
+
+            return $this->sendSuccess($meta, 'Monitoring objects successfully.');
         } catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
@@ -27,10 +49,12 @@ class InformationController extends BaseController
     public function monitoringCustomer(): JsonResponse
     {
         try {
+            $customerInn = request('customer_inn');
+            $pudratInn = request('pudrat_inn');
             $client = new Client();
             $apiCredentials = config('app.passport.login') . ':' . config('app.passport.password');
 
-            $url = 'https://api.shaffofqurilish.uz/api/v1/request/monitoring-objects?customer_inn='.request('customer_inn').'&pudrat_inn='.request('pudrat_inn');
+            $url = 'https://api.shaffofqurilish.uz/api/v1/request/monitoring-objects?customer_inn='.$customerInn.'&pudrat_inn='.$pudratInn;
 
 
             $resClient = $client->post($url,
@@ -40,7 +64,67 @@ class InformationController extends BaseController
                     ]
                 ]);
             $response = json_decode($resClient->getBody(), true);
-            return response()->json($response, 200);
+
+//            return response()->json($response['result']['data']['result']['data'], 200);
+//
+//            if (isset($response['result']['data']['result']['data'])) {
+//                foreach ($response['result']['data']['result']['data'] as &$item) {
+//                    if (isset($item['pudrat_tender']) && is_array($item['pudrat_tender'])) {
+//                        $item['pudrat_tender'] = array_values($item['pudrat_tender']);
+//
+//                        $item['pudrat_tender'] = array_filter($item['pudrat_tender'], function ($tender) use ($pudratInn) {
+//                            return $tender['winner_inn'] == $pudratInn;
+//                        });
+//
+//                        $item['pudrat_tender'] = array_values($item['pudrat_tender']);
+//
+//                        if (empty($item['pudrat_tender'])) {
+//                            unset($item);
+//                        }
+//                    }
+//                }
+//            }
+
+            if (isset($response['result']['data']['result']['data'])) {
+                foreach ($response['result']['data']['result']['data'] as &$item) {
+                    if (isset($item['pudrat_tender']) && is_array($item['pudrat_tender'])) {
+                        $item['pudrat_tender'] = array_values($item['pudrat_tender']);
+
+                        $item['pudrat_tender'] = array_filter($item['pudrat_tender'], function ($tender) use ($pudratInn) {
+                            return $tender['winner_inn'] == $pudratInn;
+                        });
+
+                        if (!empty($item['pudrat_tender'])) {
+                            usort($item['pudrat_tender'], function ($a, $b) {
+                                return strtotime($b['confirmed_date']) - strtotime($a['confirmed_date']);
+                            });
+
+                            $item['pudrat_tender'] = [reset($item['pudrat_tender'])];
+                        } else {
+                            $item['pudrat_tender'] = [];
+                        }
+
+                        if (empty($item['pudrat_tender'])) {
+                            unset($item);
+                        }
+                    }
+                }
+
+                $response['result']['data']['result']['data'] = array_values($response['result']['data']['result']['data']);
+            }
+
+            $data = $response['result']['data']['result']['data'][0];
+
+            $meta = [
+                'id' => $data['id'],
+                'gnk_id' => $data['gnk_id'],
+                'project_type_id' => $data['project_type_id'],
+                'name' => $data['name'],
+                'end_term_work_days' => $data['end_term_work_days']  ?? $data['pudrat_tender'][0]['end_term_work_days'],
+            ];
+
+
+            return $this->sendSuccess($meta, 'Monitoring customer information successfully.');
         } catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
