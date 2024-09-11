@@ -220,7 +220,7 @@ class ArticleService
 ////                }
 //            }
 
-            $article->users()->attach($response->inspector_id, ['role_id' => $inspector->id, 'organization_id' => 1]);
+//            $article->users()->attach($response->inspector_id, ['role_id' => $inspector->id, 'organization_id' => 1]);
             $this->acceptResponse($response);
 
             DB::commit();
