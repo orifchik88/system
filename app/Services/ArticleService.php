@@ -246,7 +246,7 @@ class ArticleService
             'Cx8]^]-Gk*mZK@.,S=c.g65>%[$TNRV75bYX<v+_'
         )->post('https://my.gov.uz/notice-beginning-construction-works-v4/rest-api/update/id/' . $response->task_id . '/action/issue-amount', [
             "IssueAmountV4FormNoticeBeginningConstructionWorks" => [
-                "requisites" => "rekvisite",
+                "requisites" => $response->rekvizit->name,
                 "loacation_rep" => $response->location_building,
                 "name_rep" => $response->organization_name,
                 "amount" => price_supervision($response->cost)
