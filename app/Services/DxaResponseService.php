@@ -99,20 +99,17 @@ class DxaResponseService
         }
     }
 
-    public function sendReject(): DxaResponse
+    public  function sendReject($response, $comment): DxaResponse
     {
-        $response = $this->findResponse();
         $response->dxa_response_status_id = DxaResponseStatusEnum::REJECTED->value;
-        $response->rejection_comment = $this->data['reject_comment'];
+        $response->rejection_comment = $comment;
         $response->save();
 
-        $this->sendMyGovReject();
         return $response;
     }
 
-    private function sendMyGovReject()
+    public  function sendMyGovReject($response)
     {
-        $response = $this->findResponse();
         return Http::withBasicAuth(
             'qurilish.sohasida.nazorat.inspeksiya.201122919',
             'Cx8]^]-Gk*mZK@.,S=c.g65>%[$TNRV75bYX<v+_'

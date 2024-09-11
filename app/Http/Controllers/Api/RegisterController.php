@@ -197,14 +197,13 @@ class RegisterController extends BaseController
     public function rejectRegister(DxaResponseRejectRequest $request): JsonResponse
     {
         try {
-            $this->service->data = [
-                'task_id' => $request->post('task_id'),
-                'reject_comment' => $request->post('reject_comment'),
-            ];
+            $comment = $request->post('reject_comment');
 
-            $response = $this->service->sendReject();
+            $response = DxaResponse::query()->where('task_id', $request->post('task_id'))->first();
+            $this->service->sendReject($response, $comment);
+            $this->service->sendMyGovReject($response);
 
-            return $this->sendSuccess(DxaResponseResource::make($response), 'Register successfully.');
+            return $this->sendSuccess([], 'Register successfully.');
         }catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
