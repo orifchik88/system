@@ -77,7 +77,7 @@ class ArticleService
             $tinOrPinfl = $response->pinfl ?? $response->application_stir_number;
 
             $article = new Article();
-            $article->name = $response->object_name;
+//            $article->name = $response->object_name;
             $article->region_id = $response->region_id;
             $article->district_id = $response->district_id;
             $article->object_status_id = ObjectStatusEnum::NEW;
