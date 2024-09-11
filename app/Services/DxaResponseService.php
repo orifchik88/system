@@ -102,7 +102,7 @@ class DxaResponseService
     public function sendReject(): DxaResponse
     {
         $response = $this->findResponse();
-        $response->dxa_response_status_id = DxaResponseStatusEnum::REJECTED;
+        $response->dxa_response_status_id = DxaResponseStatusEnum::REJECTED->value;
         $response->rejection_comment = $this->data['reject_comment'];
         $response->save();
 
