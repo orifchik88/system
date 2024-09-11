@@ -52,6 +52,7 @@ class DxaResponseResource extends JsonResource
             'pinfl' => $this->pinfl,
             "full_name" => $this->full_name,
             'legal_opf' => $this->legal_opf,
+            'linear_type' => $this->linear_type,
             'address' => $address,
             'administrative_status' => AdministrativeStatusResource::make($this->administrativeStatus),
             'passport' => $this->passport,
