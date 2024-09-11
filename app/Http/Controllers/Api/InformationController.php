@@ -32,6 +32,16 @@ class InformationController extends BaseController
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
+    public function monitoringGNK(): JsonResponse
+    {
+        try {
+            $data = getData(config('app.gasn.get_monitoring'), request('gnk_id'));
+            return $this->sendSuccess($data['data']['result']['data'], 'Object');
+        } catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
 
     public function rating(): JsonResponse
     {

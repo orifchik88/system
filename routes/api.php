@@ -41,6 +41,7 @@ Route::group([
     Route::get('users-count', [UserTypeController::class, 'count']);
 
     Route::get('monitoring-objects', [InformationController::class, 'monitoringObjects']);
+    Route::get('monitoring-gnk', [InformationController::class, 'monitoringGNK']);
     Route::get('reestr', [InformationController::class, 'reestr']);
     Route::get('rating', [InformationController::class, 'rating']);
     Route::get('conference', [InformationController::class, 'conference']);
