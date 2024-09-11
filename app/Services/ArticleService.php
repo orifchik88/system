@@ -133,7 +133,7 @@ class ArticleService
             $article->min_ekonom_id = null;
             $article->gnk_id = $response->gnk_id;
 //        $article->t_is_changed = ;
-            $article->reestr_number = $response->reestr_number;
+            $article->reestr_number = (int)$response->reestr_number;
             $article->save();
 
             $author = Role::whereHas('permissions', function ($query) {
