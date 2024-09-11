@@ -101,7 +101,7 @@ class DxaResponseService
 
     public  function sendReject($response, $comment): DxaResponse
     {
-        $response->dxa_response_status_id = DxaResponseStatusEnum::REJECTED->value;
+        $response->dxa_response_status_id = DxaResponseStatusEnum::REJECTED;
         $response->rejection_comment = $comment;
         $response->save();
 

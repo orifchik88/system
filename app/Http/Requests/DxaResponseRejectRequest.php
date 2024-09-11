@@ -24,13 +24,9 @@ class DxaResponseRejectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'reject_comment' => 'string|required',
-            'task_id' => 'integer|required',
+            'reject_comment' => 'required',
+            'task_id' => 'required|exists:dxa_responses,task_id',
         ];
     }
 
-    public function failedValidation(Validator $validator)
-    {
-        throw new GeneralJsonException($validator->errors(), 422);
-    }
 }
