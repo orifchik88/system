@@ -131,7 +131,7 @@ class ArticleService
             $article->costumer_cer_num = null;
             $article->planned_object_id = null;
             $article->min_ekonom_id = null;
-            $article->gnk_id = $response->gnk_id;
+//            $article->gnk_id = $response->gnk_id;
 //        $article->t_is_changed = ;
 //            $article->reestr_number = (int)$response->reestr_number;
             $article->save();
