@@ -68,7 +68,7 @@ class DxaResponseService
         $response->save();
 
         $this->saveImages();
-        $this->saveDocuments();
+//        $this->saveDocuments();
         $this->saveBlocks();
         $this->saveRekvizit();
         return $response;

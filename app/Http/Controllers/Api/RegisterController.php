@@ -139,9 +139,9 @@ class RegisterController extends BaseController
                 $this->service->data['images'] = $request->file('images');
             }
 
-            if ($request->hasFile('documents')){
-                $this->service->data['documents'] = $request->file('documents');
-            }
+//            if ($request->hasFile('documents')){
+//                $this->service->data['documents'] = $request->file('documents');
+//            }
 
             $response = $this->service->sendRegister();
 

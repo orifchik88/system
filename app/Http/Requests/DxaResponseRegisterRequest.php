@@ -31,7 +31,7 @@ class DxaResponseRegisterRequest extends FormRequest
             'administrative_status_id' => 'integer|required',
             'task_id' => 'integer|required|exists:dxa_responses,task_id',
             'images.*' => 'image|mimes:jpg,jpeg,png',
-            'documents.*' => 'sometimes',
+//            'documents.*' => 'sometimes',
 //            'images.*' => 'required|image|mimes:jpg,jpeg,png',
             'blocks.*' => 'required',
         ];
