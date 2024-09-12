@@ -104,6 +104,7 @@ class DxaResponseService
     {
         $response->dxa_response_status_id = DxaResponseStatusEnum::REJECTED;
         $response->rejection_comment = $comment;
+        $response->rejected_at = now();
         $response->save();
 
         return $response;

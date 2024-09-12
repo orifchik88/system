@@ -72,6 +72,7 @@ class ArticleService
             $response = $this->dxaResponse->find($this->objectDto->responseId);
             $response->update([
                 'is_accepted' => true,
+                'confirmed_at' => now(),
                 'dxa_response_status_id' => DxaResponseStatusEnum::ACCEPTED
             ]);
 

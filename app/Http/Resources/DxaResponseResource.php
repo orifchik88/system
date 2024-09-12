@@ -98,6 +98,8 @@ class DxaResponseResource extends JsonResource
             'blocks' => ResponseBlockResource::collection($this->blocks) ?? null,
             'inspector_comment' => $this->inspector_commit ?? null,
             'created_at' => $this->created_at,
+            'rejected_at' => $this->rejected_at,
+            'confirmed_at' => $this->confirmed_at,
             'supervisors' => DxaResponseSupervisorResource::collection($this->supervisors),
             'rekvizit' => RekvizitResource::make($this->rekvizit) ?? null,
         ];
