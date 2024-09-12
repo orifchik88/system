@@ -68,9 +68,20 @@ class DxaResponseService
         $response->save();
 
         $this->saveImages();
+        $this->saveDocuments();
         $this->saveBlocks();
         $this->saveRekvizit();
         return $response;
+    }
+
+    private function saveDocuments()
+    {
+        $model = $this->findResponse();
+
+        foreach ($this->data['documents'] as $document) {
+            $path = $document->store('documents/administrative-files', 'public');
+            $model->documents()->create(['url' => $path]);
+        }
     }
 
     private function saveRekvizit()

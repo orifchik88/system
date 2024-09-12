@@ -86,4 +86,9 @@ class DxaResponse extends Model
         return $this->belongsTo(MonitoringObject::class, 'monitoring_object_id');
     }
 
+    public function documents(): MorphMany
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
+
 }
