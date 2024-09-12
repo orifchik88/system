@@ -57,6 +57,8 @@ return new class extends Migration
             $table->integer('program_id')->nullable()->comment('Dastur idsi');
             $table->integer('object_type_id')->nullable()->index()->comment('Tarmoqli yoki bino');
             $table->string('current_note')->nullable();
+            $table->integer('monitoring_object_id')->index()->nullable();
+            $table->string('linear_type')->nullable();
             $table->string('dxa_status')->nullable();
             $table->string('cost')->nullable()->comment('Qurilish-montaj ishlarining qiymati:');
             $table->string('number_protocol')->nullable()->comment('Arxitektura-shaharsozlik kengashi bayonnomasining raqami');
@@ -79,8 +81,10 @@ return new class extends Migration
             $table->string('contract_file')->nullable()->comment('Buyurtmachining texnik nazorati shartnoma nusxalari');
             $table->string('organization_projects')->nullable()->comment('Qurilishni tashkil etish va ishlarni bajarishning tasdiqlangan loyihalari');
             $table->string('file_energy_efficiency')->nullable()->comment('"Energiya samaradorlik" hujjati');
-            $table->dateTime('inspector_sent_at')->nullable();
-            $table->dateTime('inspector_answered_at')->nullable();
+            $table->timestamp('inspector_sent_at')->nullable();
+            $table->timestamp('inspector_answered_at')->nullable();
+            $table->timestamp('rejected_at')->nullable();
+            $table->timestamp('confirmed_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
