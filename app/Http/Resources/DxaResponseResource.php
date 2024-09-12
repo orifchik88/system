@@ -55,6 +55,7 @@ class DxaResponseResource extends JsonResource
             'linear_type' => $this->linear_type,
             'address' => $address,
             'administrative_status' => AdministrativeStatusResource::make($this->administrativeStatus),
+            'administrative_files' => DocumentResource::collection($this->documents),
             'passport' => $this->passport,
             'phone' => $this->phone,
             'email' => $this->email,
