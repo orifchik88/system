@@ -240,17 +240,27 @@ class ArticleService
 
     private function acceptResponse($response)
     {
-        return Http::withBasicAuth(
-            'qurilish.sohasida.nazorat.inspeksiya.201122919',
-            'Cx8]^]-Gk*mZK@.,S=c.g65>%[$TNRV75bYX<v+_'
-        )->post('https://my.gov.uz/notice-beginning-construction-works-v4/rest-api/update/id/' . $response->task_id . '/action/issue-amount', [
-            "IssueAmountV4FormNoticeBeginningConstructionWorks" => [
-                "requisites" => $response->rekvizit->name,
-                "loacation_rep" => $response->location_building,
-                "name_rep" => $response->organization_name,
-                "amount" => price_supervision($response->cost)
-            ]
-        ]);
+
+        $authUsername = config('app.mygov.login');
+        $authPassword = config('app.mygov.password');
+
+        if ($response->object_type_id == 1) {
+            $apiUrl = config('app.mygov.url').'/update/id/' . $response->task_id . '/action/issue-amount';
+            $formName = 'IssueAmountV4FormNoticeBeginningConstructionWorks';
+        } else {
+            $apiUrl = config('app.mygov.linear').'/update/id/' . $response->task_id . '/action/issue-amount';
+            $formName = 'IssueAmountFormRegistrationStartLinearObject';
+        }
+
+        return Http::withBasicAuth($authUsername, $authPassword)
+            ->post($apiUrl, [
+                $formName => [
+                    "requisites" => $response->rekvizit->name,
+                    "loacation_rep" => $response->location_building,
+                    "name_rep" => $response->organization_name,
+                    "amount" => $response->price_supervision_service
+                ]
+            ]);
     }
 
     private function generateFish($name): array

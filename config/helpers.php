@@ -49,4 +49,22 @@ if (!function_exists('getData')) {
     }
 }
 
+if (!function_exists('egovAction')) {
+    function egovAction(?string $baseUrl, ?string $param = null){
+        $client = new Client();
+        $apiCredentials = config('app.passport.login') . ':' . config('app.passport.password');
+        $url = $param ? $baseUrl.'='.$param : $baseUrl;
+
+
+        $resClient = $client->post($url,
+            [
+                'headers' => [
+                    'Authorization' => 'Basic ' . base64_encode($apiCredentials),
+                ]
+            ]);
+        $response = json_decode($resClient->getBody(), true);
+        return $response['result'];
+    }
+}
+
 

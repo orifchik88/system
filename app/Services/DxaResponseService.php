@@ -61,6 +61,7 @@ class DxaResponseService
         $response->dxa_response_status_id = DxaResponseStatusEnum::IN_REGISTER;
         $response->administrative_status_id = $this->data['administrative_status_id'];
         $response->inspector_answered_at = Carbon::now();
+        $response->price_supervision_service = price_supervision((int)$response->cost);
         $response->long = $this->data['long'];
         $response->lat = $this->data['lat'];
         $response->inspector_commit = $this->data['commit'];
@@ -110,14 +111,24 @@ class DxaResponseService
 
     public  function sendMyGovReject($response)
     {
-        return Http::withBasicAuth(
-            'qurilish.sohasida.nazorat.inspeksiya.201122919',
-            'Cx8]^]-Gk*mZK@.,S=c.g65>%[$TNRV75bYX<v+_'
-        )->post('https://my.gov.uz/notice-beginning-construction-works-v4/rest-api/update/id/' . $response->task_id . '/action/reject-notice', [
-            "RejectNoticeV4FormNoticeBeginningConstructionWorks" => [
-                "reject_reason" => $response->rejection_comment,
-            ]
-        ]);
+        $authUsername = config('app.mygov.login');
+        $authPassword = config('app.mygov.password');
+
+        if ($response->object_type_id == 1) {
+            $apiUrl = config('app.mygov.url').'/update/id/' . $response->task_id . '/action/reject-notice';
+            $formName = 'RejectNoticeV4FormNoticeBeginningConstructionWorks';
+        } else {
+            $apiUrl = config('app.mygov.linear').'/update/id/' . $response->task_id . '/action/reject-notice';
+            $formName = 'RejectNoticeFormRegistrationStartLinearObject';
+        }
+
+        return Http::withBasicAuth($authUsername, $authPassword)
+            ->post($apiUrl, [
+                $formName => [
+                    "reject_reason" => $response->rejection_comment,
+                ]
+            ]);
+
     }
 
     private function findResponse(): ?DxaResponse
