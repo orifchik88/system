@@ -28,7 +28,7 @@ class Article extends Model
 
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'article_users', 'article_id', 'user_id')->withPivot('role_id', 'organization_id');
+        return $this->belongsToMany(User::class, 'article_users', 'article_id', 'user_id')->withPivot('role_id');
     }
 
     public function roles(): BelongsToMany

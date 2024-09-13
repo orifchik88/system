@@ -31,13 +31,10 @@ class ObjectController extends BaseController
     public function index(): JsonResponse
     {
         $user = Auth::user();
-//        if (request()->get('id')) {
-//            return $this->sendSuccess(ArticleResource::make($user->objects->find(request()->get('id'))), "Object retrieved successfully.");
-//        }
 
         $objects = $user->objects()
             ->when(request('status'), function ($query){
-                return $query->whereIn('status', request('status'));
+                $query->whereIn('status', request('status'));
             })
             ->when(request('name'), function ($query) {
                 $query->searchByName(request('name'));
