@@ -14,7 +14,6 @@ use GuzzleHttp\Client;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Validation\ValidationException;
 
 class RegisterController extends BaseController
 {
