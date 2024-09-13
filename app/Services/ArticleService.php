@@ -245,7 +245,7 @@ class ArticleService
         $authUsername = config('app.mygov.login');
         $authPassword = config('app.mygov.password');
 
-        if ($response->object_type_id == 1) {
+        if ($response->object_type_id == 2) {
             $apiUrl = config('app.mygov.url').'/update/id/' . $response->task_id . '/action/issue-amount';
             $formName = 'IssueAmountV4FormNoticeBeginningConstructionWorks';
         } else {
