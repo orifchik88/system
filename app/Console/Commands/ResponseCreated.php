@@ -275,18 +275,18 @@ class ResponseCreated extends Command
 
     private function sendMyGov($response)
     {
-//        $authUsername = config('app.mygov.login');
-//        $authPassword = config('app.mygov.password');
-//
-//        $apiUrl = config('app.mygov.url').'/update/id/' . $response->task_id . '/action/accept-consideration';
-//        $formName = 'AcceptConsiderationV4FormNoticeBeginningConstructionWorks';
-//
-//        return Http::withBasicAuth($authUsername, $authPassword)
-//            ->post($apiUrl, [
-//                $formName => [
-//                    "notice" =>  "Qabul qilindi"
-//                ]
-//            ]);
+        $authUsername = config('app.mygov.login');
+        $authPassword = config('app.mygov.password');
+
+        $apiUrl = config('app.mygov.url').'/update/id/' . $response->task_id . '/action/accept-consideration';
+        $formName = 'AcceptConsiderationV4FormNoticeBeginningConstructionWorks';
+
+        return Http::withBasicAuth($authUsername, $authPassword)
+            ->post($apiUrl, [
+                $formName => [
+                    "notice" =>  "Qabul qilindi"
+                ]
+            ]);
 
     }
 }
