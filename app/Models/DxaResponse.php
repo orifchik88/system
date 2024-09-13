@@ -95,7 +95,7 @@ class DxaResponse extends Model
     {
         $searchTerm = strtolower($searchTerm);
 
-        return $query->whereRaw('LOWER(name) LIKE ?', ['%' . $searchTerm . '%']);
+        return $query->whereRaw('LOWER(object_name) LIKE ?', ['%' . $searchTerm . '%']);
 
     }
     public function scopeSearchByTaskId($query, $searchTerm)
@@ -113,6 +113,5 @@ class DxaResponse extends Model
             ->orWhereRaw('LOWER(organization_name) LIKE ?', ['%' . $searchTerm . '%']);
 
     }
-
 
 }

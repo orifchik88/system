@@ -39,6 +39,7 @@ class RegisterController extends BaseController
 
         $registers->when(request('task_id'), fn($query) => $query->searchByTaskId(request('task_id')))
             ->when(request('customer'), fn($query) => $query->searchByCustomer(request('customer')))
+            ->when(request('name'), fn($query) => $query->searchByName(request('name')))
             ->when(request('object_type'), fn($query) => $query->where('object_type_id', request('object_type')))
             ->when(request('district_id'), fn($query) => $query->where('district_id', request('district_id')))
             ->when(request('funding_source'), fn($query) => $query->where('funding_source_id', request('funding_source')))

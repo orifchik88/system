@@ -52,7 +52,6 @@ class ResponseCreated extends Command
         DB::beginTransaction();
         try {
             $dxa = $this->saveDxaResponse($taskId, $data, $userType, $response->body(), $json, $date);
-            $this->saveSupervisors($data['info_supervisory']['value'], $dxa->id);
             $this->sendMyGov($dxa);
 
             DB::commit();
@@ -88,7 +87,7 @@ class ResponseCreated extends Command
         }
     }
 
-    protected function saveDxaResponse($taskId, $data, $userType, $responseBody, $json, $date)
+    private function saveDxaResponse($taskId, $data, $userType, $responseBody, $json, $date)
     {
         $email = '';
         $phone = '';
@@ -162,13 +161,15 @@ class ResponseCreated extends Command
         $dxa->organization_projects = $data['organization_projects']['real_value'];
         $dxa->file_energy_efficiency = $data['file_energy_efficiency']['real_value'];
         $dxa->save();
-
+        $this->saveSupervisors($data, $dxa->id, $userType);
         return $dxa;
+
     }
 
-    protected function saveSupervisors($supervisors, $dxaId)
+    private function saveSupervisors($data, $dxaId, $userType)
     {
-        foreach ($supervisors as $key => $item) {
+
+        foreach ($data['info_supervisory']['value'] as $key => $item) {
             if ($item['role']['real_value'] ==1) {
                 $dxaResSupervisor = new DxaResponseSupervisor();
                 $dxaResSupervisor->dxa_response_id = $dxaId;
@@ -189,17 +190,32 @@ class ResponseCreated extends Command
                 $dxaResSupervisor->comment = $item['comment']['real_value'];
                 $dxaResSupervisor->save();
 
-                $dxaResSupervisor = new DxaResponseSupervisor();
-                $dxaResSupervisor->dxa_response_id = $dxaId;
-                $dxaResSupervisor->type = $item['role']['real_value'];
-                $dxaResSupervisor->role = $item['role']['value'];
-                $dxaResSupervisor->role_id = 8;
-                $dxaResSupervisor->organization_name = $item['name_org']['value'];
-                $dxaResSupervisor->identification_number = (int)$item['tin_org']['real_value'];
-                $dxaResSupervisor->stir_or_pinfl = (int)$item['tin_org']['real_value'];
-                $dxaResSupervisor->comment = $item['comment']['real_value'];
-                $dxaResSupervisor->save();
-
+                if ($userType == 'Jismoniy shaxs')
+                {
+                    $dxaResSupervisor = new DxaResponseSupervisor();
+                    $dxaResSupervisor->dxa_response_id = $dxaId;
+                    $dxaResSupervisor->type = $item['role']['real_value'];
+                    $dxaResSupervisor->role = $item['role']['value'];
+                    $dxaResSupervisor->role_id = 8;
+                    $dxaResSupervisor->organization_name = $data['ind_fullname']['value'];
+                    $dxaResSupervisor->fish = $data['ind_fullname']['value'];
+                    $dxaResSupervisor->passport_number = $data['ind_passport']['real_value'];
+                    $dxaResSupervisor->identification_number = (int)$item['ind_pinfl']['real_value'];
+                    $dxaResSupervisor->stir_or_pinfl = (int)$item['ind_pinfl']['real_value'];
+                    $dxaResSupervisor->comment = $item['comment']['real_value'];
+                    $dxaResSupervisor->save();
+                }else{
+                    $dxaResSupervisor = new DxaResponseSupervisor();
+                    $dxaResSupervisor->dxa_response_id = $dxaId;
+                    $dxaResSupervisor->type = $item['role']['real_value'];
+                    $dxaResSupervisor->role = $item['role']['value'];
+                    $dxaResSupervisor->role_id = 8;
+                    $dxaResSupervisor->organization_name = $item['name_org']['value'];
+                    $dxaResSupervisor->identification_number = (int)$item['tin_org']['real_value'];
+                    $dxaResSupervisor->stir_or_pinfl = (int)$item['tin_org']['real_value'];
+                    $dxaResSupervisor->comment = $item['comment']['real_value'];
+                    $dxaResSupervisor->save();
+                }
 
             }
             if ($item['role']['real_value'] ==2) {
