@@ -25,49 +25,28 @@ class RegisterController extends BaseController
     public function registers(): JsonResponse
     {
         $user = Auth::user();
-        if (request('status'))
-        {
-            $registers = DxaResponse::query()
-                ->when($user->inspector(), function ($query) use ($user) {
-                    return $query->where('inspector_id', $user->id);
-                })
-                ->when($user->register(), function ($query) use ($user) {
-                    return $query->where('region_id', $user->region_id);
-                })
-                ->where('dxa_response_status_id', request('status'))
-                ->orderBy('id', 'desc');
-        }else{
-            $registers = DxaResponse::query()
-                ->when($user->inspector(), function ($query) use ($user) {
-                    return $query->where('inspector_id', $user->id);
-                })
-                ->when($user->register(), function ($query) use ($user) {
-                    return $query->where('region_id', $user->region_id);
-                })
-                ->orderBy('id', 'desc');
+
+        $registers = DxaResponse::query()
+            ->when($user->inspector(), function ($query) use ($user) {
+                return $query->where('inspector_id', $user->id);
+            })
+            ->when($user->register(), function ($query) use ($user) {
+                return $query->where('region_id', $user->region_id);
+            });
+
+        if ($status = request('status')) {
+            $registers->where('dxa_response_status_id', $status);
         }
 
-        //search and filter
+        $registers->when(request('task_id'), fn($query) => $query->searchByTaskId(request('task_id')))
+            ->when(request('customer'), fn($query) => $query->searchByCustomer(request('customer')))
+            ->when(request('object_type'), fn($query) => $query->where('object_type_id', request('object_type')))
+            ->when(request('district_id'), fn($query) => $query->where('district_id', request('district_id')))
+            ->when(request('funding_source'), fn($query) => $query->where('funding_source_id', request('funding_source')))
+            ->when(request('sort_by_date'), fn($query) => $query->orderBy('created_at', request('sort_by_date', 'desc')))
+            ->orderBy('id', 'desc')
+            ->paginate(request('per_page', 10));
 
-        $registers = $registers
-            ->when(request('task_id'), function ($query) {
-                $query->searchByTaskId(request('task_id'));
-            })
-            ->when(request('customer'), function ($query) {
-                $query->searchByCustomer(request('customer'));
-            })
-            ->when(request('object_type'), function ($query) {
-                $query->where('object_type_id', request('object_type'));
-            })
-            ->when(request('district_id'), function ($query) {
-                $query->where('district_id', request('district_id'));
-            })
-            ->when(request('funding_source'), function ($query) {
-                $query->where('funding_source_id', request('funding_source'));
-            })
-            ->when(request('sort_by_date'), function ($query) {
-                $query->orderBy('created_at', request('sort_by_date'));
-            })->paginate(request('per_page', 10));
         return $this->sendSuccess(DxaResponseResource::collection($registers), 'All registers  successfully.', pagination($registers));
     }
 
