@@ -91,4 +91,28 @@ class DxaResponse extends Model
         return $this->morphMany(Document::class, 'documentable');
     }
 
+    public function scopeSearchByName($query, $searchTerm)
+    {
+        $searchTerm = strtolower($searchTerm);
+
+        return $query->whereRaw('LOWER(name) LIKE ?', ['%' . $searchTerm . '%']);
+
+    }
+    public function scopeSearchByTaskId($query, $searchTerm)
+    {
+        $searchTerm = strtolower($searchTerm);
+        return $query->where('task_id', 'like', '%' . $searchTerm . '%')
+            ->orWhere('id', 'like', '%' . $searchTerm . '%');
+    }
+
+    public function scopeSearchByCustomer($query, $searchTerm)
+    {
+        $searchTerm = strtolower($searchTerm);
+
+        return $query->whereRaw('LOWER(full_name) LIKE ?', ['%' . $searchTerm . '%'])
+            ->orWhereRaw('LOWER(organization_name) LIKE ?', ['%' . $searchTerm . '%']);
+
+    }
+
+
 }
