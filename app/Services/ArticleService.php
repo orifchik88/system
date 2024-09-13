@@ -6,6 +6,7 @@ use App\DTO\ObjectDto;
 use App\Enums\DifficultyCategoryEnum;
 use App\Enums\DxaResponseStatusEnum;
 use App\Enums\ObjectStatusEnum;
+use App\Enums\UserStatusEnum;
 use App\Exceptions\NotFoundException;
 use App\Models\Article;
 use App\Models\Costumer;
@@ -76,22 +77,18 @@ class ArticleService
                 'dxa_response_status_id' => DxaResponseStatusEnum::ACCEPTED
             ]);
 
-            $tinOrPinfl = $response->pinfl ?? $response->application_stir_number;
 
             $article = new Article();
             $article->name = Str::limit($response->object_name, 40);
             $article->region_id = $response->region_id;
             $article->district_id = $response->district_id;
             $article->object_status_id = ObjectStatusEnum::NEW;
+            $article->object_type_id = $response->object_type_id;
             $article->address = $response->address;
-//            $article->location_building = $response->location_building;
             $article->cadastral_number = $response->cadastral_number;
             $article->name_expertise = $response->name_expertise;
-//            $article->difficulty_category_id = DifficultyCategoryEnum::fromString($response->construction_works)->value;
+            $article->difficulty_category_id = DifficultyCategoryEnum::fromString($response->category_object_dictionary);
             $article->construction_cost = $response->cost;
-//        $article->object_images = $response->district_id;
-//        $article->object_type_id = $response->district_id;
-//        $article->property_type = $response->property_type;
             $article->architectural_number_date_protocol = null;
             $article->parallel_designobjc = null;
             $article->objects_stateprog = null;
@@ -107,134 +104,63 @@ class ArticleService
             $article->legal_opf = $response->legal_opf;
             $article->lat = $response->lat;
             $article->long = $response->long;
-//        $article->authority_id = $response->property_type;
-//        $article->lat_long_status = $response->property_type;
             $article->dxa_response_id = $response->id;
-//        $article->company_id = $response->property_type;
-//        $article->applicant_id = $response->property_type;
             $article->price_supervision_service = price_supervision($response->cost);
             $article->task_id = $response->task_id;
-//        $article->costumer_id = $response->property_type;
             $article->number_protocol = $response->number_protocol;
             $article->positive_opinion_number = $response->positive_opinion_number;
-//        $article->positive_opinion_date = $response->property_type;
             $article->date_protocol = $response->date_protocol;
-//        $article->object_specific_id ; // tarmoqli yoki bino
             $article->funding_source_id = $response->funding_source_id;
-//        $article->re_formalized_object = $response->property_type;
-            $article->paid = 0; // tolangan summa
-            $article->payment_deadline = Carbon::now(); // tolov qilish sanasi
-//        $article->closed_at = $response->property_type;
-//            $article->object_sector_id = $this->objectDto->objectSectorId;
-//        $article->object_category_id = $response->property_type;
+            $article->paid = 0;
+            $article->payment_deadline = Carbon::now();
             $article->deadline = $response->end_term_work;
             $article->update_by = null;
             $article->block_status_counter = null;
             $article->costumer_cer_num = null;
             $article->planned_object_id = null;
             $article->min_ekonom_id = null;
-//            $article->gnk_id = $response->gnk_id;
-//        $article->t_is_changed = ;
-//            $article->reestr_number = (int)$response->reestr_number;
+            $article->gnk_id = $response->gnk_id;
+            $article->reestr_number = (int)$response->reestr_number;
             $article->save();
 
-//            $author = Role::query()->where('id', )->first();
-//
-//            $technic = Role::whereHas('permissions', function ($query) {
-//                $query->where('name', 'is_technical');
-//            })->first();
-//
-//            $designer = Role::whereHas('permissions', function ($query) {
-//                $query->where('name', 'is_designer');
-//            })->first();
-//            $inspector = Role::whereHas('permissions', function ($query) {
-//                $query->where('name', 'is_inspector');
-//            })->first();
+            foreach ($response->supervisors as $supervisor) {
+                $fish = $this->generateFish($supervisor->fish);
+                    $user = User::where('pinfl', $supervisor->stir_or_pinfl)->first();
+                    if ($user) {
+                        $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
+                        $user->roles()->attach($supervisor->role_id);
+                    }
 
-//            foreach ($response->supervisors as $supervisor) {
-//                $fish = $this->generateFish($supervisor->fish);
-//                if ($supervisor->type == 1) {
-//                    $user = User::where('pinfl', $supervisor->pinfl)->first();
-//                    if (!$user) {
-//                        $user = User::create([
-//                            'name' => $fish[1],
-//                            'surname' => $fish[0],
-//                            'middle_name' => $fish[2],
-//                            'phone' => $supervisor->phone_number,
-//                            'login' => $supervisor->passport_number,
-//                            'password' => bcrypt($supervisor->stir_or_pinfl),
-//                            'user_status_id' => 6,
-//                            'pinfl' => $supervisor->stir_or_pinfl,
-//                        ]);
-//                        $user->assignRole($author->id);
-//                        $article->users()->attach($user->id, ['role_id' => $author->id, 'organization_id' => 1]);
-//                    }
-//
-//                }
-////                if ($supervisor->type == 2) {
-////                    $user = User::where('passport_number', $supervisor->passport_number)->first();
-////                    if (!$user) {
-////                        $user = User::create([
-////                            'name' => $fish[1],
-////                            'surname' => $fish[0],
-////                            'middle_name' => $fish[2],
-////                            'email' => $supervisor->email,
-////                            'phone' => $supervisor->phone_number,
-////                            'login' => $supervisor->passport_number,
-////                            'password' => bcrypt($supervisor->passport_number),
-////                            'passport_number' => $supervisor->passport_number,
-////                            'user_status_id' => 6,
-////                            'pinfl' => $supervisor->pinfl,
-////                            'name_graduate_study' => $supervisor->name_graduate_study,
-////                            'diplom_number' => $supervisor->diplom_number,
-////                            'specialization' => $supervisor->specialization,
-////                            'date_issue_diploma' => $supervisor->diplom_date,
-////                        ]);
-////                        $user->assignRole($designer->id);
-////                        $article->users()->attach($user->id, ['role_id' => $designer->id, 'organization_id' => 1]);
-////                    }
-////
-////                }
-////
-////                if ($supervisor->type == 3) {
-////                    $user = User::where('passport_number', $supervisor->passport_number)->first();
-////                    if (!$user) {
-////                        $user = User::create([
-////                            'name' => $fish[1],
-////                            'surname' => $fish[0],
-////                            'middle_name' => $fish[2],
-////                            'email' => $supervisor->email,
-////                            'phone' => $supervisor->phone_number,
-////                            'login' => $supervisor->passport_number,
-////                            'password' => bcrypt($supervisor->passport_number),
-////                            'passport_number' => $supervisor->passport_number,
-////                            'user_status_id' => 6,
-////                            'pinfl' => $supervisor->pinfl,
-////                            'name_graduate_study' => $supervisor->name_graduate_study,
-////                            'diplom_number' => $supervisor->diplom_number,
-////                            'specialization' => $supervisor->specialization,
-////                            'date_issue_diploma' => $supervisor->diplom_date,
-////                        ]);
-////                        $user->assignRole($technic->id);
-////                        $article->users()->attach($user->id, ['role_id' => $technic->id, 'organization_id' => 1]);
-////                    }
-////                }
-//            }
 
-//            $article->users()->attach($response->inspector_id, ['role_id' => $inspector->id, 'organization_id' => 1]);
+                    if (!$user) {
+                        $user = User::create([
+                            'name' => $fish ? $fish[1] : null,
+                            'surname' => $fish ? $fish[0] : null,
+                            'middle_name' => $fish ? $fish[2] : null,
+                            'phone' => $supervisor->phone_number,
+                            'login' => $supervisor->passport_number,
+                            'password' => bcrypt($supervisor->stir_or_pinfl),
+                            'user_status_id' => UserStatusEnum::ACTIVE,
+                            'pinfl' => $supervisor->stir_or_pinfl,
+                        ]);
+                        $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
+                        $user->roles()->attach($supervisor->role_id);
+                    }
+            }
+
+            $article->users()->attach($response->inspector_id, ['role_id' => 3]);
+
             $this->acceptResponse($response);
 
+
             DB::commit();
+
             return $article;
 
         } catch (Exception $exception) {
             DB::rollBack();
-            throw new NotFoundException($exception->getMessage(), $exception->getCode());
+            throw new NotFoundException($exception->getLine(), $exception->getCode(), );
         }
-
-
-//        $fundingSource = $this->fundingSource->find($this->objectDto->fundingSourceId);
-//        $objectType = $this->objectSector->find($this->objectDto->objectSectorId);
 
     }
 
@@ -264,16 +190,18 @@ class ArticleService
             ]);
     }
 
-    private function generateFish($name): array
+    private function generateFish($name)
     {
-        $parts = explode(' ', $name);
-        $array = [
-            $parts[0],  // lastname
-            $parts[1],  // name
-            implode(' ', array_slice($parts, 2))  // middle name
-        ];
+        if ($name){
+            $parts = explode(' ', $name);
+            $array = [
+                $parts[0] ?? null,
+                $parts[1] ?? null,
+                implode(' ', array_slice($parts, 2)) ?? null
+            ];
 
-        return $array;
+        }
+        return $array ?? null;
     }
 
 }

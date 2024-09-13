@@ -36,6 +36,7 @@ class UserRequest extends FormRequest
             "role_ids" => "required|array",
             "role_ids.*" => "required|integer|exists:roles,id",
             'created_by' => "required|exists:users,id",
+            'type' => "required|integer",
         ];
     }
 
@@ -44,6 +45,7 @@ class UserRequest extends FormRequest
         $this->merge([
             'user_status_id' => UserStatusEnum::ACTIVE->value,
             'created_by' => Auth::id(),
+            'type' => 1
         ]);
     }
 }

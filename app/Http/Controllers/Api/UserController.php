@@ -46,6 +46,7 @@ class UserController extends BaseController
                 "region_id" => $request->region_id,
                 "district_id" => $request->district_id,
                 "created_by" => $request->created_by,
+                "type" => $request->type,
                 'image' => $imagePath,
             ]);
 
