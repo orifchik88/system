@@ -167,27 +167,35 @@ class ArticleService
 
     private function acceptResponse($response)
     {
+        try {
+            $authUsername = config('app.mygov.login');
+            $authPassword = config('app.mygov.password');
 
-        $authUsername = config('app.mygov.login');
-        $authPassword = config('app.mygov.password');
+            if ($response->object_type_id == 2) {
+                $apiUrl = config('app.mygov.url').'/update/id/' . $response->task_id . '/action/issue-amount';
+                $formName = 'IssueAmountV4FormNoticeBeginningConstructionWorks';
+            } else {
+                $apiUrl = config('app.mygov.linear').'/update/id/' . $response->task_id . '/action/issue-amount';
+                $formName = 'IssueAmountFormRegistrationStartLinearObject';
+            }
 
-        if ($response->object_type_id == 2) {
-            $apiUrl = config('app.mygov.url').'/update/id/' . $response->task_id . '/action/issue-amount';
-            $formName = 'IssueAmountV4FormNoticeBeginningConstructionWorks';
-        } else {
-            $apiUrl = config('app.mygov.linear').'/update/id/' . $response->task_id . '/action/issue-amount';
-            $formName = 'IssueAmountFormRegistrationStartLinearObject';
+            $return =  Http::withBasicAuth($authUsername, $authPassword)
+                ->post($apiUrl, [
+                    $formName => [
+                        "requisites" => $response->rekvizit->name,
+                        "loacation_rep" => $response->region->name_uz.' '.$response->district->name_uz.' '.$response->location_building,
+                        "name_rep" => $response->organization_name,
+                        "amount" => $response->price_supervision_service
+                    ]
+                ]);
+
+            if ($return->failed()) throw new NotFoundException($return->reason());
+
+            return $return;
+        }catch (\Exception $exception){
+            throw new NotFoundException($exception->getMessage(), $exception->getCode(), );
         }
 
-        return Http::withBasicAuth($authUsername, $authPassword)
-            ->post($apiUrl, [
-                $formName => [
-                    "requisites" => $response->rekvizit->name,
-                    "loacation_rep" => $response->location_building,
-                    "name_rep" => $response->organization_name,
-                    "amount" => $response->price_supervision_service
-                ]
-            ]);
     }
 
     private function generateFish($name)
