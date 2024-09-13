@@ -191,7 +191,6 @@ class ArticleService
 
             if ($return->failed()) throw new NotFoundException($return->reason());
 
-            return $return;
         }catch (\Exception $exception){
             throw new NotFoundException($exception->getMessage(), $exception->getCode(), );
         }
