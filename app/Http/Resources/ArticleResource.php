@@ -23,7 +23,6 @@ class ArticleResource extends JsonResource
             'address' => $this->location_building,
             'costumer' => [
                 'address' => $this->address,
-                ''
             ],
             'cadastral_number' => $this->cadastral_number,
             'name_expertise' => $this->name_expertise,

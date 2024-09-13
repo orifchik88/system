@@ -3,9 +3,10 @@
 namespace App\Http\Resources;
 
 use App\Enums\UserRoleEnum;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Storage;
 
 class ArticleUserResource extends JsonResource
 {
@@ -18,10 +19,15 @@ class ArticleUserResource extends JsonResource
     {
         return [
             'name' => $this->name,
+            'middle_name' => $this->middle_name,
+            'surname' => $this->surname,
+            'image' => $this->image ? Storage::disk('public')->url($this->image) : null,
             'phone' => $this->phone,
+            'pinfl' => $this->pinfl,
+            'organization_name' => $this->organization_name,
             'role' => $this->whenPivotLoaded('article_users', function () {
                 $role = Role::find($this->pivot->role_id);
-                return $role ? UserRoleEnum::getValueByKey($role->name) : null;
+                return RoleResource::make($role);
             }),
         ];
     }

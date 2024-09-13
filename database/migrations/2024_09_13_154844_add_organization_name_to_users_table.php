@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('articles', function (Blueprint $table) {
-            $table->bigInteger('gnk_id')->change();
+        Schema::table('users', function (Blueprint $table) {
+            $table->text('organization_name')->nullable()->after('password');
         });
     }
 
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('articles', function (Blueprint $table) {
+        Schema::table('users', function (Blueprint $table) {
             //
         });
     }
