@@ -44,10 +44,11 @@ class RegisterController extends BaseController
             ->when(request('district_id'), fn($query) => $query->where('district_id', request('district_id')))
             ->when(request('funding_source'), fn($query) => $query->where('funding_source_id', request('funding_source')))
             ->when(request('sort_by_date'), fn($query) => $query->orderBy('created_at', request('sort_by_date', 'desc')))
-            ->orderBy('id', 'desc')
-            ->paginate(request('per_page', 10));
+            ->orderBy('id', 'desc');
 
-        return $this->sendSuccess(DxaResponseResource::collection($registers), 'All registers  successfully.', pagination($registers));
+        $data = $registers->paginate(request('per_page', 10));
+
+        return $this->sendSuccess(DxaResponseResource::collection($data), 'All registers  successfully.', pagination($data));
     }
 
     public function getRegister($id): JsonResponse
