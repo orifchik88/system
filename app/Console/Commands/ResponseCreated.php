@@ -109,9 +109,11 @@ class ResponseCreated extends Command
 
         $region = Region::where('soato', $data['region_id']['real_value'])->first();
 
+
         $district = District::where('soato', $data['district_id']['real_value'])->first();
         $dxa = new DxaResponse();
         $dxa->task_id = $taskId;
+        $dxa->old_task_id = $data['task_number']['real_value'];
         $dxa->user_type = $userType;
         $dxa->dxa_response_status_id = DxaResponseStatusEnum::NEW;
         $dxa->email = $email;
@@ -123,6 +125,7 @@ class ResponseCreated extends Command
         $dxa->address = $data['legal_entity_address']['real_value'];
         $dxa->organization_name = $organizationName;
         $dxa->legal_opf = $data['legal_opf']['real_value'];
+        $dxa->notification_type = $data['notification_type']['real_value'];
         $dxa->phone = $phone;
         $dxa->object_name = $data['name_building']['real_value'];
         $dxa->deadline = $date->addDay();
@@ -291,7 +294,7 @@ class ResponseCreated extends Command
     private function sendMyGov($response)
     {
 
-        if (env('APP_ENV') === 'production') {
+        if (env('APP_ENV') === 'development') {
             $authUsername = config('app.mygov.login');
             $authPassword = config('app.mygov.password');
 

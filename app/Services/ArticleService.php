@@ -168,7 +168,7 @@ class ArticleService
     private function acceptResponse($response)
     {
         try {
-            if (env('APP_ENV') === 'production') {
+            if (env('APP_ENV') === 'development') {
                 $authUsername = config('app.mygov.login');
                 $authPassword = config('app.mygov.password');
 

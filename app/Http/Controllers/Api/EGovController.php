@@ -8,16 +8,11 @@ use Illuminate\Http\Request;
 
 class EGovController
 {
-    private EGovService $govService;
 
-    public function __construct(EGovService $govService)
+    public function getPassportInfo()
     {
-        $this->govService = $govService;
-    }
 
-    public function getPassportInfo(PinflRequest $request)
-    {
-        return $this->govService->getInfo($request->get('pinfl'), $request->get('birth_date'));
+        dd(env('APP_ENV') === 'development');
     }
 
 }

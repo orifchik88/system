@@ -102,6 +102,8 @@ class NetworkResponseCommand extends Command
         $district = District::where('soato', $data['district']['real_value'])->first();
         $dxa = new DxaResponse();
         $dxa->task_id = $taskId;
+        $dxa->old_task_id = $data['task_number']['real_value'];
+        $dxa->notification_type = $data['notification_type']['real_value'];
         $dxa->user_type = $userType;
         $dxa->dxa_response_status_id = DxaResponseStatusEnum::NEW;
         $dxa->email = $email;
@@ -279,7 +281,7 @@ class NetworkResponseCommand extends Command
     }
     private function sendMyGov($response)
     {
-        if (env('APP_ENV') === 'production') {
+        if (env('APP_ENV') === 'development') {
             $authUsername = config('app.mygov.login');
             $authPassword = config('app.mygov.password');
 
