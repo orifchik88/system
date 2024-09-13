@@ -128,10 +128,9 @@ class ArticleService
                     $user = User::where('pinfl', $supervisor->stir_or_pinfl)->first();
                     if ($user) {
                         $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
-                        $user->roles()->attach($supervisor->role_id);
+                        if (!$user->roles()->where('role_id', $supervisor->role_id)->exists())
+                            $user->roles()->attach($supervisor->role_id);
                     }
-
-
                     if (!$user) {
                         $user = User::create([
                             'name' => $fish ? $fish[1] : null,

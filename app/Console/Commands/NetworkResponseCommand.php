@@ -43,7 +43,6 @@ class NetworkResponseCommand extends Command
         DB::beginTransaction();
         try {
             $dxa = $this->saveDxaResponse($taskId, $data, $userType, $response->body(), $json, $date);
-            $this->saveSupervisors($data['info_supervisory']['value'], $dxa->id);
             $this->sendMyGov($dxa);
 
             DB::commit();
@@ -79,7 +78,7 @@ class NetworkResponseCommand extends Command
         }
     }
 
-    protected function saveDxaResponse($taskId, $data, $userType, $responseBody, $json, $date)
+    private function saveDxaResponse($taskId, $data, $userType, $responseBody, $json, $date)
     {
         $email = '';
         $phone = '';
@@ -151,14 +150,17 @@ class NetworkResponseCommand extends Command
         $dxa->contract_file = $data['contract_file']['real_value'];
         $dxa->organization_projects = $data['organization_projects']['real_value'];
 //        $dxa->file_energy_efficiency = $data['file_energy_efficiency']['real_value'];
+
+        $this->saveSupervisors($data, $dxa->id, $userType);
         $dxa->save();
 
         return $dxa;
     }
 
-    protected function saveSupervisors($supervisors, $dxaId)
+    private function saveSupervisors($data, $dxaId, $userType)
     {
-        foreach ($supervisors as $key => $item) {
+
+        foreach ($data['info_supervisory']['value'] as $key => $item) {
             if ($item['role']['real_value'] ==1) {
                 $dxaResSupervisor = new DxaResponseSupervisor();
                 $dxaResSupervisor->dxa_response_id = $dxaId;
@@ -179,17 +181,32 @@ class NetworkResponseCommand extends Command
                 $dxaResSupervisor->comment = $item['comment']['real_value'];
                 $dxaResSupervisor->save();
 
-                $dxaResSupervisor = new DxaResponseSupervisor();
-                $dxaResSupervisor->dxa_response_id = $dxaId;
-                $dxaResSupervisor->type = $item['role']['real_value'];
-                $dxaResSupervisor->role = $item['role']['value'];
-                $dxaResSupervisor->role_id = 8;
-                $dxaResSupervisor->organization_name = $item['name_org']['value'];
-                $dxaResSupervisor->identification_number = (int)$item['tin_org']['real_value'];
-                $dxaResSupervisor->stir_or_pinfl = (int)$item['tin_org']['real_value'];
-                $dxaResSupervisor->comment = $item['comment']['real_value'];
-                $dxaResSupervisor->save();
-
+                if ($userType == 'Jismoniy shaxs')
+                {
+                    $dxaResSupervisor = new DxaResponseSupervisor();
+                    $dxaResSupervisor->dxa_response_id = $dxaId;
+                    $dxaResSupervisor->type = $item['role']['real_value'];
+                    $dxaResSupervisor->role = $item['role']['value'];
+                    $dxaResSupervisor->role_id = 8;
+                    $dxaResSupervisor->organization_name = $data['ind_fullname']['value'];
+                    $dxaResSupervisor->fish = $data['ind_fullname']['value'];
+                    $dxaResSupervisor->passport_number = $data['ind_passport']['real_value'];
+                    $dxaResSupervisor->identification_number = (int)$data['ind_pinfl']['real_value'];
+                    $dxaResSupervisor->stir_or_pinfl = (int)$data['ind_pinfl']['real_value'];
+                    $dxaResSupervisor->comment = $item['comment']['real_value'];
+                    $dxaResSupervisor->save();
+                }else{
+                    $dxaResSupervisor = new DxaResponseSupervisor();
+                    $dxaResSupervisor->dxa_response_id = $dxaId;
+                    $dxaResSupervisor->type = $item['role']['real_value'];
+                    $dxaResSupervisor->role = $item['role']['value'];
+                    $dxaResSupervisor->role_id = 8;
+                    $dxaResSupervisor->organization_name = $item['name_org']['value'];
+                    $dxaResSupervisor->identification_number = (int)$item['tin_org']['real_value'];
+                    $dxaResSupervisor->stir_or_pinfl = (int)$item['tin_org']['real_value'];
+                    $dxaResSupervisor->comment = $item['comment']['real_value'];
+                    $dxaResSupervisor->save();
+                }
 
             }
             if ($item['role']['real_value'] ==2) {
@@ -256,27 +273,27 @@ class NetworkResponseCommand extends Command
                 $dxaResSupervisor->comment = $item['comment']['real_value'];
                 $dxaResSupervisor->save();
 
-
             }
-
 
         }
     }
-
     private function sendMyGov($response)
     {
-        $authUsername = config('app.mygov.login');
-        $authPassword = config('app.mygov.password');
+        if (env('APP_ENV') === 'production') {
+            $authUsername = config('app.mygov.login');
+            $authPassword = config('app.mygov.password');
 
-        $apiUrl = config('app.mygov.linear').'/update/id/' . $response->task_id . '/action/accept-consideration';
-        $formName = 'AcceptConsiderationFormRegistrationStartLinearObject';
+            $apiUrl = config('app.mygov.linear').'/update/id/' . $response->task_id . '/action/accept-consideration';
+            $formName = 'AcceptConsiderationFormRegistrationStartLinearObject';
 
-        return Http::withBasicAuth($authUsername, $authPassword)
-            ->post($apiUrl, [
-                $formName => [
-                    "notice" =>  "Qabul qilindi"
-                ]
-            ]);
+            return Http::withBasicAuth($authUsername, $authPassword)
+                ->post($apiUrl, [
+                    $formName => [
+                        "notice" =>  "Qabul qilindi"
+                    ]
+                ]);
+        }
 
+        return null;
     }
 }
