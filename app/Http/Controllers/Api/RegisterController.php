@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+
 use App\Enums\DxaResponseStatusEnum;
 use App\Http\Requests\DxaResponseInspectorRequest;
 use App\Http\Requests\DxaResponseRegisterRequest;
@@ -20,7 +21,9 @@ class RegisterController extends BaseController
 {
     public function __construct(
         protected DxaResponseService $service
-    ){}
+    )
+    {
+    }
 
     public function registers(): JsonResponse
     {
@@ -90,17 +93,17 @@ class RegisterController extends BaseController
         try {
             $user = Auth::user();
 
-            $registerCount =  DxaResponse::query()
+            $registerCount = DxaResponse::query()
                 ->when($user->inspector(), function ($query) use ($user) {
-                return $query->where('inspector_id', $user->id);
-                 })
+                    return $query->where('inspector_id', $user->id);
+                })
                 ->when($user->register(), function ($query) use ($user) {
                     return $query->where('region_id', $user->region_id);
                 })
                 ->where('notification_type', 1)
                 ->whereIn('dxa_response_status_id', [DxaResponseStatusEnum::NEW, DxaResponseStatusEnum::SEND_INSPECTOR, DxaResponseStatusEnum::IN_REGISTER])
                 ->count();
-            $reRegisterCount =  DxaResponse::query()
+            $reRegisterCount = DxaResponse::query()
                 ->when($user->inspector(), function ($query) use ($user) {
                     return $query->where('inspector_id', $user->id);
                 })
@@ -112,9 +115,9 @@ class RegisterController extends BaseController
                 ->count();
 
             $petitionCount = 0;
-            if ($user->register()){
+            if ($user->register()) {
                 $objectCount = Article::query()->where('region_id', $user->region_id)->count();
-            }else{
+            } else {
                 $objectCount = $user->objects()->count();
             }
 
@@ -126,7 +129,7 @@ class RegisterController extends BaseController
             ];
 
             return $this->sendSuccess($data, 'All data');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage());
         }
 
@@ -137,7 +140,7 @@ class RegisterController extends BaseController
         try {
             $response = DxaResponse::query()->findOrFail($id);
             return $this->sendSuccess(DxaResponseResource::make($response), 'Register successfully.');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -145,8 +148,7 @@ class RegisterController extends BaseController
 
     public function status(): JsonResponse
     {
-        if (request()->get('id'))
-        {
+        if (request()->get('id')) {
             $register = DxaResponseStatus::findOrFail(request()->get('id'));
             return $this->sendSuccess(DxaStatusResource::make($register), 'Register successfully.');
         }
@@ -157,26 +159,25 @@ class RegisterController extends BaseController
     public function getPDF(): JsonResponse
     {
         try {
-            if (request('type') == 1){
+            if (request('type') == 1) {
                 $response = Http::withBasicAuth(
                     config('app.mygov.login'),
                     config('app.mygov.password'),
-                )->get(config('app.mygov.linear').'/get-pdf?id=' . request('id'));
+                )->get(config('app.mygov.linear') . '/get-pdf?id=' . request('id'));
                 return $this->sendSuccess($response->json(), 'PDF file generated successfully.');
 
             }
-            if (request('type') == 2){
+            if (request('type') == 2) {
                 $response = Http::withBasicAuth(
                     config('app.mygov.login'),
                     config('app.mygov.password'),
-                )->get(config('app.mygov.url').'/get-pdf?id=' . request('id'));
+                )->get(config('app.mygov.url') . '/get-pdf?id=' . request('id'));
                 return $this->sendSuccess($response->json(), 'PDF file generated successfully.');
             }
             return $this->sendSuccess(null, 'File not found');
 
 
-
-        }catch (\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -198,7 +199,7 @@ class RegisterController extends BaseController
 
             return $this->sendSuccess(DxaResponseResource::make($response), 'Inspector sent successfully.');
 
-        }catch (\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
 
@@ -227,7 +228,7 @@ class RegisterController extends BaseController
             $response = $this->service->sendRegister();
 
             return $this->sendSuccess(DxaResponseResource::make($response), 'Register successfully.');
-        }catch (\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -239,16 +240,16 @@ class RegisterController extends BaseController
             $apiCredentials = config('app.passport.login') . ':' . config('app.passport.password');
 
             $resClient = $client->post('https://api.shaffofqurilish.uz/api/v1/request/monitoring-soha',
-                     [
-                         'headers' => [
-                             'Authorization' => 'Basic ' . base64_encode($apiCredentials),
-                         ]
-                     ]);
+                [
+                    'headers' => [
+                        'Authorization' => 'Basic ' . base64_encode($apiCredentials),
+                    ]
+                ]);
 
             $response = json_decode($resClient->getBody(), true);
 
             return $this->sendSuccess($response['result']['data']['data'], 'Sphere successfully.');
-        } catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -264,7 +265,8 @@ class RegisterController extends BaseController
                 })
                 ->when($user->register(), function ($query) use ($user) {
                     return $query->where('region_id', $user->region_id);
-                });
+                })
+                ->where('notification_type', 1);
             $data = [
                 'all' => $query->clone()->count(),
                 'new' => $query->clone()->where('dxa_response_status_id', DxaResponseStatusEnum::NEW)->count(),
@@ -275,10 +277,39 @@ class RegisterController extends BaseController
                 'cancelled' => $query->clone()->where('dxa_response_status_id', DxaResponseStatusEnum::CANCELED)->count(),
             ];
             return $this->sendSuccess($data, 'Response count retrieved successfully.');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
+
+    public function reRegisterCount(): JsonResponse
+    {
+
+        try {
+            $user = Auth::user();
+            $query = DxaResponse::query()
+                ->when($user->inspector(), function ($query) use ($user) {
+                    return $query->where('inspector_id', $user->id);
+                })
+                ->when($user->register(), function ($query) use ($user) {
+                    return $query->where('region_id', $user->region_id);
+                })
+                ->where('notification_type', 2);
+            $data = [
+                'all' => $query->clone()->count(),
+                'new' => $query->clone()->where('dxa_response_status_id', DxaResponseStatusEnum::NEW)->count(),
+                'in_inspector' => $query->clone()->where('dxa_response_status_id', DxaResponseStatusEnum::SEND_INSPECTOR)->count(),
+                'in_register' => $query->clone()->where('dxa_response_status_id', DxaResponseStatusEnum::IN_REGISTER)->count(),
+                'accepted' => $query->clone()->where('dxa_response_status_id', DxaResponseStatusEnum::ACCEPTED)->count(),
+                'rejected' => $query->clone()->where('dxa_response_status_id', DxaResponseStatusEnum::REJECTED)->count(),
+                'cancelled' => $query->clone()->where('dxa_response_status_id', DxaResponseStatusEnum::CANCELED)->count(),
+            ];
+            return $this->sendSuccess($data, 'Response count retrieved successfully.');
+        } catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
     public function rejectRegister(DxaResponseRejectRequest $request): JsonResponse
     {
         try {
@@ -289,7 +320,7 @@ class RegisterController extends BaseController
             $this->service->sendMyGovReject($response);
 
             return $this->sendSuccess([], 'Register successfully.');
-        }catch (\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }

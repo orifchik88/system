@@ -74,6 +74,7 @@ Route::group([
     Route::get('registers', [RegisterController::class, 'registers']);
     Route::get('re-registers', [RegisterController::class, 'reRegister']);
     Route::get('register-count', [RegisterController::class, 'registerCount']);
+    Route::get('re-register-count', [RegisterController::class, 'reRegisterCount']);
     Route::get('register/{id}', [RegisterController::class, 'getRegister']);
     Route::get('register-status', [RegisterController::class, 'status']);
     Route::get('register-get-pdf', [RegisterController::class, 'getPDF']);
