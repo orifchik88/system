@@ -29,15 +29,23 @@ class DxaResponseResource extends JsonResource
         {
             $address = $this->permit_address;
         }
+        if ($this->notification_type == 2)
+        {
+            $dxa = $this->getResponse($this->task_id);
+            $blocks = $dxa->blocks;
+        }else{
+            $blocks = $this->blocks;
+        }
 
 
         $inspector = User::query()->where('id', $this->inspector_id)->first();
+        $oldTaskIds = $this->getOldTaskIds($this->task_id);
 
 
         return [
             'id' =>$this->id,
             'user_type' => $this->user_type,
-            'task_ids' => [],
+            'task_ids' => $oldTaskIds,
             'task_id' =>$this->task_id,
             'status' => DxaResponseStatusResource::make($this->status),
             'deadline' => $this->deadline,
@@ -98,7 +106,7 @@ class DxaResponseResource extends JsonResource
                 'name' =>  $inspector ? "{$inspector->surname} {$inspector->name} {$inspector->middle_name}" : null,
             ],
             'images' => ImageResource::collection($this->images) ?? null,
-            'blocks' => ResponseBlockResource::collection($this->blocks) ?? null,
+            'blocks' => ResponseBlockResource::collection($blocks) ?? null,
             'inspector_comment' => $this->inspector_commit ?? null,
             'created_at' => $this->created_at,
             'rejected_at' => $this->rejected_at,
