@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Enums\DxaResponseStatusEnum;
-use App\Models\Customer;
 use App\Models\District;
 use App\Models\DxaResponse;
 use App\Models\DxaResponseSupervisor;
@@ -12,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ResponseCreated extends Command
 {
@@ -40,7 +40,6 @@ class ResponseCreated extends Command
      */
     public function handle()
     {
-
         $taskId = $this->argument('task_id');
         $response = $this->fetchTaskData($taskId);
         $json = $response->json();
@@ -52,12 +51,35 @@ class ResponseCreated extends Command
         try {
             $dxa = $this->saveDxaResponse($taskId, $data, $userType, $response->body(), $json, $date);
             $this->sendMyGov($dxa);
-
+            $this->saveExpertise($dxa);
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
             echo $exception->getMessage();
         }
+
+    }
+
+    private function saveExpertise($dxa)
+    {
+        try {
+            if ($dxa->notification_type == 2) {
+                $response = DxaResponse::query()->where('task_id', $dxa->old_task_id)->first();
+                $reestrNumber = $response->reestr_number;
+                $dxa->update(['reestr_number' => $reestrNumber]);
+            }else{
+                $reestrNumber = $dxa->reestr_number;
+            }
+            $data = getData(config('app.gasn.tender'),$reestrNumber);
+            $dxa->update([
+                'funding_source_id' => $data['data']['result']['data']['finance_source'],
+                'program_id' => $data['data']['result']['data']['project_type_id'],
+                'sphere_id' => $data['data']['result']['data']['object_type_id'],
+            ]);
+        }catch (\Exception $exception){
+            Log::error('Expertise saqlashda xatolik: ' . $exception->getMessage());
+        }
+
     }
 
     protected function fetchTaskData($taskId = null)
@@ -88,6 +110,7 @@ class ResponseCreated extends Command
 
     private function saveDxaResponse($taskId, $data, $userType, $responseBody, $json, $date)
     {
+
         $email = '';
         $phone = '';
         $organizationName = '';
@@ -108,12 +131,14 @@ class ResponseCreated extends Command
         }
 
         $region = Region::where('soato', $data['region_id']['real_value'])->first();
+        $oldTaskId = !empty($data['task_number']['real_value']) ? $data['task_number']['real_value'] : null;
+
 
 
         $district = District::where('soato', $data['district_id']['real_value'])->first();
         $dxa = new DxaResponse();
         $dxa->task_id = $taskId;
-        $dxa->old_task_id = $data['task_number']['real_value'];
+        $dxa->old_task_id = $oldTaskId;
         $dxa->user_type = $userType;
         $dxa->dxa_response_status_id = DxaResponseStatusEnum::NEW;
         $dxa->email = $email;
@@ -171,6 +196,8 @@ class ResponseCreated extends Command
     private function saveSupervisors($data, $dxaId, $userType)
     {
 
+
+
         foreach ($data['info_supervisory']['value'] as $key => $item) {
             if ($item['role']['real_value'] ==1) {
                 $dxaResSupervisor = new DxaResponseSupervisor();
@@ -207,6 +234,7 @@ class ResponseCreated extends Command
                     $dxaResSupervisor->comment = $item['comment']['real_value'];
                     $dxaResSupervisor->save();
                 }else{
+
                     $dxaResSupervisor = new DxaResponseSupervisor();
                     $dxaResSupervisor->dxa_response_id = $dxaId;
                     $dxaResSupervisor->type = $item['role']['real_value'];

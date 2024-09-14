@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class NetworkResponseCommand extends Command
 {
@@ -98,11 +99,13 @@ class NetworkResponseCommand extends Command
         }
 
         $region = Region::where('soato', $data['region']['real_value'])->first();
+        $oldTaskId = !empty($data['task_number']['real_value']) ? $data['task_number']['real_value'] : null;
+
 
         $district = District::where('soato', $data['district']['real_value'])->first();
         $dxa = new DxaResponse();
         $dxa->task_id = $taskId;
-        $dxa->old_task_id = $data['task_number']['real_value'];
+        $dxa->old_task_id = $oldTaskId;
         $dxa->notification_type = $data['notification_type']['real_value'];
         $dxa->user_type = $userType;
         $dxa->dxa_response_status_id = DxaResponseStatusEnum::NEW;
@@ -153,10 +156,33 @@ class NetworkResponseCommand extends Command
         $dxa->organization_projects = $data['organization_projects']['real_value'];
 //        $dxa->file_energy_efficiency = $data['file_energy_efficiency']['real_value'];
 
-        $this->saveSupervisors($data, $dxa->id, $userType);
-        $dxa->save();
 
+        $dxa->save();
+        $this->saveSupervisors($data, $dxa->id, $userType);
+        $this->saveExpertise($dxa);
         return $dxa;
+    }
+
+    private function saveExpertise($dxa)
+    {
+        try {
+            if ($dxa->notification_type == 2) {
+                $response = DxaResponse::query()->where('task_id', $dxa->old_task_id)->first();
+                $reestrNumber = $response->reestr_number;
+                $dxa->update(['reestr_number' => $reestrNumber]);
+            }else{
+                $reestrNumber = $dxa->reestr_number;
+            }
+            $data = getData(config('app.gasn.tender'), $reestrNumber);
+            $dxa->update([
+                'funding_source_id' => $data['data']['result']['data']['finance_source'],
+                'program_id' => $data['data']['result']['data']['project_type_id'],
+                'sphere_id' => $data['data']['result']['data']['object_type_id'],
+            ]);
+        }catch (\Exception $exception){
+            Log::error('Expertise saqlashda xatolik: ' . $exception->getMessage());
+        }
+
     }
 
     private function saveSupervisors($data, $dxaId, $userType)
@@ -197,6 +223,7 @@ class NetworkResponseCommand extends Command
                     $dxaResSupervisor->stir_or_pinfl = (int)$data['ind_pinfl']['real_value'];
                     $dxaResSupervisor->comment = $item['comment']['real_value'];
                     $dxaResSupervisor->save();
+
                 }else{
                     $dxaResSupervisor = new DxaResponseSupervisor();
                     $dxaResSupervisor->dxa_response_id = $dxaId;
@@ -209,7 +236,6 @@ class NetworkResponseCommand extends Command
                     $dxaResSupervisor->comment = $item['comment']['real_value'];
                     $dxaResSupervisor->save();
                 }
-
             }
             if ($item['role']['real_value'] ==2) {
                 $dxaResSupervisor = new DxaResponseSupervisor();

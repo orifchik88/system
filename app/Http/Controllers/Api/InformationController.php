@@ -46,6 +46,16 @@ class InformationController extends BaseController
 
     }
 
+    public function tender(): JsonResponse
+    {
+        try {
+            $data = getData(config('app.gasn.tender'), \request('conc'));
+            return $this->sendSuccess($data['data']['result']['data'], 'Tender');
+        } catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
     public function monitoringCustomer(): JsonResponse
     {
         try {
@@ -64,26 +74,6 @@ class InformationController extends BaseController
                     ]
                 ]);
             $response = json_decode($resClient->getBody(), true);
-
-//            return response()->json($response['result']['data']['result']['data'], 200);
-//
-//            if (isset($response['result']['data']['result']['data'])) {
-//                foreach ($response['result']['data']['result']['data'] as &$item) {
-//                    if (isset($item['pudrat_tender']) && is_array($item['pudrat_tender'])) {
-//                        $item['pudrat_tender'] = array_values($item['pudrat_tender']);
-//
-//                        $item['pudrat_tender'] = array_filter($item['pudrat_tender'], function ($tender) use ($pudratInn) {
-//                            return $tender['winner_inn'] == $pudratInn;
-//                        });
-//
-//                        $item['pudrat_tender'] = array_values($item['pudrat_tender']);
-//
-//                        if (empty($item['pudrat_tender'])) {
-//                            unset($item);
-//                        }
-//                    }
-//                }
-//            }
 
             if (isset($response['result']['data']['result']['data'])) {
                 foreach ($response['result']['data']['result']['data'] as &$item) {

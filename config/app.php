@@ -84,6 +84,7 @@ return [
         'conference' => 'https://api.shaffofqurilish.uz/api/v1/request/dx-kengash?conc',
         'sphere' => 'https://api.shaffofqurilish.uz/api/v1/request/monitoring-soha',
         'expertise' => 'https://api.shaffofqurilish.uz/api/v1/request/opendata-ekspertiza?reestr_number',
+        'tender' => 'https://api.shaffofqurilish.uz/api/v1/request/ekspertiza-appeal-tender?conc',
     ],
 
     'rate_supervision' => 0.2,

@@ -47,6 +47,7 @@ Route::group([
     Route::get('rating', [InformationController::class, 'rating']);
     Route::get('conference', [InformationController::class, 'conference']);
     Route::get('expertise-files', [InformationController::class, 'expertiseFiles']);
+    Route::get('tender', [InformationController::class, 'tender']);
 
 
     Route::get('sphere', [SphereController::class, 'spheres']);
@@ -71,10 +72,12 @@ Route::group([
     Route::post('passport-info', [UserController::class, 'getPassportInfo']);
 
     Route::get('registers', [RegisterController::class, 'registers']);
+    Route::get('re-registers', [RegisterController::class, 'registers']);
     Route::get('register-count', [RegisterController::class, 'registerCount']);
     Route::get('register/{id}', [RegisterController::class, 'getRegister']);
     Route::get('register-status', [RegisterController::class, 'status']);
     Route::get('register-get-pdf', [RegisterController::class, 'getPDF']);
+    Route::get('total-count', [RegisterController::class, 'totalCount']);
 
     Route::post('send-inspector', [RegisterController::class, 'sendInspector']);
     Route::post('send-register', [RegisterController::class, 'sendRegister']);

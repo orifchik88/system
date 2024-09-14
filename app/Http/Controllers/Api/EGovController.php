@@ -11,8 +11,11 @@ class EGovController
 
     public function getPassportInfo()
     {
+        $data = getData(config('app.gasn.sphere'));
+        dd($data['data']['data']);
 
-        dd(env('APP_ENV') === 'development');
+
+//        dd(env('APP_ENV') === 'development');
     }
 
 }
