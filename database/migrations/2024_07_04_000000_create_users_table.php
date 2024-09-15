@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->string('login')->nullable();
             $table->string('middle_name')->nullable();
+            $table->text('organization_name')->nullable();
             $table->string('password');
             $table->tinyInteger('active')->default(0);
             $table->integer('created_by')->index()->nullable();

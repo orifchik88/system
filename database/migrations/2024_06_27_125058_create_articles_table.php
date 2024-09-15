@@ -67,7 +67,7 @@ return new class extends Migration
             $table->integer('costumer_cer_num')->nullable();
             $table->integer('planned_object_id')->nullable();
             $table->integer('min_ekonom_id')->nullable();
-            $table->integer('gnk_id')->nullable();
+            $table->bigInteger('gnk_id')->nullable();
             $table->boolean('t_is_changed')->default(false);
             $table->string('reestr_number')->nullable();
             $table->timestamps();
