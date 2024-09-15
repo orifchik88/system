@@ -169,7 +169,12 @@ class NetworkResponseCommand extends Command
             if ($dxa->notification_type == 2) {
                 $response = DxaResponse::query()->where('task_id', $dxa->old_task_id)->first();
                 $reestrNumber = $response->reestr_number;
-                $dxa->update(['reestr_number' => $reestrNumber]);
+                $dxa->update([
+                    'reestr_number' => $reestrNumber,
+                    'sphere_id' => $response->sphere_id,
+                    'monitoring_object_id' => $response->monitoring_object_id,
+                    'end_term_work' => $response->end_term_work,
+                ]);
             }else{
                 $reestrNumber = $dxa->reestr_number;
             }
@@ -177,7 +182,7 @@ class NetworkResponseCommand extends Command
             $dxa->update([
                 'funding_source_id' => $data['data']['result']['data']['finance_source'],
                 'program_id' => $data['data']['result']['data']['project_type_id'],
-                'sphere_id' => $data['data']['result']['data']['object_type_id'],
+//                'sphere_id' => $data['data']['result']['data']['object_type_id'],
             ]);
         }catch (\Exception $exception){
             Log::error('Expertise saqlashda xatolik: ' . $exception->getMessage());
@@ -307,21 +312,25 @@ class NetworkResponseCommand extends Command
     }
     private function sendMyGov($response)
     {
-        if (env('APP_ENV') === 'development') {
-            $authUsername = config('app.mygov.login');
-            $authPassword = config('app.mygov.password');
+        try {
+            if (env('APP_ENV') === 'development') {
+                $authUsername = config('app.mygov.login');
+                $authPassword = config('app.mygov.password');
 
-            $apiUrl = config('app.mygov.linear').'/update/id/' . $response->task_id . '/action/accept-consideration';
-            $formName = 'AcceptConsiderationFormRegistrationStartLinearObject';
+                $apiUrl = config('app.mygov.linear').'/update/id/' . $response->task_id . '/action/accept-consideration';
+                $formName = 'AcceptConsiderationFormRegistrationStartLinearObject';
 
-            return Http::withBasicAuth($authUsername, $authPassword)
-                ->post($apiUrl, [
-                    $formName => [
-                        "notice" =>  "Qabul qilindi"
-                    ]
-                ]);
+                return Http::withBasicAuth($authUsername, $authPassword)
+                    ->post($apiUrl, [
+                        $formName => [
+                            "notice" =>  "Qabul qilindi"
+                        ]
+                    ]);
+            }else{
+                return null;
+            }
+        }catch (\Exception $exception) {
+            Log::info($exception->getMessage());
         }
-
-        return null;
     }
 }
