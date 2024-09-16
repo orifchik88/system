@@ -35,10 +35,14 @@ class DxaResponseResource extends JsonResource
             $blocks = $dxa->blocks;
             $images = $dxa->images;
             $comment = $this->inspector_commit ?? $dxa->inspector_commit;
+            $long = $this->long ?? $dxa->long;
+            $lat = $this->lat ?? $dxa->lat;
         }else{
             $blocks = $this->blocks;
             $images = [];
             $comment = $this->$this->inspector_commit;
+            $long = $this->long;
+            $lat = $this->lat;
         }
 
 
@@ -62,8 +66,8 @@ class DxaResponseResource extends JsonResource
             'organization_name' => $this->organization_name,
             'stir' => $this->application_stir_pinfl,
             'pinfl' => $this->pinfl,
-            'lat' => $this->lat,
-            'long' => $this->long,
+            'lat' => $lat,
+            'long' => $long,
             "full_name" => $this->full_name,
             'legal_opf' => $this->legal_opf,
             'linear_type' => $this->linear_type,
