@@ -16,19 +16,6 @@ class Block extends Model
 
     protected $guarded = [];
 
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($block) {
-            $lastBlock = Block::query()->orderBy('block_number', 'desc')->first();
-            if ($lastBlock->notification_type == 1)
-                $lastNumber = $lastBlock ? $lastBlock->block_number : 999999;
-                $block->block_number = $lastNumber + 1;
-
-        });
-    }
-
     public function object(): BelongsTo
     {
         return $this->belongsTo(Article::class, 'article_id');

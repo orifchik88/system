@@ -113,8 +113,12 @@ class DxaResponseService
 
             if ($response->notification_type == 1) {
                 $block = Block::create($blockAttributes);
+                $blockNumber = $this->determineBlockNumber($blockData, $response);
+                $block->update([
+                    'block_number' => $blockNumber,
+                ]);
             } else {
-                $blockNumber = $this->determineBlockNumber($blockData);
+                $blockNumber = $this->determineBlockNumber($blockData, $response);
                 $blockAttributes['block_number'] = $blockNumber;
                 $block = Block::create($blockAttributes);
 
@@ -126,12 +130,19 @@ class DxaResponseService
             $block->responses()->attach($blockData['dxa_response_id']);
         }
     }
-
-    private function determineBlockNumber($blockData)
+    private function determineBlockNumber($blockData, $response)
     {
         $lastBlock = Block::query()->orderBy('block_number', 'desc')->first();
-        return $blockData['block_number'] ?? ($lastBlock ? $lastBlock->block_number + 1 : 1);
+        if ($response->notification_type == 1) {
+            $lastNumber = $lastBlock ? $lastBlock->block_number : 999999;
+            $blockData['block_number'] = $lastNumber + 1;
+        }else{
+            $blockData['block_number'] ?? ($lastBlock ? $lastBlock->block_number + 1 : 1);
+        }
+
+        return $blockData['block_number'];
     }
+
 
 
     public  function sendReject($response, $comment): DxaResponse
