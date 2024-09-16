@@ -71,6 +71,7 @@ class ResponseCreated extends Command
                     'sphere_id' => $response->sphere_id,
                     'monitoring_object_id' => $response->monitoring_object_id,
                     'end_term_work' => $response->end_term_work,
+                    'administrative_status_id' => $response->administrative_status_id,
                 ]);
             }else{
                 $reestrNumber = $dxa->reestr_number;

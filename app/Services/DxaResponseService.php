@@ -110,9 +110,19 @@ class DxaResponseService
 
     private function saveBlocks()
     {
+        $response = $this->findResponse();
+
+//        if ($response->notification_type == 2){
+//            $old = $response->getOldTaskIds($response->old_task_id);
+//            $blocks = $old->blocks;
+//            foreach ($blocks as $block) {
+//                if (!$response->blocks()->where('block_id', $block->id)->exists()) {
+//                    $response->blocks()->attach($block->id);
+//                }
+//            }
+//        }
 
         foreach ($this->data['blocks'] as $blockData) {
-            $response = $this->findResponse();
 
             $blockAttributes = [
                 'name' => $blockData['name'],
@@ -129,7 +139,7 @@ class DxaResponseService
             $blockAttributes['block_number'] = $this->determineBlockNumber($blockData, $response);
             $block = Block::create($blockAttributes);
 
-            $block->responses()->attach($blockData['dxa_response_id']);
+            $response->blocks()->attach($block->id);
         }
     }
 
@@ -187,6 +197,18 @@ class DxaResponseService
     private function saveImages(): void
     {
         $model = $this->findResponse();
+
+        if ($model->notifation_type = 2)
+        {
+            $response = DxaResponse::getResponse($model->old_task_id);
+            $images = $response->images;
+            foreach ($images as $image) {
+                $newImage = $image->replicate();
+                $newImage->imageable_id = $model->id;
+                $newImage->imageable_type = get_class($model);
+                $newImage->save();
+            }
+        }
 
         foreach ($this->data['images'] as $image) {
             $path = $image->store('images/response', 'public');
