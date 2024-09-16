@@ -115,41 +115,32 @@ class ArticleService
 
             foreach ($response->supervisors as $supervisor) {
                 $fish = $this->generateFish($supervisor->fish);
-                $user = User::where('pinfl', $supervisor->stir_or_pinfl)->first();
-
-                if ($user) {
-                    if (!$article->users()->where('user_id', $user->id)->where('role_id', $supervisor->role_id)->exists()) {
+                    $user = User::where('pinfl', $supervisor->stir_or_pinfl)->first();
+                    if ($user) {
                         $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
+                        if (!$user->roles()->where('role_id', $supervisor->role_id)->exists())
+                            $user->roles()->attach($supervisor->role_id);
                     }
-
-                    if (!$user->roles()->where('role_id', $supervisor->role_id)->exists()) {
+                    if (!$user) {
+                        $user = User::create([
+                            'name' => $fish ? $fish[1] : null,
+                            'surname' => $fish ? $fish[0] : null,
+                            'middle_name' => $fish ? $fish[2] : null,
+                            'phone' => $supervisor->phone_number,
+                            'login' => $supervisor->passport_number,
+                            'organization_name' => $supervisor->organization_name,
+                            'password' => bcrypt($supervisor->stir_or_pinfl),
+                            'user_status_id' => UserStatusEnum::ACTIVE,
+                            'pinfl' => $supervisor->stir_or_pinfl,
+                        ]);
+                        $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
                         $user->roles()->attach($supervisor->role_id);
                     }
-                }
-
-                if (!$user) {
-                    $user = User::create([
-                        'name' => $fish ? $fish[1] : null,
-                        'surname' => $fish ? $fish[0] : null,
-                        'middle_name' => $fish ? $fish[2] : null,
-                        'phone' => $supervisor->phone_number,
-                        'login' => $supervisor->passport_number,
-                        'organization_name' => $supervisor->organization_name,
-                        'password' => bcrypt($supervisor->stir_or_pinfl),
-                        'user_status_id' => UserStatusEnum::ACTIVE,
-                        'pinfl' => $supervisor->stir_or_pinfl,
-                    ]);
-
-                    $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
-
-                    $user->roles()->attach($supervisor->role_id);
-                }
             }
 
             $article->users()->attach($response->inspector_id, ['role_id' => 3]);
 
             $this->acceptResponse($response);
-            $this->saveBlocks($response, $article);
 
 
 
