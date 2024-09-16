@@ -34,9 +34,11 @@ class DxaResponseResource extends JsonResource
             $dxa = $this->getResponse($this->old_task_id);
             $blocks = $dxa->blocks;
             $images = $dxa->images;
+            $comment = $this->inspector_commit ?? $dxa->inspector_commit;
         }else{
             $blocks = $this->blocks;
             $images = [];
+            $comment = $this->$this->inspector_commit;
         }
 
 
@@ -109,7 +111,7 @@ class DxaResponseResource extends JsonResource
             ],
             'images' => ImageResource::collection($images) ?? null,
             'blocks' => ResponseBlockResource::collection($blocks) ?? null,
-            'inspector_comment' => $this->inspector_commit ?? null,
+            'inspector_comment' => $comment ?? null,
             'created_at' => $this->created_at,
             'rejected_at' => $this->rejected_at,
             'confirmed_at' => $this->confirmed_at,
