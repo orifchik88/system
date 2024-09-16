@@ -20,11 +20,12 @@ class Block extends Model
     {
         parent::boot();
 
-        static::creating(function ($protocol) {
+        static::creating(function ($block) {
             $lastBlock = Block::query()->orderBy('block_number', 'desc')->first();
-            $lastNumber = $lastBlock ? $lastBlock->block_number : 999999;
+            if ($lastBlock->notification_type == 1)
+                $lastNumber = $lastBlock ? $lastBlock->block_number : 999999;
+                $block->block_number = $lastNumber + 1;
 
-            $protocol->block_number = $lastNumber + 1;
         });
     }
 

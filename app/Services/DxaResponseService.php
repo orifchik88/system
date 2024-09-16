@@ -94,29 +94,45 @@ class DxaResponseService
     }
 
     private function saveBlocks(){
-        foreach ($this->data['blocks'] as $block) {
-             $block = Block::create([
-                 'dxa_response_id' => $block['dxa_response_id'],
-                 'name' => $block['name'],
-                 'floor' => $block['floor'],
-                 'construction_area' => $block['construction_area'],
-                 'count_apartments' => $block['count_apartments'],
-                 'height' => $block['height'],
-                 'length' => $block['length'],
-                 'block_mode_id' => $block['block_mode_id'],
-                 'block_type_id' => $block['block_type_id'],
-                 'created_by' => Auth::id(),
-                 'status' => true,
-             ]);
 
-             $block->responses()->attach($block['dxa_response_id']);
+        foreach ($this->data['blocks'] as $blockData) {
+            $response = $this->findResponse();
 
+            $blockAttributes = [
+                'name' => $blockData['name'],
+                'floor' => $blockData['floor'],
+                'construction_area' => $blockData['construction_area'],
+                'count_apartments' => $blockData['count_apartments'],
+                'height' => $blockData['height'],
+                'length' => $blockData['length'],
+                'block_mode_id' => $blockData['block_mode_id'],
+                'block_type_id' => $blockData['block_type_id'],
+                'created_by' => Auth::id(),
+                'status' => true,
+            ];
 
+            if ($response->notification_type == 1) {
+                $block = Block::create($blockAttributes);
+            } else {
+                $blockNumber = $this->determineBlockNumber($blockData);
+                $blockAttributes['block_number'] = $blockNumber;
+                $block = Block::create($blockAttributes);
 
+                $block->update([
+                    'block_number' => $blockNumber,
+                ]);
+            }
 
-
+            $block->responses()->attach($blockData['dxa_response_id']);
         }
     }
+
+    private function determineBlockNumber($blockData)
+    {
+        $lastBlock = Block::query()->orderBy('block_number', 'desc')->first();
+        return $blockData['block_number'] ?? ($lastBlock ? $lastBlock->block_number + 1 : 1);
+    }
+
 
     public  function sendReject($response, $comment): DxaResponse
     {

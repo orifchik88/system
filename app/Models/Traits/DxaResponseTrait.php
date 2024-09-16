@@ -24,6 +24,7 @@ trait DxaResponseTrait
                     $oldTaskIds[] = [
                         'id' => $oldTask->id,
                         'task_id' => $oldTask->task_id,
+                        'created_at' => $oldTask->created_at,
                     ];
                 }
                 $taskId = $task->old_task_id;
