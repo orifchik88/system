@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('blocks', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->bigInteger('block_number')->index();
             $table->foreignId('block_mode_id')->constrained();
             $table->foreignId('block_type_id')->constrained();
             $table->foreignId('article_id')->nullable()->constrained();
-            $table->foreignId('dxa_response_id')->nullable()->constrained();
             $table->string('floor')->nullable()->comment('Qavat');
             $table->string('construction_area')->nullable()->comment('Qurilish maydoni');
             $table->string('count_apartments')->nullable()->comment('Xonadonlar soni');

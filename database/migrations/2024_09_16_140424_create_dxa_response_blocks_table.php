@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('dxa_response_blocks', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->foreignId('dxa_response_id')->constrained('dxa_responses')->onDelete('cascade');
+            $table->foreignId('block_id')->constrained('blocks')->onDelete('cascade');
         });
     }
 

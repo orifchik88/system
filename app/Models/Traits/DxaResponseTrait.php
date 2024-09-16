@@ -20,9 +20,12 @@ trait DxaResponseTrait
 
             if ($task) {
                 if ($task->old_task_id) {
-                    $oldTaskIds[] = $task->old_task_id;
+                    $oldTask = DxaResponse::query()->where('task_id', $task->old_task_id)->first();
+                    $oldTaskIds[] = [
+                        'id' => $oldTask->id,
+                        'task_id' => $oldTask->task_id,
+                    ];
                 }
-
                 $taskId = $task->old_task_id;
             } else {
                 break;

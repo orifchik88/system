@@ -7,6 +7,7 @@ use App\Models\Traits\DxaResponseTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -53,9 +54,9 @@ class DxaResponse extends Model
         return $this->belongsTo(District::class, 'district_id');
     }
 
-    public function blocks(): HasMany
+    public function blocks(): BelongsToMany
     {
-        return $this->hasMany(Block::class, 'dxa_response_id');
+        return $this->belongsToMany(Block::class, 'dxa_response_blocks');
     }
 
     public function rekvizit(): BelongsTo

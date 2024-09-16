@@ -95,7 +95,7 @@ class DxaResponseService
 
     private function saveBlocks(){
         foreach ($this->data['blocks'] as $block) {
-             Block::create([
+             $block = Block::create([
                  'dxa_response_id' => $block['dxa_response_id'],
                  'name' => $block['name'],
                  'floor' => $block['floor'],
@@ -108,6 +108,13 @@ class DxaResponseService
                  'created_by' => Auth::id(),
                  'status' => true,
              ]);
+
+             $block->responses()->attach($block['dxa_response_id']);
+
+
+
+
+
         }
     }
 
