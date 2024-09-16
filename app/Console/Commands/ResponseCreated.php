@@ -65,7 +65,7 @@ class ResponseCreated extends Command
         try {
             if ($dxa->notification_type == 2) {
                 $response = DxaResponse::query()->where('task_id', $dxa->old_task_id)->first();
-                $reestrNumber = $response->reestr_number;
+                $reestrNumber = $dxa->reestr_number ?? $response->reestr_number;
                 $dxa->update([
                     'reestr_number' => $reestrNumber,
                     'sphere_id' => $response->sphere_id,
