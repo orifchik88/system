@@ -16,8 +16,10 @@ class DxaResponseService
     public array $data = [];
 
     public function __construct(
-        protected DxaResponse  $dxaResponse
-    ){}
+        protected DxaResponse $dxaResponse
+    )
+    {
+    }
 
     public function sendInspector(): DxaResponse
     {
@@ -31,7 +33,7 @@ class DxaResponseService
         $response->sphere_id = $this->data['sphere_id'];
         $response->program_id = $this->data['program_id'];
         $response->end_term_work = $this->data['end_term_work'];
-        if ($this->data['funding_source_id'] == 2){
+        if ($this->data['funding_source_id'] == 2) {
             $monitoring = $this->saveMonitoringObject($this->data['gnk_id']);
             $response->monitoring_object_id = $monitoring->id;
         }
@@ -93,7 +95,8 @@ class DxaResponseService
         ]);
     }
 
-    private function saveBlocks(){
+    private function saveBlocks()
+    {
 
         foreach ($this->data['blocks'] as $blockData) {
             $response = $this->findResponse();
@@ -110,42 +113,28 @@ class DxaResponseService
                 'created_by' => Auth::id(),
                 'status' => true,
             ];
-
-            if ($response->notification_type == 1) {
-                $block = Block::create($blockAttributes);
-                $blockNumber = $this->determineBlockNumber($blockData, $response);
-                $block->update([
-                    'block_number' => $blockNumber,
-                ]);
-            } else {
-                $blockNumber = $this->determineBlockNumber($blockData, $response);
-                $blockAttributes['block_number'] = $blockNumber;
-                $block = Block::create($blockAttributes);
-
-                $block->update([
-                    'block_number' => $blockNumber,
-                ]);
-            }
+            $blockAttributes['block_number'] = $this->determineBlockNumber($blockData, $response);
+            $block = Block::create($blockAttributes);
 
             $block->responses()->attach($blockData['dxa_response_id']);
         }
     }
+
     private function determineBlockNumber($blockData, $response)
     {
         $lastBlock = Block::query()->orderBy('block_number', 'desc')->first();
         if ($response->notification_type == 1) {
             $lastNumber = $lastBlock ? $lastBlock->block_number : 999999;
             $blockData['block_number'] = $lastNumber + 1;
-        }else{
-            $blockData['block_number'] ?? ($lastBlock ? $lastBlock->block_number + 1 : 1);
+        } else {
+                $blockData['block_number'] ?? ($lastBlock ? $lastBlock->block_number + 1 : 1);
         }
 
         return $blockData['block_number'];
     }
 
 
-
-    public  function sendReject($response, $comment): DxaResponse
+    public function sendReject($response, $comment): DxaResponse
     {
         $response->dxa_response_status_id = DxaResponseStatusEnum::REJECTED;
         $response->rejection_comment = $comment;
@@ -155,16 +144,16 @@ class DxaResponseService
         return $response;
     }
 
-    public  function sendMyGovReject($response)
+    public function sendMyGovReject($response)
     {
         $authUsername = config('app.mygov.login');
         $authPassword = config('app.mygov.password');
 
         if ($response->object_type_id == 2) {
-            $apiUrl = config('app.mygov.url').'/update/id/' . $response->task_id . '/action/reject-notice';
+            $apiUrl = config('app.mygov.url') . '/update/id/' . $response->task_id . '/action/reject-notice';
             $formName = 'RejectNoticeV4FormNoticeBeginningConstructionWorks';
         } else {
-            $apiUrl = config('app.mygov.linear').'/update/id/' . $response->task_id . '/action/reject-notice';
+            $apiUrl = config('app.mygov.linear') . '/update/id/' . $response->task_id . '/action/reject-notice';
             $formName = 'RejectNoticeFormRegistrationStartLinearObject';
         }
 
