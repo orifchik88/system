@@ -31,10 +31,12 @@ class DxaResponseResource extends JsonResource
         }
         if ($this->notification_type == 2)
         {
-            $dxa = $this->getResponse($this->task_id);
+            $dxa = $this->getResponse($this->old_task_id);
             $blocks = $dxa->blocks;
+            $images = $dxa->images;
         }else{
             $blocks = $this->blocks;
+            $images = [];
         }
 
 
@@ -105,7 +107,7 @@ class DxaResponseResource extends JsonResource
                 'id' => $inspector ? $inspector->id : null,
                 'name' =>  $inspector ? "{$inspector->surname} {$inspector->name} {$inspector->middle_name}" : null,
             ],
-            'images' => ImageResource::collection($this->images) ?? null,
+            'images' => ImageResource::collection($images) ?? null,
             'blocks' => ResponseBlockResource::collection($blocks) ?? null,
             'inspector_comment' => $this->inspector_commit ?? null,
             'created_at' => $this->created_at,
