@@ -168,12 +168,13 @@ class NetworkResponseCommand extends Command
         try {
             if ($dxa->notification_type == 2) {
                 $response = DxaResponse::query()->where('task_id', $dxa->old_task_id)->first();
-                $reestrNumber = $response->reestr_number;
+                $reestrNumber = $dxa->reestr_number ?? $response->reestr_number;
                 $dxa->update([
                     'reestr_number' => $reestrNumber,
                     'sphere_id' => $response->sphere_id,
                     'monitoring_object_id' => $response->monitoring_object_id,
                     'end_term_work' => $response->end_term_work,
+                    'administrative_status_id' => $response->administrative_status_id,
                 ]);
             }else{
                 $reestrNumber = $dxa->reestr_number;
