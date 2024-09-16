@@ -141,6 +141,8 @@ class ArticleService
             $article->users()->attach($response->inspector_id, ['role_id' => 3]);
 
             $this->acceptResponse($response);
+            $this->saveBlocks($response, $article);
+
 
 
             DB::commit();
@@ -153,6 +155,18 @@ class ArticleService
         }
 
     }
+
+    private function saveBlocks($response, $article)
+    {
+        $blocks = $response->blocks;
+        foreach ($blocks as $block) {
+            $block->update([
+               'article_id' => $article->id,
+            ]);
+        }
+    }
+
+
 
 
     private function acceptResponse($response)
