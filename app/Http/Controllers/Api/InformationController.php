@@ -10,6 +10,7 @@ use GuzzleHttp\Client;
 use Hamcrest\Arrays\SeriesMatchingOnce;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
+use Psy\Util\Json;
 
 class InformationController extends BaseController
 {
@@ -206,6 +207,11 @@ class InformationController extends BaseController
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
+    }
+
+    public function time(): JsonResponse
+    {
+        return $this->sendSuccess(now(), 'Now');
     }
 
 }

@@ -79,7 +79,7 @@ class ArticleService
 
 
             $article = new Article();
-            $article->name = Str::limit($response->object_name, 40);
+            $article->name = $response->object_name;
             $article->region_id = $response->region_id;
             $article->district_id = $response->district_id;
             $article->object_status_id = ObjectStatusEnum::NEW;
@@ -89,11 +89,6 @@ class ArticleService
             $article->name_expertise = $response->name_expertise;
             $article->difficulty_category_id = DifficultyCategoryEnum::fromString($response->category_object_dictionary);
             $article->construction_cost = $response->cost;
-            $article->architectural_number_date_protocol = null;
-            $article->parallel_designobjc = null;
-            $article->objects_stateprog = null;
-            $article->name_date_posopin = null;
-            $article->name_date_licontr = null;
             $article->appearance_type_id = 1;
             $article->is_accepted = true;
             $article->organization_projects = $response->organization_projects;
@@ -114,11 +109,6 @@ class ArticleService
             $article->paid = 0;
             $article->payment_deadline = Carbon::now();
             $article->deadline = $response->end_term_work;
-            $article->update_by = null;
-            $article->block_status_counter = null;
-            $article->costumer_cer_num = null;
-            $article->planned_object_id = null;
-            $article->min_ekonom_id = null;
             $article->gnk_id = $response->gnk_id;
             $article->reestr_number = (int)$response->reestr_number;
             $article->save();

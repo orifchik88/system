@@ -48,6 +48,7 @@ Route::group([
     Route::get('conference', [InformationController::class, 'conference']);
     Route::get('expertise-files', [InformationController::class, 'expertiseFiles']);
     Route::get('tender', [InformationController::class, 'tender']);
+    Route::get('time', [InformationController::class, 'time']);
 
 
     Route::get('sphere', [SphereController::class, 'spheres']);
