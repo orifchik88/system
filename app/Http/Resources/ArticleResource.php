@@ -23,11 +23,10 @@ class ArticleResource extends JsonResource
             'address' => $this->address,
             'sphere' => SphereResource::make($this->response->sphere),
             'program' => ProgramResource::make($this->response->program) ?? null,
+            'construction_works' => $this->response->construction_works,
+            'object_type' => ObjectTypeResource::make($this->response->objectType),
             'location_building' => $this->location_building,
             'organization_name' => $this->organization_name ?? null,
-            'costumer' => [
-                'address' => $this->address,
-            ],
             'cadastral_number' => $this->cadastral_number,
             'name_expertise' => $this->name_expertise,
             'status' => ObjectStatusResource::make($this->objectStatus),

@@ -112,6 +112,7 @@ class DxaResponseService
     private function saveBlocks()
     {
         $response = $this->findResponse();
+
         foreach ($this->data['blocks'] as $blockData) {
 
             $blockAttributes = [
@@ -127,14 +128,13 @@ class DxaResponseService
                 'status' => true,
             ];
             $blockAttributes['block_number'] = $this->determineBlockNumber($blockData, $response);
-            $block = Block::query()->where('block_number', $blockAttributes['block_number'])->first();
+            $articleBlock = Block::query()->where('block_number', $blockAttributes['block_number'])->first();
 
-
-
-            if ($block){
-                $block->update($blockAttributes);
+            if ($articleBlock){
+                $block = $articleBlock->update($blockAttributes);
             }else{
                 $block = Block::create($blockAttributes);
+
             }
 
             $response->blocks()->attach($block->id);
@@ -196,7 +196,7 @@ class DxaResponseService
     {
         $model = $this->findResponse();
 
-        if ($model->notifation_type = 2)
+        if ($model->notifation_type == 2)
         {
             $response = DxaResponse::getResponse($model->old_task_id);
             $images = $response->images;
