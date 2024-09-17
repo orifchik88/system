@@ -76,6 +76,15 @@ class ArticleService
                 'confirmed_at' => now(),
                 'dxa_response_status_id' => DxaResponseStatusEnum::ACCEPTED
             ]);
+            if ($response->notification_type==2)
+            {
+                $article = Article::query()->where('task_id', $response->old_task_id)->first();
+                $article->update([
+
+                ]);
+            }else{
+
+            }
 
 
             $article = new Article();

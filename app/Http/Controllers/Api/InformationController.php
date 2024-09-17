@@ -214,4 +214,14 @@ class InformationController extends BaseController
         return $this->sendSuccess(now(), 'Now');
     }
 
+    public function getRepoPDF()
+    {
+        try {
+            $data = $this->informationService->getConclusionPDF(request('task_id'));
+            dd($data);
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
 }

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use GuzzleHttp\Client;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Http;
 
 class InformationService
 {
@@ -66,5 +67,26 @@ class InformationService
         } catch (\Exception $exception){
            throw new  $exception;
         }
+    }
+
+    public function getConclusionPDF($task_id)
+    {
+        $result = Http::withBasicAuth(config('app.mygov.login'), config('app.mygov.password'))->get(config('app.mygov.url') . "/get-repo-list?id=$task_id")->object();
+        if (isset($result->guid) && $result->guid) {
+            $file = Http::withBasicAuth(config('app.mygov.login'), config('app.mygov.password'))->get(config('app.mygov.url') . "/get-repo?guid=$result->guid")->object();
+
+        } else {
+            $result = (array)$result;
+            if (!isset($result['status'])) {
+                $count = count($result);
+                if (isset($result[$count - 1]->guid) && $result[$count - 1]->guid)
+                    $guid = $result[$count - 1]->guid;
+                else
+                    $guid = $result[0]->guid;
+                $file = Http::withBasicAuth(config('app.mygov.login'), config('app.mygov.password'))->get( config('app.mygov.url'). "/get-repo?guid=$guid");
+            } else
+                return ['status' => 404];
+        }
+        return $file->json();
     }
 }

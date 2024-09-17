@@ -31,6 +31,11 @@ class Article extends Model
         return $this->belongsToMany(User::class, 'article_users', 'article_id', 'user_id')->withPivot('role_id');
     }
 
+    public function response(): BelongsTo
+    {
+        return $this->belongsTo(DxaResponse::class, 'dxa_response_id');
+    }
+
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class, 'article_users', 'article_id', 'role_id');

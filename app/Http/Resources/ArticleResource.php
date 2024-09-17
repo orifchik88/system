@@ -21,6 +21,7 @@ class ArticleResource extends JsonResource
             'district' => DistrictResource::make($this->district),
             'task_id' => $this->task_id,
             'address' => $this->location_building,
+            'organization_name' => $this->response->organization_name ?? null,
             'costumer' => [
                 'address' => $this->address,
             ],

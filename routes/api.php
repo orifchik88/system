@@ -49,6 +49,7 @@ Route::group([
     Route::get('expertise-files', [InformationController::class, 'expertiseFiles']);
     Route::get('tender', [InformationController::class, 'tender']);
     Route::get('time', [InformationController::class, 'time']);
+    Route::get('get-pdf-repo', [InformationController::class, 'getRepoPDF']);
 
 
     Route::get('sphere', [SphereController::class, 'spheres']);
