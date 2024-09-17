@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('dxa_responses', function (Blueprint $table) {
+        Schema::table('articles', function (Blueprint $table) {
             $table->text('organization_name')->nullable();
             $table->text('location_building')->nullable();
         });
@@ -22,7 +22,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('dxa_responses', function (Blueprint $table) {
+        Schema::table('articles', function (Blueprint $table) {
             //
         });
     }
