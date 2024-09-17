@@ -112,4 +112,9 @@ class DxaResponse extends Model
 
     }
 
+    public function objectType(): BelongsTo
+    {
+        return $this->belongsTo(ObjectType::class, 'object_type_id');
+    }
+
 }
