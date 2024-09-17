@@ -112,16 +112,6 @@ class DxaResponseService
     {
         $response = $this->findResponse();
 
-//        if ($response->notification_type == 2){
-//            $old = $response->getOldTaskIds($response->old_task_id);
-//            $blocks = $old->blocks;
-//            foreach ($blocks as $block) {
-//                if (!$response->blocks()->where('block_id', $block->id)->exists()) {
-//                    $response->blocks()->attach($block->id);
-//                }
-//            }
-//        }
-
         foreach ($this->data['blocks'] as $blockData) {
 
             $blockAttributes = [
@@ -137,7 +127,14 @@ class DxaResponseService
                 'status' => true,
             ];
             $blockAttributes['block_number'] = $this->determineBlockNumber($blockData, $response);
-            $block = Block::create($blockAttributes);
+            $articleBlock = Block::query()->where('block_number', $blockAttributes['block_number'])->first();
+
+            if ($articleBlock){
+                $block = $articleBlock->update($blockAttributes);
+            }else{
+                $block = Block::create($blockAttributes);
+
+            }
 
             $response->blocks()->attach($block->id);
         }
