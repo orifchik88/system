@@ -92,6 +92,20 @@ class Article extends Model
         return $this->hasMany(Regulation::class, 'object_id');
     }
 
+    public function program(): BelongsTo
+    {
+        return $this->belongsTo(Program::class, 'program_id');
+    }
+
+    public function sphere(): BelongsTo
+    {
+        return $this->belongsTo(Sphere::class, 'sphere_id');
+    }
+    public function objectType(): BelongsTo
+    {
+        return $this->belongsTo(ObjectType::class, 'object_type_id');
+    }
+
 
 
 }
