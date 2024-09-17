@@ -32,8 +32,8 @@ class DxaResponseResource extends JsonResource
         if ($this->notification_type == 2)
         {
             $dxa = $this->getResponse($this->old_task_id);
-            $blocks = $dxa->blocks;
-            $images = $dxa->images;
+            $blocks = $this->blocks ?? $dxa->blocks;
+            $images = $this->images ?? $dxa->images;
             $comment = $this->inspector_commit ?? $dxa->inspector_commit;
             $long = $this->long ?? $dxa->long;
             $lat = $this->lat ?? $dxa->lat;

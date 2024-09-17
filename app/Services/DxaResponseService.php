@@ -113,6 +113,7 @@ class DxaResponseService
     {
         $response = $this->findResponse();
 
+
         foreach ($this->data['blocks'] as $blockData) {
 
             $blockAttributes = [
@@ -131,27 +132,28 @@ class DxaResponseService
             $articleBlock = Block::query()->where('block_number', $blockAttributes['block_number'])->first();
 
             if ($articleBlock){
-                $block = $articleBlock->update($blockAttributes);
+                $articleBlock->update($blockAttributes);
+                $block = $articleBlock;
             }else{
                 $block = Block::create($blockAttributes);
-
             }
 
             $response->blocks()->attach($block->id);
         }
     }
 
+
     private function determineBlockNumber($blockData, $response)
     {
         $lastBlock = Block::query()->orderBy('block_number', 'desc')->first();
+
         if ($response->notification_type == 1) {
             $lastNumber = $lastBlock ? $lastBlock->block_number : 999999;
-            $blockData['block_number'] = $lastNumber + 1;
+            $blockNumber = $lastNumber + 1;
         } else {
-                $blockData['block_number'] ?? ($lastBlock ? $lastBlock->block_number + 1 : 1);
+            $blockNumber = $blockData['block_number'] ?? ($lastBlock ? $lastBlock->block_number + 1 : 1);
         }
-
-        return $blockData['block_number'];
+        return $blockNumber;
     }
 
 
@@ -207,35 +209,11 @@ class DxaResponseService
                 $newImage->save();
             }
         }
-        if (isset($this->data['images']))
-        {
+        if (isset($this->data['images'])) {
             foreach ($this->data['images'] as $image) {
                 $path = $image->store('images/response', 'public');
                 $model->images()->create(['url' => $path]);
             }
         }
-
-
-    }
-
-    public function getConclusionPDF(int $task_id)
-    {
-        $result = Http::withBasicAuth(config('app.passport.login'), config('app.passport.password'))->get($this->myGovUrl . "get-repo-list?id=$task_id")->object();
-        if (isset($result->guid) && $result->guid) {
-            $file = Http::withBasicAuth(config('app.passport.login'), config('app.passport.password'))->get($this->myGovUrl . "get-repo?guid=$result->guid")->object();
-
-        } else {
-            $result = (array)$result;
-            if (!isset($result['status'])) {
-                $count = count($result);
-                if (isset($result[$count - 1]->guid) && $result[$count - 1]->guid)
-                    $guid = $result[$count - 1]->guid;
-                else
-                    $guid = $result[0]->guid;
-                $file = Http::withBasicAuth(config('app.passport.login'), config('app.passport.password'))->get($this->myGovUrl . "get-repo?guid=$guid");
-            } else
-                return ['status' => 404];
-        }
-        return $file->json();
     }
 }
