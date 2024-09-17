@@ -21,8 +21,8 @@ class ArticleResource extends JsonResource
             'district' => DistrictResource::make($this->district),
             'task_id' => $this->task_id,
             'address' => $this->address,
-            'location_building' => $this->response->location_building,
-            'organization_name' => $this->response->organization_name ?? null,
+            'location_building' => $this->location_building,
+            'organization_name' => $this->organization_name ?? null,
             'costumer' => [
                 'address' => $this->address,
             ],
@@ -48,7 +48,7 @@ class ArticleResource extends JsonResource
                 'confirming_laboratory' => $this->confirming_laboratory,
                 'file_energy_efficiency' => $this->file_energy_efficiency,
             ],
-            'blocks' => ArticleBlockResource::collection($this->articleBlocks),
+            'blocks' => ResponseBlockResource::collection($this->articleBlocks),
             'users' => ArticleUserResource::collection($this->users),
         ];
     }

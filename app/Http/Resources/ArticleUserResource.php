@@ -24,6 +24,7 @@ class ArticleUserResource extends JsonResource
             'image' => $this->image ? Storage::disk('public')->url($this->image) : null,
             'phone' => $this->phone,
             'pinfl' => $this->pinfl,
+            'identification_number' => $this->identification_number,
             'organization_name' => $this->organization_name,
             'role' => $this->whenPivotLoaded('article_users', function () {
                 $role = Role::find($this->pivot->role_id);
