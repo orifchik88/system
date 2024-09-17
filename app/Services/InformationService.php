@@ -74,7 +74,7 @@ class InformationService
     public function getConclusionPDF($task_id)
     {
         $response  = DxaResponse::where('task_id', $task_id)->first();
-        if ($response) throw new NotFoundException('Ariza topilmadi');
+        if (!$response) throw new NotFoundException('Ariza topilmadi');
 
         if ($response->notification_type == 2){
             $url = config('app.mygov.linear');
