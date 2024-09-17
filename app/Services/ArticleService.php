@@ -186,6 +186,7 @@ class ArticleService
                             'password' => bcrypt($supervisor->stir_or_pinfl),
                             'user_status_id' => UserStatusEnum::ACTIVE,
                             'pinfl' => $supervisor->stir_or_pinfl,
+                            'identification_number' => $supervisor->identification_number,
                         ]);
                         $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
                         $user->roles()->attach($supervisor->role_id);
