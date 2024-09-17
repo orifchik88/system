@@ -112,7 +112,6 @@ class DxaResponseService
     private function saveBlocks()
     {
         $response = $this->findResponse();
-
         foreach ($this->data['blocks'] as $blockData) {
 
             $blockAttributes = [
@@ -128,13 +127,14 @@ class DxaResponseService
                 'status' => true,
             ];
             $blockAttributes['block_number'] = $this->determineBlockNumber($blockData, $response);
-            $articleBlock = Block::query()->where('block_number', $blockAttributes['block_number'])->first();
+            $block = Block::query()->where('block_number', $blockAttributes['block_number'])->first();
 
-            if ($articleBlock){
-                $block = $articleBlock->update($blockAttributes);
+
+
+            if ($block){
+                $block->update($blockAttributes);
             }else{
                 $block = Block::create($blockAttributes);
-
             }
 
             $response->blocks()->attach($block->id);
@@ -207,11 +207,15 @@ class DxaResponseService
                 $newImage->save();
             }
         }
-
-        foreach ($this->data['images'] as $image) {
-            $path = $image->store('images/response', 'public');
-            $model->images()->create(['url' => $path]);
+        if (isset($this->data['images']))
+        {
+            foreach ($this->data['images'] as $image) {
+                $path = $image->store('images/response', 'public');
+                $model->images()->create(['url' => $path]);
+            }
         }
+
+
     }
 
     public function getConclusionPDF(int $task_id)
