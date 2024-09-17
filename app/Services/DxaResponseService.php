@@ -197,7 +197,7 @@ class DxaResponseService
     {
         $model = $this->findResponse();
 
-        if ($model->notifation_type == 2)
+        if ($model->notification_type == 2)
         {
             $response = DxaResponse::getResponse($model->old_task_id);
             $images = $response->images;
