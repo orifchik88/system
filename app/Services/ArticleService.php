@@ -206,6 +206,7 @@ class ArticleService
             $article->users()->attach($response->inspector_id, ['role_id' => 3]);
 
             $this->acceptResponse($response);
+            $this->saveBlocks($response, $article);
 
 
 
