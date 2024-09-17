@@ -33,7 +33,7 @@ class DxaResponseResource extends JsonResource
         {
             $dxa = $this->getResponse($this->old_task_id);
             $blocks = $this->blocks ?? $dxa->blocks;
-            $images = $this->images ?? $dxa->images;
+            $images = $this->images->isEmpty() ? $dxa->images : $this->images;
             $comment = $this->inspector_commit ?? $dxa->inspector_commit;
             $long = $this->long ?? $dxa->long;
             $lat = $this->lat ?? $dxa->lat;
