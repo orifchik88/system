@@ -218,7 +218,7 @@ class InformationController extends BaseController
     {
         try {
             $data = $this->informationService->getConclusionPDF(request('task_id'));
-            dd($data);
+            return $this->sendSuccess($data, 'Conclusion PDF');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
