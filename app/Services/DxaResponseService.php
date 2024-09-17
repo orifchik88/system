@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Http;
 class DxaResponseService
 {
     public array $data = [];
+    private string $myGovUrl = "https://my.gov.uz/notice-beginning-construction-works-v4/rest-api/";
 
     public function __construct(
         protected DxaResponse $dxaResponse
@@ -211,5 +212,26 @@ class DxaResponseService
             $path = $image->store('images/response', 'public');
             $model->images()->create(['url' => $path]);
         }
+    }
+
+    public function getConclusionPDF(int $task_id)
+    {
+        $result = Http::withBasicAuth(config('app.passport.login'), config('app.passport.password'))->get($this->myGovUrl . "get-repo-list?id=$task_id")->object();
+        if (isset($result->guid) && $result->guid) {
+            $file = Http::withBasicAuth(config('app.passport.login'), config('app.passport.password'))->get($this->myGovUrl . "get-repo?guid=$result->guid")->object();
+
+        } else {
+            $result = (array)$result;
+            if (!isset($result['status'])) {
+                $count = count($result);
+                if (isset($result[$count - 1]->guid) && $result[$count - 1]->guid)
+                    $guid = $result[$count - 1]->guid;
+                else
+                    $guid = $result[0]->guid;
+                $file = Http::withBasicAuth(config('app.passport.login'), config('app.passport.password'))->get($this->myGovUrl . "get-repo?guid=$guid");
+            } else
+                return ['status' => 404];
+        }
+        return $file->json();
     }
 }
