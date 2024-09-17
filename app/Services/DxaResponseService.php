@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\Http;
 class DxaResponseService
 {
     public array $data = [];
-    private string $myGovUrl = "https://my.gov.uz/notice-beginning-construction-works-v4/rest-api/";
 
     public function __construct(
         protected DxaResponse $dxaResponse

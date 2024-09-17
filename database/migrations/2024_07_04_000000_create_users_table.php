@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('pinfl')->index()->nullable();
             $table->foreignId('user_status_id')->constrained();
             $table->text('address')->nullable();
+            $table->string('identification_number')->nullable();
             $table->tinyInteger('type')->nullable()->comment('1-Jismoniy shaxs, 2- yuridik shaxs');
             $table->integer('parent_id')->nullable()->comment('yuridik shaxs id raqami');
             $table->foreignId('region_id')->nullable()->constrained();

@@ -19,12 +19,17 @@ return new class extends Migration
             $table->foreignId('object_status_id')->constrained();
             $table->foreignId('appearance_type_id')->constrained();
             $table->foreignId('difficulty_category_id')->nullable()->constrained();
-            $table->foreignId('object_type_id')->nullable()->constrained();
             $table->foreignId('customer_id')->nullable()->constrained();
             $table->foreignId('object_specific_id')->nullable()->comment('object types tabledagi idlar')->constrained();
             $table->foreignId('funding_source_id')->nullable()->constrained();
             $table->foreignId('object_sector_id')->nullable()->constrained();
             $table->foreignId('object_category_id')->nullable()->constrained();
+            $table->integer('object_type_id')->nullable()->index()->comment('Tarmoqli yoki bino');
+            $table->integer('sphere_id')->nullable()->comment('Soha idsi');
+            $table->integer('program_id')->nullable()->comment('Dastur idsi');
+            $table->string('construction_works')->nullable()->comment('Qurilish ishlari turi');
+            $table->text('organization_name')->nullable();
+            $table->text('location_building')->nullable();
             $table->string('address')->nullable();
             $table->string('cadastral_number')->nullable();
             $table->string('name_expertise')->nullable();
