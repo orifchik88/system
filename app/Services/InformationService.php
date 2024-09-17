@@ -95,7 +95,7 @@ class InformationService
                     $guid = $result[0]->guid;
                 $file = Http::withBasicAuth(config('app.mygov.login'), config('app.mygov.password'))->get( $url. "/get-repo?guid=$guid");
             } else
-                return ['status' => 404];
+                throw new NotFoundException('Xulosa topilmadi');
         }
         return $file->json();
     }
