@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Exceptions\NotFoundException;
+use App\Models\DxaResponse;
 use GuzzleHttp\Client;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
@@ -71,9 +73,17 @@ class InformationService
 
     public function getConclusionPDF($task_id)
     {
-        $result = Http::withBasicAuth(config('app.mygov.login'), config('app.mygov.password'))->get(config('app.mygov.url') . "/get-repo-list?id=$task_id")->object();
+        $response  = DxaResponse::where('task_id', $task_id)->first();
+        if ($response) throw new NotFoundException('Ariza topilmadi');
+
+        if ($response->notification_type == 2){
+            $url = config('app.mygov.linear');
+        }else{
+            $url = config('app.mygov.url');
+        }
+        $result = Http::withBasicAuth(config('app.mygov.login'), config('app.mygov.password'))->get($url . "/get-repo-list?id=$task_id")->object();
         if (isset($result->guid) && $result->guid) {
-            $file = Http::withBasicAuth(config('app.mygov.login'), config('app.mygov.password'))->get(config('app.mygov.url') . "/get-repo?guid=$result->guid")->object();
+            $file = Http::withBasicAuth(config('app.mygov.login'), config('app.mygov.password'))->get($url . "/get-repo?guid=$result->guid")->object();
 
         } else {
             $result = (array)$result;
@@ -83,7 +93,7 @@ class InformationService
                     $guid = $result[$count - 1]->guid;
                 else
                     $guid = $result[0]->guid;
-                $file = Http::withBasicAuth(config('app.mygov.login'), config('app.mygov.password'))->get( config('app.mygov.url'). "/get-repo?guid=$guid");
+                $file = Http::withBasicAuth(config('app.mygov.login'), config('app.mygov.password'))->get( $url. "/get-repo?guid=$guid");
             } else
                 return ['status' => 404];
         }
