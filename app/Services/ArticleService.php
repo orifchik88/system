@@ -15,6 +15,7 @@ use App\Models\FundingSource;
 use App\Models\ObjectSector;
 use App\Models\ObjectType;
 use App\Models\User;
+use App\Models\UserRole;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -176,7 +177,10 @@ class ArticleService
                         }
                         $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
                         if (!$user->roles()->where('role_id', $supervisor->role_id)->exists())
-                            $user->roles()->attach($supervisor->role_id);
+                            UserRole::query()->create([
+                                'user_id' => $user->id,
+                                'role_id' => $supervisor->role_id,
+                            ]);
                     }
                     if (!$user) {
                         $user = User::create([
@@ -192,7 +196,10 @@ class ArticleService
                             'identification_number' => $supervisor->identification_number,
                         ]);
                         $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
-                        $user->roles()->attach($supervisor->role_id);
+                        UserRole::query()->create([
+                            'user_id' => $user->id,
+                            'role_id' => $supervisor->role_id,
+                        ]);
                     }
             }
 
