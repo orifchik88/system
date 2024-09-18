@@ -15,6 +15,7 @@ use App\Models\FundingSource;
 use App\Models\ObjectSector;
 use App\Models\ObjectType;
 use App\Models\User;
+use App\Models\UserEmployee;
 use App\Models\UserRole;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -220,6 +221,34 @@ class ArticleService
                             'role_id' => $supervisor->role_id,
                         ]);
                     }
+            }
+            $roleMapping = [
+                8 => 6,
+                9 => 7,
+                10 => 5,
+            ];
+
+            foreach ($article->users as $user) {
+                foreach ($roleMapping as $childRoleId => $parentRoleId) {
+                    if ($user->roles()->where('role_id', $childRoleId)->exists()) {
+                        $parentUser = User::whereHas('roles', function ($query) use ($parentRoleId) {
+                            $query->where('role_id', $parentRoleId);
+                        })->first();
+
+                        if ($parentUser) {
+                            $existingEmployee = UserEmployee::where('user_id', $user->id)
+                                ->where('parent_id', $parentUser->id)
+                                ->first();
+
+                            if (!$existingEmployee) {
+                                UserEmployee::create([
+                                    'user_id' => $user->id,
+                                    'parent_id' => $parentUser->id,
+                                ]);
+                            }
+                        }
+                    }
+                }
             }
 
             $article->users()->attach($response->inspector_id, ['role_id' => 3]);

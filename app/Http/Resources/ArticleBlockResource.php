@@ -16,7 +16,16 @@ class ArticleBlockResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name
+            'name' => $this->name,
+            'mode' => BlockModeResource::make($this->mode),
+            'type' => BlockTypeResource::make($this->type),
+            'block_number' => $this->block_number,
+            'floor' => $this->floor,
+            'construction_area' => $this->construction_area,
+            'count_apartments' => $this->count_apartments,
+            'height' => $this->height,
+            'length' => $this->length,
+            'status' => $this->status
         ];
     }
 }

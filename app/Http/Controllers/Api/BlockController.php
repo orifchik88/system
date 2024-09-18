@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Exceptions\NotFoundException;
 use App\Http\Requests\BlockRequest;
+use App\Http\Resources\ArticleBlockResource;
 use App\Http\Resources\BlockModeResource;
 use App\Http\Resources\BlockResource;
 use App\Http\Resources\BlockTypeResource;
@@ -28,7 +29,7 @@ class BlockController extends BaseController
 
             if ($blocks->isEmpty()) throw new NotFoundException('Blocks not found', 404);
 
-            return $this->sendSuccess(BlockResource::collection($blocks), 'All Blocks');
+            return $this->sendSuccess(ArticleBlockResource::collection($blocks), 'All Blocks');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage());
         }
