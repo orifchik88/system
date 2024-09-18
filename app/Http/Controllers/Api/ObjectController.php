@@ -34,7 +34,7 @@ class ObjectController extends BaseController
 
         $objects = $user->objects()
             ->when(request('status'), function ($query){
-                $query->whereIn('status', request('status'));
+                $query->where('status', request('object_status_id'));
             })
             ->when(request('name'), function ($query) {
                 $query->searchByName(request('name'));
@@ -175,14 +175,16 @@ class ObjectController extends BaseController
 
     public function objectCount(): JsonResponse
     {
+
+        $user = Auth::user();
+        $query = $user->objects();
         try {
             $data = [
-                'all' => Article::query()->count(),
-                'new' => Article::query()->where('object_status_id', ObjectStatusEnum::NEW)->count(),
-                'progress' => Article::query()->where('object_status_id', ObjectStatusEnum::PROGRESS)->count(),
-                'frozen' => Article::query()->where('object_status_id', ObjectStatusEnum::FROZEN)->count(),
-                'suspended' => Article::query()->where('object_status_id', ObjectStatusEnum::SUSPENDED)->count(),
-                'submitted' => Article::query()->where('object_status_id', ObjectStatusEnum::SUBMITTED)->count(),
+                'all' => $query->clone()->count(),
+                'progress' => $query->clone()->where('object_status_id', ObjectStatusEnum::PROGRESS)->count(),
+                'frozen' => $query->clone()->where('object_status_id', ObjectStatusEnum::FROZEN)->count(),
+                'suspended' => $query->clone()->where('object_status_id', ObjectStatusEnum::SUSPENDED)->count(),
+                'submitted' => $query->clone()->where('object_status_id', ObjectStatusEnum::SUBMITTED)->count(),
             ];
             return $this->sendSuccess($data, 'Object count retrieved successfully.');
         }catch (\Exception $exception){
