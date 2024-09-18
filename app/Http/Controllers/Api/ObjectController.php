@@ -34,7 +34,7 @@ class ObjectController extends BaseController
 
         $objects = $user->objects()
             ->when(request('status'), function ($query){
-                $query->where('status', request('object_status_id'));
+                $query->where('object_status_id', request('status'));
             })
             ->when(request('name'), function ($query) {
                 $query->searchByName(request('name'));
