@@ -75,13 +75,13 @@ class Article extends Model
     {
         $searchTerm = strtolower($searchTerm);
 
-        return $query->whereRaw('LOWER(name) LIKE ?', ['%' . $searchTerm . '%']);
+        return $query->whereRaw('LOWER(articles.name) LIKE ?', ['%' . $searchTerm . '%']);
 
     }
     public function scopeSearchByTaskId($query, $searchTerm)
     {
-        return $query->where('task_id', 'like', '%' . $searchTerm . '%')
-                ->orWhere('id', 'like', '%' . $searchTerm . '%');
+        return $query->where('articles.task_id', 'like', '%' . $searchTerm . '%')
+                ->orWhere('articles.id', 'like', '%' . $searchTerm . '%');
     }
 
 
