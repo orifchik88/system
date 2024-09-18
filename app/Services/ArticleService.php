@@ -160,8 +160,21 @@ class ArticleService
                 $fish = $this->generateFish($supervisor->fish);
                     $user = User::where('pinfl', $supervisor->stir_or_pinfl)->first();
                     if ($user) {
-                        if ($response->notification_type == 2)
-                        {
+//                        if ($response->notification_type == 2)
+//                        {
+//                            $user->update([
+//                                'name' => $fish ? $fish[1] : null,
+//                                'surname' => $fish ? $fish[0] : null,
+//                                'middle_name' => $fish ? $fish[2] : null,
+//                                'phone' => $supervisor->phone_number,
+//                                'login' => $supervisor->passport_number,
+//                                'organization_name' => $supervisor->organization_name,
+//                                'password' => bcrypt($supervisor->stir_or_pinfl),
+//                                'user_status_id' => UserStatusEnum::ACTIVE,
+//                                'pinfl' => $supervisor->stir_or_pinfl,
+//                                'identification_number' => $supervisor->identification_number,
+//                            ]);
+//                        }
                             $user->update([
                                 'name' => $fish ? $fish[1] : null,
                                 'surname' => $fish ? $fish[0] : null,
@@ -174,7 +187,8 @@ class ArticleService
                                 'pinfl' => $supervisor->stir_or_pinfl,
                                 'identification_number' => $supervisor->identification_number,
                             ]);
-                        }
+
+
                         $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
                         if (!$user->roles()->where('role_id', $supervisor->role_id)->exists())
                             UserRole::query()->create([
