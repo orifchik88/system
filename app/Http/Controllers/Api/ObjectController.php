@@ -48,11 +48,11 @@ class ObjectController extends BaseController
             ->when(request('district_id'), function ($query) {
                 $query->where('district_id', request('district_id'));
             })
-            ->when(request('user_search'), function ($query) {
-                $query->whereHas('users', function ($query) {
-                    $query->searchByFullName(request('user_search'));
-                });
-            })
+//            ->when(request('user_search'), function ($query) {
+//                $query->whereHas('users', function ($query) {
+//                    $query->searchByFullName(request('user_search'));
+//                });
+//            })
             ->paginate(\request('perPage', 10));
         return $this->sendSuccess(ArticleResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
     }
