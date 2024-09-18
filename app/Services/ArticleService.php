@@ -126,6 +126,8 @@ class ArticleService
                 $article->name_expertise = $response->name_expertise;
                 $article->difficulty_category_id = DifficultyCategoryEnum::fromString($response->category_object_dictionary);
                 $article->construction_cost = $response->cost;
+                $article->sphere_id  = $response->sphere_id;
+                $article->program_id  = $response->program_id;
                 $article->appearance_type_id = 1;
                 $article->is_accepted = true;
                 $article->organization_projects = $response->organization_projects;
