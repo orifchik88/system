@@ -20,7 +20,7 @@ class ArticleUserResource extends JsonResource
         return [
             'fish' => $this->full_name,
             'image' => $this->image ? Storage::disk('public')->url($this->image) : null,
-            'phone' => $this->phone,
+            'phone_number' => $this->phone,
             'pinfl' => $this->pinfl,
             'identification_number' => $this->identification_number,
             'organization_name' => $this->organization_name,
