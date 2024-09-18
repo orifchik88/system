@@ -101,6 +101,7 @@ class ArticleService
                     'legal_opf' => $response->legal_opf,
                     'sphere_id' => $response->sphere_id,
                     'program_id' => $response->program_id,
+                    'linear_type' => $response->linear_type,
                     'dxa_response_id' => $response->id,
                     'price_supervision_service' => price_supervision($response->cost),
                     'task_id' => $response->task_id,
@@ -128,6 +129,8 @@ class ArticleService
                 $article->construction_cost = $response->cost;
                 $article->sphere_id  = $response->sphere_id;
                 $article->program_id  = $response->program_id;
+                $article->construction_works  = $response->construction_works;
+                $article->linear_type  = $response->linear_type;
                 $article->appearance_type_id = 1;
                 $article->is_accepted = true;
                 $article->organization_projects = $response->organization_projects;
