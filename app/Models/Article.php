@@ -80,8 +80,6 @@ class Article extends Model
     }
     public function scopeSearchByTaskId($query, $searchTerm)
     {
-        $searchTerm = strtolower($searchTerm);
-
         return $query->where('task_id', 'like', '%' . $searchTerm . '%')
                 ->orWhere('id', 'like', '%' . $searchTerm . '%');
     }
