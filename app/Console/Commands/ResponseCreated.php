@@ -55,7 +55,7 @@ class ResponseCreated extends Command
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
-            echo $exception->getMessage();
+            echo $exception->getMessage(). ' '. $exception->getLine();
         }
 
     }

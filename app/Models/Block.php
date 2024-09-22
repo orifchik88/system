@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\BlockModeEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,6 +16,10 @@ class Block extends Model
     use HasFactory, SoftDeletes;
 
     protected $guarded = [];
+
+    protected $casts = [
+        'block_mode_id' => BlockModeEnum::class
+    ];
 
     public function object(): BelongsTo
     {

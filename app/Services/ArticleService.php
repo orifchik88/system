@@ -3,20 +3,27 @@
 namespace App\Services;
 
 use App\DTO\ObjectDto;
+use App\Enums\BlockModeEnum;
 use App\Enums\DifficultyCategoryEnum;
 use App\Enums\DxaResponseStatusEnum;
+use App\Enums\LevelStatusEnum;
 use App\Enums\ObjectStatusEnum;
+use App\Enums\ObjectTypeEnum;
 use App\Enums\UserStatusEnum;
 use App\Exceptions\NotFoundException;
 use App\Models\Article;
+use App\Models\CheckList;
 use App\Models\Costumer;
 use App\Models\DxaResponse;
 use App\Models\FundingSource;
+use App\Models\Level;
 use App\Models\ObjectSector;
 use App\Models\ObjectType;
+use App\Models\Question;
 use App\Models\User;
 use App\Models\UserEmployee;
 use App\Models\UserRole;
+use App\Models\WorkType;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -33,7 +40,8 @@ class ArticleService
                                 protected ObjectType    $objectType,
                                 protected FundingSource $fundingSource,
                                 protected ObjectSector  $objectSector,
-                                protected DxaResponse   $dxaResponse)
+                                protected Question      $question,
+                                protected DxaResponse   $dxaResponse,)
     {
     }
 
@@ -253,8 +261,12 @@ class ArticleService
 
             $article->users()->attach($response->inspector_id, ['role_id' => 3]);
 
+
+
             $this->acceptResponse($response);
             $this->saveBlocks($response, $article);
+            $this->saveChecklist($article);
+
 
 
 
@@ -268,6 +280,148 @@ class ArticleService
         }
 
     }
+    private function saveChecklist($article)
+    {
+        foreach ($article->blocks as $block) {
+            if ($block->block_mode_id == BlockModeEnum::TARMOQ) {
+                $workTypes = WorkType::query()->where('object_type_id', ObjectTypeEnum::LINEAR)->get();
+                $this->processWorkTypes($workTypes, $block, $article, ObjectTypeEnum::LINEAR);
+            } else {
+                $workTypes = WorkType::query()->where('object_type_id', ObjectTypeEnum::BUILDING)->get();
+                $this->processBuildingWorkTypes($workTypes, $block, $article);
+            }
+        }
+    }
+
+    private function processBuildingWorkTypes($workTypes, $block, $article)
+    {
+        foreach ($workTypes as $workType) {
+            if ($workType->is_multiple_floor) {
+                for ($i = 1; $i <= $block->floor; $i++) {
+                    $levelName = $i . ' - qavat ' . $workType->name;
+                    $level = $this->createLevel($levelName, $block->id, $article->id, LevelStatusEnum::NOT_BEGIN);
+                    foreach ($workType->questions as $question) {
+                        $this->createChecklist($question, $level->id, $workType->id, $block->id, ObjectTypeEnum::BUILDING, $article->id);
+                    }
+                }
+            } else {
+                $level = $this->createLevel($workType->name, $block->id, $article->id, LevelStatusEnum::NOT_BEGIN);
+                foreach ($workType->questions as $question) {
+                    $this->createChecklist($question, $level->id, $workType->id, $block->id, ObjectTypeEnum::BUILDING, $article->id);
+                }
+            }
+        }
+    }
+    private function createLevel($name, $blockId, $articleId, $statusId)
+    {
+        $level = new Level();
+        $level->name = $name;
+        $level->block_id = $blockId;
+        $level->article_id = $articleId;
+        $level->level_status_id = $statusId;
+        $level->save();
+
+        return $level;
+    }
+
+    private function createChecklist($question, $levelId, $workTypeId, $blockId, $objectTypeId, $articleId)
+    {
+        $checklist = new Checklist();
+        $checklist->name = $question->name;
+        $checklist->question_id = $question->id;
+        $checklist->level_id = $levelId;
+        $checklist->work_type_id = $workTypeId;
+        $checklist->block_id = $blockId;
+        $checklist->object_type_id = $objectTypeId;
+        $checklist->article_id = $articleId;
+        $checklist->save();
+    }
+
+
+    private function processWorkTypes($workTypes, $block, $article, $objectType)
+    {
+        foreach ($workTypes as $workType) {
+            $level = $this->createLevel($workType->name, $block->id, $article->id, LevelStatusEnum::NOT_BEGIN);
+            foreach ($workType->questions as $question) {
+                $this->createChecklist($question, $level->id, $workType->id, $block->id, $objectType, $article->id);
+            }
+        }
+    }
+
+//    private function saveChecklist($article)
+//    {
+//        foreach ($article->blocks as $block) {
+//            if ($block->block_mode_id == BlockModeEnum::TARMOQ) {
+//                $workTypes = WorkType::query()->where('object_type_id', ObjectTypeEnum::LINEAR)->get();
+//                foreach ($workTypes as $workType) {
+//                    $level = new Level();
+//                    $level->name = $workType->name;
+//                    $level->block_id = $block->id;
+//                    $level->article_id = $article->id;
+//                    $level->level_status_id = LevelStatusEnum::NOT_BEGIN;
+//                    $level->save();
+//
+//                    foreach ($workType->questions as $question) {
+//                        $checklist = new Checklist();
+//                        $checklist->name = $question->name;
+//                        $checklist->question_id = $question->id;
+//                        $checklist->level_id = $level->id;
+//                        $checklist->work_type_id = $workType->id;
+//                        $checklist->block_id = $block->id;
+//                        $checklist->object_type_id = ObjectTypeEnum::LINEAR;
+//                        $checklist->article_id = $article->id;
+//                        $checklist->save();
+//                    }
+//                }
+//            }else{
+//                $workTypes = WorkType::query()->where('object_type_id', ObjectTypeEnum::BUILDING)->get();
+//                foreach ($workTypes as $workType) {
+//                    if ($workType->is_multiple_floor){
+//                        for ($i=1; $i<=$block->floor; $i++) {
+//                            $level = new Level();
+//                            $level->name = $i.' - qavat'. $workType->name;
+//                            $level->block_id = $block->id;
+//                            $level->article_id = $article->id;
+//                            $level->level_status_id = LevelStatusEnum::NOT_BEGIN;
+//                            $level->save();
+//                            foreach ($workType->questions as $question) {
+//                                $checklist = new Checklist();
+//                                $checklist->name = $question->name;
+//                                $checklist->question_id = $question->id;
+//                                $checklist->level_id = $level->id;
+//                                $checklist->work_type_id = $workType->id;
+//                                $checklist->block_id = $block->id;
+//                                $checklist->object_type_id = ObjectTypeEnum::BUILDING;
+//                                $checklist->article_id = $article->id;
+//                                $checklist->save();
+//                            }
+//                        }
+//                    }else{
+//                        $level = new Level();
+//                        $level->name = $workType->name;
+//                        $level->block_id = $block->id;
+//                        $level->article_id = $article->id;
+//                        $level->level_status_id = LevelStatusEnum::NOT_BEGIN;
+//                        $level->save();
+//
+//                        foreach ($workType->questions as $question) {
+//                            $checklist = new Checklist();
+//                            $checklist->name = $question->name;
+//                            $checklist->question_id = $question->id;
+//                            $checklist->level_id = $level->id;
+//                            $checklist->work_type_id = $workType->id;
+//                            $checklist->block_id = $block->id;
+//                            $checklist->object_type_id = ObjectTypeEnum::BUILDING;
+//                            $checklist->article_id = $article->id;
+//                            $checklist->save();
+//                        }
+//                    }
+//
+//
+//                }
+//            }
+//        }
+//    }
 
     private function saveBlocks($response, $article)
     {
@@ -329,5 +483,6 @@ class ArticleService
         }
         return $array ?? null;
     }
+
 
 }

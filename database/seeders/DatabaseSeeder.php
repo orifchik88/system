@@ -15,14 +15,20 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            ObjectTypeSeeder::class,
+            WorkTypeSeeder::class,
+            RoleSeeder::class,
+            QuestionSeeder::class,
+            LevelStatusSeeder::class,
+            RegionSeeder::class,
+            ResponseStatusSeeder::class,
+            AdministrativeStatusSeeder::class,
             BlockModeSeeder::class,
             BlockTypeSeeder::class,
-            RoleSeeder::class,
             ActViolationTypeSeeder::class,
             ActStatusSeeder::class,
             RegulationStatusSeeder::class,
             RegulationTypeSeeder::class,
-            RegionSeeder::class,
             UserStatusSeeder::class,
             UserSeeder::class,
             AppearanceTypeSeeder::class,
@@ -33,12 +39,7 @@ class DatabaseSeeder extends Seeder
             ObjectStatusSeeder::class,
             DifficultyCategorySeeder::class,
             ConstructionTypesSeeder::class,
-            ObjectTypeSeeder::class,
             ObjectSectorSeeder::class,
-            ResponseStatusSeeder::class,
-            AdministrativeStatusSeeder::class,
-            LevelSeeder::class,
-            QuestionSeeder::class,
         ]);
     }
 }

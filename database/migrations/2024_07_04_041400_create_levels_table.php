@@ -14,6 +14,9 @@ return new class extends Migration
         Schema::create('levels', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->foreignId('block_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('article_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('level_status_id')->nullable()->constrained()->nullOnDelete();
             $table->boolean('status')->default(true);
             $table->timestamps();
         });
