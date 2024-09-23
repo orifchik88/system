@@ -28,7 +28,7 @@ class Level extends Model
 
     public function checklists(): HasMany
     {
-        return $this->hasMany(Checklist::class);
+        return $this->hasMany(CheckList::class);
     }
 
     public function levelStatus(): BelongsTo
