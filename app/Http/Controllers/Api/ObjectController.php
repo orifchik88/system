@@ -155,7 +155,7 @@ class ObjectController extends BaseController
     private function checkBlocks($object): array
     {
         $inactiveBlocks = [];
-        foreach ($object->articleBlocks as $block) {
+        foreach ($object->blocks as $block) {
             if (!$block->status) {
                 $inactiveBlocks[] = $block->name;
             }

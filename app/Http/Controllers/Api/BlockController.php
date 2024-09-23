@@ -25,7 +25,7 @@ class BlockController extends BaseController
 
             if (!$article) throw new NotFoundException('Article not found', 404);
 
-            $blocks = $article->articleBlocks()->get();
+            $blocks = $article->blocks()->get();
 
             if ($blocks->isEmpty()) throw new NotFoundException('Blocks not found', 404);
 
