@@ -20,6 +20,7 @@ return new class extends Migration
             $table->foreignId('block_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('object_type_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('article_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('check_list_status_id')->nullable()->constrained()->nullOnDelete();
             $table->boolean('status')->default(false);
             $table->softDeletes();
             $table->timestamps();

@@ -94,6 +94,7 @@ Route::group([
     Route::get('funding-sources', [ObjectController::class, 'fundingSource']);
     Route::get('object-sectors/{id}', [ObjectController::class, 'objectSectors']);
     Route::post('object-create', [ObjectController::class, 'create']);
+    Route::post('object-c', [ObjectController::class, 'create']);
     Route::post('check-object', [ObjectController::class, 'checkObject']);
     Route::post('change-object-status', [ObjectController::class, 'changeObjectStatus']);
 
@@ -125,6 +126,10 @@ Route::group([
 
     Route::get('act-violations', [ViolationController::class, 'actVioleations']);
     Route::get('violations', [ViolationController::class, 'violations']);
+
+    Route::get('checklist', [MonitoringController::class, 'getChecklist']);
+    Route::get('checklist-technic', [MonitoringController::class, 'getChecklistForTechnic']);
+    Route::get('checklist-regular', [MonitoringController::class, 'getChecklistRegular']);
 
     Route::post('test', [RegulationController::class, 'test']);
 

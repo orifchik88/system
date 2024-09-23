@@ -13,7 +13,6 @@ use App\Enums\UserStatusEnum;
 use App\Exceptions\NotFoundException;
 use App\Models\Article;
 use App\Models\CheckList;
-use App\Models\Costumer;
 use App\Models\DxaResponse;
 use App\Models\FundingSource;
 use App\Models\Level;
@@ -27,10 +26,8 @@ use App\Models\WorkType;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
 use PHPUnit\Exception;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
+
 
 class ArticleService
 {
@@ -86,6 +83,7 @@ class ArticleService
                 'confirmed_at' => now(),
                 'dxa_response_status_id' => DxaResponseStatusEnum::ACCEPTED
             ]);
+
             if ($response->notification_type==2)
             {
                 $article = Article::query()->where('task_id', $response->old_task_id)->first();
@@ -165,30 +163,19 @@ class ArticleService
                 $article->save();
             }
 
+
+
             if ($response->notification_type==2)
             {
+
                 $article->users()->detach();
             }
+
 
             foreach ($response->supervisors as $supervisor) {
                 $fish = $this->generateFish($supervisor->fish);
                     $user = User::where('pinfl', $supervisor->stir_or_pinfl)->first();
                     if ($user) {
-//                        if ($response->notification_type == 2)
-//                        {
-//                            $user->update([
-//                                'name' => $fish ? $fish[1] : null,
-//                                'surname' => $fish ? $fish[0] : null,
-//                                'middle_name' => $fish ? $fish[2] : null,
-//                                'phone' => $supervisor->phone_number,
-//                                'login' => $supervisor->passport_number,
-//                                'organization_name' => $supervisor->organization_name,
-//                                'password' => bcrypt($supervisor->stir_or_pinfl),
-//                                'user_status_id' => UserStatusEnum::ACTIVE,
-//                                'pinfl' => $supervisor->stir_or_pinfl,
-//                                'identification_number' => $supervisor->identification_number,
-//                            ]);
-//                        }
                             $user->update([
                                 'name' => $fish ? $fish[1] : null,
                                 'surname' => $fish ? $fish[0] : null,
@@ -263,12 +250,12 @@ class ArticleService
 
 
 
+
+
             $this->acceptResponse($response);
             $this->saveBlocks($response, $article);
+
             $this->saveChecklist($article);
-
-
-
 
             DB::commit();
 
@@ -297,30 +284,33 @@ class ArticleService
     {
         foreach ($workTypes as $workType) {
             if ($workType->is_multiple_floor) {
-                for ($i = 1; $i <= $block->floor; $i++) {
-                    $levelName = $i . ' - qavat ' . $workType->name;
-                    $level = $this->createLevel($levelName, $block->id, $article->id, LevelStatusEnum::NOT_BEGIN);
-                    foreach ($workType->questions as $question) {
-                        $this->createChecklist($question, $level->id, $workType->id, $block->id, ObjectTypeEnum::BUILDING, $article->id);
+                if ($block->floor) {
+                    for ($i = 1; $i <= (int)$block->floor; $i++) {
+                        $levelName = $i . ' - qavat ' . $workType->name;
+                        $level = $this->createLevel($levelName, $workType->id, $block->id, $article->id, LevelStatusEnum::NOT_BEGIN);
+                        foreach ($workType->questions as $question) {
+                            $this->createChecklist($question, $level->id, $workType->id, $block->id, ObjectTypeEnum::BUILDING->value, $article->id);
+                        }
                     }
                 }
+
             } else {
-                $level = $this->createLevel($workType->name, $block->id, $article->id, LevelStatusEnum::NOT_BEGIN);
+                $level = $this->createLevel($workType->name, $workType->id, $block->id, $article->id, LevelStatusEnum::NOT_BEGIN->value);
                 foreach ($workType->questions as $question) {
-                    $this->createChecklist($question, $level->id, $workType->id, $block->id, ObjectTypeEnum::BUILDING, $article->id);
+                    $this->createChecklist($question, $level->id, $workType->id, $block->id, ObjectTypeEnum::BUILDING->value, $article->id);
                 }
             }
         }
     }
-    private function createLevel($name, $blockId, $articleId, $statusId)
+    private function createLevel($name, $workTypeId,  $blockId, $articleId, $statusId)
     {
         $level = new Level();
         $level->name = $name;
+        $level->work_type_id = $workTypeId;
         $level->block_id = $blockId;
         $level->article_id = $articleId;
         $level->level_status_id = $statusId;
         $level->save();
-
         return $level;
     }
 
@@ -340,92 +330,20 @@ class ArticleService
 
     private function processWorkTypes($workTypes, $block, $article, $objectType)
     {
+
         foreach ($workTypes as $workType) {
-            $level = $this->createLevel($workType->name, $block->id, $article->id, LevelStatusEnum::NOT_BEGIN);
+            $level = $this->createLevel($workType->name, $workType->id, $block->id, $article->id, LevelStatusEnum::NOT_BEGIN->value);
             foreach ($workType->questions as $question) {
                 $this->createChecklist($question, $level->id, $workType->id, $block->id, $objectType, $article->id);
             }
         }
     }
 
-//    private function saveChecklist($article)
-//    {
-//        foreach ($article->blocks as $block) {
-//            if ($block->block_mode_id == BlockModeEnum::TARMOQ) {
-//                $workTypes = WorkType::query()->where('object_type_id', ObjectTypeEnum::LINEAR)->get();
-//                foreach ($workTypes as $workType) {
-//                    $level = new Level();
-//                    $level->name = $workType->name;
-//                    $level->block_id = $block->id;
-//                    $level->article_id = $article->id;
-//                    $level->level_status_id = LevelStatusEnum::NOT_BEGIN;
-//                    $level->save();
-//
-//                    foreach ($workType->questions as $question) {
-//                        $checklist = new Checklist();
-//                        $checklist->name = $question->name;
-//                        $checklist->question_id = $question->id;
-//                        $checklist->level_id = $level->id;
-//                        $checklist->work_type_id = $workType->id;
-//                        $checklist->block_id = $block->id;
-//                        $checklist->object_type_id = ObjectTypeEnum::LINEAR;
-//                        $checklist->article_id = $article->id;
-//                        $checklist->save();
-//                    }
-//                }
-//            }else{
-//                $workTypes = WorkType::query()->where('object_type_id', ObjectTypeEnum::BUILDING)->get();
-//                foreach ($workTypes as $workType) {
-//                    if ($workType->is_multiple_floor){
-//                        for ($i=1; $i<=$block->floor; $i++) {
-//                            $level = new Level();
-//                            $level->name = $i.' - qavat'. $workType->name;
-//                            $level->block_id = $block->id;
-//                            $level->article_id = $article->id;
-//                            $level->level_status_id = LevelStatusEnum::NOT_BEGIN;
-//                            $level->save();
-//                            foreach ($workType->questions as $question) {
-//                                $checklist = new Checklist();
-//                                $checklist->name = $question->name;
-//                                $checklist->question_id = $question->id;
-//                                $checklist->level_id = $level->id;
-//                                $checklist->work_type_id = $workType->id;
-//                                $checklist->block_id = $block->id;
-//                                $checklist->object_type_id = ObjectTypeEnum::BUILDING;
-//                                $checklist->article_id = $article->id;
-//                                $checklist->save();
-//                            }
-//                        }
-//                    }else{
-//                        $level = new Level();
-//                        $level->name = $workType->name;
-//                        $level->block_id = $block->id;
-//                        $level->article_id = $article->id;
-//                        $level->level_status_id = LevelStatusEnum::NOT_BEGIN;
-//                        $level->save();
-//
-//                        foreach ($workType->questions as $question) {
-//                            $checklist = new Checklist();
-//                            $checklist->name = $question->name;
-//                            $checklist->question_id = $question->id;
-//                            $checklist->level_id = $level->id;
-//                            $checklist->work_type_id = $workType->id;
-//                            $checklist->block_id = $block->id;
-//                            $checklist->object_type_id = ObjectTypeEnum::BUILDING;
-//                            $checklist->article_id = $article->id;
-//                            $checklist->save();
-//                        }
-//                    }
-//
-//
-//                }
-//            }
-//        }
-//    }
 
     private function saveBlocks($response, $article)
     {
         $blocks = $response->blocks;
+
         foreach ($blocks as $block) {
             $block->update([
                'article_id' => $article->id,

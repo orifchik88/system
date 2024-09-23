@@ -21,7 +21,7 @@ class Article extends Model
         'object_status_id' => ObjectStatusEnum::class
     ];
 
-    public function articleBlocks(): HasMany
+    public function blocks(): HasMany
     {
         return $this->hasMany(Block::class);
     }

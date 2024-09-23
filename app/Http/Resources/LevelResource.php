@@ -17,6 +17,8 @@ class LevelResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'status' => LevelStatusResource::make($this->whenLoaded('levelStatus')),
+            'checklists' => ChecklistResource::collection($this->whenLoaded('checklists')),
         ];
     }
 }

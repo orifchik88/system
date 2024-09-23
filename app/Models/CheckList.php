@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\ObjectTypeEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CheckList extends Model
 {
@@ -12,6 +14,11 @@ class CheckList extends Model
     protected $guarded = false;
 
     protected $casts = [
-        'object_type_id' => ObjectType::class,
+        'object_type_id' => ObjectTypeEnum::class,
     ];
+
+    public function question(): BelongsTo
+    {
+        return $this->belongsTo(Question::class);
+    }
 }

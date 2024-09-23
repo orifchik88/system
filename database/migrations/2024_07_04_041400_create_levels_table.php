@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->foreignId('block_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('work_type_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('article_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('level_status_id')->nullable()->constrained()->nullOnDelete();
             $table->boolean('status')->default(true);

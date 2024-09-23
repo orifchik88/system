@@ -15,10 +15,20 @@ enum UserRoleEnum: int
    case LOYIHA = 9;
    case QURILISH = 10;
 
-    public static function getValueByKey(string $key): ?string
-    {
-        $map = self::toArray();
-        return $map[$key] ?? null;
-    }
+//    public static function toArray(): array
+//    {
+//        return [
+//            'inspector' => self::Inspector->value,
+//            'author' => self::Author->value,
+//            'designer' => self::Designer->value,
+//            'technic' => self::Technic->value,
+//        ];
+//    }
+//
+//    public static function getValueByKey(string $key): ?string
+//    {
+//        $map = self::toArray();
+//        return $map[$key] ?? null;
+//    }
 
 }

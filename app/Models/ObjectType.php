@@ -11,5 +11,6 @@ class ObjectType extends Model
 {
     use HasFactory, SoftDeletes, Searchable;
 
-    protected $guarded = [];
+    protected $guarded = false;
+
 }

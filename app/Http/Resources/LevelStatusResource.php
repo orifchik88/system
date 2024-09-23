@@ -2,11 +2,10 @@
 
 namespace App\Http\Resources;
 
-use App\Enums\UserRoleEnum;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class RoleResource extends JsonResource
+class LevelStatusResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,13 +14,9 @@ class RoleResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $data = [
+        return [
             'id' => $this->id,
-            'name'=> $this->name,
-//            'name' => UserRoleEnum::getValueByKey($this->name) ?? $this->name,
-            'type' => $this->type,
-            'description' => $this->description
+            'name' => $this->name
         ];
-        return $data;
     }
 }

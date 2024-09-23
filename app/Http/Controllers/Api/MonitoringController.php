@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\QuestionTypeEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MonitoringRequest;
+use App\Http\Resources\LevelResource;
 use App\Http\Resources\MonitoringResource;
 use App\Models\Article;
+use App\Models\Level;
 use App\Models\Monitoring;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -49,4 +52,35 @@ class MonitoringController extends BaseController
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
+
+    public function  getChecklist(): JsonResponse
+    {
+        $blockId = request('block_id');
+        $levels = Level::with(['checklists', 'levelStatus'])->where('block_id', $blockId)
+            ->whereHas('checklists.question', function ($query) {
+                $query->whereIn('type', [QuestionTypeEnum::BLOCK, QuestionTypeEnum::LINEAR]);
+            })->get();
+        return $this->sendSuccess(LevelResource::collection($levels),'All Data');
+    }
+
+    public function getChecklistForTechnic(): JsonResponse
+    {
+        $blockId = request('block_id');
+        $levels = Level::with(['checklists', 'levelStatus'])->where('block_id', $blockId)
+            ->whereHas('checklists.question', function ($query) {
+                $query->where('type', QuestionTypeEnum::COMMON);
+            })->get();
+        return $this->sendSuccess(LevelResource::collection($levels),'All Data');
+    }
+
+    public function getChecklistRegular(): JsonResponse
+    {
+        $blockId = request('block_id');
+        $levels = Level::with(['checklists', 'levelStatus'])->where('block_id', $blockId)
+            ->whereHas('checklists.question', function ($query) {
+                $query->where('type', QuestionTypeEnum::MULTIPLY);
+            })->get();
+        return $this->sendSuccess(LevelResource::collection($levels),'All Data');
+    }
+
 }
