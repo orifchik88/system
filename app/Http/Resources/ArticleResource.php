@@ -49,7 +49,7 @@ class ArticleResource extends JsonResource
             'contract_file' => $this->contract_file,
             'confirming_laboratory' => $this->confirming_laboratory,
             'file_energy_efficiency' => $this->file_energy_efficiency,
-            'blocks' => ResponseBlockResource::collection($this->articleBlocks),
+            'blocks' => ResponseBlockResource::collection($this->blocks),
             'users' => ArticleUserResource::collection($this->users),
         ];
     }
