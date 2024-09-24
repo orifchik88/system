@@ -30,7 +30,6 @@ class MonitoringController extends BaseController
         try {
             $monitoring = new Monitoring();
             $monitoring->object_id = $request->object_id;
-            $monitoring->comment = $request->comment;
             $monitoring->regulation_type_id = 1;
             $monitoring->number = 1234;
             $monitoring->created_by = Auth::id();
