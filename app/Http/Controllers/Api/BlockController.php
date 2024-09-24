@@ -103,4 +103,15 @@ class BlockController extends BaseController
             return $this->sendError($exception->getMessage());
         }
     }
+
+    public function getBlock(): JsonResponse
+    {
+        try {
+            $block = Block::query()->findOrFail(request('id'));
+            if (!$block) throw new NotFoundException('Block not found', 404);
+            return $this->sendSuccess(new ArticleBlockResource($block), 'Block');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage());
+        }
+    }
 }

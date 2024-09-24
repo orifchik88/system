@@ -97,11 +97,11 @@ Route::group([
     Route::get('funding-sources', [ObjectController::class, 'fundingSource']);
     Route::get('object-sectors/{id}', [ObjectController::class, 'objectSectors']);
     Route::post('object-create', [ObjectController::class, 'create']);
-    Route::post('object-c', [ObjectController::class, 'create']);
     Route::post('check-object', [ObjectController::class, 'checkObject']);
     Route::post('change-object-status', [ObjectController::class, 'changeObjectStatus']);
 
     Route::get('blocks/{id}', [BlockController::class, 'index']);
+    Route::get('block/{id}', [BlockController::class, 'getBlock']);
     Route::get('response-blocks/{id}', [BlockController::class, 'responseBlock']);
     Route::get('block-modes', [BlockController::class, 'blockModes']);
     Route::get('block-types', [BlockController::class, 'blockTypes']);
