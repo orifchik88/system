@@ -11,6 +11,7 @@ use App\Models\Article;
 use App\Models\CheckList;
 use App\Models\Level;
 use App\Models\Monitoring;
+use App\Services\QuestionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,6 +19,13 @@ use Illuminate\Support\Facades\DB;
 
 class MonitoringController extends BaseController
 {
+    private QuestionService $questionService;
+
+    public function __construct(QuestionService $questionService)
+    {
+        $this->questionService = $questionService;
+    }
+
     public function monitoring(): JsonResponse
     {
         $monitorings = Monitoring::query()->where('object_id', \request('object_id'))->paginate(request('per_page', 10));
@@ -109,6 +117,11 @@ class MonitoringController extends BaseController
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
+    }
+
+    public function getQuestionList(Request $request)
+    {
+        return $this->questionService->getQuestionList($request->get('block_id'));
     }
 
 }
