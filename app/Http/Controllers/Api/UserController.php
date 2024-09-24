@@ -10,9 +10,11 @@ use App\Http\Resources\UserResource;
 use App\Http\Resources\UserResourceCollection;
 use App\Http\Resources\UserStatusResource;
 use App\Models\User;
+use App\Models\UserRole;
 use App\Models\UserStatus;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends BaseController
@@ -26,6 +28,7 @@ class UserController extends BaseController
 
     public function create(UserRequest $request): JsonResponse
     {
+        DB::beginTransaction();
 
         try {
             $imagePath = null;
@@ -51,11 +54,22 @@ class UserController extends BaseController
             ]);
 
             if ($request->filled('role_ids')) {
-                $user->roles()->attach($request->role_ids);
+                foreach ($request->role_ids as $role_id) {
+                    $role = UserRole::query()
+                        ->where('user_id', $user->id)
+                        ->where('role_id', $role_id)->first();
+                    if (!$role){
+                        UserRole::query()->create([
+                            'user_id' => $user->id,
+                            'role_id' => $role->id
+                        ]);
+                    }
+                }
             }
-
+            DB::commit();
             return $this->sendSuccess(new UserResource($user),  'User Created Successfully');
         }catch (\Exception $exception){
+            DB::rollBack();
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }

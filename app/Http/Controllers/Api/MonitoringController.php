@@ -8,6 +8,7 @@ use App\Http\Requests\MonitoringRequest;
 use App\Http\Resources\LevelResource;
 use App\Http\Resources\MonitoringResource;
 use App\Models\Article;
+use App\Models\CheckList;
 use App\Models\Level;
 use App\Models\Monitoring;
 use Illuminate\Http\JsonResponse;
@@ -81,6 +82,33 @@ class MonitoringController extends BaseController
                 $query->where('type', QuestionTypeEnum::MULTIPLY);
             })->get();
         return $this->sendSuccess(LevelResource::collection($levels),'All Data');
+    }
+
+    public function sendCheckListFile(): JsonResponse
+    {
+        try {
+            $data = request('data');
+            foreach ($data as $item) {
+               $checklist =  CheckList::query()->find($item['checklist_id']);
+               if (!empty($item['files'])){
+                   foreach ($item['files'] as $document) {
+                       $path = $document->store('documents/checklist', 'public');
+                       $checklist->documents()->create(['url' => $path]);
+                   }
+               }
+                if (!empty($item['images'])){
+                    foreach ($item['images'] as $image) {
+                        $path = $image->store('images/checklist', 'public');
+                        $checklist->images()->create(['url' => $path]);
+                    }
+                }
+            }
+
+            return $this->sendSuccess([], 'Check list files sent');
+
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
     }
 
 }

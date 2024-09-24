@@ -9,6 +9,4 @@ enum QuestionTypeEnum: int
     case LINEAR = 3;
     case MULTIPLY = 4;
 
-
-
 }

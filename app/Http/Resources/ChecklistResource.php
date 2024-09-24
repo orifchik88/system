@@ -17,7 +17,9 @@ class ChecklistResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'status' => $this->status
+            'status' => $this->status,
+            'files' => DocumentResource::collection($this->documents),
+            'images' => ImageResource::collection($this->images),
         ];
     }
 }
