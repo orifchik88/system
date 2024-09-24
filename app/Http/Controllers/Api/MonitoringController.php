@@ -9,6 +9,7 @@ use App\Http\Resources\LevelResource;
 use App\Http\Resources\MonitoringResource;
 use App\Models\Article;
 use App\Models\CheckList;
+use App\Models\CheckListAnswer;
 use App\Models\Level;
 use App\Models\Monitoring;
 use App\Services\QuestionService;
@@ -63,12 +64,14 @@ class MonitoringController extends BaseController
 
     public function  getChecklist(): JsonResponse
     {
-        $blockId = request('block_id');
-        $levels = Level::with(['checklists', 'levelStatus'])->where('block_id', $blockId)
-            ->whereHas('checklists.question', function ($query) {
-                $query->whereIn('type', [QuestionTypeEnum::BLOCK, QuestionTypeEnum::LINEAR]);
-            })->get();
-        return $this->sendSuccess(LevelResource::collection($levels),'All Data');
+        try {
+            $blockId = request('block_id');
+            return $this->sendSuccess($this->questionService->getQuestionList($blockId), 'Checklist');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+
+
     }
 
     public function getChecklistForTechnic(): JsonResponse
@@ -94,19 +97,29 @@ class MonitoringController extends BaseController
     public function sendCheckListFile(): JsonResponse
     {
         try {
-            $data = request('regular_checklist');
-            foreach ($data as $item) {
-               $checklist =  CheckList::query()->find($item['checklist_id']);
+
+            $data = request()->all();
+            $answer = new CheckListAnswer();
+            $answer->question_id = $data['question_id'];
+            $answer->block_id = $data['block_id'];
+            $answer->work_type_id = $data['work_type_id'];
+            $answer->object_id = $data['object_id'];
+            $answer->object_type_id = $data['object_type_id'];
+            $answer->floor = $data['floor'];
+            $answer->save();
+
+            foreach ($data['regular_checklist'] as $item) {
+
                if (!empty($item['files'])){
                    foreach ($item['files'] as $document) {
                        $path = $document->store('documents/checklist', 'public');
-                       $checklist->documents()->create(['url' => $path]);
+                       $answer->documents()->create(['url' => $path]);
                    }
                }
                 if (!empty($item['images'])){
                     foreach ($item['images'] as $image) {
                         $path = $image->store('images/checklist', 'public');
-                        $checklist->images()->create(['url' => $path]);
+                        $answer->images()->create(['url' => $path]);
                     }
                 }
             }
@@ -118,9 +131,5 @@ class MonitoringController extends BaseController
         }
     }
 
-    public function getQuestionList(Request $request)
-    {
-        return $this->questionService->getQuestionList($request->get('block_id'));
-    }
 
 }

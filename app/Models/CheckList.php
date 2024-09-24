@@ -23,13 +23,13 @@ class CheckList extends Model
         return $this->morphMany(Document::class, 'documentable');
     }
 
-    public function question(): BelongsTo
-    {
-        return $this->belongsTo(Question::class);
-    }
-
     public function images(): MorphMany
     {
         return $this->morphMany(Image::class, 'imageable');
+    }
+
+    public function question(): BelongsTo
+    {
+        return $this->belongsTo(Question::class);
     }
 }

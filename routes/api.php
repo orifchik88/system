@@ -27,7 +27,6 @@ Route::post('check-user', [InformationController::class, 'checkUser']);
 
 
 Route::post('test-api', [EGovController::class, 'getPassportInfo']);
-Route::get('test-question-list', [MonitoringController::class, 'getQuestionList']);
 
 Route::group([
     'middleware' => 'auth:api'

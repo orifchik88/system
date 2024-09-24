@@ -63,7 +63,8 @@ class QuestionService
                             'question' => $question->name,
                             'question_id' => $question->id,
                             'floor' => $floor,
-                            'answer' => $answer ? $answer->status : null,
+                            'status' => $answer ? $answer->status : null,
+                            'answer_id' => $answer ? $answer->id : null,
                         ];
                     }
                 }
@@ -76,7 +77,8 @@ class QuestionService
                         'question' => $question->name,
                         'question_id' => $question->id,
                         'floor' => null,
-                        'answer' => $answer ? $answer->status : null,
+                        'answer' => $answer ? $answer->status : false,
+                        'answer_id' => $answer ? $answer->id : null,
                     ];
                 }
             }
