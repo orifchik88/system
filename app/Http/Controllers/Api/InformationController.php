@@ -260,7 +260,7 @@ class InformationController extends BaseController
             $topics = Basis::query()
                 ->where('parent_id', request('topic_id'))
                 ->paginate(request('per_page', 10));
-            return $this->sendSuccess(BasisResource::collection($topics), 'Topics', pagination($topics));
+            return $this->sendSuccess(BasisResource::collection($topics), 'Basis', pagination($topics));
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }

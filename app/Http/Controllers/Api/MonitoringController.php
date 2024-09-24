@@ -87,7 +87,7 @@ class MonitoringController extends BaseController
     public function sendCheckListFile(): JsonResponse
     {
         try {
-            $data = request('data');
+            $data = request('regular_checklist');
             foreach ($data as $item) {
                $checklist =  CheckList::query()->find($item['checklist_id']);
                if (!empty($item['files'])){
