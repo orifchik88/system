@@ -7,7 +7,9 @@ use App\Exceptions\NotFoundException;
 use App\Models\ActViolation;
 use App\Models\ActViolationBlock;
 use App\Models\Article;
+use App\Models\Block;
 use App\Models\BlockViolation;
+use App\Models\CheckListAnswer;
 use App\Models\Monitoring;
 use App\Models\Question;
 use App\Models\Regulation;
@@ -15,6 +17,7 @@ use App\Models\RegulationDemand;
 use App\Models\RegulationViolation;
 use App\Models\RegulationViolationBlock;
 use App\Models\Violation;
+use App\Models\WorkType;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -31,6 +34,60 @@ class QuestionService
     )
     {
         $this->user = Auth::guard('api')->user();
+    }
+
+    public function getQuestionList($blockId)
+    {
+        $block = Block::findOrFail($blockId);
+        $workTypes = WorkType::all();
+
+        $generatedQuestions = [];
+
+        $answers = CheckListAnswer::where('block_id', $blockId)
+            ->get()
+            ->keyBy(function ($answer) {
+                return $answer->work_type_id . '-' . $answer->question_id . '-' . $answer->floor;
+            });
+
+        foreach ($workTypes as $key => $workType) {
+            $questions = Question::where('work_type_id', $workType->id)->get();
+
+            $questionArray = [];
+            if ($workType->is_multiple_floor) {
+                for ($floor = 1; $floor <= $block->floor; $floor++) {
+                    foreach ($questions as $question) {
+                        $answerKey = $workType->id . '-' . $question->id . '-' . $floor;
+                        $answer = $answers->get($answerKey);
+
+                        $questionArray[] = [
+                            'question' => $question->name,
+                            'question_id' => $question->id,
+                            'floor' => $floor,
+                            'answer' => $answer ? $answer->status : null,
+                        ];
+                    }
+                }
+            } else {
+                foreach ($questions as $question) {
+                    $answerKey = $workType->id . '-' . $question->id . '-';
+                    $answer = $answers->get($answerKey);
+
+                    $questionArray[] = [
+                        'question' => $question->name,
+                        'question_id' => $question->id,
+                        'floor' => null,
+                        'answer' => $answer ? $answer->status : null,
+                    ];
+                }
+            }
+
+            $generatedQuestions[$key] = [
+                "name" => $workType->name,
+                "questions" => $questionArray
+            ];
+        }
+
+        return $generatedQuestions;
     }
 
     public function getQuestions()
@@ -222,70 +279,70 @@ class QuestionService
 //
 //    }
 
-public function createActViolation($dto)
-{
-    DB::beginTransaction();
-    try {
-        $regulation = Regulation::find($dto->regulationId);
+    public function createActViolation($dto)
+    {
+        DB::beginTransaction();
+        try {
+            $regulation = Regulation::find($dto->regulationId);
 
-        $hasStatusOne = $regulation->actViolations->contains(function ($actViolation) {
-            return $actViolation->status == 1;
-        });
+            $hasStatusOne = $regulation->actViolations->contains(function ($actViolation) {
+                return $actViolation->status == 1;
+            });
 
-        if ($hasStatusOne) {
-            throw new NotFoundException('Faol chora tadbir mavjud');
-        }
-
-        $regulation->update([
-            'regulation_status_id' => 2,
-            'act_status_id' => 1,
-        ]);
-
-        foreach ($dto->meta as $item) {
-            $act = ActViolation::create([
-                'violation_id' => $item['violation_id'],
-                'regulation_id' => $dto->regulationId,
-                'user_id' => Auth::id(),
-                'question_id' => $item['question_id'],
-                'act_violation_type_id' => 1,
-                'status' => ActViolation::PROGRESS,
-            ]);
-
-
-            foreach ($item['blocks'] as $block) {
-                $actViolationBlock = ActViolationBlock::create([
-                    'act_violation_id' => $act->id,
-                    'block_id' => $block['block_id'],
-                    'comment' => $block['comment'],
-                ]);
-
-                if (isset($block['files'])) {
-                    foreach ($block['files'] as $file) {
-                        $filePath = $file->store('act_violation_block', 'public');
-                        $actViolationBlock->documents()->create([
-                            'url' => $filePath,
-                        ]);
-                    }
-                }
-                if (isset($block['images'])) {
-                    foreach ($block['images'] as $image) {
-                        $imagePath = $image->store('act_violation_block', 'public');
-                        $actViolationBlock->images()->create([
-                            'url' => $imagePath,
-                        ]);
-                    }
-                }
+            if ($hasStatusOne) {
+                throw new NotFoundException('Faol chora tadbir mavjud');
             }
 
-            $demands = RegulationDemand::create([
-                'regulation_id' => $dto->regulationId,
-                'user_id' => Auth::id(),
+            $regulation->update([
+                'regulation_status_id' => 2,
                 'act_status_id' => 1,
-                'act_violation_type_id' => 1,
-                'comment' => 'asdfasdf',
-                'act_violation_id' => $act->id,
-                'status' => ActViolation::PROGRESS
             ]);
+
+            foreach ($dto->meta as $item) {
+                $act = ActViolation::create([
+                    'violation_id' => $item['violation_id'],
+                    'regulation_id' => $dto->regulationId,
+                    'user_id' => Auth::id(),
+                    'question_id' => $item['question_id'],
+                    'act_violation_type_id' => 1,
+                    'status' => ActViolation::PROGRESS,
+                ]);
+
+
+                foreach ($item['blocks'] as $block) {
+                    $actViolationBlock = ActViolationBlock::create([
+                        'act_violation_id' => $act->id,
+                        'block_id' => $block['block_id'],
+                        'comment' => $block['comment'],
+                    ]);
+
+                    if (isset($block['files'])) {
+                        foreach ($block['files'] as $file) {
+                            $filePath = $file->store('act_violation_block', 'public');
+                            $actViolationBlock->documents()->create([
+                                'url' => $filePath,
+                            ]);
+                        }
+                    }
+                    if (isset($block['images'])) {
+                        foreach ($block['images'] as $image) {
+                            $imagePath = $image->store('act_violation_block', 'public');
+                            $actViolationBlock->images()->create([
+                                'url' => $imagePath,
+                            ]);
+                        }
+                    }
+                }
+
+                $demands = RegulationDemand::create([
+                    'regulation_id' => $dto->regulationId,
+                    'user_id' => Auth::id(),
+                    'act_status_id' => 1,
+                    'act_violation_type_id' => 1,
+                    'comment' => 'asdfasdf',
+                    'act_violation_id' => $act->id,
+                    'status' => ActViolation::PROGRESS
+                ]);
 
 //            if (isset($item['files'])) {
 //                foreach ($item['files'] as $file) {
@@ -310,18 +367,18 @@ public function createActViolation($dto)
 //                    ]);
 //                }
 //            }
+            }
+
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            throw $exception;
         }
-
-        DB::commit();
-    } catch (\Exception $exception) {
-        DB::rollBack();
-        throw $exception;
     }
-}
 
-private
-function saveImages()
-{
+    private
+    function saveImages()
+    {
 
-}
+    }
 }
