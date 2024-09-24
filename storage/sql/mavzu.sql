@@ -1,4 +1,4 @@
-insert into mavzu (id, name, parent_id, created_at, updated_at)
+insert into topics (id, name, parent_id, created_at, updated_at)
 values  (1, 'Аҳолини жойлаштириш тизимида
 шаҳар ва қишлоқ аҳоли
 пунктларининг жойлашуви

@@ -2,8 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Resources\BasisResource;
+use App\Http\Resources\NormativeDocumentResource;
 use App\Http\Resources\RoleResource;
+use App\Http\Resources\TopicResource;
 use App\Http\Resources\UserResource;
+use App\Models\Basis;
+use App\Models\NormativeDocument;
+use App\Models\Topic;
 use App\Models\User;
 use App\Services\InformationService;
 use GuzzleHttp\Client;
@@ -219,6 +225,42 @@ class InformationController extends BaseController
         try {
             $data = $this->informationService->getConclusionPDF(request('task_id'));
             return $this->sendSuccess($data, 'Conclusion PDF');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function normativeDocs(): JsonResponse
+    {
+        try {
+            $docs = NormativeDocument::query()->paginate(request('per_page', 10));
+
+            return $this->sendSuccess(NormativeDocumentResource::collection($docs), 'Normative', pagination($docs));
+
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function topics(): JsonResponse
+    {
+        try {
+            $topics = Topic::query()
+                ->where('parent_id', request('doc_id'))
+                ->paginate(request('per_page', 10));
+            return $this->sendSuccess(TopicResource::collection($topics), 'Topics', pagination($topics));
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function basis(): JsonResponse
+    {
+        try {
+            $topics = Basis::query()
+                ->where('parent_id', request('topic_id'))
+                ->paginate(request('per_page', 10));
+            return $this->sendSuccess(BasisResource::collection($topics), 'Topics', pagination($topics));
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }

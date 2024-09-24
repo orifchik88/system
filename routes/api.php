@@ -50,6 +50,9 @@ Route::group([
     Route::get('tender', [InformationController::class, 'tender']);
     Route::get('time', [InformationController::class, 'time']);
     Route::get('get-pdf-repo', [InformationController::class, 'getRepoPDF']);
+    Route::get('normative-documents', [InformationController::class, 'normativeDocs']);
+    Route::get('topics', [InformationController::class, 'topics']);
+    Route::get('basis', [InformationController::class, 'basis']);
 
 
     Route::get('sphere', [SphereController::class, 'spheres']);

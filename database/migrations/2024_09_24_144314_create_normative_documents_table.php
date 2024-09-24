@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('normative_documents', function (Blueprint $table) {
             $table->id();
+            $table->text('name');
             $table->timestamps();
         });
     }

@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('bases', function (Blueprint $table) {
             $table->id();
+            $table->text('name');
+            $table->integer('parent_id')->index();
             $table->timestamps();
         });
     }

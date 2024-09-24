@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class NormativeDocumentSeeder extends Seeder
 {
@@ -12,11 +13,10 @@ class NormativeDocumentSeeder extends Seeder
      */
     public function run(): void
     {
-
         $file = storage_path() . "/sql/normativ.sql";
 
         $normative = file_get_contents($file);
-        dd($normative);
 
+        DB::unprepared($normative);
     }
 }
