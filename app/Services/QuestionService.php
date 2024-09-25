@@ -99,6 +99,7 @@ class QuestionService
             }
             if (!empty($questionArray))
                 $generatedQuestions[] = [
+                    "work_type_id" => $workType->id,
                     "name" => $workType->name,
                     "questions" => $questionArray
                 ];
