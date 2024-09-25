@@ -100,9 +100,12 @@ class QuestionService
                         'question_id' => $question->id,
                         'type' => $question->type,
                         'floor' => null,
-                        'status' => $answer ? $answer->status : false,
+                        'status' => $answer ? $answer->status : null,
                         'work_type_status' => $workTypeStatus,
                         'checklist_id' => $answer ? $answer->id : null,
+                        'inspector_answered' => $answer ? $answer->inspector_answered: null,
+                        'technic_answered' => $answer ? $answer->technic_answered : null,
+                        'author_answered' => $answer ? $answer->author_answered : null,
                     ];
                 }
             }
