@@ -5,6 +5,7 @@ namespace App\Services;
 use App\DTO\QuestionDto;
 use App\Enums\BlockModeEnum;
 use App\Enums\ObjectTypeEnum;
+use App\Enums\WorkTypeStatusEnum;
 use App\Exceptions\NotFoundException;
 use App\Models\ActViolation;
 use App\Models\ActViolationBlock;
@@ -52,22 +53,23 @@ class QuestionService
                 return $answer->work_type_id . '-' . $answer->question_id . '-' . $answer->floor;
             });
 
-        foreach ($workTypes as $key => $workType) {
-                $questions = Question::query()
-                    ->when($type, function ($query) use ($type) {
-                        $query->where('type', $type);
-                    })->when($blockId, function ($query) use ($block) {
-                        if ($block->block_mode_id == BlockModeEnum::TARMOQ){
-                            $query->where('object_type_id', ObjectTypeEnum::LINEAR);
-                        }else{
-                            $query->where('object_type_id', ObjectTypeEnum::BUILDING);
-                        }
-                    })
+        foreach ($workTypes as $workType) {
+            $questions = Question::query()
+                ->when($type, function ($query) use ($type) {
+                    $query->where('type', $type);
+                })->when($blockId, function ($query) use ($block) {
+                    if ($block->block_mode_id == BlockModeEnum::TARMOQ) {
+                        $query->where('object_type_id', ObjectTypeEnum::LINEAR);
+                    } else {
+                        $query->where('object_type_id', ObjectTypeEnum::BUILDING);
+                    }
+                })
                 ->where('work_type_id', $workType->id)->get();
 
             $questionArray = [];
             if ($workType->is_multiple_floor && isset($block)) {
                 for ($floor = 1; $floor <= $block->floor; $floor++) {
+                    $workTypeStatus = $this->getStatusOfWorkType($this->filterAnswers($answers, $workType->id, floor: $floor));
                     foreach ($questions as $question) {
                         $answerKey = $workType->id . '-' . $question->id . '-' . $floor;
                         $answer = $answers->get($answerKey);
@@ -77,12 +79,14 @@ class QuestionService
                             'question_id' => $question->id,
                             'type' => $question->type,
                             'floor' => $floor ?? null,
+                            'work_type_status' => $workTypeStatus,
                             'status' => $answer ? $answer->status : null,
                             'checklist_id' => $answer ? $answer->id : null,
                         ];
                     }
                 }
             } else {
+                $workTypeStatus = $this->getStatusOfWorkType($this->filterAnswers($answers, $workType->id));
                 foreach ($questions as $question) {
                     $answerKey = $workType->id . '-' . $question->id . '-';
                     $answer = $answers->get($answerKey);
@@ -92,7 +96,8 @@ class QuestionService
                         'question_id' => $question->id,
                         'type' => $question->type,
                         'floor' => null,
-                        'answer' => $answer ? $answer->status : false,
+                        'status' => $answer ? $answer->status : false,
+                        'work_type_status' => $workTypeStatus,
                         'checklist_id' => $answer ? $answer->id : null,
                     ];
                 }
@@ -106,6 +111,45 @@ class QuestionService
         }
 
         return $generatedQuestions;
+    }
+
+    private function getStatusOfWorkType($answers): WorkTypeStatusEnum
+    {
+        $workTypeStatus = WorkTypeStatusEnum::NOT_STARTED;
+        $countConfirmedQuestions = 0;
+
+        if ($answers->count() > 0) {
+            foreach ($answers as $item) {
+                if ($item->status == 5)
+                    $countConfirmedQuestions++;
+            }
+            if ($countConfirmedQuestions == $answers->count())
+                $workTypeStatus = WorkTypeStatusEnum::CONFIRMED;
+            else
+                $workTypeStatus = WorkTypeStatusEnum::IN_PROCESS;
+        }
+
+        return $workTypeStatus;
+    }
+
+    private function filterAnswers($answers, $workTypeId, $floor = null, $questionId = null) {
+        return $answers->filter(function ($value, $key) use ($workTypeId, $floor, $questionId) {
+            $parts = explode('-', $key);
+
+            if ($parts[0] != $workTypeId) {
+                return false;
+            }
+
+            if (!is_null($questionId) && isset($parts[1]) && $parts[1] != $questionId) {
+                return false;
+            }
+
+            if (!is_null($floor) && isset($parts[2]) && $parts[2] != $floor) {
+                return false;
+            }
+
+            return true;
+        });
     }
 
     public function getQuestions()
