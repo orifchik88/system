@@ -8,6 +8,7 @@ use App\Http\Requests\MonitoringRequest;
 use App\Http\Resources\LevelResource;
 use App\Http\Resources\MonitoringResource;
 use App\Models\Article;
+use App\Models\Block;
 use App\Models\CheckList;
 use App\Models\CheckListAnswer;
 use App\Models\Level;
@@ -88,24 +89,25 @@ class MonitoringController extends BaseController
         try {
 
             $data = request()->all();
-            $answer = new CheckListAnswer();
-            $answer->question_id = $data['question_id'];
-            $answer->block_id = $data['block_id'] ?? null;
-            $answer->work_type_id = $data['work_type_id'];
-            $answer->object_id = $data['object_id'];
-            $answer->object_type_id = $data['object_type_id'];
-            $answer->floor = $data['floor'] ?? null;
-            $answer->save();
-
+            $object = Article::query()->findOrFail($data['object_id']);
             foreach ($data['regular_checklist'] as $item) {
+                $answer = new CheckListAnswer();
+                $answer->question_id = $item['question_id'];
+                $answer->comment = $item['comment'];
+                $answer->block_id = $data['block_id'] ?? null;
+                $answer->work_type_id = $item['work_type_id'];
+                $answer->object_id = $data['object_id'];
+                $answer->object_type_id = $object->object_type_id;
+                $answer->floor = $item['floor'] ?? null;
+                $answer->save();
 
-               if (!empty($item['files'])){
-                   foreach ($item['files'] as $document) {
-                       $path = $document->store('documents/checklist', 'public');
-                       $answer->documents()->create(['url' => $path]);
-                   }
-               }
-                if (!empty($item['images'])){
+                if (!empty($file['files'])){
+                    foreach ($file['files'] as $document) {
+                        $path = $document->store('documents/checklist', 'public');
+                        $answer->documents()->create(['url' => $path]);
+                    }
+                }
+                if (!empty($file['images'])){
                     foreach ($item['images'] as $image) {
                         $path = $image->store('images/checklist', 'public');
                         $answer->images()->create(['url' => $path]);
