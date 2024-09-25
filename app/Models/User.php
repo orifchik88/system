@@ -36,7 +36,7 @@ class User extends Authenticatable implements JWTSubject
     }
     protected $guard_name = 'web';
 
-    protected $guarded = [];
+    protected $guarded = false;
 
     protected $hidden = [
         'password',
@@ -66,7 +66,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function objects(): BelongsToMany
     {
-        return $this->belongsToMany(Article::class, 'article_users', 'user_id', 'article_id');
+        return $this->belongsToMany(Article::class, 'article_users', 'user_id', 'article_id')->withPivot('role_id');
     }
 
     public function inspectorObjects(): HasMany

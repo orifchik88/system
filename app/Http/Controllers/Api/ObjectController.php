@@ -31,8 +31,10 @@ class ObjectController extends BaseController
     public function index(): JsonResponse
     {
         $user = Auth::user();
+        $roleId = $user->getRoleFromToken();
 
         $objects = $user->objects()
+            ->wherePivot('role_id', $roleId)
             ->when(request('status'), function ($query){
                 $query->where('articles.object_status_id', request('status'));
             })
