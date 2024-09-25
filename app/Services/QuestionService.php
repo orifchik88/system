@@ -43,6 +43,7 @@ class QuestionService
     {
         $block = Block::find($blockId) ?? null;
 
+
         $workTypes = WorkType::query()->orderBy('id', 'ASC')->get();
 
         $generatedQuestions = [];
@@ -82,6 +83,9 @@ class QuestionService
                             'work_type_status' => $workTypeStatus,
                             'status' => $answer ? $answer->status : null,
                             'checklist_id' => $answer ? $answer->id : null,
+                            'inspector_answered' => $answer ? $answer->inspector_answered: null,
+                            'technic_answered' => $answer ? $answer->technic_answered : null,
+                            'author_answered' => $answer ? $answer->author_answered : null,
                         ];
                     }
                 }

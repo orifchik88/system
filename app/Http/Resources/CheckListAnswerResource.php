@@ -14,6 +14,9 @@ class CheckListAnswerResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'images' => ImageResource::collection($this->images),
+            'files' => DocumentResource::collection($this->documents)
+        ];
     }
 }
