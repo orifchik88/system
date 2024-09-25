@@ -109,7 +109,7 @@ class MonitoringController extends BaseController
                     }
                 }
                 if (!empty($file['images'])){
-                    foreach ($item['images'] as $image) {
+                    foreach ($file['images'] as $image) {
                         $path = $image->store('images/checklist', 'public');
                         $answer->images()->create(['url' => $path]);
                     }
