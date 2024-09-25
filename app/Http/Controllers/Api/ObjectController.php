@@ -33,9 +33,20 @@ class ObjectController extends BaseController
         $user = Auth::user();
         $roleId = $user->getRoleFromToken();
 
-        $objects = $user->objects()
-            ->wherePivot('role_id', $roleId)
-            ->when(request('status'), function ($query){
+        if ($user->inspector())
+        {
+            $query = Article::query()->where('inspector_id', $user->id);
+        }
+        if ($user->register())
+        {
+            $query = Article::query()->where('region_id', $user->region_id);
+        }
+        else{
+            $query = $user->objects()
+                ->wherePivot('role_id', $roleId);
+        }
+
+            $objects = $query->when(request('status'), function ($query){
                 $query->where('articles.object_status_id', request('status'));
             })
             ->when(request('name'), function ($query) {
