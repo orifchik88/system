@@ -33,11 +33,8 @@ class ObjectController extends BaseController
         $user = Auth::user();
         $roleId = $user->getRoleFromToken();
 
-        if ($user->inspector())
-        {
-            $query = Article::query()->where('inspector_id', $user->id);
-        }
-        elseif($user->register())
+
+        if($user->register())
         {
             $query = Article::query()->where('region_id', $user->region_id);
         }
