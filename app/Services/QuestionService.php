@@ -57,7 +57,7 @@ class QuestionService
             $questions = Question::query()
                 ->when($type, function ($query) use ($type) {
                     $query->where('type', $type);
-                })->when($blockId, function ($query) use ($block) {
+                })->when($block, function ($query) use ($block) {
                     if ($block->block_mode_id == BlockModeEnum::TARMOQ) {
                         $query->where('object_type_id', ObjectTypeEnum::LINEAR);
                     } else {
