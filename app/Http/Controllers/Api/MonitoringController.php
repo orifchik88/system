@@ -8,6 +8,7 @@ use App\Http\Requests\MonitoringRequest;
 use App\Http\Resources\LevelResource;
 use App\Http\Resources\MonitoringResource;
 use App\Models\Article;
+use App\Models\Block;
 use App\Models\CheckList;
 use App\Models\CheckListAnswer;
 use App\Models\Level;
@@ -88,13 +89,15 @@ class MonitoringController extends BaseController
         try {
 
             $data = request()->all();
+            $object = Article::query()->findOrFail($data['object_id']);
             foreach ($data['regular_checklist'] as $item) {
                 $answer = new CheckListAnswer();
                 $answer->question_id = $item['question_id'];
-                $answer->block_id = $item['block_id'] ?? null;
+                $answer->comment = $item['comment'];
+                $answer->block_id = $data['block_id'] ?? null;
                 $answer->work_type_id = $item['work_type_id'];
                 $answer->object_id = $data['object_id'];
-                $answer->object_type_id = $item['object_type_id'];
+                $answer->object_type_id = $object->object_type_id;
                 $answer->floor = $item['floor'] ?? null;
                 $answer->save();
 
