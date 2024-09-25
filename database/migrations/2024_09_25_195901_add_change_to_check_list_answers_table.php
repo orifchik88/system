@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('check_list_answers', function (Blueprint $table) {
-            $table->boolean('inspector_answered')->default(false);
-            $table->boolean('technic_answered')->default(false);
-            $table->boolean('author_answered')->default(false);
+            $table->tinyInteger('inspector_answered')->default(null)->change();
+            $table->tinyInteger('technic_answered')->default(null)->change();
+            $table->tinyInteger('author_answered')->default(null)->change();
         });
     }
 
@@ -23,7 +23,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('check_list_answers', function (Blueprint $table){
+        Schema::table('check_list_answers', function (Blueprint $table) {
             //
         });
     }
