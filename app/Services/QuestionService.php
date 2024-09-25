@@ -42,7 +42,7 @@ class QuestionService
     {
         $block = Block::find($blockId) ?? null;
 
-        $workTypes = WorkType::all();
+        $workTypes = WorkType::query()->orderBy('id', 'ASC')->get();
 
         $generatedQuestions = [];
 
