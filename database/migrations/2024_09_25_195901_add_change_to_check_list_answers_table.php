@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('check_list_answers', function (Blueprint $table) {
-            $table->tinyInteger('inspector_answered')->default(null)->change();
-            $table->tinyInteger('technic_answered')->default(null)->change();
-            $table->tinyInteger('author_answered')->default(null)->change();
+            $table->integer('inspector_answered')->default(null)->change();
+            $table->integer('technic_answered')->default(null)->change();
+            $table->integer('author_answered')->default(null)->change();
         });
     }
 
