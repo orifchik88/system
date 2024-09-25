@@ -31,7 +31,7 @@ class WorkTypeSeeder extends Seeder
 
         WorkType::create([
             'object_type_id' => ObjectTypeEnum::BUILDING,
-            'name' => 'Namunaviy qavat',
+            'name' => 'Konstruksiya elementlari',
             'is_multiple_floor' => true
 
         ]);
@@ -84,10 +84,5 @@ class WorkTypeSeeder extends Seeder
             'status' => false
         ]);
 
-        WorkType::create([
-            'object_type_id' => ObjectTypeEnum::BUILDING,
-            'name' => 'Doimiy cheklist',
-            'status' => false
-        ]);
     }
 }

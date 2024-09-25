@@ -533,21 +533,5 @@ class QuestionSeeder extends Seeder
             'name' => 'Qurilishda xavfsizlik texnikasi talablariga rioya qilinishi',
             'type' => QuestionTypeEnum::MULTIPLY,
         ]);
-
-        Question::query()->create([
-            'object_type_id' => ObjectTypeEnum::BUILDING,
-            'work_type_id' => 14,
-            'name' => 'Qurilishni tashkil qilish talablari',
-            'type' => QuestionTypeEnum::MULTIPLY,
-        ]);
-
-        Question::query()->create([
-            'object_type_id' => ObjectTypeEnum::BUILDING,
-            'work_type_id' => 14,
-            'name' => 'Qurilishda xavfsizlik texnikasi talablariga rioya qilinishi',
-            'type' => QuestionTypeEnum::MULTIPLY,
-        ]);
-
-
     }
 }

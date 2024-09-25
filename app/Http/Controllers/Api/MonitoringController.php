@@ -66,7 +66,7 @@ class MonitoringController extends BaseController
     {
         try {
             $blockId = request('block_id');
-            return $this->sendSuccess($this->questionService->getQuestionList($blockId), 'Checklist');
+            return $this->sendSuccess($this->questionService->getQuestionList($blockId, null), 'Checklist');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
@@ -74,24 +74,13 @@ class MonitoringController extends BaseController
 
     }
 
-    public function getChecklistForTechnic(): JsonResponse
-    {
-        $blockId = request('block_id');
-        $levels = Level::with(['checklists', 'levelStatus'])->where('block_id', $blockId)
-            ->whereHas('checklists.question', function ($query) {
-                $query->where('type', QuestionTypeEnum::COMMON);
-            })->get();
-        return $this->sendSuccess(LevelResource::collection($levels),'All Data');
-    }
-
     public function getChecklistRegular(): JsonResponse
     {
-        $blockId = request('block_id');
-        $levels = Level::with(['checklists', 'levelStatus'])->where('block_id', $blockId)
-            ->whereHas('checklists.question', function ($query) {
-                $query->where('type', QuestionTypeEnum::MULTIPLY);
-            })->get();
-        return $this->sendSuccess(LevelResource::collection($levels),'All Data');
+        try {
+            return $this->sendSuccess($this->questionService->getQuestionList(null, QuestionTypeEnum::MULTIPLY), 'Checklist');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getLine());
+        }
     }
 
     public function sendCheckListFile(): JsonResponse
@@ -101,11 +90,11 @@ class MonitoringController extends BaseController
             $data = request()->all();
             $answer = new CheckListAnswer();
             $answer->question_id = $data['question_id'];
-            $answer->block_id = $data['block_id'];
+            $answer->block_id = $data['block_id'] ?? null;
             $answer->work_type_id = $data['work_type_id'];
             $answer->object_id = $data['object_id'];
             $answer->object_type_id = $data['object_type_id'];
-            $answer->floor = $data['floor'];
+            $answer->floor = $data['floor'] ?? null;
             $answer->save();
 
             foreach ($data['regular_checklist'] as $item) {

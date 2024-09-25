@@ -131,8 +131,6 @@ Route::group([
     Route::get('violations', [ViolationController::class, 'violations']);
 
     Route::get('checklist', [MonitoringController::class, 'getChecklist']);
-    Route::get('checklist-technic', [MonitoringController::class, 'getChecklistForTechnic']);
-    Route::get('checklist-regular', [MonitoringController::class, 'getChecklistRegular']);
     Route::get('checklist-regular', [MonitoringController::class, 'getChecklistRegular']);
     Route::post('checklist-file-send', [MonitoringController::class, 'sendCheckListFile']);
 

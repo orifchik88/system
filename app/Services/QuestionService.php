@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\DTO\QuestionDto;
+use App\Enums\BlockModeEnum;
+use App\Enums\ObjectTypeEnum;
 use App\Exceptions\NotFoundException;
 use App\Models\ActViolation;
 use App\Models\ActViolationBlock;
@@ -36,9 +38,10 @@ class QuestionService
         $this->user = Auth::guard('api')->user();
     }
 
-    public function getQuestionList($blockId)
+    public function getQuestionList($blockId = null, $type = null)
     {
-        $block = Block::findOrFail($blockId);
+        $block = Block::find($blockId) ?? null;
+
         $workTypes = WorkType::all();
 
         $generatedQuestions = [];
@@ -50,10 +53,20 @@ class QuestionService
             });
 
         foreach ($workTypes as $key => $workType) {
-            $questions = Question::where('work_type_id', $workType->id)->get();
+                $questions = Question::query()
+                    ->when($type, function ($query) use ($type) {
+                        $query->where('type', $type);
+                    })->when($blockId, function ($query) use ($block) {
+                        if ($block->block_mode_id == BlockModeEnum::TARMOQ){
+                            $query->where('object_type_id', ObjectTypeEnum::LINEAR);
+                        }else{
+                            $query->where('object_type_id', ObjectTypeEnum::BUILDING);
+                        }
+                    })
+                ->where('work_type_id', $workType->id)->get();
 
             $questionArray = [];
-            if ($workType->is_multiple_floor) {
+            if ($workType->is_multiple_floor && isset($block)) {
                 for ($floor = 1; $floor <= $block->floor; $floor++) {
                     foreach ($questions as $question) {
                         $answerKey = $workType->id . '-' . $question->id . '-' . $floor;
@@ -62,9 +75,10 @@ class QuestionService
                         $questionArray[] = [
                             'question' => $question->name,
                             'question_id' => $question->id,
-                            'floor' => $floor,
+                            'type' => $question->type,
+                            'floor' => $floor ?? null,
                             'status' => $answer ? $answer->status : null,
-                            'answer_id' => $answer ? $answer->id : null,
+                            'checklist_id' => $answer ? $answer->id : null,
                         ];
                     }
                 }
@@ -76,17 +90,18 @@ class QuestionService
                     $questionArray[] = [
                         'question' => $question->name,
                         'question_id' => $question->id,
+                        'type' => $question->type,
                         'floor' => null,
                         'answer' => $answer ? $answer->status : false,
-                        'answer_id' => $answer ? $answer->id : null,
+                        'checklist_id' => $answer ? $answer->id : null,
                     ];
                 }
             }
-
-            $generatedQuestions[$key] = [
-                "name" => $workType->name,
-                "questions" => $questionArray
-            ];
+            if (!empty($questionArray))
+                $generatedQuestions[] = [
+                    "name" => $workType->name,
+                    "questions" => $questionArray
+                ];
         }
 
         return $generatedQuestions;
