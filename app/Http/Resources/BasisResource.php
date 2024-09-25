@@ -16,7 +16,7 @@ class BasisResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' =>nl2br($this->name)
+            'name' => str_replace(["\r\n", "\n", "\r"], ' ', $this->name)
         ];
     }
 }
