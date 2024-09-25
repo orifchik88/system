@@ -102,14 +102,14 @@ class MonitoringController extends BaseController
                 $answer->floor = $item['floor'] ?? null;
                 $answer->save();
 
-                if (!empty($file['files'])){
-                    foreach ($file['files'] as $document) {
+                if (!empty($item['files'])){
+                    foreach ($item['files'] as $document) {
                         $path = $document->store('documents/checklist', 'public');
                         $answer->documents()->create(['url' => $path]);
                     }
                 }
-                if (!empty($file['images'])){
-                    foreach ($file['images'] as $image) {
+                if (!empty($item['images'])){
+                    foreach ($item['images'] as $image) {
                         $path = $image->store('images/checklist', 'public');
                         $answer->images()->create(['url' => $path]);
                     }
