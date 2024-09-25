@@ -16,9 +16,6 @@ return new class extends Migration
             $table->boolean('technic_answered')->default(false);
             $table->boolean('author_answered')->default(false);
             $table->integer('check_list_status_id')->nullable()->index();
-            $table->date('inspector_answered_at')->nullable();
-            $table->date('technic_answered_at')->nullable();
-            $table->date('author_answered_at')->nullable();
         });
     }
 
