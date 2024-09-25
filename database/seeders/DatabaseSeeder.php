@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
             BasisSeeder::class,
             TopicSeeder::class,
 //            ObjectTypeSeeder::class,
-//            CheckListStatusSeeder::class,
+            CheckListStatusSeeder::class,
 //            WorkTypeSeeder::class,
 //            RoleSeeder::class,
 //            QuestionSeeder::class,

@@ -13,15 +13,11 @@ class CheckListStatusSeeder extends Seeder
     public function run(): void
     {
         CheckListStatus::create([
-           'name' => 'Tasdiqlangan',
+            'name' => '1-tasdiqlash',
         ]);
 
         CheckListStatus::create([
-            'name' => 'Qisman tasdiqlangan',
-        ]);
-
-        CheckListStatus::create([
-            'name' => 'To\'ldirilmagan',
+            'name' => '2- tasdiqlash',
         ]);
 
 
@@ -30,7 +26,7 @@ class CheckListStatusSeeder extends Seeder
         ]);
 
         CheckListStatus::create([
-            'name' => 'To\'ldirilgan',
+            'name' => 'Tasdiqlangan',
         ]);
     }
 }
