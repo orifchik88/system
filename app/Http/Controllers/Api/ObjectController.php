@@ -37,7 +37,7 @@ class ObjectController extends BaseController
         {
             $query = Article::query()->where('inspector_id', $user->id);
         }
-        if ($user->register())
+        elseif($user->register())
         {
             $query = Article::query()->where('region_id', $user->region_id);
         }
