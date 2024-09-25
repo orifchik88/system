@@ -16,7 +16,7 @@ class BasisResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name
+            'name' =>nl2br($this->name)
         ];
     }
 }
