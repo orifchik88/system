@@ -11,9 +11,11 @@ use App\Models\Level;
 use App\Models\Monitoring;
 use App\Models\Question;
 use App\Models\Regulation;
+use App\Models\RegulationViolation;
 use App\Models\Violation;
 use App\Services\QuestionService;
 use Carbon\Carbon;
+use Dflydev\DotAccessData\Data;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -89,10 +91,6 @@ class QuestionController extends BaseController
     {
         DB::beginTransaction();
         try {
-            $violations = [];
-            $roleViolations = [];
-
-            $roles = [];
             $request = request()->all();
             $object = Article::find($request['object_id']);
 
@@ -123,13 +121,14 @@ class QuestionController extends BaseController
                         $roleViolations[$role]['violation_ids'][] = $violation->id;
                         $roleViolations[$role]['deadline'] = $negative['deadline'];
 
+                    }
+                    $allRoleViolations[$index] = $roleViolations;
                 }
-                $allRoleViolations[$index] = $roleViolations;
             }
 
-            foreach ($allRoleViolations as $roles) {
-                foreach ($roles as $key=> $role) {
 
+            foreach ($allRoleViolations as $roles) {
+                foreach ($roles as $key => $role) {
                     $regulation = Regulation::create([
                         'object_id' => $object->id,
                         'deadline' => Carbon::now()->addDays($role['deadline']),
@@ -138,15 +137,21 @@ class QuestionController extends BaseController
                         'regulation_type_id' => 1,
                         'created_by_role_id' => $object->roles()->where('user_id', \auth()->id())->first()->id,
                         'created_by_user_id' => $object->users()->where('user_id', \auth()->id())->first()->id,
-                        'user_id' => $object->users()->wherePivot('role_id', $role)->pluck('users.id')->first(),
+                        'user_id' => $object->users()->wherePivot('role_id', $key)->pluck('users.id')->first(),
                         'monitoring_id' => $monitoring->id,
                         'role_id' => $key,
                     ]);
 
-                    $regulation->violations()->attach($role['violation_ids']);
+
+                    foreach ($role['violation_ids'] as $violationId) {
+                        RegulationViolation::create([
+                            'regulation_id' => $regulation->id,
+                            'violation_id' => $violationId
+                        ]);
                     }
                 }
             }
+
             DB::commit();
             return 'success';
         }catch (\Exception $exception){
