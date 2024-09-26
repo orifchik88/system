@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('check_list_answers', function (Blueprint $table) {
-            $table->dropColumn(['inspector_answered', 'technic_answered', 'author_answered']);
+        Schema::create('regulation_violations', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('regulation_id')->constrained()->onDelete('cascade');
+            $table->foreignId('violation_id')->constrained()->onDelete('cascade');
         });
     }
 
@@ -21,7 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('check_list_answers', function (Blueprint $table) {
-        });
+        Schema::dropIfExists('regulation_violations');
     }
 };

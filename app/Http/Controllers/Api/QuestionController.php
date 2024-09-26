@@ -6,9 +6,17 @@ use App\DTO\QuestionDto;
 use App\Http\Requests\QuestionRequest;
 use App\Http\Resources\LevelResource;
 use App\Http\Resources\QuestionResource;
+use App\Models\Article;
 use App\Models\Level;
+use App\Models\Monitoring;
+use App\Models\Question;
+use App\Models\Regulation;
+use App\Models\Violation;
 use App\Services\QuestionService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 
 
@@ -74,6 +82,76 @@ class QuestionController extends BaseController
             return $this->sendSuccess([], 'Successfully send answer');
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function createRegulation()
+    {
+        DB::beginTransaction();
+        try {
+            $violations = [];
+            $roleViolations = [];
+
+            $roles = [];
+            $request = request()->all();
+            $object = Article::find($request['object_id']);
+
+            $monitoring = new Monitoring();
+            $monitoring->object_id = $object->id;
+            $monitoring->number = 123;
+            $monitoring->regulation_type_id = 1;
+            $monitoring->created_by = Auth::id();
+            $monitoring->save();
+
+            foreach ($request['negative'] as $index => $negative) {
+                $roleViolations = [];
+                $question = Question::query()->findOrFail($negative['question_id']);
+                foreach ($negative['violations'] as $value) {
+                    $violation = Violation::query()->create([
+                        'question_id' => $question->id,
+                        'title' => $question->name,
+                        'description' => $value['comment'],
+                        'bases_id' => $value['basis_id'],
+                        'level_id' => 1,
+                    ]);
+
+                    foreach ($value['roles'] as $role) {
+                        if (!isset($roleViolations[$role])) {
+                            $roleViolations[$role] = [];
+                        }
+
+                        $roleViolations[$role]['violation_ids'][] = $violation->id;
+                        $roleViolations[$role]['deadline'] = $negative['deadline'];
+
+                }
+                $allRoleViolations[$index] = $roleViolations;
+            }
+
+            foreach ($allRoleViolations as $roles) {
+                foreach ($roles as $key=> $role) {
+
+                    $regulation = Regulation::create([
+                        'object_id' => $object->id,
+                        'deadline' => Carbon::now()->addDays($role['deadline']),
+                        'level_id' => 1,
+                        'regulation_status_id' => 1,
+                        'regulation_type_id' => 1,
+                        'created_by_role_id' => $object->roles()->where('user_id', \auth()->id())->first()->id,
+                        'created_by_user_id' => $object->users()->where('user_id', \auth()->id())->first()->id,
+                        'user_id' => $object->users()->wherePivot('role_id', $role)->pluck('users.id')->first(),
+                        'monitoring_id' => $monitoring->id,
+                        'role_id' => $key,
+                    ]);
+
+                    $regulation->violations()->attach($role['violation_ids']);
+                    }
+                }
+            }
+            DB::commit();
+            return 'success';
+        }catch (\Exception $exception){
+            DB::rollBack();
+            return $this->sendError($exception->getMessage(), $exception->getLine());
         }
     }
 }

@@ -113,6 +113,7 @@ Route::group([
     Route::post('send-question', [QuestionController::class, 'sendQuestion']);
     Route::post('send-answer', [QuestionController::class, 'sendAnswer']);
     Route::get('levels', [QuestionController::class, 'levels']);
+    Route::post('create-regulation', [QuestionController::class, 'createRegulation']);
 
     Route::get('monitoring', [MonitoringController::class, 'monitoring']);
     Route::post('monitoring-create', [MonitoringController::class, 'create']);

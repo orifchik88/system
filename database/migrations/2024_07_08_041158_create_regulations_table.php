@@ -23,17 +23,6 @@ return new class extends Migration
             $table->foreignId('act_status_id')->nullable()->constrained();
             $table->integer('user_id')->nullable()->index();
             $table->integer('role_id')->nullable()->index();
-            $table->integer('regulation_number_id')->nullable()->index();
-            $table->string('pdf')->nullable()->index();
-            $table->boolean('pdf_status')->default(false);
-            $table->string('administrative_files')->nullable();
-            $table->boolean('is_administrative')->default(false);
-            $table->boolean('is_administration_closed')->default(false);
-            $table->boolean('from_claim')->default(false);
-            $table->foreignId('level_id')->constrained();
-            $table->boolean('deadline_waiting')->default(false);
-            $table->boolean('deadline_asked')->default(false);
-            $table->boolean('deadline_old')->default(false);
             $table->integer('created_by_user_id')->nullable()->index();
             $table->integer('created_by_role_id')->nullable()->index();
             $table->softDeletes();
