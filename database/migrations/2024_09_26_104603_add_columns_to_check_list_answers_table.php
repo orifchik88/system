@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('check_lists', function (Blueprint $table) {
-            $table->foreignId('basis_id')->nullable()->constrained()->nullOnDelete();
+        Schema::table('check_list_answers', function (Blueprint $table) {
+            $table->tinyInteger('inspector_answered')->nullable();
+            $table->tinyInteger('technic_answered')->nullable();
+            $table->tinyInteger('author_answered')->nullable();
         });
     }
 
@@ -21,7 +23,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('check_lists', function (Blueprint $table) {
+        Schema::table('check_list_answers', function (Blueprint $table) {
             //
         });
     }
