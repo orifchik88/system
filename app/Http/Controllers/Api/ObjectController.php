@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\DTO\ObjectDto;
 use App\Enums\ObjectCheckEnum;
 use App\Enums\ObjectStatusEnum;
+use App\Enums\UserRoleEnum;
 use App\Http\Requests\ObjectRequest;
 use App\Http\Resources\ArticleResource;
 use App\Http\Resources\FundingSourceResource;
@@ -33,8 +34,7 @@ class ObjectController extends BaseController
         $user = Auth::user();
         $roleId = $user->getRoleFromToken();
 
-
-        if($user->register())
+        if(UserRoleEnum::from($roleId) == UserRoleEnum::REGISTRATOR)
         {
             $query = Article::query()->where('region_id', $user->region_id);
         }
