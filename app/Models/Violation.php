@@ -19,7 +19,7 @@ class Violation extends Model
         return $this->belongsToMany(User::class, 'violation_users', 'violation_id', 'user_id');
     }
 
-    public function imageFiles(): MorphMany
+    public function images(): MorphMany
     {
         return $this->morphMany(Image::class, 'imageable');
     }

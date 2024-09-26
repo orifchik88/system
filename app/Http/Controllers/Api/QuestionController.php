@@ -98,6 +98,7 @@ class QuestionController extends BaseController
             $monitoring->object_id = $object->id;
             $monitoring->number = 123;
             $monitoring->regulation_type_id = 1;
+            $monitoring->block_id = $request['block_id'];
             $monitoring->created_by = Auth::id();
             $monitoring->save();
 
@@ -112,6 +113,13 @@ class QuestionController extends BaseController
                         'bases_id' => $value['basis_id'],
                         'level_id' => 1,
                     ]);
+
+                    if (!empty($value['images'])){
+                        foreach ($value['images'] as $image) {
+                            $path = $image->store('images/violation', 'public');
+                            $violation->images()->create(['url' => $path]);
+                        }
+                    }
 
                     foreach ($value['roles'] as $role) {
                         if (!isset($roleViolations[$role])) {
