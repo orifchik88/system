@@ -68,7 +68,7 @@ class QuestionService
                 ->where('work_type_id', $workType->id)->get();
 
             $questionArray = [];
-            if ($workType->is_multiple_floor && isset($block)) {
+            if ($workType->is_multiple_floor && isset($block) && $block->floor != null) {
                 for ($floor = 1; $floor <= $block->floor; $floor++) {
                     $workTypeStatus = $this->getStatusOfWorkType($this->filterAnswers($answers, $workType->id, floor: $floor));
                     foreach ($questions as $question) {
