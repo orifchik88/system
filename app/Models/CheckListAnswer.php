@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CheckListStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -11,6 +12,10 @@ class CheckListAnswer extends Model
 {
     use HasFactory;
     protected $guarded = false;
+
+    protected $casts = [
+        'status' => CheckListStatusEnum::class,
+    ];
 
     public function documents(): MorphMany
     {

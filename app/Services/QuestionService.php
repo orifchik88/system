@@ -4,7 +4,9 @@ namespace App\Services;
 
 use App\DTO\QuestionDto;
 use App\Enums\BlockModeEnum;
+use App\Enums\CheckListStatusEnum;
 use App\Enums\ObjectTypeEnum;
+use App\Enums\UserRoleEnum;
 use App\Enums\WorkTypeStatusEnum;
 use App\Exceptions\NotFoundException;
 use App\Models\ActViolation;
@@ -178,175 +180,184 @@ class QuestionService
         return $questions;
     }
 
-    public function createViolation($dto)
+
+
+
+    public function createRegulation($data)
     {
-        DB::beginTransaction();
         try {
-            $roles = [];
+            $user = Auth::user();
+            $roleId = $user->getRoleFromToken();
+            $object = Article::find($data['object_id']);
 
-            $object = Article::find($dto->objectId);
-            $monitoring = new Monitoring();
-            $monitoring->object_id = $dto->objectId;
-            $monitoring->number = 123;
-            $monitoring->regulation_type_id = 1;
-            $monitoring->created_by = $this->user->id;
-            $monitoring->save();
+            $monitoring = $this->createMonitoring($data, $object, $roleId);
 
-            $violations = [];
-            foreach ($dto->meta as $data) {
-                $question = Question::query()->find($data['question_id']);
-                $violation = Violation::query()->create([
-                    'question_id' => $question->id,
-                    'title' => $question->question,
-                    'description' => $question->answer,
-                    'level_id' => $dto->levelId,
-                ]);
+            $this->handleChecklists($data['positive'], $object, $data['block_id'], $roleId, true);
+            $allRoleViolations = $this->handleChecklists($data['negative'], $object, $data['block_id'], $roleId, false);
 
-                foreach ($data['violations'] as $item) {
-                    $roles = array_merge($roles, $item['roles']);
-                }
+            $this->createRegulations($allRoleViolations, $object, $monitoring);
 
-                $violations[] = [
-                    'violation_id' => $violation->id,
-                    'violations' => $data['violations'],
-                ];
-            }
-
-            $uniqueRoles = array_unique($roles);
-
-
-            foreach ($uniqueRoles as $role) {
-
-                $deadline = collect($dto->deadline)->firstWhere('role_id', $role);
-                $regulation = Regulation::create([
-                    'object_id' => $dto->objectId,
-//                    'regulation_number' => '123',
-                    'regulation_number_id' => 1,
-                    'deadline' => $deadline['deadline'],
-                    'level_id' => $dto->levelId,
-                    'regulation_status_id' => 1,
-                    'regulation_type_id' => 1,
-                    'created_by_role_id' => $object->roles()->where('user_id', \auth()->id())->first()->id,
-                    'created_by_user_id' => $object->users()->where('user_id', \auth()->id())->first()->id,
-                    'user_id' => $object->users()->wherePivot('role_id', $role)->pluck('users.id')->first(),
-                    'monitoring_id' => $monitoring->id,
-                    'role_id' => $role,
-//                    'act_status_id' => 1,
-                ]);
-                foreach ($violations as $violationData) {
-                    foreach ($violationData['violations'] as $item) {
-
-                        if (in_array($role, $item['roles'])) {
-                            $regulationBlock = RegulationViolationBlock::create([
-                                'regulation_id' => $regulation->id,
-                                'violation_id' => $violationData['violation_id'],
-                                'block_id' => $item['block_id'],
-                            ]);
-
-                            foreach ($item['images'] as $image) {
-                                $imagePath = $image->store('block', 'public');
-                                $regulationBlock->images()->create([
-                                    'url' => $imagePath,
-                                ]);
-                            }
-                        }
-                    }
-                }
-
-
-            }
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
             throw $exception;
         }
+
+    }
+
+    private function createMonitoring($data, $object, $roleId)
+    {
+        return Monitoring::create([
+            'object_id' => $object->id,
+            'number' => 123,
+            'regulation_type_id' => 1,
+            'block_id' => $data['block_id'],
+            'created_by' => Auth::id(),
+            'created_by_role' => $roleId,
+        ]);
+    }
+
+    private function handleChecklists($checklists, $object, $blockId, $roleId, $isPositive)
+    {
+        $allRoleViolations = [];
+        foreach ($checklists as $index => $checklistData) {
+            $checklist = $this->getOrCreateChecklist($checklistData, $object, $blockId);
+
+            $this->updateChecklistStatus($checklist, $checklistData, $roleId, $isPositive);
+
+            if (!$isPositive) {
+                $allRoleViolations[$index] = $this->handleViolations($checklistData, $checklist);
+            }
+        }
+        return $allRoleViolations;
+    }
+
+    private function getOrCreateChecklist($checklistData, $object, $blockId)
+    {
+        return $checklistData['checklist_id']
+            ? CheckListAnswer::find($checklistData['checklist_id'])
+            : CheckListAnswer::create([
+                'block_id' => $blockId,
+                'status' => CheckListStatusEnum::NOT_FILLED,
+                'work_type_id' => $checklistData['work_type_id'],
+                'question_id' => $checklistData['question_id'],
+                'floor' => $checklistData['floor'] ?? null,
+                'object_id' => $object->id,
+                'object_type_id' => $object->object_type_id
+            ]);
+    }
+
+    private function updateChecklistStatus($checklist, $checklistData, $roleId, $isPositive)
+    {
+        $answeredField = $this->getAnsweredFieldByRole($roleId);
+        $statusField = $isPositive ? $this->getPositiveStatusField($checklist, $roleId, $checklistData) : CheckListStatusEnum::RAISED;
+
+        $checklist->update([
+            $answeredField => $isPositive ? 1 : 2,
+            'status' => $statusField ?? $checklist->status
+        ]);
+    }
+
+    private function getAnsweredFieldByRole($roleId)
+    {
+        return match ($roleId) {
+            UserRoleEnum::INSPECTOR->value => 'inspector_answered',
+            UserRoleEnum::TEXNIK->value => 'technic_answered',
+            default => 'author_answered',
+        };
+    }
+
+    private function getPositiveStatusField($checklist, $roleId, $checklistData)
+    {
+        return ($checklistData['status'] != CheckListStatusEnum::NOT_FILLED->value)
+            ? match ($roleId) {
+                UserRoleEnum::INSPECTOR->value => CheckListStatusEnum::CONFIRMED,
+                UserRoleEnum::TEXNIK->value => ($checklist->author_answered == 1) ? CheckListStatusEnum::SECOND : null,
+                default => ($checklist->technic_answered == 1) ? CheckListStatusEnum::SECOND : null,
+            }
+            : null;
+    }
+    private function handleViolations($checklistData, $checklist)
+    {
+        $roleViolations = [];
+        $question = Question::findOrFail($checklistData['question_id']);
+
+        foreach ($checklistData['violations'] as $value) {
+            $violation = $this->createViolation($value, $question, $checklist);
+
+            $this->storeViolationImages($violation, $value['images'] ?? []);
+
+            foreach ($value['roles'] as $role) {
+                $roleViolations[$role]['violation_ids'][] = $violation->id;
+                $roleViolations[$role]['deadline'] = $checklistData['deadline'];
+                $roleViolations[$role]['checklist_id'] = $checklist->id;
+                $roleViolations[$role]['question_id'] = $checklistData['question_id'];
+            }
+        }
+
+        return $roleViolations;
+    }
+
+    private function createViolation($violationData, $question, $checklist)
+    {
+        return Violation::create([
+            'question_id' => $question->id,
+            'title' => $question->name,
+            'description' => $violationData['comment'],
+            'bases_id' => $violationData['basis_id'],
+            'checklist_id' => $checklist->id,
+            'level_id' => 1
+        ]);
+    }
+
+    private function storeViolationImages($violation, $images)
+    {
+//        foreach ($images as $image) {
+//            $path = $image->store('images/violation', 'public');
+//            $violation->images()->create(['url' => $path]);
+//        }
+    }
+
+    private function createRegulations($allRoleViolations, $object, $monitoring)
+    {
+        foreach ($allRoleViolations as $roles) {
+            foreach ($roles as $roleId => $role) {
+                $regulation = $this->createRegulationEntry($object, $monitoring, $role, $roleId);
+                $this->linkViolationsToRegulation($regulation, $role['violation_ids']);
+            }
+        }
+    }
+
+    private function createRegulationEntry($object, $monitoring, $role, $roleId)
+    {
+        return Regulation::create([
+            'object_id' => $object->id,
+            'deadline' => Carbon::now()->addDays($role['deadline']),
+            'level_id' => 1,
+            'checklist_id' => $role['checklist_id'],
+            'question_id' => $role['question_id'],
+            'regulation_status_id' => 1,
+            'regulation_type_id' => 1,
+            'created_by_role_id' => $object->roles()->where('user_id', Auth::id())->first()->id,
+            'created_by_user_id' => $object->users()->where('user_id', Auth::id())->first()->id,
+            'user_id' => $object->users()->wherePivot('role_id', $roleId)->pluck('users.id')->first(),
+            'monitoring_id' => $monitoring->id,
+            'role_id' => $roleId,
+        ]);
+    }
+
+    private function linkViolationsToRegulation($regulation, $violationIds)
+    {
+        foreach ($violationIds as $violationId) {
+            RegulationViolation::create([
+                'regulation_id' => $regulation->id,
+                'violation_id' => $violationId
+            ]);
+        }
     }
 
 
 
-//    public function createViolation($dto)
-//    {
-//        DB::beginTransaction();
-//        try {
-//            $object = Article::find($dto->objectId);
-//
-//            $monitoring = new Monitoring();
-//            $monitoring->object_id = $dto->objectId;
-//            $monitoring->number = 123;
-//            $monitoring->regulation_type_id = 1;
-//            $monitoring->created_by = $this->user->id;
-//            $monitoring->save();
-//
-//
-//            $violations = [];
-//            foreach ($dto->meta as $data) {
-//                $question = Question::find($data['id']);
-//                $violation = Violation::create([
-//                    'question_id' => $question->id,
-//                    'title' => $question->question,
-//                    'description' => $question->answer,
-//                    'level_id' => $dto->levelId,
-//                ]);
-//
-//                if (isset($data['images'])) {
-//                    foreach ($data['images'] as $image) {
-//                        $imagePath = $image->store('violations', 'public');
-//                        $violation->imageFiles()->create([
-//                            'url' => $imagePath,
-//                        ]);
-//                    }
-//                }
-//
-//                $violation->blockViolations()->attach($data['blocks']);
-//                $violations[] = [
-//                    'violation_id' => $violation->id,
-//                    'roles' => $data['roles']
-//                ];
-//            }
-//
-//
-//            $roles = [];
-//            foreach ($dto->meta as $question) {
-//                $roles = array_merge($roles, $question['roles']);
-//            }
-//            $roles = array_unique($roles);
-//
-//            foreach ($roles as $role) {
-//                $regulation = Regulation::create([
-//                    'object_id' => $dto->objectId,
-//                    'regulation_number' => '123',
-//                    'regulation_number_id' => 1,
-//                    'level_id' => $dto->levelId,
-//                    'regulation_status_id' =>1,
-//                    'regulation_type_id' =>1,
-//                    'created_by_role_id' =>$object->roles()->where('user_id', \auth()->id())->first()->id,
-//                    'created_by_user_id' =>$object->users()->where('user_id', \auth()->id())->first()->id,
-//                    'user_id' =>$object->users()->wherePivot('role_id', $role)->pluck('users.id')->first(),
-//                    'monitoring_id' =>$monitoring->id,
-//                    'role_id' =>$role,
-//                    'act_status_id' =>1,
-//                    'deadline' => Carbon::now(),
-//                ]);
-//
-//                // regulation_violation jadvaliga yozish
-//                foreach ($violations as $v) {
-//                    if (in_array($role, $v['roles'])) {
-//                        RegulationViolation::create([
-//                            'regulation_id' => $regulation->id,
-//                            'violation_id' => $v['violation_id'],
-//                            'user_id' => $object->users()->wherePivot('role_id', $role)->pluck('users.id')->first()
-//                        ]);
-//                    }
-//                }
-//            }
-//            DB::commit();
-//        }catch (\Exception $exception){
-//            DB::rollBack();
-//            throw $exception;
-//        }
-//
-//
-//    }
 
     public function createActViolation($dto)
     {

@@ -4,9 +4,9 @@ namespace App\Enums;
 
 enum CheckListStatusEnum: int
 {
-    case CONFIRMED = 1; // Tasdiqlangan
-    case IMPERFECT = 2; //Qisman tasdiqlangan
-    case NOT_FILLED = 3; //To'ldirilmagan
+    case NOT_FILLED = 1; // Toldirilmagan
+    case FIRST = 2; //  1-Tasdiqlashdan
+    case  SECOND = 3; // 2-Tasdiqlashdan
     case RAISED = 4; // ETIROZ
-    case FILLED = 5; // TOLDIRILGAN
+    case CONFIRMED = 5; //Tasdiqlangan
 }
