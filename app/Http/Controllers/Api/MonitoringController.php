@@ -100,6 +100,7 @@ class MonitoringController extends BaseController
                 $answer->object_id = $data['object_id'];
                 $answer->object_type_id = $object->object_type_id;
                 $answer->floor = $item['floor'] ?? null;
+                $answer->status = 2;
                 $answer->save();
 
                 if (!empty($item['files'])){
