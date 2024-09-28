@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\CheckListStatusEnum;
 use App\Enums\QuestionTypeEnum;
+use App\Enums\UserRoleEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MonitoringRequest;
 use App\Http\Resources\CheckListAnswerResource;
@@ -87,8 +89,8 @@ class MonitoringController extends BaseController
 
     public function sendCheckListFile(): JsonResponse
     {
+        DB::beginTransaction();
         try {
-
             $data = request()->all();
             $object = Article::query()->findOrFail($data['object_id']);
             foreach ($data['regular_checklist'] as $item) {
@@ -100,7 +102,7 @@ class MonitoringController extends BaseController
                 $answer->object_id = $data['object_id'];
                 $answer->object_type_id = $object->object_type_id;
                 $answer->floor = $item['floor'] ?? null;
-                $answer->status = 2;
+                $answer->status = CheckListStatusEnum::FIRST;
                 $answer->save();
 
                 if (!empty($item['files'])){
@@ -116,10 +118,11 @@ class MonitoringController extends BaseController
                     }
                 }
             }
-
+            DB::commit();
             return $this->sendSuccess([], 'Check list files sent');
 
         }catch (\Exception $exception){
+            DB::rollBack();
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
