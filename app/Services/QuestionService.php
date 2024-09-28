@@ -187,7 +187,7 @@ class QuestionService
     {
         try {
             $user = Auth::user();
-            $roleId = $user->getRoleFromToken();
+            $roleId = (int)$user->getRoleFromToken();
             $object = Article::find($data['object_id']);
 
             $monitoring = $this->createMonitoring($data, $object, $roleId);
