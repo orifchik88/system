@@ -266,7 +266,7 @@ class QuestionService
         return match ($roleId) {
             UserRoleEnum::INSPECTOR->value => 'inspector_answered',
             UserRoleEnum::TEXNIK->value => 'technic_answered',
-            UserRoleEnum::MUALLIF => 'author_answered',
+            UserRoleEnum::MUALLIF->value => 'author_answered',
         };
     }
 
@@ -276,7 +276,7 @@ class QuestionService
             ? match ($roleId) {
                 UserRoleEnum::INSPECTOR->value => CheckListStatusEnum::CONFIRMED,
                 UserRoleEnum::TEXNIK->value => ($checklist->author_answered == 1) ? CheckListStatusEnum::SECOND : null,
-                default => ($checklist->technic_answered == 1) ? CheckListStatusEnum::SECOND : null,
+                UserRoleEnum::MUALLIF->value => ($checklist->technic_answered == 1) ? CheckListStatusEnum::SECOND : null,
             }
             : null;
     }
