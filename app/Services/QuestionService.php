@@ -192,11 +192,14 @@ class QuestionService
 
             $monitoring = $this->createMonitoring($data, $object, $roleId);
 
-            $this->handleChecklists($data['positive'], $object, $data['block_id'], $roleId, true);
-            $allRoleViolations = $this->handleChecklists($data['negative'], $object, $data['block_id'], $roleId, false);
-
-            $this->createRegulations($allRoleViolations, $object, $monitoring);
-
+            if (!empty($data['positive']))
+            {
+                $this->handleChecklists($data['positive'], $object, $data['block_id'], $roleId, true);
+            }
+            if (!empty($data['negative'])){
+                $allRoleViolations = $this->handleChecklists($data['negative'], $object, $data['block_id'], $roleId, false);
+                $this->createRegulations($allRoleViolations, $object, $monitoring);
+            }
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
@@ -263,7 +266,7 @@ class QuestionService
         return match ($roleId) {
             UserRoleEnum::INSPECTOR->value => 'inspector_answered',
             UserRoleEnum::TEXNIK->value => 'technic_answered',
-            default => 'author_answered',
+            UserRoleEnum::MUALLIF => 'author_answered',
         };
     }
 
@@ -312,10 +315,10 @@ class QuestionService
 
     private function storeViolationImages($violation, $images)
     {
-//        foreach ($images as $image) {
-//            $path = $image->store('images/violation', 'public');
-//            $violation->images()->create(['url' => $path]);
-//        }
+        foreach ($images as $image) {
+            $path = $image->store('images/violation', 'public');
+            $violation->images()->create(['url' => $path]);
+        }
     }
 
     private function createRegulations($allRoleViolations, $object, $monitoring)

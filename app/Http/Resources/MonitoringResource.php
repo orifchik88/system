@@ -20,7 +20,6 @@ class MonitoringResource extends JsonResource
             'regulation_count' => $this->regulations()->count(),
             'active_count' => $this->regulations()->where('status', 2)->count(),
             'closed_count' => $this->regulations()->where('status', 6)->count(),
-            'expired' => $this->regulations()->whereIn('status', [1, 2])->where('is_administrative', true)->count(),
             'closed_expired' => $this->regulations()->where('status', 6)->where('is_administrative', true)->count(),
             'comment' => $this->comment,
             'is_monitoring' => $this->comment ? true : false,
