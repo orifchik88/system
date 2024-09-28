@@ -241,7 +241,7 @@ class QuestionService
             ? CheckListAnswer::find($checklistData['checklist_id'])
             : CheckListAnswer::create([
                 'block_id' => $blockId,
-                'status' => CheckListStatusEnum::NOT_FILLED,
+                'status' => CheckListStatusEnum::NOT_FILLED->value,
                 'work_type_id' => $checklistData['work_type_id'],
                 'question_id' => $checklistData['question_id'],
                 'floor' => $checklistData['floor'] ?? null,
@@ -253,7 +253,7 @@ class QuestionService
     private function updateChecklistStatus($checklist, $checklistData, $roleId, $isPositive)
     {
         $answeredField = $this->getAnsweredFieldByRole($roleId);
-        $statusField = $isPositive ? $this->getPositiveStatusField($checklist, $roleId, $checklistData) : CheckListStatusEnum::RAISED;
+        $statusField = $isPositive ? $this->getPositiveStatusField($checklist, $roleId, $checklistData) : CheckListStatusEnum::RAISED->value;
 
         $checklist->update([
             $answeredField => $isPositive ? 1 : 2,
@@ -276,9 +276,9 @@ class QuestionService
     {
         return ($checklistData['status'] != CheckListStatusEnum::NOT_FILLED->value)
             ? match ($roleId) {
-                UserRoleEnum::INSPECTOR->value => CheckListStatusEnum::CONFIRMED,
-                UserRoleEnum::TEXNIK->value => ($checklist->author_answered == 1) ? CheckListStatusEnum::SECOND : null,
-                UserRoleEnum::MUALLIF->value => ($checklist->technic_answered == 1) ? CheckListStatusEnum::SECOND : null,
+                UserRoleEnum::INSPECTOR->value => CheckListStatusEnum::CONFIRMED->value,
+                UserRoleEnum::TEXNIK->value => ($checklist->author_answered == 1) ? CheckListStatusEnum::SECOND->value : null,
+                UserRoleEnum::MUALLIF->value => ($checklist->technic_answered == 1) ? CheckListStatusEnum::SECOND->value : null,
                 default => null
             }
             : null;
