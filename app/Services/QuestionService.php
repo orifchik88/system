@@ -267,7 +267,7 @@ class QuestionService
             UserRoleEnum::INSPECTOR->value => 'inspector_answered',
             UserRoleEnum::TEXNIK->value => 'technic_answered',
             UserRoleEnum::MUALLIF->value => 'author_answered',
-            default => null
+            default => throw new \UnhandledMatchError("Unhandled roleId: {$roleId}"),
 
         };
     }
