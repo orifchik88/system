@@ -90,6 +90,7 @@ class QuestionController extends BaseController
     public function createRegulation()
     {
         $data = \request()->all();
+
         try {
             $user = Auth::user();
             $roleId = (int)$user->getRoleFromToken();
@@ -106,6 +107,8 @@ class QuestionController extends BaseController
                 $this->createRegulations($allRoleViolations, $object, $monitoring);
             }
             DB::commit();
+            return $this->sendSuccess([], 'Success');
+
         } catch (\Exception $exception) {
             DB::rollBack();
             throw $exception;
