@@ -138,6 +138,7 @@ class QuestionService
                 $workTypeStatus = WorkTypeStatusEnum::IN_PROCESS;
         }
 
+
         return $workTypeStatus;
     }
 
@@ -253,7 +254,9 @@ class QuestionService
     private function updateChecklistStatus($checklist, $checklistData, $roleId, $isPositive)
     {
         $answeredField = $this->getAnsweredFieldByRole($roleId);
-        $statusField = $isPositive ? $this->getPositiveStatusField($checklist, $roleId, $checklistData) : CheckListStatusEnum::RAISED->value;
+        $statusField = $isPositive
+            ? $this->getPositiveStatusField($checklist, $roleId, $checklistData)
+            : ($checklist->status == CheckListStatusEnum::NOT_FILLED ? 1 : CheckListStatusEnum::RAISED->value);
 
         $checklist->update([
             $answeredField => $isPositive ? 1 : 2,
