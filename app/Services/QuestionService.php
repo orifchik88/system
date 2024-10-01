@@ -362,6 +362,7 @@ class QuestionService
             'checklist_id' => $role['checklist_id'],
             'question_id' => $role['question_id'],
             'regulation_status_id' => 1,
+            'level_id' => 1,
             'regulation_type_id' => 1,
             'created_by_role_id' => $object->roles()->where('user_id', Auth::id())->first()->id,
             'created_by_user_id' => $object->users()->where('user_id', Auth::id())->first()->id,
