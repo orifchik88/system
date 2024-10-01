@@ -78,6 +78,7 @@ class QuestionController extends BaseController
     {
         DB::beginTransaction();
         try {
+
             $this->questionService->createRegulation(\request()->all());
             DB::commit();
             return $this->sendSuccess([], 'Successfully created regulation');

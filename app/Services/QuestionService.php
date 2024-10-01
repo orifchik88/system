@@ -193,13 +193,17 @@ class QuestionService
 
             $monitoring = $this->createMonitoring($data, $object, $roleId);
 
+            if (!empty($data['public'])){
+                $this->createPublicChecklist($data['public'], $object, $roleId, $monitoring->id);
+            }
+
             if (!empty($data['positive']))
             {
-                $this->handleChecklists($data['positive'], $object, $data['block_id'], $roleId, true);
+                $this->handleChecklists($data['positive'], $object, $data['block_id'], $roleId, true, null);
             }
             if (!empty($data['negative'])){
-                $allRoleViolations = $this->handleChecklists($data['negative'], $object, $data['block_id'], $roleId, false);
-                $this->createRegulations($allRoleViolations, $object, $monitoring);
+                $allRoleViolations = $this->handleChecklists($data['negative'], $object, $data['block_id'], $roleId, false, null);
+                $this->createRegulations($allRoleViolations, $object, $monitoring->id);
             }
             DB::commit();
         } catch (\Exception $exception) {
@@ -207,6 +211,19 @@ class QuestionService
             throw $exception;
         }
 
+    }
+
+    private function createPublicChecklist($data, $object, $roleId, $monitoringID)
+    {
+        foreach ($data as $datum) {
+            if (!empty($datum['positive'])){
+                $this->handleChecklists($datum['positive'], $object, null, $roleId, true, $monitoringID);
+            }
+            if (!empty($datum['negative'])){
+                $allRoleViolations = $this->handleChecklists($datum['negative'], $object, null, $roleId, false, $monitoringID);
+                $this->createRegulations($allRoleViolations, $object, $monitoringID);
+            }
+        }
     }
 
     private function createMonitoring($data, $object, $roleId)
@@ -221,11 +238,11 @@ class QuestionService
         ]);
     }
 
-    private function handleChecklists($checklists, $object, $blockId, $roleId, $isPositive)
+    private function handleChecklists($checklists, $object, $blockId, $roleId, $isPositive, $monitoringID)
     {
         $allRoleViolations = [];
         foreach ($checklists as $index => $checklistData) {
-            $checklist = $this->getOrCreateChecklist($checklistData, $object, $blockId);
+            $checklist = $this->getOrCreateChecklist($checklistData, $object, $blockId, $monitoringID);
 
             $this->updateChecklistStatus($checklist, $checklistData, $roleId, $isPositive);
 
@@ -236,15 +253,16 @@ class QuestionService
         return $allRoleViolations;
     }
 
-    private function getOrCreateChecklist($checklistData, $object, $blockId)
+    private function getOrCreateChecklist($checklistData, $object, $blockId, $monitoringID)
     {
-        return $checklistData['checklist_id']
+        return isset($checklistData['checklist_id'])
             ? CheckListAnswer::find($checklistData['checklist_id'])
             : CheckListAnswer::create([
                 'block_id' => $blockId,
-                'status' => CheckListStatusEnum::NOT_FILLED->value,
+                'status' => $checklistData['status'] ?? CheckListStatusEnum::NOT_FILLED->value,
                 'work_type_id' => $checklistData['work_type_id'],
                 'question_id' => $checklistData['question_id'],
+                'monitoring_id' => $monitoringID,
                 'floor' => $checklistData['floor'] ?? null,
                 'object_id' => $object->id,
                 'object_type_id' => $object->object_type_id
@@ -257,7 +275,6 @@ class QuestionService
         $statusField = $isPositive
             ? $this->getPositiveStatusField($checklist, $roleId, $checklistData)
             : ($checklist->status == CheckListStatusEnum::NOT_FILLED ? 1 : CheckListStatusEnum::RAISED->value);
-
         $checklist->update([
             $answeredField => $isPositive ? 1 : 2,
             'status' => $statusField ?? $checklist->status
@@ -321,28 +338,27 @@ class QuestionService
 
     private function storeViolationImages($violation, $images)
     {
-        foreach ($images as $image) {
-            $path = $image->store('images/violation', 'public');
-            $violation->images()->create(['url' => $path]);
-        }
+//        foreach ($images as $image) {
+//            $path = $image->store('images/violation', 'public');
+//            $violation->images()->create(['url' => $path]);
+//        }
     }
 
-    private function createRegulations($allRoleViolations, $object, $monitoring)
+    private function createRegulations($allRoleViolations, $object, $monitoringID)
     {
         foreach ($allRoleViolations as $roles) {
             foreach ($roles as $roleId => $role) {
-                $regulation = $this->createRegulationEntry($object, $monitoring, $role, $roleId);
+                $regulation = $this->createRegulationEntry($object, $monitoringID, $role, $roleId);
                 $this->linkViolationsToRegulation($regulation, $role['violation_ids']);
             }
         }
     }
 
-    private function createRegulationEntry($object, $monitoring, $role, $roleId)
+    private function createRegulationEntry($object, $monitoringID, $role, $roleId)
     {
         return Regulation::create([
             'object_id' => $object->id,
             'deadline' => Carbon::now()->addDays($role['deadline']),
-            'level_id' => 1,
             'checklist_id' => $role['checklist_id'],
             'question_id' => $role['question_id'],
             'regulation_status_id' => 1,
@@ -350,7 +366,7 @@ class QuestionService
             'created_by_role_id' => $object->roles()->where('user_id', Auth::id())->first()->id,
             'created_by_user_id' => $object->users()->where('user_id', Auth::id())->first()->id,
             'user_id' => $object->users()->wherePivot('role_id', $roleId)->pluck('users.id')->first(),
-            'monitoring_id' => $monitoring->id,
+            'monitoring_id' => $monitoringID,
             'role_id' => $roleId,
         ]);
     }
