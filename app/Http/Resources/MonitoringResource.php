@@ -18,10 +18,11 @@ class MonitoringResource extends JsonResource
             'id' => $this->id,
             'regulation_type' => RegulationTypeResource::make($this->regulationType),
             'regulation_count' => $this->regulations()->count(),
-            'active_count' => $this->regulations()->where('status', 2)->count(),
-            'closed_count' => $this->regulations()->where('status', 6)->count(),
-            'closed_expired' => $this->regulations()->where('status', 6)->where('is_administrative', true)->count(),
+//            'active_count' => $this->regulations()->where('status', 2)->count(),
+//            'closed_count' => $this->regulations()->where('status', 6)->count(),
+//            'closed_expired' => $this->regulations()->where('status', 6)->where('is_administrative', true)->count(),
             'comment' => $this->comment,
+            'checklists' => ChecklistResource::collection($this->checklists),
             'is_monitoring' => $this->comment ? true : false,
             'images' => ImageResource::collection($this->images)
         ];

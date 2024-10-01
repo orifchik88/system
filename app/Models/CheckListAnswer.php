@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\CheckListStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
@@ -25,5 +26,20 @@ class CheckListAnswer extends Model
     public function images(): MorphMany
     {
         return $this->morphMany(Image::class, 'imageable');
+    }
+
+    public function question(): BelongsTo
+    {
+        return $this->belongsTo(Question::class, 'question_id');
+    }
+
+    public function workType(): BelongsTo
+    {
+        return $this->belongsTo(WorkType::class, 'work_type_id');
+    }
+
+    public function block(): BelongsTo
+    {
+        return $this->belongsTo(Block::class, 'block_id');
     }
 }

@@ -15,17 +15,22 @@ class QuestionResource extends JsonResource
     public function toArray(Request $request): array
     {
 
-        $userRoles  = $request->user()->roles;
-        $roles = collect($this->roles)->values();
+//        $userRoles  = $request->user()->roles;
+//        $roles = collect($this->roles)->values();
+//
+//        return [
+//            'id' => $this->id,
+//            'question' => $this->question,
+//            'roles' => $roles->filter(function ($role) use ($userRoles) {
+//                return !$userRoles->contains('id', $role['id']);
+//            })->map(function ($role) {
+//                return (new RoleResource((object) $role, false))->toArray(request());
+//            })->values(),
+//        ];
 
         return [
             'id' => $this->id,
-            'question' => $this->question,
-            'roles' => $roles->filter(function ($role) use ($userRoles) {
-                return !$userRoles->contains('id', $role['id']);
-            })->map(function ($role) {
-                return (new RoleResource((object) $role, false))->toArray(request());
-            })->values(),
+            'name' => $this->name
         ];
     }
 }

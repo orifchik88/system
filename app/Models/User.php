@@ -76,7 +76,11 @@ class User extends Authenticatable implements JWTSubject
 
     public function regulations(): HasMany
     {
-        return $this->hasMany(Regulation::class, 'user_id', 'id');
+        return $this->hasMany(Regulation::class)
+        ->where(function($query) {
+            $query->where('user_id', $this->id)
+                ->orWhere('created_by_user_id', $this->id);
+        });
     }
 
     public function status(): BelongsTo

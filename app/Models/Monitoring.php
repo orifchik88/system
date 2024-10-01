@@ -28,4 +28,9 @@ class Monitoring extends Model
     {
         return $this->morphMany(Image::class, 'imageable');
     }
+
+    public function checklists(): HasMany
+    {
+        return $this->hasMany(CheckListAnswer::class, 'monitoring_id');
+    }
 }

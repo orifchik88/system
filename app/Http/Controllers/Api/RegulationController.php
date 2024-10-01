@@ -35,18 +35,8 @@ class RegulationController extends BaseController
     {
         try {
             $user = Auth::user();
-            if (request('id')) {
-                return $this->sendSuccess(RegulationResource::make($user->regulations()->findOrFail(request('id'))), 'Regulation');
-            }
 
             $query = $user->regulations();
-
-
-            if (request()->boolean('is_state')) {
-                $query->withInspectorRole();
-            } else {
-                $query->withoutInspectorRole();
-            }
 
             $regulations = $query->paginate(request('per_page', 10));
 

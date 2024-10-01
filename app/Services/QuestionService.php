@@ -338,10 +338,10 @@ class QuestionService
 
     private function storeViolationImages($violation, $images)
     {
-//        foreach ($images as $image) {
-//            $path = $image->store('images/violation', 'public');
-//            $violation->images()->create(['url' => $path]);
-//        }
+        foreach ($images as $image) {
+            $path = $image->store('images/violation', 'public');
+            $violation->images()->create(['url' => $path]);
+        }
     }
 
     private function createRegulations($allRoleViolations, $object, $monitoringID)

@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Enums\UserRoleEnum;
 use App\Models\Block;
 use App\Models\User;
+use App\Models\Violation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Spatie\Permission\Models\Role;
@@ -19,11 +20,6 @@ class RegulationResource extends JsonResource
     public function toArray(Request $request): array
     {
 
-//        $violations = $this->violations->groupBy('id')->map(function ($group) {
-//                return new ViolationResource($group, $this->id);
-//            })->values()->all();
-
-
         $fromUser = $this->createdByUser;
         $responsibleUser = $this->responsibleUser;
         return [
@@ -34,18 +30,18 @@ class RegulationResource extends JsonResource
             'regulation_status' => RegulationStatusResource::make($this->regulationStatus),
             'regulation_type' => RegulationTypeResource::make($this->regulationType),
             'act_status' => ActStatusResource::make($this->actStatus),
-//            'violations' => $violations,
+//            'violations' => ViolationResource::collection($this->violations),
 //            'demands' => RegulationDemandResource::collection($this->demands),
 //            'act_violations' => ActViolationResource::collection($this->actViolations),
             'created_at' => $this->created_at,
             'deadline_asked' => $this->deadline_asked,
             'from_user' => [
-                'role' => UserRoleEnum::getValueByKey($this->createdByRole->name) ?? null,
+                'role' => RoleResource::make($this->createdByRole) ?? null,
                 'phone' => $fromUser->phone ?? null,
                 'fish' => $fromUser ? "{$fromUser->surname} {$fromUser->name} {$fromUser->middle_name}" : null,
             ],
             'responsible_user' => [
-                'role' => UserRoleEnum::getValueByKey($this->responsibleRole->name) ?? null,
+                'role' => RoleResource::make($this->responsibleRole) ?? null,
                 'phone' => $responsibleUser->phone ?? null,
                 'fish' => $responsibleUser ? "{$responsibleUser->surname} {$responsibleUser->name} {$responsibleUser->middle_name}" : null,
             ],
