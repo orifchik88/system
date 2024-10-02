@@ -215,15 +215,13 @@ class QuestionService
 
     private function createPublicChecklist($data, $object, $roleId, $monitoringID)
     {
-        foreach ($data as $datum) {
-            if (!empty($datum['positive'])){
-                $this->handleChecklists($datum['positive'], $object, null, $roleId, true, $monitoringID);
+            if (!empty($data['positive'])){
+                $this->handleChecklists($data['positive'], $object, null, $roleId, true, $monitoringID);
             }
-            if (!empty($datum['negative'])){
-                $allRoleViolations = $this->handleChecklists($datum['negative'], $object, null, $roleId, false, $monitoringID);
+            if (!empty($data['negative'])){
+                $allRoleViolations = $this->handleChecklists($data['negative'], $object, null, $roleId, false, $monitoringID);
                 $this->createRegulations($allRoleViolations, $object, $monitoringID);
             }
-        }
     }
 
     private function createMonitoring($data, $object, $roleId)
