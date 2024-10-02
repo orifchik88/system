@@ -275,10 +275,35 @@ class QuestionService
         $statusField = $isPositive
             ? $this->getPositiveStatusField($checklist, $roleId, $checklistData)
             : ($checklist->status == CheckListStatusEnum::NOT_FILLED ? 1 : CheckListStatusEnum::RAISED->value);
-        $checklist->update([
-            $answeredField => $isPositive ? 1 : 2,
-            'status' => $statusField ?? $checklist->status
-        ]);
+        if ($statusField === 'inspector_answered' && $isPositive === false) {
+            $updateData = [
+                $answeredField => 1,
+                'status' => $statusField ?? $checklist->status,
+                'technic_answered' => null,
+                'author_answered' => null,
+            ];
+        } elseif ($statusField === 'technic_answered' && $isPositive === false) {
+            $updateData = [
+                $answeredField => 2,
+                'status' => $statusField ?? $checklist->status,
+                'inspector_answered' => null,
+                'author_answered' => null,
+            ];
+        } elseif ($statusField === 'author_answered' && $isPositive === false) {
+            $updateData = [
+                $answeredField => 2,
+                'status' => $statusField ?? $checklist->status,
+                'inspector_answered' => null,
+                'technic_answered' => null,
+            ];
+        } else {
+            $updateData = [
+                $answeredField => $isPositive ? 1 : 2,
+                'status' => $statusField ?? $checklist->status,
+            ];
+        }
+
+        $checklist->update($updateData);
     }
 
     private function getAnsweredFieldByRole($roleId)
