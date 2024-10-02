@@ -17,6 +17,7 @@ class ArticleBlockResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            "object_name" => $this->object->name,
             'mode' => BlockModeResource::make($this->mode),
             'type' => BlockTypeResource::make($this->type),
             'block_number' => $this->block_number,

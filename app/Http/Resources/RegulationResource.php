@@ -30,7 +30,7 @@ class RegulationResource extends JsonResource
             'regulation_status' => RegulationStatusResource::make($this->regulationStatus),
             'regulation_type' => RegulationTypeResource::make($this->regulationType),
             'act_status' => ActStatusResource::make($this->actStatus),
-//            'violations' => ViolationResource::collection($this->violations),
+            'violations' => ViolationResource::collection($this->violations),
 //            'demands' => RegulationDemandResource::collection($this->demands),
 //            'act_violations' => ActViolationResource::collection($this->actViolations),
             'created_at' => $this->created_at,

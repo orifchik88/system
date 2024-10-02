@@ -14,6 +14,7 @@ class RegulationService
 {
     public function __construct(protected Regulation  $regulation){}
 
+
     public function rejectToAnswer($dto)
     {
         DB::beginTransaction();
