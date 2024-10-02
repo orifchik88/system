@@ -29,7 +29,7 @@ class MonitoringResource extends JsonResource
             'object_name' => $this->object->name,
             'regulation_type' => RegulationTypeResource::make($this->regulationType),
             'regulation_count' => $this->regulations()->count(),
-            'active_regulation_count' => $this->regulations()->where('')->count(),
+            'active_regulation_count' => $this->regulations()->where('regulation_status_id', '!=', 6)->count(),
             'violation_count' =>  count($uniqueViolationCount) ?? 0,
             'checklists' => ChecklistResource::collection($this->checklists),
             'created_at' => $this->created_at
