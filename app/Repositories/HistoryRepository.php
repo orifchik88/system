@@ -28,7 +28,7 @@ class HistoryRepository implements HistoryRepositoryInterface
     {
         return DB::table($this->table)->insert([
             'gu_id' => $guId,
-            'content' => $content,
+            'content' => json_encode($content),
             'type' => $type
         ]);
     }

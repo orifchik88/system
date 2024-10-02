@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Permission\Models\Role;
 
@@ -102,6 +103,11 @@ class Article extends Model
     public function objectType(): BelongsTo
     {
         return $this->belongsTo(ObjectType::class, 'object_type_id');
+    }
+
+    public function violations(): HasManyThrough
+    {
+        return $this->hasManyThrough(Violation::class, Regulation::class, 'object_id');
     }
 
 

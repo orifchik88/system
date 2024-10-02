@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('checklist_histories', function (Blueprint $table) {
+        Schema::create('check_list_histories', function (Blueprint $table) {
             $table->id();
             $table->jsonb('content');
             $table->integer('type');
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('checklist_histories');
+        Schema::dropIfExists('check_list_histories');
     }
 };

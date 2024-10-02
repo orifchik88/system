@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\CheckListStatusEnum;
+use App\Enums\LogType;
 use App\Enums\QuestionTypeEnum;
 use App\Enums\UserRoleEnum;
 use App\Http\Controllers\Controller;
@@ -16,6 +17,7 @@ use App\Models\CheckList;
 use App\Models\CheckListAnswer;
 use App\Models\Level;
 use App\Models\Monitoring;
+use App\Services\HistoryService;
 use App\Services\QuestionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,15 +27,19 @@ use Illuminate\Support\Facades\DB;
 class MonitoringController extends BaseController
 {
     private QuestionService $questionService;
+    private HistoryService $historyService;
 
     public function __construct(QuestionService $questionService)
     {
         $this->questionService = $questionService;
+        $this->historyService = new HistoryService('check_list_histories');
     }
 
     public function monitoring(): JsonResponse
     {
         $monitorings = Monitoring::query()->where('object_id', \request('object_id'))->paginate(request('per_page', 10));
+
+        $monitoring = Monitoring::find(29);
         return $this->sendSuccess(MonitoringResource::collection($monitorings), 'Monitorings', pagination($monitorings));
     }
 
@@ -117,6 +123,16 @@ class MonitoringController extends BaseController
                         $answer->images()->create(['url' => $path]);
                     }
                 }
+
+
+                $this->historyService->createHistory(
+                    guId: $answer->id,
+                    status: $answer->status->value,
+                    type: LogType::TASK_HISTORY,
+                    date: null,
+                    comment: "Bla bla bla"
+                );
+
             }
             DB::commit();
             return $this->sendSuccess([], 'Check list files sent');

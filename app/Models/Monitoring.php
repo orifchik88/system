@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Monitoring extends Model
@@ -32,5 +33,16 @@ class Monitoring extends Model
     public function checklists(): HasMany
     {
         return $this->hasMany(CheckListAnswer::class, 'monitoring_id');
+    }
+
+    public function object(): BelongsTo
+    {
+        return $this->belongsTo(Article::class, 'object_id');
+    }
+
+
+    public function actViolations(): HasManyThrough
+    {
+        return $this->hasManyThrough(ActViolation::class, RegulationViolationBlock::class, 'regulation_id', 'violation_id', 'id', 'violation_id');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\RegulationViolation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -14,17 +15,24 @@ class MonitoringResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $violationCount = [];
+        foreach ($this->regulations as $regulation) {
+            $regViolation = RegulationViolation::query()->where('regulation_id', $regulation->id)->get();
+            foreach($regViolation as $violation) {
+                $violationCount[] = $violation->violation_id;
+            }
+        }
+        $uniqueViolationCount = array_unique($violationCount);
+
         return [
             'id' => $this->id,
+            'object_name' => $this->object->name,
             'regulation_type' => RegulationTypeResource::make($this->regulationType),
             'regulation_count' => $this->regulations()->count(),
-//            'active_count' => $this->regulations()->where('status', 2)->count(),
-//            'closed_count' => $this->regulations()->where('status', 6)->count(),
-//            'closed_expired' => $this->regulations()->where('status', 6)->where('is_administrative', true)->count(),
-            'comment' => $this->comment,
+            'active_regulation_count' => $this->regulations()->where('')->count(),
+            'violation_count' =>  count($uniqueViolationCount) ?? 0,
             'checklists' => ChecklistResource::collection($this->checklists),
-            'is_monitoring' => $this->comment ? true : false,
-            'images' => ImageResource::collection($this->images)
+            'created_at' => $this->created_at
         ];
     }
 }

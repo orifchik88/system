@@ -13,18 +13,16 @@ class RegulationStatusSeeder extends Seeder
      */
     public function run(): void
     {
+        RegulationStatus::query()->truncate();
         $array = [
-            'Yangi',
-            'Jarayonda',
-            'Tasdiqlashda',
-            'Tasdiqlandi',
-            'Yopilgan',
+            'Chora tadbir taqdim qilish',
+            'Chora tadbir tasdiqlash',
+            'Dalolatnoma biriktirish',
+            'Dalolatnoma tasdiqlash(inspektor)',
+            'Dalolatnoma tasdiqlash(SMR)',
             'Bartaraf etildi',
-            'Chora tadbir taqdim etildi',
-            'Dalolatnoma taqdim etildi',
-            'Muddat uzaytirish so\'raldi',
-            'Yopilmagan',
-            'Rad etildi',
+            'Yuristda',
+            'Kechiktirib ijrosi taminlandi'
         ];
 
         foreach ($array as $value) {
