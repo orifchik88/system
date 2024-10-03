@@ -23,28 +23,7 @@ class ViolationController extends BaseController
         try {
             $regulation = Regulation::findOrFail(request('regulation_id'));
             $actViolations = $regulation->actViolations;
-
             return $this->sendSuccess(ActViolationResource::collection($actViolations), 200);
-
-            $actViolationIds = $actViolations->pluck('id')->toArray();
-
-            $orderByClause = 'CASE';
-            foreach ($actViolationIds as $index => $id) {
-                $orderByClause .= " WHEN act_violation_id = {$id} THEN {$index}";
-            }
-            $orderByClause .= ' END';
-
-            $demands = $regulation->demands()
-                ->where('act_violation_type_id', request('type'))
-                ->when(request('type') != 3, function ($query) use ($orderByClause, $actViolationIds) {
-                    return $query->whereIn('act_violation_id', $actViolationIds)
-                                 ->with(['actViolation.violation'])
-                                 ->orderByRaw($orderByClause);
-                })
-                ->orderBy('created_at')
-                ->paginate(request('per_page', 10));
-
-            return $this->sendSuccess(RegulationDemandResource::collection($demands), 'Act violations', pagination($demands));
 
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage());

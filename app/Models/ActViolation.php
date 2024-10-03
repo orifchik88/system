@@ -40,6 +40,11 @@ class ActViolation extends Model
         return $this->belongsTo(Violation::class);
     }
 
+    public function regulationViolation(): BelongsTo
+    {
+        return $this->belongsTo(RegulationViolation::class);
+    }
+
     public function blocks(): BelongsToMany
     {
         return $this->belongsToMany(Block::class, 'act_violation_blocks', 'act_violation_id', 'block_id')

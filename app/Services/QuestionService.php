@@ -433,6 +433,7 @@ class QuestionService
                     'regulation_violation_id' => $item['violation_id'],
                     'regulation_id' => $dto->regulationId,
                     'user_id' => Auth::id(),
+                    'comment' => $item['comment'],
                     'role_id' => $roleId,
                     'act_violation_type_id' => 1,
                     'status' => ActViolation::PROGRESS,

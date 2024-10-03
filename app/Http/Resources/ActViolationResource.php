@@ -16,7 +16,10 @@ class ActViolationResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'title' => $this->regulationViolation->violation->title,
             'comment' => $this->comment,
+            'user' => UserResource::make($this->user),
+            'role' => RoleResource::make($this->role),
             'type' => $this->act_violation_type_id,
             'images' => ImageResource::collection($this->whenLoaded('images')),
             'documents' => DocumentResource::collection($this->whenLoaded('documents')),
