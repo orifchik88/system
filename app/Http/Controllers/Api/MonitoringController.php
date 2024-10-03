@@ -127,13 +127,13 @@ class MonitoringController extends BaseController
                 }
 
 
-                $this->historyService->createHistory(
-                    guId: $answer->id,
-                    status: $answer->status->value,
-                    type: LogType::TASK_HISTORY,
-                    date: null,
-                    comment: "Bla bla bla"
-                );
+//                $this->historyService->createHistory(
+//                    guId: $answer->id,
+//                    status: $answer->status->value,
+//                    type: LogType::TASK_HISTORY,
+//                    date: null,
+//                    comment: "Bla bla bla"
+//                );
 
             }
             DB::commit();
