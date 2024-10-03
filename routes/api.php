@@ -129,6 +129,7 @@ Route::group([
 
     Route::get('act-violations', [ViolationController::class, 'actVioleations']);
     Route::get('violations', [ViolationController::class, 'violations']);
+    Route::get('violation/{id}', [ViolationController::class, 'getViolation']);
 
     Route::get('checklist', [MonitoringController::class, 'getChecklist']);
     Route::get('checklist-answer', [MonitoringController::class, 'getChecklistAnswer']);

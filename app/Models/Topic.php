@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Topic extends Model
@@ -15,5 +16,10 @@ class Topic extends Model
     public function basis(): HasMany
     {
         return $this->hasMany(Basis::class, 'parent_id');
+    }
+
+    public function normative(): BelongsTo
+    {
+        return $this->belongsTo(NormativeDocument::class, 'parent_id');
     }
 }

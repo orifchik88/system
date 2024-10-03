@@ -44,4 +44,9 @@ class Violation extends Model
     {
         return $this->belongsToMany(Block::class, 'regulation_violation_blocks', 'violation_id', 'block_id');
     }
+
+    public function bases(): BelongsTo
+    {
+        return $this->belongsTo(Basis::class, 'bases_id');
+    }
 }

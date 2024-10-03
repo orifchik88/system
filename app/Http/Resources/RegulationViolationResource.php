@@ -15,10 +15,14 @@ class RegulationViolationResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-           'id' => $this->id,
+            'id' => $this->id,
             'title' => $this->violation->title,
             'comment' => $this->violation->description,
             'block_name' => $this->regulation->monitoring->block->name,
+            'normative_doc_name' => $this->violation->bases->topic->normative->name,
+            'topic_name' => $this->violation->bases->topic->name,
+            'bases_name' => $this->violation->bases->name,
+            'images' => ImageResource::collection($this->violation->images),
         ];
     }
 }
