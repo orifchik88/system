@@ -414,7 +414,7 @@ class QuestionService
         try {
             $user = Auth::user();
             $roleId = $user->getRoleFromToken();
-            $regulation = Regulation::query()->findOrFail($dto->regulation_id);
+            $regulation = Regulation::query()->findOrFail($dto->regulationId);
 
 //            $hasStatusOne = $regulation->actViolations->contains(function ($actViolation) {
 //                return $actViolation->status == 1;
