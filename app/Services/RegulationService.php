@@ -29,7 +29,7 @@ class RegulationService
                 throw new NotFoundException('Chora tadbir topilmadi');
             }
             $regulation->update([
-                'act_status_id' => 1,
+                'regulation_status_id' => 1,
             ]);
 
             foreach ($violations as $violation) {
@@ -44,7 +44,10 @@ class RegulationService
                     'status' => ActViolation::REJECTED
                 ]);
 
-                $violation->update(['status' => ActViolation::REJECTED]);
+                $violation->update([
+                    'status' => ActViolation::REJECTED,
+                    'act_status_id' => 3,
+                ]);
                 $violation->demands()->update(['status' => ActViolation::REJECTED]);
             }
             DB::commit();
