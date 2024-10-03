@@ -414,6 +414,7 @@ class QuestionService
         try {
             $user = Auth::user();
             $roleId = $user->getRoleFromToken();
+            $regulation = Regulation::query()->findOrFail($dto->regulation_id);
 
 //            $hasStatusOne = $regulation->actViolations->contains(function ($actViolation) {
 //                return $actViolation->status == 1;
@@ -423,10 +424,9 @@ class QuestionService
 //                throw new NotFoundException('Faol chora tadbir mavjud');
 //            }
 //
-//            $regulation->update([
-////                'regulation_status_id' => 2,
-////                'act_status_id' => 1,
-//            ]);
+            $regulation->update([
+                'regulation_status_id' => 2,
+            ]);
 
             foreach ($dto->meta as $item) {
                 $act = ActViolation::create([
@@ -476,9 +476,4 @@ class QuestionService
         }
     }
 
-    private
-    function saveImages()
-    {
-
-    }
 }

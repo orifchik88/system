@@ -18,8 +18,9 @@ class ActViolationResource extends JsonResource
             'id' => $this->id,
             'comment' => $this->comment,
             'type' => $this->act_violation_type_id,
-            'images' => ImageResource::collection($this->whenLoaded('imagesFiles')),
+            'images' => ImageResource::collection($this->whenLoaded('images')),
             'documents' => DocumentResource::collection($this->whenLoaded('documents')),
+            'logs' => RegulationDemandResource::collection($this->demands)
         ];
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ActViolationResource;
 use App\Http\Resources\RegulationDemandResource;
 use App\Http\Resources\RegulationViolationResource;
 use App\Http\Resources\ViolationResource;
@@ -21,10 +22,9 @@ class ViolationController extends BaseController
     {
         try {
             $regulation = Regulation::findOrFail(request('regulation_id'));
-            $actViolations = $regulation->actViolations()
-                ->orderBy('violation_id')
-                ->orderBy('created_at')
-                ->get();
+            $actViolations = $regulation->actViolations;
+
+            return $this->sendSuccess(ActViolationResource::collection($actViolations), 200);
 
             $actViolationIds = $actViolations->pluck('id')->toArray();
 
