@@ -54,6 +54,9 @@ class RegulationService
     {
         DB::beginTransaction();
         try {
+            $user = Auth::user();
+            $roleId = $user->getRoleFromToken();
+
             $regulation = $this->regulation->find($dto->regulationId);
 
             $actViolations = $regulation->actViolations()->whereStatus(ActViolation::PROGRESS)->get();
@@ -63,14 +66,14 @@ class RegulationService
             }
 
             $regulation->update([
-                'regulation_status_id' => 2,
-                'act_status_id' => 2,
+                'regulation_status_id' => 3,
             ]);
 
             foreach ($actViolations as $actViolation) {
                 RegulationDemand::create([
                     'regulation_id' => $dto->regulationId,
                     'user_id' => Auth::id(),
+                    'role_id' => $roleId,
                     'act_status_id' => 2,
                     'act_violation_type_id' => 1,
                     'comment' => 'Chora tadbir ma\'qullandi',
