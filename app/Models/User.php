@@ -83,6 +83,11 @@ class User extends Authenticatable implements JWTSubject
         });
     }
 
+    public function monitorings(): HasMany
+    {
+        return $this->hasMany(Monitoring::class, 'created_by');
+    }
+
     public function status(): BelongsTo
     {
         return $this->belongsTo(UserStatus::class, 'user_status_id', 'id');

@@ -37,10 +37,11 @@ class MonitoringController extends BaseController
 
     public function monitoring(): JsonResponse
     {
-        $monitorings = Monitoring::query()->where('object_id', \request('object_id'))->paginate(request('per_page', 10));
 
-        $monitoring = Monitoring::find(29);
-        return $this->sendSuccess(MonitoringResource::collection($monitorings), 'Monitorings', pagination($monitorings));
+      $user = Auth::user();
+      $monitorings = $user->monitorings()->paginate(\request('per_page', 10));
+
+      return $this->sendSuccess(MonitoringResource::collection($monitorings), 'Monitorings', pagination($monitorings));
     }
 
     public function create(MonitoringRequest $request): JsonResponse
