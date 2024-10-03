@@ -51,4 +51,14 @@ class ActViolation extends Model
             ->withPivot('comment')
             ->with('documents');
     }
+
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class, 'role_id');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

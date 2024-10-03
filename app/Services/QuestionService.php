@@ -406,8 +406,6 @@ class QuestionService
     }
 
 
-
-
     public function createActViolation($dto)
     {
         DB::beginTransaction();
