@@ -203,7 +203,7 @@ class QuestionService
             }
             if (!empty($data['negative'])){
                 $allRoleViolations = $this->handleChecklists($data['negative'], $object, $data['block_id'], $roleId, false, null);
-                $this->createRegulations($allRoleViolations, $object, $monitoring->id);
+                $this->createRegulations($allRoleViolations, $object, $monitoring->id, $roleId);
             }
             DB::commit();
         } catch (\Exception $exception) {
