@@ -220,7 +220,7 @@ class QuestionService
             }
             if (!empty($data['negative'])){
                 $allRoleViolations = $this->handleChecklists($data['negative'], $object, null, $roleId, false, $monitoringID);
-                $this->createRegulations($allRoleViolations, $object, $monitoringID);
+                $this->createRegulations($allRoleViolations, $object, $monitoringID, $roleId);
             }
     }
 
@@ -367,17 +367,17 @@ class QuestionService
         }
     }
 
-    private function createRegulations($allRoleViolations, $object, $monitoringID)
+    private function createRegulations($allRoleViolations, $object, $monitoringID, $createdByRole)
     {
         foreach ($allRoleViolations as $roles) {
             foreach ($roles as $roleId => $role) {
-                $regulation = $this->createRegulationEntry($object, $monitoringID, $role, $roleId);
+                $regulation = $this->createRegulationEntry($object, $monitoringID, $role, $roleId, $createdByRole);
                 $this->linkViolationsToRegulation($regulation, $role['violation_ids']);
             }
         }
     }
 
-    private function createRegulationEntry($object, $monitoringID, $role, $roleId)
+    private function createRegulationEntry($object, $monitoringID, $role, $roleId, $createdByRole)
     {
         return Regulation::create([
             'object_id' => $object->id,
@@ -387,8 +387,8 @@ class QuestionService
             'regulation_status_id' => 1,
             'level_id' => 1,
             'regulation_type_id' => 1,
-            'created_by_role_id' => $object->roles()->where('user_id', Auth::id())->first()->id,
-            'created_by_user_id' => $object->users()->where('user_id', Auth::id())->first()->id,
+            'created_by_role_id' => $createdByRole,
+            'created_by_user_id' => Auth::id(),
             'user_id' => $object->users()->wherePivot('role_id', $roleId)->pluck('users.id')->first(),
             'monitoring_id' => $monitoringID,
             'role_id' => $roleId,
