@@ -19,6 +19,9 @@ class RegulationService
     {
         DB::beginTransaction();
         try {
+
+            $user = Auth::user();
+            $roleId = $user->getRoleFromToken();
             $regulation = $this->regulation->findOrFail($dto->regulationId);
             $violations = $regulation->actViolations()->whereStatus(ActViolation::PROGRESS)->get();
 
@@ -26,13 +29,14 @@ class RegulationService
                 throw new NotFoundException('Chora tadbir topilmadi');
             }
             $regulation->update([
-                'act_status_id' => 3,
+                'act_status_id' => 1,
             ]);
 
             foreach ($violations as $violation) {
                  RegulationDemand::create([
                     'regulation_id' => $dto->regulationId,
                     'user_id' => Auth::id(),
+                    'role_id' => $roleId,
                     'act_status_id' => 3,
                     'act_violation_type_id' => 1,
                     'comment' => $dto->comment,
