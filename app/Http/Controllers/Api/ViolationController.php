@@ -64,15 +64,5 @@ class ViolationController extends BaseController
         }
     }
 
-    public function getViolation($id): JsonResponse
-    {
-        try {
-            $violation = RegulationViolation::query()->findOrFail($id);
-            return $this->sendSuccess(new RegulationViolationResource($violation), 'Violation');
 
-        }catch (\Exception $exception){
-            return $this->sendError($exception->getMessage());
-        }
-
-    }
 }

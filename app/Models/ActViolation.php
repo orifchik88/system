@@ -20,7 +20,7 @@ class ActViolation extends Model
 
     protected $guarded = [];
 
-    public function imagesFiles(): MorphMany
+    public function images(): MorphMany
     {
         return $this->morphMany(Image::class, 'imageable');
     }

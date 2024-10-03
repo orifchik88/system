@@ -18,7 +18,7 @@ class RegulationDemand extends Model
         return $this->belongsTo(ActStatus::class);
     }
 
-    public function imagesFiles(): MorphMany
+    public function images(): MorphMany
     {
         return $this->morphMany(Image::class, 'imageable');
     }

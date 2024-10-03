@@ -127,9 +127,8 @@ Route::group([
     Route::post('reject-deed', [RegulationController::class, 'rejectDeed']);
     Route::post('reject-answer', [RegulationController::class, 'rejectAnswer']);
 
-    Route::get('act-violations', [ViolationController::class, 'actVioleations']);
+    Route::get('act-violations', [ViolationController::class, 'actViolations']);
     Route::get('violations', [ViolationController::class, 'violations']);
-    Route::get('violation/{id}', [ViolationController::class, 'getViolation']);
 
     Route::get('checklist', [MonitoringController::class, 'getChecklist']);
     Route::get('checklist-answer', [MonitoringController::class, 'getChecklistAnswer']);
