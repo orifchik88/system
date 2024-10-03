@@ -458,9 +458,9 @@ class QuestionService
                     }
                 }
 
-                if (!empty($item['documents']))
+                if (!empty($item['files']))
                 {
-                    foreach ($item['documents'] as $document) {
+                    foreach ($item['files'] as $document) {
                         $path = $document->store('document/act-violation', 'public');
                         $act->documents()->create(['url' => $path]);
                         $demands->documents()->create(['url' => $path]);
