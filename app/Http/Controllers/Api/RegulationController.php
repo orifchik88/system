@@ -51,6 +51,16 @@ class RegulationController extends BaseController
         }
     }
 
+    public function getRegulation($id): JsonResponse
+    {
+        try {
+            $regulation = Regulation::query()->findOrFail($id);
+            return $this->sendSuccess(new RegulationResource($regulation), 'Regulation found');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
 
     public function askDate(RegulationDemandRequest $request): JsonResponse
     {

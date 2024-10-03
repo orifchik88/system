@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\RegulationDemandResource;
+use App\Http\Resources\RegulationViolationResource;
 use App\Http\Resources\ViolationResource;
 use App\Models\ActViolation;
 use App\Models\Regulation;
 use App\Models\RegulationDemand;
+use App\Models\RegulationViolation;
 use App\Models\Violation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -52,16 +54,11 @@ class ViolationController extends BaseController
     public function violations(): JsonResponse
     {
         try {
-            if (request('id') && request('regulation_id')) {
-                $violation = Violation::query()->findOrFail(request('id'));
-                return $this->sendSuccess(new ViolationResource($violation, \request('regulation_id')), 'Violation');
-            }
-            if (request('regulation_id')) {
-                $regulation = Regulation::query()->findOrFail(request('regulation_id'));
-                $violations = $regulation->violations()->paginate(request('per_page', 10));
-                return $this->sendSuccess(ViolationResource::collection($violations, $regulation->id), 'Violations', pagination($violations));
-            }
-            return $this->sendSuccess([], 'Violations not found');
+            $regulation = Regulation::query()->findOrFail(request('regulation_id'));
+
+
+            return $this->sendSuccess(RegulationViolationResource::collection($regulation->regulationViolations), 'Violations');
+
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
