@@ -59,6 +59,11 @@ class Regulation extends Model
         return $this->belongsToMany(Violation::class, 'regulation_violations');
     }
 
+    public function monitoring(): BelongsTo
+    {
+        return $this->belongsTo(Monitoring::class);
+    }
+
 
 
 

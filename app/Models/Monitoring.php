@@ -45,4 +45,9 @@ class Monitoring extends Model
     {
         return $this->hasManyThrough(ActViolation::class, RegulationViolationBlock::class, 'regulation_id', 'violation_id', 'id', 'violation_id');
     }
+
+    public function block(): BelongsTo
+    {
+        return $this->belongsTo(Block::class, 'block_id');
+    }
 }

@@ -25,6 +25,7 @@ class RegulationResource extends JsonResource
         return [
             'id' => $this->id,
             'object_name' => $this->object->name ?? null,
+            'block_name' => $this->monitoring->block->name ?? null,
             'regulation_number' => $this->regulation_number,
             'deadline' => $this->deadline,
             'regulation_status' => RegulationStatusResource::make($this->regulationStatus),
