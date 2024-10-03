@@ -257,18 +257,8 @@ class RegulationController extends BaseController
 
     public function test()
     {
-        $roles = collect();
-
-        foreach (request('questions') as $question) {
-            foreach ($question['violations'] as $violation) {
-                $roles = $roles->merge($violation['roles']);
-            }
-        }
-
-        $uniqueRoles = $roles->unique();
-dd($uniqueRoles);
-        dd(request('questions'));
-
-        dd($violation);
+       $user = Auth::user();
+       $role = $user->getRoleFromToken();
+       dd($role);
     }
 }
