@@ -39,7 +39,8 @@ class MonitoringController extends BaseController
     {
 
       $user = Auth::user();
-      $monitorings = $user->monitorings()->paginate(\request('per_page', 10));
+      $objectIds = $user->objects()->pluck('articles.id')->toArray();
+      $monitorings = Monitoring::query()->whereIn('object_id', $objectIds)->paginate(\request('per_page', 10));
 
       return $this->sendSuccess(MonitoringResource::collection($monitorings), 'Monitorings', pagination($monitorings));
     }
