@@ -73,16 +73,15 @@ class RegulationController extends BaseController
             RegulationDemand::query()->create([
                 'user_id' => Auth::id(),
                 'regulation_id' => $regulation->id,
-                'act_status_id' => 7,
+                'act_status_id' => 10,
                 'act_violation_type_id' => 3,
                 'status' => ActViolation::PROGRESS,
                 'comment' => $request->comment
             ]);
 
-
             $regulation->update([
                 'deadline_asked' => true,
-                'act_status_id' => 7
+                'act_status_id' => 10
             ]);
 
             DB::commit();

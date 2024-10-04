@@ -280,8 +280,8 @@ class RegulationService
                     'regulation_id' => $dto->regulationId,
                     'user_id' => Auth::id(),
                     'role_id' => $roleId,
-                    'act_status_id' => 2,
-                    'act_violation_type_id' => 1,
+                    'act_status_id' => 7,
+                    'act_violation_type_id' => 2,
                     'comment' => 'Dalolatnoma ma\'qullandi',
                     'act_violation_id' => $actViolation->id,
                     'status' => ActViolation::ACCEPTED
@@ -289,7 +289,7 @@ class RegulationService
 
                 $actViolation->update([
                     'status' => ActViolation::ACCEPTED,
-                    'act_status_id' => 2,
+                    'act_status_id' => 7,
                 ]);
                 $actViolation->demands()->update(['status' => ActViolation::ACCEPTED]);
             }

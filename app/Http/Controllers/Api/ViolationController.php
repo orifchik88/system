@@ -22,7 +22,7 @@ class ViolationController extends BaseController
     {
         try {
             $regulation = Regulation::findOrFail(request('regulation_id'));
-            $actViolations = $regulation->actViolations;
+            $actViolations = $regulation->actViolations()->where('act_violation_type_id', request('type'))->get();
             return $this->sendSuccess(ActViolationResource::collection($actViolations), 200);
 
         } catch (\Exception $exception) {
