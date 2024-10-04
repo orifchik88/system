@@ -413,61 +413,105 @@ class QuestionService
             $user = Auth::user();
             $roleId = $user->getRoleFromToken();
             $regulation = Regulation::query()->findOrFail($dto->regulationId);
-
-//            $hasStatusOne = $regulation->actViolations->contains(function ($actViolation) {
-//                return $actViolation->status == 1;
-//            });
-
-//            if ($hasStatusOne) {
-//                throw new NotFoundException('Faol chora tadbir mavjud');
-//            }
-//
             $regulation->update([
                 'regulation_status_id' => 2,
             ]);
+            $actViolations = $regulation->actViolations;
+            if ($actViolations)
+            {
+                foreach ($dto->meta as $item) {
+                    $act = ActViolation::query()
+                        ->where('regulation_violation_id', $item['violation_id'])
+                        ->where('regulation_id', $dto->regulationId)
+                        ->first();
+                    $act->update([
+                            'act_status_id' => 1,
+                            'comment' => $item['comment'],
+                            'status' => ActViolation::PROGRESS,
+                    ]);
 
-            foreach ($dto->meta as $item) {
-                $act = ActViolation::create([
-                    'regulation_violation_id' => $item['violation_id'],
-                    'regulation_id' => $dto->regulationId,
-                    'user_id' => Auth::id(),
-                    'act_status_id' => 1,
-                    'comment' => $item['comment'],
-                    'role_id' => $roleId,
-                    'act_violation_type_id' => 1,
-                    'status' => ActViolation::PROGRESS,
-                ]);
+                    $act->images()->delete();
+                    $act->documents()->delete();
 
-                $demands = RegulationDemand::create([
-                    'regulation_violation_id' => $dto->regulationId,
-                    'user_id' => Auth::id(),
-                    'role_id' => $roleId,
-                    'act_status_id' => 1,
-                    'act_violation_type_id' => 1,
-                    'comment' => $item['comment'],
-                    'act_violation_id' => $act->id,
-                    'status' => ActViolation::PROGRESS
-                ]);
 
-                if (!empty($item['images']))
-                {
-                    foreach ($item['images'] as $image) {
-                        $path = $image->store('images/act-violation', 'public');
-                        $act->images()->create(['url' => $path]);
-                        $demands->images()->create(['url' => $path]);
+                    $demands = RegulationDemand::create([
+                        'regulation_violation_id' => $dto->regulationId,
+                        'user_id' => Auth::id(),
+                        'role_id' => $roleId,
+                        'act_status_id' => 1,
+                        'act_violation_type_id' => 1,
+                        'comment' => $item['comment'],
+                        'act_violation_id' => $act->id,
+                        'status' => ActViolation::PROGRESS
+                    ]);
+
+                    if (!empty($item['images']))
+                    {
+                        foreach ($item['images'] as $image) {
+                            $path = $image->store('images/act-violation', 'public');
+                            $act->images()->create(['url' => $path]);
+                            $demands->images()->create(['url' => $path]);
+                        }
+                    }
+
+                    if (!empty($item['files']))
+                    {
+                        foreach ($item['files'] as $document) {
+                            $path = $document->store('document/act-violation', 'public');
+                            $act->documents()->create(['url' => $path]);
+                            $demands->documents()->create(['url' => $path]);
+                        }
                     }
                 }
 
-                if (!empty($item['files']))
-                {
-                    foreach ($item['files'] as $document) {
-                        $path = $document->store('document/act-violation', 'public');
-                        $act->documents()->create(['url' => $path]);
-                        $demands->documents()->create(['url' => $path]);
-                    }
-                }
+            }else{
 
+
+                foreach ($dto->meta as $item) {
+                    $act = ActViolation::create([
+                        'regulation_violation_id' => $item['violation_id'],
+                        'regulation_id' => $dto->regulationId,
+                        'user_id' => Auth::id(),
+                        'act_status_id' => 1,
+                        'comment' => $item['comment'],
+                        'role_id' => $roleId,
+                        'act_violation_type_id' => 1,
+                        'status' => ActViolation::PROGRESS,
+                    ]);
+
+                    $demands = RegulationDemand::create([
+                        'regulation_violation_id' => $dto->regulationId,
+                        'user_id' => Auth::id(),
+                        'role_id' => $roleId,
+                        'act_status_id' => 1,
+                        'act_violation_type_id' => 1,
+                        'comment' => $item['comment'],
+                        'act_violation_id' => $act->id,
+                        'status' => ActViolation::PROGRESS
+                    ]);
+
+                    if (!empty($item['images']))
+                    {
+                        foreach ($item['images'] as $image) {
+                            $path = $image->store('images/act-violation', 'public');
+                            $act->images()->create(['url' => $path]);
+                            $demands->images()->create(['url' => $path]);
+                        }
+                    }
+
+                    if (!empty($item['files']))
+                    {
+                        foreach ($item['files'] as $document) {
+                            $path = $document->store('document/act-violation', 'public');
+                            $act->documents()->create(['url' => $path]);
+                            $demands->documents()->create(['url' => $path]);
+                        }
+                    }
+
+                }
             }
+
+
 
             DB::commit();
         } catch (\Exception $exception) {
