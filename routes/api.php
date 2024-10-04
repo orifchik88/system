@@ -120,7 +120,7 @@ Route::group([
     Route::get('regulation/{id}', [RegulationController::class, 'getRegulation']);
     Route::post('accept-answer', [RegulationController::class, 'acceptAnswer']);
     Route::post('accept-deed', [RegulationController::class, 'acceptDeed']);
-    Route::post('accept-deed-crm', [RegulationController::class, 'acceptDeedCmr']);
+    Route::post('accept-deed-cmr', [RegulationController::class, 'acceptDeedCmr']);
     Route::post('accept-date', [RegulationController::class, 'acceptDate']);
     Route::post('send-deed', [RegulationController::class, 'sendDeed']);
     Route::post('ask-date', [RegulationController::class, 'askDate']);
