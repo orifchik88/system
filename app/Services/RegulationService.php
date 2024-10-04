@@ -306,7 +306,7 @@ class RegulationService
 
             $regulation = $this->regulation->find($dto->regulationId);
 
-            $actViolations = $regulation->actViolations()->whereStatus(ActViolation::ACCEPTED)->whereActViolationTypeId(2)->get();
+            $actViolations = $regulation->actViolations()->whereStatus(ActViolation::PROGRESS)->whereActViolationTypeId(2)->get();
 
             if ($actViolations->isEmpty()) {
                 throw new NotFoundException('Dalolatnoma topilmadi');
@@ -349,7 +349,7 @@ class RegulationService
 
             $regulation = $this->regulation->find($dto->regulationId);
 
-            $actViolations = $regulation->actViolations()->whereStatus(ActViolation::PROGRESS)->whereActViolationTypeId(2)->get();
+            $actViolations = $regulation->actViolations()->whereStatus(ActViolation::ACCEPTED)->whereActViolationTypeId(2)->get();
 
             if ($actViolations->isEmpty()) {
                 throw new NotFoundException('Dalolatnoma topilmadi');
