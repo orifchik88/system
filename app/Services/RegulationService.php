@@ -119,6 +119,7 @@ class RegulationService
                     $act = ActViolation::query()
                         ->where('regulation_violation_id', $item['violation_id'])
                         ->where('regulation_id', $dto->regulationId)
+                        ->where('act_violation_type_id', 2)
                         ->first();
 
                     $act->update([
@@ -162,8 +163,6 @@ class RegulationService
                 }
 
             }else{
-
-
                 foreach ($dto->meta as $item) {
                     $act = ActViolation::create([
                         'regulation_violation_id' => $item['violation_id'],

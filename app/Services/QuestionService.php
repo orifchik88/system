@@ -416,7 +416,7 @@ class QuestionService
             $regulation->update([
                 'regulation_status_id' => 2,
             ]);
-            $actViolations = $regulation->actViolations;
+            $actViolations = $regulation->actViolations()->where('act_violation_type_id', 1)->get();
 
             if ($actViolations->isNotEmpty())
             {
@@ -424,6 +424,7 @@ class QuestionService
                     $act = ActViolation::query()
                         ->where('regulation_violation_id', $item['violation_id'])
                         ->where('regulation_id', $dto->regulationId)
+                        ->where('act_violation_type_id', 1)
                         ->first();
 
                     $act->update([
