@@ -31,27 +31,27 @@ class UserController extends BaseController
         DB::beginTransaction();
 
         try {
-            $imagePath = null;
+                $imagePath = null;
 
-            if ($request->hasFile('image'))
-            {
-                $imagePath = $request->file('image')->store('user', 'public');
-            }
-            $user = User::query()->create([
-                "name" => $request->name,
-                "phone" => $request->phone,
-                "pinfl" => $request->pinfl,
-                'password' => Hash::make($request->phone),
-                'login' => $request->phone,
-                "user_status_id" => $request->user_status_id,
-                "surname" => $request->surname,
-                "middle_name" => $request->middle_name,
-                "region_id" => $request->region_id,
-                "district_id" => $request->district_id,
-                "created_by" => $request->created_by,
-                "type" => $request->type,
-                'image' => $imagePath,
-            ]);
+                if ($request->hasFile('image'))
+                {
+                    $imagePath = $request->file('image')->store('user', 'public');
+                }
+                $user =  new User();
+                $user->name = $request->name;
+                $user->phone = $request->phone;
+                $user->pinfl = $request->pinfl;
+                $user->password = Hash::make($request->phone);
+                $user->login = $request->phone;
+                $user->user_status_id = $request->user_status_id;
+                $user->surname = $request->surname;
+                $user->middle_name = $request->middle_name;
+                $user->region_id = $request->region_id;
+                $user->district_id = $request->district_id;
+                $user->created_by = $request->created_by;
+                $user->type = $request->type;
+                $user->image = $imagePath;
+                $user->save();
 
             if ($request->filled('role_ids')) {
                 foreach ($request->role_ids as $role_id) {
@@ -61,7 +61,7 @@ class UserController extends BaseController
                     if (!$role){
                         UserRole::query()->create([
                             'user_id' => $user->id,
-                            'role_id' => $role->id
+                            'role_id' => $role_id
                         ]);
                     }
                 }
