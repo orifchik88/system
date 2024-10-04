@@ -78,7 +78,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Regulation::class)
         ->where('regulations.user_id', $this->id)
-        ->orWhere('regulations.created_by_user_id', $this->id);
+        ->orWhere('regulations.created_by_user_id', $this->id)
+        ->orWhere('regulations.role_id', $this->getRoleFromToken())
+        ->orWhere('regulations.created_by_role_id', $this->getRoleFromToken());
     }
 
     public function monitorings(): HasMany
