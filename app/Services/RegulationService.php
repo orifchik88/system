@@ -225,7 +225,7 @@ class RegulationService
             $violations = $regulation->actViolations()->whereStatus(ActViolation::PROGRESS)->whereActViolationTypeId(2)->get();
 
             if ($violations->isEmpty()){
-                throw new NotFoundException('Chora tadbir topilmadi');
+                throw new NotFoundException('Dalolatnoma topilmadi');
             }
             $regulation->update([
                 'regulation_status_id' => 3,
