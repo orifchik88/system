@@ -417,7 +417,8 @@ class QuestionService
                 'regulation_status_id' => 2,
             ]);
             $actViolations = $regulation->actViolations;
-            if ($actViolations)
+
+            if ($actViolations->isNotEmpty())
             {
                 foreach ($dto->meta as $item) {
                     $act = ActViolation::query()
