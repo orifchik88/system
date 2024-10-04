@@ -88,7 +88,10 @@ class RegulationService
                     'status' => ActViolation::ACCEPTED
                 ]);
 
-                $actViolation->update(['status' => ActViolation::ACCEPTED]);
+                $actViolation->update([
+                    'status' => ActViolation::ACCEPTED,
+                    'act_status_id' => 2,
+                ]);
                 $actViolation->demands()->update(['status' => ActViolation::ACCEPTED]);
             }
             DB::commit();
@@ -162,29 +165,29 @@ class RegulationService
                     'status' => ActViolation::PROGRESS
                 ]);
 
-//                if (isset($item['files'])) {
-//                    foreach ($item['files'] as $file) {
-//                        $filePath = $file->store('act_violation', 'public');
-//                        $act->documents()->create([
-//                            'url' => $filePath,
-//                        ]);
-//
-//                        $demands->documents()->create([
-//                            'url' => $filePath,
-//                        ]);
-//                    }
-//                }
-//                if (isset($item['images'])) {
-//                    foreach ($item['images'] as $image) {
-//                        $imagePath = $image->store('violations_images', 'public');
-//                        $act->imagesFiles()->create([
-//                            'url' => $imagePath,
-//                        ]);
-//                        $demands->imagesFiles()->create([
-//                            'url' => $imagePath,
-//                        ]);
-//                    }
-//                }
+                if (isset($item['files'])) {
+                    foreach ($item['files'] as $file) {
+                        $filePath = $file->store('act_violation', 'public');
+                        $act->documents()->create([
+                            'url' => $filePath,
+                        ]);
+
+                        $demands->documents()->create([
+                            'url' => $filePath,
+                        ]);
+                    }
+                }
+                if (isset($item['images'])) {
+                    foreach ($item['images'] as $image) {
+                        $imagePath = $image->store('violations_images', 'public');
+                        $act->imagesFiles()->create([
+                            'url' => $imagePath,
+                        ]);
+                        $demands->imagesFiles()->create([
+                            'url' => $imagePath,
+                        ]);
+                    }
+                }
             }
 
             DB::commit();

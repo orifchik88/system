@@ -20,8 +20,8 @@ class ActViolationResource extends JsonResource
             'act_status' => ActStatusResource::make($this->actStatus),
             'comment' => $this->comment,
             'type' => $this->act_violation_type_id,
-            'images' => ImageResource::collection($this->whenLoaded('images')),
-            'documents' => DocumentResource::collection($this->whenLoaded('documents')),
+            'images' => ImageResource::collection($this->images),
+            'documents' => DocumentResource::collection($this->documents),
             'logs' => RegulationDemandResource::collection($this->demands)
         ];
     }
