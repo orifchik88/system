@@ -111,7 +111,7 @@ class RegulationService
             $regulation->update([
                 'regulation_status_id' => 4,
             ]);
-            $actViolations = $regulation->actViolations;
+            $actViolations = $regulation->actViolations()->whereActViolationTypeId(2)->get();
 
             if ($actViolations->isNotEmpty())
             {
