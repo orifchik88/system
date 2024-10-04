@@ -425,6 +425,7 @@ class QuestionService
                         ->where('regulation_violation_id', $item['violation_id'])
                         ->where('regulation_id', $dto->regulationId)
                         ->first();
+
                     $act->update([
                             'act_status_id' => 1,
                             'comment' => $item['comment'],
