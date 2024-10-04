@@ -13,6 +13,7 @@ class ActStatusSeeder extends Seeder
      */
     public function run(): void
     {
+        ActStatus::query()->truncate();
         $array = [
             'Chora tadbir taqdim etildi',
             'Chora tadbir ma\'qullandi',
@@ -20,10 +21,13 @@ class ActStatusSeeder extends Seeder
             'Dalolatnoma taqdim etildi',
             'Dalolatnoma ma\'qullandi',
             'Dalolatnoma rad etildi',
+            'Dalolatnoma taqdim etildi(SRM)',
+            'Dalolatnoma ma\'qullandi(SMR)',
+            'Dalolatnoma rad etildi(SMR)',
             'Muddat uzaytirish so\'raldi',
             'Muddat uzaytirish ma\'qullandi',
             'Muddat uzaytirish rad etildi',
-            'Dalolatnoma ko\'rib chiqildi',
+            'Bartaraf etildi',
         ];
 
         foreach ($array as $value) {
