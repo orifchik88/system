@@ -125,6 +125,7 @@ Route::group([
     Route::post('ask-date', [RegulationController::class, 'askDate']);
     Route::post('reject-date', [RegulationController::class, 'rejectDate']);
     Route::post('reject-deed', [RegulationController::class, 'rejectDeed']);
+    Route::post('reject-deed-cmr', [RegulationController::class, 'rejectDeedCmr']);
     Route::post('reject-answer', [RegulationController::class, 'rejectAnswer']);
 
     Route::get('act-violations', [ViolationController::class, 'actViolations']);

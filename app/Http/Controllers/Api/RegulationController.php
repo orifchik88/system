@@ -204,6 +204,22 @@ class RegulationController extends BaseController
         }
     }
 
+    public function acceptDeedCmr(): JsonResponse
+    {
+        try {
+            $dto = new RegulationDto();
+
+            $dto->setRegulationId(request('regulation_id'))
+                ->setComment(request('comment'));
+
+            $this->regulationService->acceptDeedCmr($dto);
+
+            return $this->sendSuccess([], 'Data saved successfully');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
 
 
     public function rejectAnswer(): JsonResponse
@@ -222,6 +238,8 @@ class RegulationController extends BaseController
         }
 
     }
+
+
 
     public function sendDeed(): JsonResponse
     {
@@ -253,6 +271,21 @@ class RegulationController extends BaseController
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
+    public function rejectDeedCmr(): JsonResponse
+    {
+        try {
+            $dto = new RegulationDto();
+            $dto->setRegulationId(request('regulation_id'))
+                ->setComment(request('comment'));
+
+            $this->regulationService->rejectDeedCmr($dto);
+
+            return $this->sendSuccess([], 'Data saved successfully');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
 
     public function regulationOwner(): JsonResponse
     {

@@ -255,6 +255,48 @@ class RegulationService
         }
     }
 
+    public function rejectDeedCmr($dto)
+    {
+        DB::beginTransaction();
+        try {
+
+            $user = Auth::user();
+            $roleId = $user->getRoleFromToken();
+            $regulation = $this->regulation->findOrFail($dto->regulationId);
+            $violations = $regulation->actViolations()->whereStatus(ActViolation::PROGRESS)->whereActViolationTypeId(2)->get();
+
+            if ($violations->isEmpty()){
+                throw new NotFoundException('Dalolatnoma topilmadi');
+            }
+            $regulation->update([
+                'regulation_status_id' => 3,
+            ]);
+
+            foreach ($violations as $violation) {
+                RegulationDemand::create([
+                    'regulation_id' => $dto->regulationId,
+                    'user_id' => Auth::id(),
+                    'role_id' => $roleId,
+                    'act_status_id' => 9,
+                    'act_violation_type_id' => 2,
+                    'comment' => $dto->comment,
+                    'act_violation_id' => $violation->id,
+                    'status' => ActViolation::REJECTED
+                ]);
+
+                $violation->update([
+                    'status' => ActViolation::REJECTED,
+                    'act_status_id' => 9,
+                ]);
+                $violation->demands()->update(['status' => ActViolation::REJECTED]);
+            }
+            DB::commit();
+        }catch (\Exception $exception){
+            DB::rollBack();
+            throw $exception;
+        }
+    }
+
     public function acceptDeed($dto)
     {
         DB::beginTransaction();
@@ -298,4 +340,48 @@ class RegulationService
             throw $exception;
         }
     }
+    public function acceptDeedCmr($dto)
+    {
+        DB::beginTransaction();
+        try {
+            $user = Auth::user();
+            $roleId = $user->getRoleFromToken();
+
+            $regulation = $this->regulation->find($dto->regulationId);
+
+            $actViolations = $regulation->actViolations()->whereStatus(ActViolation::PROGRESS)->whereActViolationTypeId(2)->get();
+
+            if ($actViolations->isEmpty()) {
+                throw new NotFoundException('Dalolatnoma topilmadi');
+            }
+
+            $regulation->update([
+                'regulation_status_id' => 6,
+            ]);
+
+            foreach ($actViolations as $actViolation) {
+                RegulationDemand::create([
+                    'regulation_id' => $dto->regulationId,
+                    'user_id' => Auth::id(),
+                    'role_id' => $roleId,
+                    'act_status_id' => 13,
+                    'act_violation_type_id' => 2,
+                    'comment' => 'Dalolatnoma ma\'qullandi(SMR)',
+                    'act_violation_id' => $actViolation->id,
+                    'status' => ActViolation::ACCEPTED
+                ]);
+
+                $actViolation->update([
+                    'status' => ActViolation::ACCEPTED,
+                    'act_status_id' => 13,
+                ]);
+                $actViolation->demands()->update(['status' => ActViolation::ACCEPTED]);
+            }
+            DB::commit();
+        }catch (\Exception $exception){
+            DB::rollBack();
+            throw $exception;
+        }
+    }
+
 }
