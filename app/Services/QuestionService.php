@@ -468,8 +468,6 @@ class QuestionService
                 }
 
             }else{
-
-
                 foreach ($dto->meta as $item) {
                     $act = ActViolation::create([
                         'regulation_violation_id' => $item['violation_id'],

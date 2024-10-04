@@ -70,7 +70,7 @@ class UserController extends BaseController
             return $this->sendSuccess(new UserResource($user),  'User Created Successfully');
         }catch (\Exception $exception){
             DB::rollBack();
-            return $this->sendError($exception->getMessage(), $exception->getCode());
+            return $this->sendError($exception->getMessage(), $exception->getLine());
         }
     }
 

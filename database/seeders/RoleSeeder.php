@@ -144,6 +144,12 @@ class RoleSeeder extends Seeder
                 'description' => 'Respublika Nogironlar Assotsatsiya Kadr',
                 'type' => RoleTypeEnum::REPUBLIC
             ],
+            [
+                'name' => 'Qurilish montaj ishlari boshlig\'i',
+                'description' => 'Qurilish montaj ishlari boshlig\'i',
+                'type' => RoleTypeEnum::REGION
+            ],
+
         ];
 
 
@@ -156,7 +162,7 @@ class RoleSeeder extends Seeder
         }
 
         $role1 = Role::query()->find(1)->update([
-            'children' => [2, 3, 4, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+            'children' => [2, 3, 4, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 26]
         ]);
         $role2 = Role::query()->find(2)->update([
             'children' => [3, 4, 11, 13, 15, 16, 17, 18, 19, 21, 23]
