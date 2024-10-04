@@ -150,6 +150,18 @@ class RoleSeeder extends Seeder
                 'type' => RoleTypeEnum::REGION
             ],
 
+            [
+                'name' => 'Yurist',
+                'description' => 'Yurist',
+                'type' => RoleTypeEnum::REGION
+            ],
+
+            [
+                'name' => 'Buxgalter',
+                'description' => 'Buxgalter',
+                'type' => RoleTypeEnum::REGION
+            ],
+
         ];
 
 

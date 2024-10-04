@@ -50,4 +50,9 @@ class Monitoring extends Model
     {
         return $this->belongsTo(Block::class, 'block_id');
     }
+
+    public function article(): BelongsTo
+    {
+        return $this->belongsTo(Article::class, 'object_id');
+    }
 }

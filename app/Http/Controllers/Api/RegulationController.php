@@ -36,6 +36,25 @@ class RegulationController extends BaseController
         try {
             $user = Auth::user();
 
+            $roleId = $user->getRoleFromToken();
+
+            if ($roleId == 26)
+            {
+                $regulations = Regulation::query()
+                    ->whereHas('monitoring', function ($query) use($user){
+                        $query->whereHas('article', function ($articleQuery) use($user){
+                            $articleQuery->where('region_id', $user->region_id);
+                        });
+                    })
+                    ->paginate(request('per_page', 10));
+
+                return $this->sendSuccess(
+                    RegulationResource::collection($regulations),
+                    'Regulations',
+                    pagination($regulations)
+                );
+            }
+
             $query = $user->regulations();
 
             $regulations = $query->paginate(request('per_page', 10));

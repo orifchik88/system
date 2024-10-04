@@ -110,6 +110,11 @@ class Article extends Model
         return $this->hasManyThrough(Violation::class, Regulation::class, 'object_id');
     }
 
+    public function monitorings(): HasMany
+    {
+        return $this->hasMany(Monitoring::class, 'object_id');
+    }
+
 
 
 }
