@@ -18,6 +18,17 @@ class HistoryRepository implements HistoryRepositoryInterface
     public function getHistoryList(int $guId)
     {
         return DB::table($this->table)->where('gu_id', $guId)->where('type', LogType::TASK_HISTORY)->orderBy('id', 'asc')->get([
+            'id',
+            'gu_id',
+            'content',
+            'created_at'
+        ]);
+    }
+
+    public function getHistory(int $guId)
+    {
+        return DB::table($this->table)->where('gu_id', $guId)->where('type', LogType::TASK_HISTORY)->orderBy('id', 'asc')->first([
+            'id',
             'gu_id',
             'content',
             'created_at'

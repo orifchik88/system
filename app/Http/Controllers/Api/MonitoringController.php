@@ -15,6 +15,7 @@ use App\Models\Article;
 use App\Models\Block;
 use App\Models\CheckList;
 use App\Models\CheckListAnswer;
+use App\Models\CheckListHistory;
 use App\Models\Level;
 use App\Models\Monitoring;
 use App\Services\HistoryService;
@@ -113,27 +114,30 @@ class MonitoringController extends BaseController
                 $answer->status = CheckListStatusEnum::FIRST;
                 $answer->save();
 
+                $this->historyService->createHistory(
+                    guId: $answer->id,
+                    status: $answer->status->value,
+                    type: LogType::TASK_HISTORY,
+                    date: null,
+                    comment: $item['comment']
+                );
+
+                $history = CheckListHistory::query()->findOrFail($this->historyService->getHistory($answer->id)->id);
+
                 if (!empty($item['files'])){
                     foreach ($item['files'] as $document) {
                         $path = $document->store('documents/checklist', 'public');
                         $answer->documents()->create(['url' => $path]);
+                        $history->documents()->create(['url' => $path]);
                     }
                 }
                 if (!empty($item['images'])){
                     foreach ($item['images'] as $image) {
                         $path = $image->store('images/checklist', 'public');
                         $answer->images()->create(['url' => $path]);
+                        $history->images()->create(['url' => $path]);
                     }
                 }
-
-
-//                $this->historyService->createHistory(
-//                    guId: $answer->id,
-//                    status: $answer->status->value,
-//                    type: LogType::TASK_HISTORY,
-//                    date: null,
-//                    comment: "Bla bla bla"
-//                );
 
             }
             DB::commit();

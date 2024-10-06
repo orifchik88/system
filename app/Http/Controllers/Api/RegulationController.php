@@ -7,11 +7,14 @@ use App\DTO\RegulationDto;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegulationAcceptRequest;
 use App\Http\Requests\RegulationDemandRequest;
+use App\Http\Resources\CheckListAnswerResource;
+use App\Http\Resources\ChecklistResource;
 use App\Http\Resources\MonitoringResource;
 use App\Http\Resources\RegulationResource;
 use App\Http\Resources\ViolationResource;
 use App\Models\ActViolation;
 use App\Models\Article;
+use App\Models\CheckListAnswer;
 use App\Models\Monitoring;
 use App\Models\Regulation;
 use App\Models\RegulationDemand;
@@ -344,6 +347,8 @@ class RegulationController extends BaseController
     {
        $user = Auth::user();
        $role = $user->getRoleFromToken();
-       dd($role);
+       $checklist = CheckListAnswer::query()->findOrFail(73);
+
+       return $this->sendSuccess(ChecklistResource::make($checklist), 'Get data successfully');
     }
 }

@@ -9,6 +9,7 @@ use App\Enums\ObjectTypeEnum;
 use App\Enums\UserRoleEnum;
 use App\Enums\WorkTypeStatusEnum;
 use App\Exceptions\NotFoundException;
+use App\Http\Resources\CheckListHistoryResource;
 use App\Models\ActViolation;
 use App\Models\ActViolationBlock;
 use App\Models\Article;
@@ -56,6 +57,7 @@ class QuestionService
                 return $answer->work_type_id . '-' . $answer->question_id . '-' . $answer->floor;
             });
 
+
         foreach ($workTypes as $workType) {
             $questions = Question::query()
                 ->when($type, function ($query) use ($type) {
@@ -88,6 +90,7 @@ class QuestionService
                             'inspector_answered' => $answer ? $answer->inspector_answered: null,
                             'technic_answered' => $answer ? $answer->technic_answered : null,
                             'author_answered' => $answer ? $answer->author_answered : null,
+                            'logs' => $answer ? CheckListHistoryResource::collection($answer->logs) : null
                         ];
                     }
                 }
@@ -108,6 +111,7 @@ class QuestionService
                         'inspector_answered' => $answer ? $answer->inspector_answered: null,
                         'technic_answered' => $answer ? $answer->technic_answered : null,
                         'author_answered' => $answer ? $answer->author_answered : null,
+                        'logs' => $answer ? CheckListHistoryResource::collection($answer->logs) : null
                     ];
                 }
             }

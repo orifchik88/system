@@ -19,6 +19,11 @@ class HistoryService
     {
         return $this->repository->getHistoryList(guId: $id);
     }
+    public function getHistory(int $id)
+    {
+        return $this->repository->getHistory(guId: $id);
+    }
+
 
     public function createHistory(int $guId, int $status, int $type, ?string $date, string $comment = ""): bool
     {

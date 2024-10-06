@@ -6,6 +6,7 @@ use App\Enums\CheckListStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
@@ -41,5 +42,10 @@ class CheckListAnswer extends Model
     public function block(): BelongsTo
     {
         return $this->belongsTo(Block::class, 'block_id');
+    }
+
+    public function logs(): HasMany
+    {
+        return $this->hasMany(CheckListHistory::class, 'gu_id');
     }
 }

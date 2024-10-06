@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\CheckListHistory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -17,7 +18,7 @@ class ChecklistResource extends JsonResource
         return [
             'id' => $this->id,
             'status' => $this->status,
-            'question' => QuestionResource::make($this->question),
+            'logs' => CheckListHistoryResource::collection($this->logs),
         ];
     }
 }
