@@ -16,7 +16,8 @@ class CheckListHistoryResource extends JsonResource
     {
         return [
             'id'=> $this->id,
-            'user_id' => $this->content->user,
+            'user' => UserResource::make($this->user),
+            'role' => RoleResource::make($this->role),
             'comment' => $this->content->comment,
             'date' => $this->content->date,
             'status' => $this->content->status,
