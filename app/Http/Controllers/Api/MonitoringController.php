@@ -145,7 +145,7 @@ class MonitoringController extends BaseController
                     status: $answer->status->value,
                     type: LogType::TASK_HISTORY,
                     date: null,
-                    comment: $item['comment'] ?? 'Fayl yuklandi'
+                    comment: $item['comment']
                 );
 
                 $history = CheckListHistory::query()->findOrFail($this->historyService->getHistory($answer->id)->id);

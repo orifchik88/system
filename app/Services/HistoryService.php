@@ -25,7 +25,7 @@ class HistoryService
     }
 
 
-    public function createHistory(int $guId, int $status, int $type, ?string $date, string $comment = ""): bool
+    public function createHistory(int $guId, int $status, int $type, ?string $date, ?string $comment = ""): bool
     {
         $content = match ($type) {
             LogType::TASK_HISTORY => $this->shapeTaskContent(

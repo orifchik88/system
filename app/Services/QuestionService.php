@@ -289,7 +289,6 @@ class QuestionService
                 'technic_answered' => null,
                 'author_answered' => null,
             ];
-            $comment = 'Inspektor tomonidan rad etildi';
 
         } elseif ($statusField === 'technic_answered' && $isPositive === false) {
             $updateData = [
@@ -298,7 +297,6 @@ class QuestionService
                 'inspector_answered' => null,
                 'author_answered' => null,
             ];
-            $comment = 'Texnik nazoratchi tomonidan rad etildi';
 
         } elseif ($statusField === 'author_answered' && $isPositive === false) {
             $updateData = [
@@ -307,7 +305,6 @@ class QuestionService
                 'inspector_answered' => null,
                 'technic_answered' => null,
             ];
-            $comment = 'Muallif tomonidan rad etildi';
 
         } else {
             $updateData = [
@@ -321,7 +318,6 @@ class QuestionService
             status: $checklist->status->value,
             type: LogType::TASK_HISTORY,
             date: null,
-            comment: $comment
         );
         $checklist->update($updateData);
     }
