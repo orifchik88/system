@@ -29,6 +29,7 @@ class RegulationResource extends JsonResource
             'block_name' => $this->monitoring->block->name ?? null,
             'regulation_number' => $this->regulation_number,
             'deadline' => $this->deadline,
+            'act_status' => ActStatusResource::make($this->actStatus),
             'regulation_status' => RegulationStatusResource::make($this->regulationStatus),
             'regulation_type' => RegulationTypeResource::make($this->regulationType),
             'violation_count' => $this->violations()->count(),
