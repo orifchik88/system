@@ -27,13 +27,24 @@ class CheckListHistory extends Model
         return $this->morphMany(Image::class, 'imageable');
     }
 
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'content->user');
-    }
 
     public function role(): BelongsTo
     {
-        return $this->belongsTo(Role::class, 'content->role');
+        return $this->belongsTo(Role::class, 'role_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function getUserIdAttribute()
+    {
+        return $this->content->user ?? null;
+    }
+
+    public function getRoleIdAttribute()
+    {
+        return $this->content->role ?? null;
     }
 }

@@ -53,7 +53,7 @@ class HistoryService
         $user = Auth::user();
         return [
             'user' => Auth::check() ? $user->id : "",
-            'role' => $user->getRoleFromToken(),
+            'role' => (int)$user->getRoleFromToken(),
             'date' => ($date == null) ? now() : $date,
             'status' => $status,
             'comment' => $comment,
