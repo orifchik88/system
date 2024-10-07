@@ -80,6 +80,11 @@ class RegulationController extends BaseController
                         $query->where('funding_source_id', request('funding_source'));
                     });
                 })
+                ->when(request('category'), function ($q) {
+                    $q->whereHas('monitoring.article', function ($query) {
+                        $query->where('difficulty_category_id', request('category'));
+                    });
+                })
                 ->when(request('status'), function ($query) {
                    $query->where('regulation_status_id', request('status'));
                 });

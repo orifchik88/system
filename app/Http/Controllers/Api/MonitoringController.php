@@ -41,7 +41,33 @@ class MonitoringController extends BaseController
 
       $user = Auth::user();
       $objectIds = $user->objects()->pluck('articles.id')->toArray();
-      $monitorings = Monitoring::query()->whereIn('object_id', $objectIds)->paginate(\request('per_page', 10));
+      $monitorings = Monitoring::query()->whereIn('object_id', $objectIds)
+          ->when(request('object_name'), function ($q) {
+              $q->whereHas('article', function ($query) {
+                  $query->where('name', 'like', '%' . request('object_name') . '%');
+              });
+          })
+          ->when(request('region_id'), function ($q) {
+              $q->whereHas('article', function ($query) {
+                  $query->where('region_id', request('region_id'));
+              });
+          })
+          ->when(request('district_id'), function ($q) {
+              $q->whereHas('article', function ($query) {
+                  $query->where('district_id', request('district_id'));
+              });
+          })
+          ->when(request('funding_source'), function ($q) {
+              $q->whereHas('article', function ($query) {
+                  $query->where('funding_source_id', request('funding_source'));
+              });
+          })
+          ->when(request('category'), function ($q) {
+              $q->whereHas('article', function ($query) {
+                  $query->where('difficulty_category_id', request('category'));
+              });
+          })
+          ->paginate(\request('per_page', 10));
 
       return $this->sendSuccess(MonitoringResource::collection($monitorings), 'Monitorings', pagination($monitorings));
     }
