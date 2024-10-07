@@ -31,6 +31,7 @@ class QuestionController extends BaseController
 
     public function __construct(
         public QuestionService $questionService,
+
     )
     {
     }
@@ -78,7 +79,6 @@ class QuestionController extends BaseController
     {
         DB::beginTransaction();
         try {
-
             $this->questionService->createRegulation(\request()->all());
             DB::commit();
             return $this->sendSuccess([], 'Successfully created regulation');

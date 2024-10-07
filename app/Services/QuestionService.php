@@ -5,6 +5,7 @@ namespace App\Services;
 use App\DTO\QuestionDto;
 use App\Enums\BlockModeEnum;
 use App\Enums\CheckListStatusEnum;
+use App\Enums\LogType;
 use App\Enums\ObjectTypeEnum;
 use App\Enums\UserRoleEnum;
 use App\Enums\WorkTypeStatusEnum;
@@ -34,12 +35,15 @@ class QuestionService
 
     protected $user;
     public QuestionDto $dto;
+    private HistoryService $historyService;
 
     public function __construct(
         protected Question $questions,
+
     )
     {
         $this->user = Auth::guard('api')->user();
+        $this->historyService = new HistoryService('check_list_histories');
     }
 
     public function getQuestionList($blockId = null, $type = null)
@@ -274,6 +278,7 @@ class QuestionService
     private function updateChecklistStatus($checklist, $checklistData, $roleId, $isPositive)
     {
         $answeredField = $this->getAnsweredFieldByRole($roleId);
+        $comment = '';
         $statusField = $isPositive
             ? $this->getPositiveStatusField($checklist, $roleId, $checklistData)
             : ($checklist->status == CheckListStatusEnum::NOT_FILLED ? 1 : CheckListStatusEnum::RAISED->value);
@@ -284,6 +289,8 @@ class QuestionService
                 'technic_answered' => null,
                 'author_answered' => null,
             ];
+            $comment = 'Inspektor tomonidan rad etildi';
+
         } elseif ($statusField === 'technic_answered' && $isPositive === false) {
             $updateData = [
                 $answeredField => 2,
@@ -291,6 +298,8 @@ class QuestionService
                 'inspector_answered' => null,
                 'author_answered' => null,
             ];
+            $comment = 'Texnik nazoratchi tomonidan rad etildi';
+
         } elseif ($statusField === 'author_answered' && $isPositive === false) {
             $updateData = [
                 $answeredField => 2,
@@ -298,6 +307,8 @@ class QuestionService
                 'inspector_answered' => null,
                 'technic_answered' => null,
             ];
+            $comment = 'Muallif tomonidan rad etildi';
+
         } else {
             $updateData = [
                 $answeredField => $isPositive ? 1 : 2,
@@ -305,6 +316,13 @@ class QuestionService
             ];
         }
 
+        $this->historyService->createHistory(
+            guId: $checklist->id,
+            status: $checklist->status->value,
+            type: LogType::TASK_HISTORY,
+            date: null,
+            comment: $comment
+        );
         $checklist->update($updateData);
     }
 
