@@ -169,29 +169,6 @@ class QuestionService
             return true;
         });
     }
-
-    public function getQuestions()
-    {
-        if (!request('level') || !request('object_type_id')) {
-            throw new NotFoundException('level and object_type_id are required.');
-        }
-
-        $role = $this->user->roles->first();
-
-        $questions = $this->questions
-            ->where('level_id', request('level'))
-            ->where('author_id', $role->id)
-            ->where('object_type_id', request('object_type_id'))->get();
-
-        if (!$questions)
-            throw new NotFoundException('User has no roles or role has no questions.');
-
-        return $questions;
-    }
-
-
-
-
     public function createRegulation($data)
     {
         try {
@@ -251,9 +228,21 @@ class QuestionService
             $checklist = $this->getOrCreateChecklist($checklistData, $object, $blockId, $monitoringID);
 
             $this->updateChecklistStatus($checklist, $checklistData, $roleId, $isPositive);
+            if ($isPositive)
+            {
+                $answeredField = $this->getAnsweredFieldByRole($roleId);
+                $meta = ['user_answered' => $checklist->$answeredField];
 
-            if (!$isPositive) {
-                $allRoleViolations[$index] = $this->handleViolations($checklistData, $checklist);
+                $this->historyService->createHistory(
+                    guId: $checklist->id,
+                    status: $checklist->status->value,
+                    type: LogType::TASK_HISTORY,
+                    date: null,
+                    additionalInfo: $meta
+                );
+            }
+            else{
+                $allRoleViolations[$index] = $this->handleViolations($checklistData, $checklist, $roleId);
             }
         }
         return $allRoleViolations;
@@ -278,7 +267,6 @@ class QuestionService
     private function updateChecklistStatus($checklist, $checklistData, $roleId, $isPositive)
     {
         $answeredField = $this->getAnsweredFieldByRole($roleId);
-        $comment = '';
         $statusField = $isPositive
             ? $this->getPositiveStatusField($checklist, $roleId, $checklistData)
             : ($checklist->status == CheckListStatusEnum::NOT_FILLED ? 1 : CheckListStatusEnum::RAISED->value);
@@ -313,12 +301,7 @@ class QuestionService
             ];
         }
         $checklist->update($updateData);
-        $this->historyService->createHistory(
-            guId: $checklist->id,
-            status: $checklist->status->value,
-            type: LogType::TASK_HISTORY,
-            date: null,
-        );
+
 
     }
 
@@ -344,13 +327,16 @@ class QuestionService
             }
             : null;
     }
-    private function handleViolations($checklistData, $checklist)
+    private function handleViolations($checklistData, $checklist, $roleId)
     {
         $roleViolations = [];
         $question = Question::findOrFail($checklistData['question_id']);
-
+        $answeredField = $this->getAnsweredFieldByRole($roleId);
+        $violationIds = [];
         foreach ($checklistData['violations'] as $value) {
+
             $violation = $this->createViolation($value, $question, $checklist);
+            $violationIds[] = $violation->id;
 
             $this->storeViolationImages($violation, $value['images'] ?? []);
 
@@ -361,6 +347,18 @@ class QuestionService
                 $roleViolations[$role]['question_id'] = $checklistData['question_id'];
             }
         }
+        $meta = [
+            'violations' => $violationIds,
+            'user_answered' => $checklist->$answeredField,
+        ];
+
+        $this->historyService->createHistory(
+            guId: $checklist->id,
+            status: $checklist->status->value,
+            type: LogType::TASK_HISTORY,
+            date: null,
+            additionalInfo:$meta,
+        );
 
         return $roleViolations;
     }

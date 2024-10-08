@@ -25,13 +25,14 @@ class HistoryService
     }
 
 
-    public function createHistory(int $guId, int $status, int $type, ?string $date, ?string $comment = ""): bool
+    public function createHistory(int $guId, int $status, int $type, ?string $date, ?string $comment = "", mixed $additionalInfo = null): bool
     {
         $content = match ($type) {
             LogType::TASK_HISTORY => $this->shapeTaskContent(
                 status: $status,
                 comment: $comment,
-                date: $date
+                date: $date,
+                additionalInfo: $additionalInfo
             ),
             default => null,
         };
@@ -48,7 +49,7 @@ class HistoryService
 
     }
 
-    private function shapeTaskContent(int $status, string $comment, ?string $date): array
+    private function shapeTaskContent(int $status, string $comment, ?string $date, mixed $additionalInfo): array
     {
         $user = Auth::user();
         return [
@@ -57,6 +58,7 @@ class HistoryService
             'date' => ($date == null) ? now() : $date,
             'status' => $status,
             'comment' => $comment,
+            'additionalInfo' => $additionalInfo
         ];
     }
 
