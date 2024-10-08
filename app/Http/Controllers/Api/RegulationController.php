@@ -408,7 +408,10 @@ class RegulationController extends BaseController
 
             $demand = RegulationDemand::query()->where('regulation_id', $regulation->id)->latest()->first();
 
-            if ($demand->act_violation_type_id = 1)
+            if (!$demand) {
+                $status = 1;
+            }
+            elseif($demand->act_violation_type_id = 1)
             {
                 $status = 1;
             }elseif ($demand->act_violation_type_id = 1)
