@@ -57,6 +57,9 @@ class RegulationController extends BaseController
                             ->orWhere('regulations.created_by_role_id', $user->getRoleFromToken());
                     });
                 })
+                ->when($roleId == 27, function ($q) {
+                    $q->where('regulation_status_id', request('status'));
+                })
                 ->when(request('object_name'), function ($q) {
                     $q->whereHas('monitoring.article', function ($query) {
                         $query->where('name', 'like', '%' . request('object_name') . '%');

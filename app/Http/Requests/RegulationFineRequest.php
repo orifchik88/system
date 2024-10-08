@@ -35,6 +35,7 @@ class RegulationFineRequest extends FormRequest
             'amount' => 'required|string',
             'date' => 'required|date',
             'files.*' => 'sometimes|array',
+            'images.*' => 'sometimes|array',
         ];
     }
 }
