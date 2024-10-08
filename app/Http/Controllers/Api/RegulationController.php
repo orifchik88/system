@@ -42,26 +42,30 @@ class RegulationController extends BaseController
             $user = Auth::user();
             $roleId = $user->getRoleFromToken();
 
-            $query = Regulation::query()
-                ->when($roleId == 27, function ($q) {
-                    $q->where('regulation_status_id', request('status'));
-                })
-                ->when($roleId == 26, function ($q) use ($user) {
-                    $q->whereHas('monitoring', function ($query) use ($user) {
-                        $query->whereHas('article', function ($articleQuery) use ($user) {
-                            $articleQuery->where('region_id', $user->region_id);
+            $query = Regulation::query();
+                switch ($roleId) {
+                    case 26:
+                        $query->whereHas('monitoring', function ($q) use ($user) {
+                            $q->whereHas('article', function ($articleQuery) use ($user) {
+                                $articleQuery->where('region_id', $user->region_id);
+                            });
                         });
-                    });
-                }, function ($q) use ($user) {
-                    $q->where(function ($query) use ($user) {
-                        $query->where('regulations.user_id', $user->id)
-                            ->orWhere('regulations.created_by_user_id', $user->id)
-                            ->orWhere('regulations.role_id', $user->getRoleFromToken())
-                            ->orWhere('regulations.created_by_role_id', $user->getRoleFromToken());
-                    });
-                })
+                        break;
+                    case 27:
+//                    case 28:
+                        $query->where('regulation_status_id', request('status'));
+                        break;
+                    default:
+                        $query->where(function ($q) use ($user) {
+                            $q->where('regulations.user_id', $user->id)
+                                ->orWhere('regulations.created_by_user_id', $user->id)
+                                ->orWhere('regulations.role_id', $user->getRoleFromToken())
+                                ->orWhere('regulations.created_by_role_id', $user->getRoleFromToken());
+                        });
+                        break;
+                }
 
-                ->when(request('object_name'), function ($q) {
+                $query->when(request('object_name'), function ($q) {
                     $q->whereHas('monitoring.article', function ($query) {
                         $query->where('name', 'like', '%' . request('object_name') . '%');
                     });
