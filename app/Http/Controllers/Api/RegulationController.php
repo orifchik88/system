@@ -406,9 +406,23 @@ class RegulationController extends BaseController
                 }
             }
 
+            $demand = RegulationDemand::query()->where('regulation_id', $regulation->id)->latest()->first();
+
+            if ($demand->act_violation_type_id = 1)
+            {
+                $status = 1;
+            }elseif ($demand->act_violation_type_id = 1)
+            {
+                $status = 3;
+
+            }else{
+                $status = 1;
+            }
+
             $regulation->update([
                 'deadline' => null,
                 'lawyer_status_id' => LawyerStatusEnum::ADMINISTRATIVE,
+                'regulation_status_id' => $status,
             ]);
 
 
