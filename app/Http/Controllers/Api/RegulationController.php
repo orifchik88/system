@@ -373,6 +373,7 @@ class RegulationController extends BaseController
     {
         try {
             $regulation = Regulation::query()->findOrFaiL($request->regulation_id);
+
             $fine = new RegulationFine();
             $fine->regulation_id = $regulation->id;
             $fine->organization_name = $request->organization_name;
@@ -404,6 +405,13 @@ class RegulationController extends BaseController
                     $fine->documents()->create(['url' => $path]);
                 }
             }
+
+            $regulation->update([
+                'deadline' => null,
+                'lawyer_status_id' => LawyerStatusEnum::ADMINISTRATIVE,
+            ]);
+
+
             return $this->sendSuccess([], 'Data saved successfully');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
