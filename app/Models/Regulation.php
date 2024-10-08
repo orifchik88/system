@@ -2,21 +2,23 @@
 
 namespace App\Models;
 
+use App\Enums\LawyerStatusEnum;
 use App\Models\Traits\RegulationTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Spatie\Permission\Models\Role;
 
 class Regulation extends Model
 {
     use HasFactory, RegulationTrait;
 
     protected $guarded = [];
+
+    protected $casts = [
+        'lawyer_status_id' => LawyerStatusEnum::class
+    ];
 
     public function regulationStatus(): BelongsTo
     {
