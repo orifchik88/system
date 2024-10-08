@@ -69,6 +69,11 @@ class Regulation extends Model
         return $this->hasMany(RegulationViolation::class, 'regulation_id');
     }
 
+    public function fines(): HasMany
+    {
+        return $this->hasMany(RegulationFine::class, 'regulation_id');
+    }
+
 
 
 

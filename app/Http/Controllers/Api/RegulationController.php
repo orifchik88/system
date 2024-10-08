@@ -7,6 +7,7 @@ use App\DTO\RegulationDto;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegulationAcceptRequest;
 use App\Http\Requests\RegulationDemandRequest;
+use App\Http\Requests\RegulationFineRequest;
 use App\Http\Resources\CheckListAnswerResource;
 use App\Http\Resources\ChecklistResource;
 use App\Http\Resources\MonitoringResource;
@@ -18,6 +19,7 @@ use App\Models\CheckListAnswer;
 use App\Models\Monitoring;
 use App\Models\Regulation;
 use App\Models\RegulationDemand;
+use App\Models\RegulationFine;
 use App\Models\Violation;
 use App\Services\RegulationService;
 use Illuminate\Http\JsonResponse;
@@ -117,18 +119,23 @@ class RegulationController extends BaseController
     {
         try {
             DB::beginTransaction();
+            $user = Auth::user();
+            $roleId = $user->getRoleFromToken();
+
             $regulation = Regulation::query()->findOrFaiL($request->post('regulation_id'));
 
             if ($regulation->deadline_asked) return $this->sendError('Muddat oldin  soralgan');
 
-            RegulationDemand::query()->create([
-                'user_id' => Auth::id(),
+            $act = ActViolation::create([
                 'regulation_id' => $regulation->id,
+                'user_id' => Auth::id(),
                 'act_status_id' => 10,
+                'comment' => $request->comment,
+                'role_id' => $roleId,
                 'act_violation_type_id' => 3,
                 'status' => ActViolation::PROGRESS,
-                'comment' => $request->comment
             ]);
+
 
             $regulation->update([
                 'deadline_asked' => true,
@@ -149,20 +156,22 @@ class RegulationController extends BaseController
     {
         try {
             DB::beginTransaction();
-            $regulation = Regulation::query()->findOrFaiL($request->post('regulation_id'));
+            $user = Auth::user();
+            $roleId = $user->getRoleFromToken();
 
-            RegulationDemand::query()->create([
-                'user_id' => Auth::id(),
+            $regulation = Regulation::query()->findOrFaiL($request->post('regulation_id'));
+            $act = ActViolation::create([
                 'regulation_id' => $regulation->id,
+                'user_id' => Auth::id(),
+                'act_status_id' => 11,
+                'comment' => $request->comment,
+                'role_id' => $roleId,
                 'act_violation_type_id' => 3,
-                'act_status_id' => 8,
                 'status' => ActViolation::ACCEPTED,
-                'deadline' => $request->post('deadline'),
-                'comment' => $request->post('comment')
             ]);
 
             $regulation->update([
-                'act_status_id' => 8,
+                'act_status_id' => 11,
                 'deadline' => $request->post('deadline')
             ]);
 
@@ -180,19 +189,23 @@ class RegulationController extends BaseController
         try {
             DB::beginTransaction();
             $regulation = Regulation::query()->findOrFaiL($request->post('regulation_id'));
+            $user = Auth::user();
+            $roleId = $user->getRoleFromToken();
 
-            RegulationDemand::query()->create([
-                'user_id' => Auth::id(),
+
+            $act = ActViolation::create([
                 'regulation_id' => $regulation->id,
+                'user_id' => Auth::id(),
+                'act_status_id' => 12,
+                'comment' => $request->comment,
+                'role_id' => $roleId,
                 'act_violation_type_id' => 3,
-                'act_status_id' => 9,
                 'status' => ActViolation::REJECTED,
-                'comment' => $request->post('comment')
             ]);
 
+
             $regulation->update([
-                'act_status_id' => 9,
-                'deadline' => $request->post('deadline')
+                'act_status_id' => 12,
             ]);
 
             DB::commit();
@@ -342,6 +355,31 @@ class RegulationController extends BaseController
                 'Regulations',
                 pagination($regulations)
             );
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function fine(RegulationFineRequest $request): JsonResponse
+    {
+        try {
+            $regulation = Regulation::query()->findOrFaiL($request->regulation_id);
+            $fine = new RegulationFine();
+            $fine->regulation_id = $regulation->id;
+            $fine->organization_name = $request->organization_name;
+            $fine->user_type = $request->user_type;
+            $fine->inn = $request->inn;
+            $fine->full_name = $request->full_name;
+            $fine->pinfl = $request->pinfl;
+            $fine->position = $request->position;
+            $fine->decision_series = $request->decision_series;
+            $fine->decision_number = $request->decision_number;
+            $fine->substance = $request->substance;
+            $fine->substance_item = $request->substance_item;
+            $fine->amount = $request->amount;
+            $fine->date = $request->date;
+            $fine->save();
+            return $this->sendSuccess([], 'Data saved successfully');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }

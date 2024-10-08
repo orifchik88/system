@@ -128,6 +128,7 @@ Route::group([
     Route::post('reject-deed', [RegulationController::class, 'rejectDeed']);
     Route::post('reject-deed-cmr', [RegulationController::class, 'rejectDeedCmr']);
     Route::post('reject-answer', [RegulationController::class, 'rejectAnswer']);
+    Route::post('create-fine', [RegulationController::class, 'fine']);
 
     Route::get('act-violations', [ViolationController::class, 'actViolations']);
     Route::get('violations', [ViolationController::class, 'violations']);
