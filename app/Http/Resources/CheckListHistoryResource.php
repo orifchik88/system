@@ -16,20 +16,21 @@ class CheckListHistoryResource extends JsonResource
     public function toArray(Request $request): array
     {
         $violations = null;
-        $additionalInfo = $this->content->additionalInfo ?? [];
+        $additionalInfo = $this->content->additionalInfo ?? (object) [];
 
-        if (!empty($additionalInfo['violations'])) {
-            $violations = Violation::query()->whereIn('id', $additionalInfo['violations'])->get();
+        if (!empty($additionalInfo->violations)) {
+            $violations = Violation::query()->whereIn('id', $additionalInfo->violations)->get();
         }
+
         return [
             'id'=> $this->id,
             'user' => UserResource::make($this->user),
             'role' => RoleResource::make($this->role),
-            'comment' => $this->content->comment,
-            'date' => $this->content->date,
-            'status' => $this->content->status,
+            'comment' => $this->content->comment ?? '',
+            'date' => $this->content->date ?? '',
+            'status' => $this->content->status ?? '',
             'violations' => ViolationResource::collection($violations ?: collect()),
-            'user_answered' => $additionalInfo['user_answered'] ?? null,
+            'user_answered' => $additionalInfo->user_answered ?? null,
             'image' => ImageResource::collection($this->images),
             'files' => DocumentResource::collection($this->documents)
         ];
