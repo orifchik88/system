@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\DTO\QuestionDto;
 use App\DTO\RegulationDto;
+use App\Enums\LawyerStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegulationAcceptRequest;
 use App\Http\Requests\RegulationDemandRequest;
@@ -415,7 +416,8 @@ class RegulationController extends BaseController
             $regulation = Regulation::query()->findOrFaiL(request('regulation_id'));
 
             $regulation->update([
-               'lawyer_status_type' => request('type')
+               'lawyer_status_type' => request('type'),
+                'lawyer_status_id' => LawyerStatusEnum::PROCESS
             ]);
 
             return $this->sendSuccess([], 'Data saved successfully');
