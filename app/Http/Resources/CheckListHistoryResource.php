@@ -16,10 +16,16 @@ class CheckListHistoryResource extends JsonResource
     public function toArray(Request $request): array
     {
         $violations = null;
+        $regulationNumbers = null;
         $additionalInfo = $this->content->additionalInfo ?? (object) [];
 
         if (!empty($additionalInfo->violations)) {
             $violations = Violation::query()->whereIn('id', $additionalInfo->violations)->get();
+
+            $regulationNumbers = $violations->flatMap(function ($violation) {
+                return $violation->regulations->pluck('regulation_number');
+            })->unique();
+
         }
 
         return [
@@ -30,6 +36,7 @@ class CheckListHistoryResource extends JsonResource
             'date' => $this->content->date ?? '',
             'status' => $this->content->status ?? '',
             'violations' => ViolationResource::collection($violations ?: collect()),
+            'regulation_numbers' => $regulationNumbers ? $regulationNumbers->values() : null,
             'user_answered' => $additionalInfo->user_answered ?? null,
             'images' => ImageResource::collection($this->images),
             'files' => DocumentResource::collection($this->documents)
