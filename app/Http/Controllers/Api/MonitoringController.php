@@ -129,23 +129,34 @@ class MonitoringController extends BaseController
             $data = request()->all();
             $object = Article::query()->findOrFail($data['object_id']);
             foreach ($data['regular_checklist'] as $item) {
-                $answer = new CheckListAnswer();
-                $answer->question_id = $item['question_id'];
-                $answer->comment = $item['comment'];
-                $answer->block_id = $data['block_id'] ?? null;
-                $answer->work_type_id = $item['work_type_id'];
-                $answer->object_id = $data['object_id'];
-                $answer->object_type_id = $object->object_type_id;
-                $answer->floor = $item['floor'] ?? null;
-                $answer->status = CheckListStatusEnum::FIRST;
-                $answer->save();
+                if ($item['checklist_id'])
+                {
+                    $answer = CheckListAnswer::query()->findOrFail($item['checklist_id']);
+                    $answer->update([
+                        'status' => CheckListStatusEnum::FIRST
+                    ]);
+                    $answer->images()->delete();
+                    $answer->documents()->delete();
+                }else{
+                    $answer = new CheckListAnswer();
+                    $answer->question_id = $item['question_id'];
+                    $answer->comment = $item['comment'];
+                    $answer->block_id = $data['block_id'] ?? null;
+                    $answer->work_type_id = $item['work_type_id'];
+                    $answer->object_id = $data['object_id'];
+                    $answer->object_type_id = $object->object_type_id;
+                    $answer->floor = $item['floor'] ?? null;
+                    $answer->status = CheckListStatusEnum::FIRST;
+                    $answer->save();
+                }
+
 
                 $this->historyService->createHistory(
                     guId: $answer->id,
                     status: $answer->status->value,
                     type: LogType::TASK_HISTORY,
                     date: null,
-                    comment: $item['comment']
+                    comment: $item['comment'] ?? ""
                 );
 
                 $history = CheckListHistory::query()->findOrFail($this->historyService->getHistory($answer->id)->id);
