@@ -32,7 +32,7 @@ class Violation extends Model
 
     public function regulations(): BelongsToMany
     {
-        return $this->belongsToMany(Regulation::class, 'regulation_violations', 'violation_id', 'regulation_id')->withPivot('user_id');
+        return $this->belongsToMany(Regulation::class, 'regulation_violations', 'violation_id', 'regulation_id');
     }
 
     public function level(): BelongsTo
