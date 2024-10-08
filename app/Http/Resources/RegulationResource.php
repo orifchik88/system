@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Enums\UserRoleEnum;
 use App\Models\Block;
+use App\Models\LawyerStatus;
 use App\Models\User;
 use App\Models\Violation;
 use Illuminate\Http\Request;
@@ -32,9 +33,9 @@ class RegulationResource extends JsonResource
             'act_status' => ActStatusResource::make($this->actStatus),
             'regulation_status' => RegulationStatusResource::make($this->regulationStatus),
             'regulation_type' => RegulationTypeResource::make($this->regulationType),
+            'lawyer_status' => LawyerStatusResource::make($this->lawyerStatus),
+            'lawyer_status_type' => $this->lawyer_status_type,
             'violation_count' => $this->violations()->count(),
-//            'demands' => RegulationDemandResource::collection($this->demands),
-//            'act_violations' => ActViolationResource::collection($this->actViolations),
             'created_at' => $this->created_at,
             'deadline_asked' => $this->deadline_asked,
             'from_user' => [

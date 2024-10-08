@@ -76,6 +76,11 @@ class Regulation extends Model
         return $this->hasMany(RegulationFine::class, 'regulation_id');
     }
 
+    public function lawyerStatus(): BelongsTo
+    {
+        return $this->belongsTo(LawyerStatus::class);
+    }
+
 
 
 

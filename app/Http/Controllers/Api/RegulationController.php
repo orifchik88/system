@@ -401,6 +401,22 @@ class RegulationController extends BaseController
         }
     }
 
+    public function sendCourt(): JsonResponse
+    {
+        try {
+            $regulation = Regulation::query()->findOrFaiL(request('regulation_id'));
+
+            $regulation->update([
+               'lawyer_status_type' => request('type')
+            ]);
+
+            return $this->sendSuccess([], 'Data saved successfully');
+
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
 
     public function test()
     {
