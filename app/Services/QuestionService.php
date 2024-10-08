@@ -312,14 +312,14 @@ class QuestionService
                 'status' => $statusField ?? $checklist->status,
             ];
         }
-
+        $checklist->update($updateData);
         $this->historyService->createHistory(
             guId: $checklist->id,
             status: $checklist->status->value,
             type: LogType::TASK_HISTORY,
             date: null,
         );
-        $checklist->update($updateData);
+
     }
 
     private function getAnsweredFieldByRole($roleId)

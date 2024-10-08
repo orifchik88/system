@@ -379,6 +379,22 @@ class RegulationController extends BaseController
             $fine->amount = $request->amount;
             $fine->date = $request->date;
             $fine->save();
+
+            if ($request->hasFile('images'))
+            {
+                foreach ($request->images as $image) {
+                    $path = $image->store('images/fines', 'public');
+                    $fine->images()->create(['url' => $path]);
+                }
+            }
+
+            if ($request->hasFile('files'))
+            {
+                foreach ($request->files as $document) {
+                    $path = $document->store('document/fines', 'public');
+                    $fine->documents()->create(['url' => $path]);
+                }
+            }
             return $this->sendSuccess([], 'Data saved successfully');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
