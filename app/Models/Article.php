@@ -115,6 +115,20 @@ class Article extends Model
         return $this->hasMany(Monitoring::class, 'object_id');
     }
 
+    public function paymentLogs(): HasMany
+    {
+        return $this->hasMany(ArticlePaymentLog::class, 'gu_id');
+    }
+
+    public function totalAmount()
+    {
+        return $this->paymentLogs()
+            ->get()
+            ->sum(function ($log) {
+                return $log->content->additional_info->amount ?? 0;
+            });
+    }
+
 
 
 }

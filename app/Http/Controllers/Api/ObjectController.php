@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\DTO\ObjectDto;
+use App\Enums\LogType;
 use App\Enums\ObjectCheckEnum;
 use App\Enums\ObjectStatusEnum;
 use App\Enums\UserRoleEnum;
@@ -16,6 +17,7 @@ use App\Models\Article;
 use App\Models\ObjectStatus;
 use App\Models\UserRole;
 use App\Services\ArticleService;
+use App\Services\HistoryService;
 use Illuminate\Http\FileHelpers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -23,11 +25,13 @@ use Illuminate\Support\Facades\Auth;
 class ObjectController extends BaseController
 {
 
+    private HistoryService $historyService;
 
     public function __construct(
         protected ArticleService $service,
     )
     {
+        $this->historyService = new HistoryService('article_payment_logs');
     }
 
     public function index(): JsonResponse
@@ -35,23 +39,18 @@ class ObjectController extends BaseController
         $user = Auth::user();
         $roleId = $user->getRoleFromToken();
 
-        if(UserRoleEnum::from($roleId) == UserRoleEnum::REGISTRATOR)
-        {
+        if (UserRoleEnum::from($roleId) == UserRoleEnum::REGISTRATOR) {
             $query = Article::query()->where('region_id', $user->region_id);
-        }
-
-        if (UserRoleEnum::from($roleId))
-        {
+        } elseif (UserRoleEnum::from($roleId) == UserRoleEnum::BUXGALTER) {
             $query = Article::query();
-        }
-        else{
+        } else {
             $query = $user->objects()
                 ->wherePivot('role_id', $roleId);
         }
 
-            $objects = $query->when(request('status'), function ($query){
-                $query->where('articles.object_status_id', request('status'));
-            })
+        $objects = $query->when(request('status'), function ($query) {
+            $query->where('articles.object_status_id', request('status'));
+        })
             ->when(request('name'), function ($query) {
                 $query->searchByName(request('name'));
             })
@@ -76,9 +75,9 @@ class ObjectController extends BaseController
     public function getObject($id): JsonResponse
     {
         try {
-           $object = Article::query()->findOrFail($id);
-           return  $this->sendSuccess(ArticleResource::make($object), 'Object retrieved successfully.');
-        }catch (\Exception $exception){
+            $object = Article::query()->findOrFail($id);
+            return $this->sendSuccess(ArticleResource::make($object), 'Object retrieved successfully.');
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -117,8 +116,6 @@ class ObjectController extends BaseController
             $dto->setResponseId($request->response_id);
 
             $this->service->setObjectDto($dto);
-
-
 
 
             $object = $this->service->createObject();
@@ -205,7 +202,30 @@ class ObjectController extends BaseController
                 'submitted' => $query->clone()->where('object_status_id', ObjectStatusEnum::SUBMITTED)->count(),
             ];
             return $this->sendSuccess($data, 'Object count retrieved successfully.');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function payment(): JsonResponse
+    {
+        try {
+            $object = Article::query()->findOrFail(request('object_id'));
+
+            $meta = ['amount' => request('amount')];
+
+            $this->historyService->createHistory(
+                guId: $object->id,
+                status: $object->object_status_id->value,
+                type: LogType::TASK_HISTORY,
+                date: null,
+                comment: $item['comment'] ?? "",
+                additionalInfo: $meta
+            );
+
+            return $this->sendSuccess([],'Article retrieved successfully.');
+
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }

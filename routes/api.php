@@ -99,6 +99,7 @@ Route::group([
     Route::post('object-create', [ObjectController::class, 'create']);
     Route::post('check-object', [ObjectController::class, 'checkObject']);
     Route::post('change-object-status', [ObjectController::class, 'changeObjectStatus']);
+    Route::post('payment', [ObjectController::class, 'payment']);
 
     Route::get('blocks/{id}', [BlockController::class, 'index']);
     Route::get('block/{id}', [BlockController::class, 'getBlock']);

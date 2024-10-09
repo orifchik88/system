@@ -21,7 +21,7 @@ class ArticleResource extends JsonResource
             'district' => DistrictResource::make($this->district),
             'task_id' => $this->task_id,
             'address' => $this->address,
-            'linear_type'> $this->linear_type,
+            'linear_type' => $this->linear_type,
             'sphere' => SphereResource::make($this->sphere),
             'program' => ProgramResource::make($this->program) ?? null,
             'construction_works' => $this->construction_works,
@@ -34,6 +34,7 @@ class ArticleResource extends JsonResource
             'difficulty_category' => DifficultyCategoryResource::make($this->difficulty),
             'total_price' => $this->construction_cost,
             'price_supervision_service' => $this->price_supervision_service,
+            'paid' => $this->totalAmount(),
             'lat' => $this->lat,
             'long' => $this->long,
             'number_protocol' => $this->number_protocol,
@@ -51,6 +52,7 @@ class ArticleResource extends JsonResource
             'file_energy_efficiency' => $this->file_energy_efficiency,
             'blocks' => ResponseBlockResource::collection($this->blocks),
             'users' => ArticleUserResource::collection($this->users),
+            'payment_logs' => ArticlePaymentLogResource::collection($this->paymentLogs)
         ];
     }
 }
