@@ -75,10 +75,10 @@ class ObjectController extends BaseController
     public function accountObjects(): JsonResponse
     {
         $user = Auth::user();
-        $query = Article::query()->where('region_id', $user->region_id);
+        $query = Article::query()->where('region_id', $user->region_id)->orderBy('created_at', request('created_at', 'DESC'));
 
         if ($status = request('status')) {
-            if ($status == 1) { 
+            if ($status == 1) {
                 $query->whereDoesntHave('paymentLogs')
                     ->orWhereHas('paymentLogs', function ($q) {
                         $q->select(DB::raw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) as total_paid'))
