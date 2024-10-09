@@ -19,7 +19,7 @@ class CheckListAnswerResource extends JsonResource
             'object_name' => $this->object->name,
             'block_id' => $this->block_id,
             'object_id' => $this->object_id,
-            'block_name' => $this->object->name,
+            'block_name' => $this->block->name,
             'question_name' => $this->question->name,
             'deadline' => $this->created_at
         ];
