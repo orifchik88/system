@@ -14,6 +14,7 @@ use App\Http\Resources\ObjectStatusResource;
 use App\Http\Resources\ObjectTypeResource;
 use App\Models\Article;
 use App\Models\ObjectStatus;
+use App\Models\UserRole;
 use App\Services\ArticleService;
 use Illuminate\Http\FileHelpers;
 use Illuminate\Http\JsonResponse;
@@ -37,6 +38,11 @@ class ObjectController extends BaseController
         if(UserRoleEnum::from($roleId) == UserRoleEnum::REGISTRATOR)
         {
             $query = Article::query()->where('region_id', $user->region_id);
+        }
+
+        if (UserRoleEnum::from($roleId))
+        {
+            $query = Article::query();
         }
         else{
             $query = $user->objects()

@@ -23,7 +23,7 @@ class RegulationAcceptRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'deadline' => 'required|string|date_format:d.m.Y',
+            'deadline' => 'required|string|date_format:d-m-Y',
             'regulation_id' => 'required|integer|exists:regulations,id',
             'comment' => 'required|string',
         ];
