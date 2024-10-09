@@ -16,7 +16,7 @@ class ActViolationResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'title' => $this->regulationViolation->violation->title,
+            'title' => $this->regulationViolation->violation ? $this->regulationViolation->violation->title : null,
             'act_status' => ActStatusResource::make($this->actStatus),
             'comment' => $this->comment,
             'type' => $this->act_violation_type_id,

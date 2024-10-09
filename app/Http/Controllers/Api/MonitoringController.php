@@ -8,6 +8,7 @@ use App\Enums\QuestionTypeEnum;
 use App\Enums\UserRoleEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MonitoringRequest;
+use App\Http\Resources\CheckListAnswerFilesResource;
 use App\Http\Resources\CheckListAnswerResource;
 use App\Http\Resources\LevelResource;
 use App\Http\Resources\MonitoringResource;
@@ -193,7 +194,7 @@ class MonitoringController extends BaseController
     {
         try {
            $data  = CheckListAnswer::query()->findOrFail(request('id'));
-           return $this->sendSuccess(CheckListAnswerResource::make($data), 'Checklist Answer');
+           return $this->sendSuccess(CheckListAnswerFilesResource::make($data), 'Checklist Answer');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
