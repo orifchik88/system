@@ -281,9 +281,19 @@ class ObjectController extends BaseController
     public function payment(): JsonResponse
     {
         try {
-            $object = Article::query()->findOrFail(request('object_id'));
+            $object = Article::query()->with('paymentLogs')->findOrFail(request('object_id'));
 
-            $meta = ['amount' => request('amount')];
+            $paid =  $this->paymentLogs()
+                ->get()
+                ->sum(function ($log) {
+                    return $log->content->additionalInfo->amount ?? 0;
+                });
+
+            $cost = (float)$object->price_supervision_service - (request('amount') + $paid);
+
+
+
+            $meta = ['amount' => request('amount'), 'cost' => $cost];
 
             $tableId = $this->historyService->createHistory(
                 guId: $object->id,

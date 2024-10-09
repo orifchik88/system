@@ -23,6 +23,7 @@ class ArticlePaymentLogResource extends JsonResource
             'date' => $this->content->date ?? '',
             'status' => $this->content->status ?? '',
             'amount' => $this->content->additionalInfo->amount ?? 0,
+            'cost' => $this->content->additionalInfo->cost ?? 0,
             'files' => DocumentResource::collection($this->documents),
             'images' => ImageResource::collection($this->images),
         ];
