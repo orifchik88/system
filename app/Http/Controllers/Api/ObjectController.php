@@ -54,6 +54,9 @@ class ObjectController extends BaseController
             ->when(request('name'), function ($query) {
                 $query->searchByName(request('name'));
             })
+            ->when(request('customer'), function ($q) {
+                $q->scopeSearchByOrganization(request('customer'));
+            })
             ->when(request('task_id'), function ($query) {
                 $query->searchByTaskId(request('task_id'));
             })
@@ -101,12 +104,15 @@ class ObjectController extends BaseController
             }
         }
 
-            $objects = $query
-                ->when(request('name'), function ($query) {
+        $objects = $query
+            ->when(request('name'), function ($query) {
                 $query->searchByName(request('name'));
             })
             ->when(request('task_id'), function ($query) {
                 $query->searchByTaskId(request('task_id'));
+            })
+            ->when(request('customer'), function ($q) {
+                $q->scopeSearchByOrganization(request('customer'));
             })
             ->when(request('region_id'), function ($query) {
                 $query->where('articles.region_id', request('region_id'));
@@ -119,7 +125,6 @@ class ObjectController extends BaseController
                     $query->searchByFullName(request('user_search'));
                 });
             })
-
             ->paginate(\request('perPage', 10));
 
         return $this->sendSuccess(ArticleResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
@@ -134,7 +139,7 @@ class ObjectController extends BaseController
                 ->reduce(function ($carry, $article) {
                     return $carry + $article->paymentLogs->sum(function ($log) {
                             return isset($log->content->additionalInfo->amount)
-                                ? (float) $log->content->additionalInfo->amount
+                                ? (float)$log->content->additionalInfo->amount
                                 : 0;
                         });
                 });
@@ -344,7 +349,6 @@ class ObjectController extends BaseController
             $cost = (float)$object->price_supervision_service - (request('amount') + $paid);
 
 
-
             $meta = ['amount' => request('amount'), 'cost' => $cost];
 
             $tableId = $this->historyService->createHistory(
@@ -358,15 +362,13 @@ class ObjectController extends BaseController
 
             $log = ArticlePaymentLog::query()->findOrFail($tableId);
 
-            if (request()->hasFile('file'))
-            {
+            if (request()->hasFile('file')) {
                 $file = request()->file('file');
                 $path = $file->store('document/payment-log', 'public');
                 $log->documents()->create(['url' => $path]);
             }
 
-            if (request()->hasFile('image'))
-            {
+            if (request()->hasFile('image')) {
                 $file = request()->file('image');
                 $path = $file->store('images/payment-log', 'public');
                 $log->images()->create(['url' => $path]);
