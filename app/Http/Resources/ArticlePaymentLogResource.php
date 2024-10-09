@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Image;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -23,6 +24,7 @@ class ArticlePaymentLogResource extends JsonResource
             'status' => $this->content->status ?? '',
             'amount' => $this->content->additionalInfo->amount ?? 0,
             'files' => DocumentResource::collection($this->documents),
+            'images' => Image::collection($this->images),
         ];
     }
 }
