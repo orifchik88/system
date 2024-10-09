@@ -20,6 +20,11 @@ class ArticlePaymentLog extends Model
         return $this->morphMany(Document::class, 'documentable');
     }
 
+    public function images(): MorphMany
+    {
+        return $this->morphMany(Image::class, 'imageable');
+    }
+
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class, 'role_id');

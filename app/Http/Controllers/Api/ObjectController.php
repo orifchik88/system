@@ -113,6 +113,7 @@ class ObjectController extends BaseController
                 ->get();
 
             $statistics = [
+                'all' => $articles->count(),
                 'paid' => 0,
                 'partiallyPaid' => 0,
                 'notPaid' => 0,
@@ -127,7 +128,7 @@ class ObjectController extends BaseController
 
                 $priceSupervisionService = (float)$article->price_supervision_service;
 
-                if ($totalPaid === $priceSupervisionService) {
+                if ($totalPaid >= $priceSupervisionService) {
                     $statistics['paid']++;
                 } elseif ($totalPaid < $priceSupervisionService && $totalPaid > 0) {
                     $statistics['partiallyPaid']++;
@@ -300,6 +301,13 @@ class ObjectController extends BaseController
                 $file = request()->file('file');
                 $path = $file->store('document/payment-log', 'public');
                 $log->documents()->create(['url' => $path]);
+            }
+
+            if (request()->hasFile('image'))
+            {
+                $file = request()->file('image');
+                $path = $file->store('images/payment-log', 'public');
+                $log->images()->create(['url' => $path]);
             }
 
             return $this->sendSuccess([], 'Article retrieved successfully.');
