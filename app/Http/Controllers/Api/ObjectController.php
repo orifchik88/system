@@ -103,6 +103,45 @@ class ObjectController extends BaseController
         }
     }
 
+    public function paymentStatistics(): JsonResponse
+    {
+        try {
+            $regionId = request('region_id');
+
+            $articles = Article::with('paymentLogs')
+                ->where('region_id', $regionId)
+                ->get();
+
+            $statistics = [
+                'paid' => 0,
+                'partiallyPaid' => 0,
+                'notPaid' => 0,
+            ];
+
+            foreach ($articles as $article) {
+                $totalPaid = $article->paymentLogs()
+                    ->get()
+                    ->sum(function ($log) {
+                        return $log->content->additionalInfo->amount ?? 0;
+                    });
+
+                $priceSupervisionService = (float)$article->price_supervision_service;
+
+                if ($totalPaid === $priceSupervisionService) {
+                    $statistics['paid']++;
+                } elseif ($totalPaid < $priceSupervisionService && $totalPaid > 0) {
+                    $statistics['partiallyPaid']++;
+                } else {
+                    $statistics['notPaid']++;
+                }
+            }
+
+            return $this->sendSuccess($statistics, 'Payment Statistics');
+        } catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
     public function getObject($id): JsonResponse
     {
         try {

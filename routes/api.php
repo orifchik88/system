@@ -101,6 +101,7 @@ Route::group([
     Route::post('change-object-status', [ObjectController::class, 'changeObjectStatus']);
     Route::post('payment', [ObjectController::class, 'payment']);
     Route::get('total-payment', [ObjectController::class, 'totalPayment']);
+    Route::get('payment-statistics', [ObjectController::class, 'paymentStatistics']);
 
     Route::get('blocks/{id}', [BlockController::class, 'index']);
     Route::get('block/{id}', [BlockController::class, 'getBlock']);
