@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\BlockController;
+use App\Http\Controllers\Api\ChecklistAnswerController;
 use App\Http\Controllers\Api\EGovController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\RegionController;
@@ -142,6 +143,8 @@ Route::group([
     Route::get('checklist-answer', [MonitoringController::class, 'getChecklistAnswer']);
     Route::get('checklist-regular', [MonitoringController::class, 'getChecklistRegular']);
     Route::post('checklist-file-send', [MonitoringController::class, 'sendCheckListFile']);
+
+    Route::get('check-list-answer', [CheckListAnswerController::class, 'index']);
 
     Route::post('test', [RegulationController::class, 'test']);
 

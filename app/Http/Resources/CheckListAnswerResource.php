@@ -18,8 +18,8 @@ class CheckListAnswerResource extends JsonResource
             'id' => $this->id,
             'object_name' => $this->object->name,
             'block_name' => $this->object->name,
-            'images' => ImageResource::collection($this->images),
-            'files' => DocumentResource::collection($this->documents)
+            'question_name' => $this->question->name,
+            'deadline' => $this->created_at
         ];
     }
 }

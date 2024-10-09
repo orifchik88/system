@@ -39,6 +39,11 @@ class CheckListAnswer extends Model
         return $this->belongsTo(WorkType::class, 'work_type_id');
     }
 
+    public function object(): BelongsTo
+    {
+        return $this->belongsTo(Article::class, 'object_id');
+    }
+
     public function block(): BelongsTo
     {
         return $this->belongsTo(Block::class, 'block_id');
