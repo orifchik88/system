@@ -55,7 +55,7 @@ class ObjectController extends BaseController
                 $query->searchByName(request('name'));
             })
             ->when(request('customer'), function ($q) {
-                $q->scopeSearchByOrganization(request('customer'));
+                $q->sarchByOrganization(request('customer'));
             })
             ->when(request('task_id'), function ($query) {
                 $query->searchByTaskId(request('task_id'));
@@ -112,7 +112,7 @@ class ObjectController extends BaseController
                 $query->searchByTaskId(request('task_id'));
             })
             ->when(request('customer'), function ($q) {
-                $q->scopeSearchByOrganization(request('customer'));
+                $q->searchByOrganization(request('customer'));
             })
             ->when(request('region_id'), function ($query) {
                 $query->where('articles.region_id', request('region_id'));
