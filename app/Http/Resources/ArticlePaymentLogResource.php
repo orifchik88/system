@@ -24,7 +24,7 @@ class ArticlePaymentLogResource extends JsonResource
             'status' => $this->content->status ?? '',
             'amount' => $this->content->additionalInfo->amount ?? 0,
             'files' => DocumentResource::collection($this->documents),
-            'images' => Image::collection($this->images),
+            'images' => ImageResource::collection($this->images),
         ];
     }
 }
