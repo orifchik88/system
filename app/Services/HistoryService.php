@@ -21,11 +21,11 @@ class HistoryService
     }
     public function getHistory(int $id)
     {
-        return $this->repository->getHistory(guId: $id);
+        return $this->repository->getHistory(id: $id);
     }
 
 
-    public function createHistory(int $guId, int $status, int $type, ?string $date, ?string $comment = "", mixed $additionalInfo = null): bool
+    public function createHistory(int $guId, int $status, int $type, ?string $date, ?string $comment = "", mixed $additionalInfo = null): int
     {
         $content = match ($type) {
             LogType::TASK_HISTORY => $this->shapeTaskContent(
@@ -41,11 +41,9 @@ class HistoryService
             return false;
         }
 
-        return $this->repository->createHistory(
-            guId: $guId,
-            content: $content,
-            type: $type
-        );
+
+       return $this->repository->createHistory(guId: $guId, content: $content, type: $type);
+
 
     }
 

@@ -15,6 +15,11 @@ class ArticlePaymentLog extends Model
         'content' => 'object'
     ];
 
+    public function documents(): MorphMany
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
+
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class, 'role_id');

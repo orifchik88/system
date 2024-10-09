@@ -14,6 +14,7 @@ use App\Http\Resources\ObjectSectorResource;
 use App\Http\Resources\ObjectStatusResource;
 use App\Http\Resources\ObjectTypeResource;
 use App\Models\Article;
+use App\Models\ArticlePaymentLog;
 use App\Models\ObjectStatus;
 use App\Models\UserRole;
 use App\Services\ArticleService;
@@ -70,6 +71,36 @@ class ObjectController extends BaseController
             })
             ->paginate(\request('perPage', 10));
         return $this->sendSuccess(ArticleResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
+    }
+
+    public function totalPayment(): JsonResponse
+    {
+        try {
+            $totalPaid = Article::with('paymentLogs')
+                ->where('region_id', request('region_id'))
+                ->get()
+                ->reduce(function ($carry, $article) {
+                    return $carry + $article->paymentLogs->sum(function ($log) {
+                            return isset($log->content->additionalInfo->amount)
+                                ? (float) $log->content->additionalInfo->amount
+                                : 0;
+                        });
+                });
+
+            $totalAmount = Article::where('region_id', request('region_id'))->get()->sum(function ($article) {
+                return (float)$article->price_supervision_service;
+            });
+
+            return $this->sendSuccess([
+                'totalAmount' => $totalAmount,
+                'totalPaid' => $totalPaid,
+                'notPaid' => $totalAmount - $totalPaid,
+            ],
+                'All Payments'
+            );
+        } catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
     }
 
     public function getObject($id): JsonResponse
@@ -214,7 +245,7 @@ class ObjectController extends BaseController
 
             $meta = ['amount' => request('amount')];
 
-            $this->historyService->createHistory(
+            $tableId = $this->historyService->createHistory(
                 guId: $object->id,
                 status: $object->object_status_id->value,
                 type: LogType::TASK_HISTORY,
@@ -223,7 +254,16 @@ class ObjectController extends BaseController
                 additionalInfo: $meta
             );
 
-            return $this->sendSuccess([],'Article retrieved successfully.');
+            $log = ArticlePaymentLog::query()->findOrFail($tableId);
+
+            if (request()->hasFile('file'))
+            {
+                $file = request()->file('file');
+                $path = $file->store('document/payment-log', 'public');
+                $log->documents()->create(['url' => $path]);
+            }
+
+            return $this->sendSuccess([], 'Article retrieved successfully.');
 
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());

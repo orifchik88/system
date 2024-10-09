@@ -25,9 +25,9 @@ class HistoryRepository implements HistoryRepositoryInterface
         ]);
     }
 
-    public function getHistory(int $guId)
+    public function getHistory(int $id)
     {
-        return DB::table($this->table)->where('gu_id', $guId)->where('type', LogType::TASK_HISTORY)->orderBy('id', 'asc')->first([
+        return DB::table($this->table)->where('id', $id)->where('type', LogType::TASK_HISTORY)->first([
             'id',
             'gu_id',
             'content',
@@ -35,9 +35,9 @@ class HistoryRepository implements HistoryRepositoryInterface
         ]);
     }
 
-    public function createHistory(int $guId, array $content, int $type)
+    public function createHistory(int $guId, array $content, int $type): int
     {
-        return DB::table($this->table)->insert([
+        return DB::table($this->table)->insertGetId([
             'gu_id' => $guId,
             'content' => json_encode($content),
             'type' => $type

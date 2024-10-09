@@ -151,7 +151,7 @@ class MonitoringController extends BaseController
                 }
 
 
-                $this->historyService->createHistory(
+                $tableId = $this->historyService->createHistory(
                     guId: $answer->id,
                     status: $answer->status->value,
                     type: LogType::TASK_HISTORY,
@@ -159,7 +159,7 @@ class MonitoringController extends BaseController
                     comment: $item['comment'] ?? ""
                 );
 
-                $history = CheckListHistory::query()->findOrFail($this->historyService->getHistory($answer->id)->id);
+                $history = CheckListHistory::query()->findOrFail($tableId);
 
                 if (!empty($item['files'])){
                     foreach ($item['files'] as $document) {

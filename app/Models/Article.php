@@ -125,7 +125,7 @@ class Article extends Model
         return $this->paymentLogs()
             ->get()
             ->sum(function ($log) {
-                return $log->content->additional_info->amount ?? 0;
+                return $log->content->additionalInfo->amount ?? 0;
             });
     }
 
