@@ -77,6 +77,29 @@ class ObjectController extends BaseController
         $user = Auth::user();
         $query = Article::query()->where('region_id', $user->region_id);
 
+        if ($status = request('status')) {
+            if ($status == 1) { 
+                $query->whereDoesntHave('paymentLogs')
+                    ->orWhereHas('paymentLogs', function ($q) {
+                        $q->select(DB::raw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) as total_paid'))
+                            ->groupBy('gu_id')
+                            ->havingRaw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) = 0');
+                    });
+            } elseif ($status == 2) {
+                $query->whereHas('paymentLogs', function ($q) {
+                    $q->select(DB::raw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) as total_paid'))
+                        ->groupBy('gu_id')
+                        ->havingRaw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) < CAST(price_supervision_service AS DECIMAL)');
+                });
+            } elseif ($status == 3) {
+                $query->whereHas('paymentLogs', function ($q) {
+                    $q->select(DB::raw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) as total_paid'))
+                        ->groupBy('gu_id')
+                        ->havingRaw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) >= CAST(price_supervision_service AS DECIMAL)');
+                });
+            }
+        }
+
             $objects = $query
                 ->when(request('name'), function ($query) {
                 $query->searchByName(request('name'));
@@ -95,23 +118,9 @@ class ObjectController extends BaseController
                     $query->searchByFullName(request('user_search'));
                 });
             })
-                ->when(request('status'), function ($query) {
-                    $status = request('status');
-                    if ($status == 1) {
-                        $query->whereDoesntHave('paymentLogs');
-                    } elseif ($status == 2) {
-                        $query->whereHas('paymentLogs', function ($query) {
-                            $query->select(DB::raw('SUM(CAST(content->additionalInfo->amount AS DECIMAL)) as total_paid'))
-                                ->having('total_paid', '<', DB::raw('price_supervision_service'));
-                        });
-                    } elseif ($status == 3) {
-                        $query->whereHas('paymentLogs', function ($query) {
-                            $query->select(DB::raw('SUM(CAST(content->additionalInfo->amount AS DECIMAL)) as total_paid'))
-                                ->having('total_paid', '>=', DB::raw('price_supervision_service'));
-                        });
-                    }
-                })
+
             ->paginate(\request('perPage', 10));
+
         return $this->sendSuccess(ArticleResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
     }
 

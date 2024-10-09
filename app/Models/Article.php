@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 
 class Article extends Model
@@ -128,6 +129,28 @@ class Article extends Model
                 return $log->content->additionalInfo->amount ?? 0;
             });
     }
+    public function scopeWithPaymentStats(Builder $query)
+    {
+        return $query->with(['paymentLogs' => function ($query) {
+            $query->select('gu_id', DB::raw('SUM(CAST(content->additionalInfo->>amount AS DECIMAL)) as total_paid'))
+                ->groupBy('gu_id');
+        }]);
+    }
+
+    public function getPaymentStatusAttribute()
+    {
+        $totalPaid = $this->paymentLogs->sum('total_paid');
+        $priceSupervisionService = (float)$this->price_supervision_service;
+
+        if ($totalPaid === 0) {
+            return 1;
+        } elseif ($totalPaid < $priceSupervisionService) {
+            return 2;
+        } else {
+            return 3;
+        }
+    }
+
 
 
 
