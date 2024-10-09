@@ -133,7 +133,10 @@ class MonitoringController extends BaseController
                 {
                     $answer = CheckListAnswer::query()->findOrFail($item['checklist_id']);
                     $answer->update([
-                        'status' => CheckListStatusEnum::FIRST
+                        'status' => CheckListStatusEnum::FIRST,
+                        'inspector_answered' => null,
+                        'technic_answered' => null,
+                        'author_answered' => null,
                     ]);
                     $answer->images()->delete();
                     $answer->documents()->delete();
