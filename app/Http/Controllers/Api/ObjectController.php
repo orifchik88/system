@@ -22,6 +22,7 @@ use App\Services\HistoryService;
 use Illuminate\Http\FileHelpers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ObjectController extends BaseController
 {
@@ -42,8 +43,6 @@ class ObjectController extends BaseController
 
         if (UserRoleEnum::from($roleId) == UserRoleEnum::REGISTRATOR) {
             $query = Article::query()->where('region_id', $user->region_id);
-        } elseif (UserRoleEnum::from($roleId) == UserRoleEnum::BUXGALTER) {
-            $query = Article::query();
         } else {
             $query = $user->objects()
                 ->wherePivot('role_id', $roleId);
@@ -69,6 +68,49 @@ class ObjectController extends BaseController
                     $query->searchByFullName(request('user_search'));
                 });
             })
+            ->paginate(\request('perPage', 10));
+        return $this->sendSuccess(ArticleResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
+    }
+
+    public function accountObjects(): JsonResponse
+    {
+        $user = Auth::user();
+        $query = Article::query()->where('region_id', $user->region_id);
+
+            $objects = $query
+                ->when(request('name'), function ($query) {
+                $query->searchByName(request('name'));
+            })
+            ->when(request('task_id'), function ($query) {
+                $query->searchByTaskId(request('task_id'));
+            })
+            ->when(request('region_id'), function ($query) {
+                $query->where('articles.region_id', request('region_id'));
+            })
+            ->when(request('district_id'), function ($query) {
+                $query->where('articles.district_id', request('district_id'));
+            })
+            ->when(request('user_search'), function ($query) {
+                $query->whereHas('users', function ($query) {
+                    $query->searchByFullName(request('user_search'));
+                });
+            })
+                ->when(request('status'), function ($query) {
+                    $status = request('status');
+                    if ($status == 1) {
+                        $query->whereDoesntHave('paymentLogs');
+                    } elseif ($status == 2) {
+                        $query->whereHas('paymentLogs', function ($query) {
+                            $query->select(DB::raw('SUM(CAST(content->additionalInfo->amount AS DECIMAL)) as total_paid'))
+                                ->having('total_paid', '<', DB::raw('price_supervision_service'));
+                        });
+                    } elseif ($status == 3) {
+                        $query->whereHas('paymentLogs', function ($query) {
+                            $query->select(DB::raw('SUM(CAST(content->additionalInfo->amount AS DECIMAL)) as total_paid'))
+                                ->having('total_paid', '>=', DB::raw('price_supervision_service'));
+                        });
+                    }
+                })
             ->paginate(\request('perPage', 10));
         return $this->sendSuccess(ArticleResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
     }
