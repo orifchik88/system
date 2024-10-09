@@ -283,7 +283,7 @@ class ObjectController extends BaseController
         try {
             $object = Article::query()->with('paymentLogs')->findOrFail(request('object_id'));
 
-            $paid =  $this->paymentLogs()
+            $paid = $object->paymentLogs()
                 ->get()
                 ->sum(function ($log) {
                     return $log->content->additionalInfo->amount ?? 0;
