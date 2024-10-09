@@ -57,6 +57,12 @@ class ObjectController extends BaseController
             ->when(request('customer'), function ($q) {
                 $q->sarchByOrganization(request('customer'));
             })
+            ->when(request('funding_source'), function ($q) {
+                $q->where('funding_source_id', request('funding_source'));
+            })
+            ->when(request('object_type'), function ($q) {
+                $q->where('object_type_id', request('object_type'));
+            })
             ->when(request('task_id'), function ($query) {
                 $query->searchByTaskId(request('task_id'));
             })
@@ -110,6 +116,12 @@ class ObjectController extends BaseController
             })
             ->when(request('task_id'), function ($query) {
                 $query->searchByTaskId(request('task_id'));
+            })
+            ->when(request('funding_source'), function ($q) {
+                $q->where('funding_source_id', request('funding_source'));
+            })
+            ->when(request('object_type'), function ($q) {
+                $q->where('object_type_id', request('object_type'));
             })
             ->when(request('customer'), function ($q) {
                 $q->searchByOrganization(request('customer'));
