@@ -15,7 +15,7 @@ class ChecklistAnswerController extends BaseController
             $user = Auth::user();
             $roleId = $user->getRoleFromToken();
 
-            $objectIds = $user->objects()->pluck('id');
+            $objectIds = $user->objects()->pluck('article_id');
 
             $query = CheckListAnswer::query()->whereIn('object_id', $objectIds);
                  switch ($roleId) {
