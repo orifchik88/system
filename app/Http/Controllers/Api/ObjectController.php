@@ -68,6 +68,7 @@ class ObjectController extends BaseController
                     $query->searchByFullName(request('user_search'));
                 });
             })
+            ->orderBy('created_at', request('sort_by_date', 'DESC'))
             ->paginate(\request('perPage', 10));
         return $this->sendSuccess(ArticleResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
     }
@@ -75,7 +76,7 @@ class ObjectController extends BaseController
     public function accountObjects(): JsonResponse
     {
         $user = Auth::user();
-        $query = Article::query()->where('region_id', $user->region_id)->orderBy('created_at', request('created_at', 'DESC'));
+        $query = Article::query()->where('region_id', $user->region_id)->orderBy('created_at', request('sort_by_date', 'DESC'));
 
         if ($status = request('status')) {
             if ($status == 1) {
