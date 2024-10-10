@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\UserRoleEnum;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ClaimRequests\AcceptTask;
 use App\Http\Requests\ClaimRequests\ClaimSendToMinstroy;
 use App\Models\Claim;
 use App\Models\Role;
@@ -132,5 +133,31 @@ class ClaimController extends BaseController
             return $this->sendError("API ERROR", [], "message");
         }
 
+    }
+
+    public function acceptTask(AcceptTask $request)
+    {
+
+        $response = $this->claimService->sendToMinstroy($request);
+
+        if ($response) {
+            return $this->sendSuccess("Yuborildi!", 'Success');
+        } else {
+            return $this->sendError("API ERROR", [], "message");
+        }
+
+    }
+
+    public function getObjects($id)
+    {
+        $data = $this->claimService->getClaimById(
+            id: $id
+        );
+
+        if (!$data) {
+            return $this->sendError("Tizimda xatolik", [], 422);
+        }
+
+        return $this->sendSuccess($data, 'Success!');
     }
 }

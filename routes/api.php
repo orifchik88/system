@@ -158,10 +158,12 @@ Route::group([
         Route::get('tasks', [ClaimController::class, 'tasksList']);
         Route::get('statistics', [ClaimController::class, 'statisticsQuantity']);
         Route::get('task/{id}', [ClaimController::class, 'showTask']);
+        Route::get('objects/{id}', [ClaimController::class, 'getObjects']);
         Route::get('get-pdf', [ClaimController::class, 'getPDF']);
         Route::get('get-conclusion-pdf', [ClaimController::class, 'getConclusionPDF']);
         Route::get('task-histories/{id}', [ClaimController::class, "tasksHistories"]);
         Route::post('send-to-minstroy', [ClaimController::class, "sendToMinstroy"]);
+        Route::post('accept-task', [ClaimController::class, "acceptTask"]);
     });
 
 });

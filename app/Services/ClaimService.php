@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\LogType;
 use App\Helpers\ClaimStatuses;
+use App\Http\Requests\ClaimRequests\AcceptTask;
 use App\Http\Requests\ClaimRequests\ClaimSendToMinstroy;
 use App\Models\Response;
 use App\Repositories\Interfaces\ClaimRepositoryInterface;
@@ -74,6 +75,10 @@ class ClaimService
         return $this->claimRepository->getClaimById(id: $id);
     }
 
+    public function getObjects(int $id)
+    {
+
+    }
 
     public function getClaimByGUID(int $guid)
     {
@@ -165,8 +170,6 @@ class ClaimService
 
     public function sendToMinstroy(ClaimSendToMinstroy $request): bool
     {
-        $user = Auth::user();
-
         $dataArray['SendObjectToMinstroyV2FormCompletedBuildingsRegistrationCadastral'] = [
             'comment_to_send_minstroy' => $request['comment'],
         ];
@@ -190,6 +193,37 @@ class ClaimService
             status: ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG,
             type: LogType::TASK_HISTORY,
             date: null
+        );
+
+        return true;
+    }
+
+    public function acceptTask(AcceptTask $request): bool
+    {
+        $dataArray['SendObjectToGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
+            'comment_to_send_gasn' => $request['comment'],
+        ];
+
+        $claimObject = $this->getClaimByGUID(guid: $request['guid']);
+        $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/send-object-to-gasn", $dataArray);
+
+        if ($response->status() != 200) {
+            return false;
+        }
+
+        $claimObject->update(
+            [
+                'status' => ClaimStatuses::TASK_STATUS_ATTACH_OBJECT,
+                'end_date' => Carbon::now()
+            ]
+        );
+
+        $this->historyService->createHistory(
+            guId: $claimObject->gu_id,
+            status: ClaimStatuses::TASK_STATUS_ATTACH_OBJECT,
+            type: LogType::TASK_HISTORY,
+            date: null,
+            comment: $request['comment']
         );
 
         return true;
