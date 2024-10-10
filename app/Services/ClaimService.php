@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\LogType;
 use App\Helpers\ClaimStatuses;
+use App\Http\Requests\ClaimRequests\ClaimSendToMinstroy;
 use App\Models\Response;
 use App\Repositories\Interfaces\ClaimRepositoryInterface;
 use Illuminate\Support\Carbon;
@@ -162,70 +163,31 @@ class ClaimService
         return $file->json();
     }
 
-    public function confirmIssue(ConsolidationConfirmRequest $request): bool
+    public function sendToMinstroy(ClaimSendToMinstroy $request): bool
     {
         $user = Auth::user();
-        $consolidationObject = $this->getConsolidationObjectById(id: $request['id'], districtCode: $user->staff->district_soato);
-        $request = $request->all();
 
-        $dataSend = [
-            'ResultFormConsolidationRealestateObjects' => [
-                'head_communalservice' => $request['head_communalservice'],
-                'act' => $request['act'],
-            ]
+        $dataArray['SendObjectToMinstroyV2FormCompletedBuildingsRegistrationCadastral'] = [
+            'comment_to_send_minstroy' => $request['comment'],
         ];
 
-        $response = $this->PostRequest("update/id/" . $consolidationObject->gu_id . "/action/result", $dataSend);
+        $claimObject = $this->getClaimByGUID(guid: $request['guid']);
+        $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/send-object-to-minstroy", $dataArray);
 
         if ($response->status() != 200) {
             return false;
         }
 
-        if ($response->object()->status == "ok") {
-            $consolidationObject->update(
-                [
-                    'status' => ClaimStatuses::TASK_STATUS_CONFIRMED,
-                    'end_date' => Carbon::now()
-                ]
-            );
-
-            $this->historyService->createHistory(
-                guId: $consolidationObject->gu_id,
-                status: ClaimStatuses::TASK_STATUS_CONFIRMED,
-                type: LogType::TASK_HISTORY,
-                date: null
-            );
-        }
-
-        return true;
-    }
-
-    public function cancelIssue(ConsolidationRejectRequest $request): bool
-    {
-        $user = Auth::user();
-
-        $dataArray['NotificationRefusalFormConsolidationRealestateObjects'] = [
-            'head_communalservice' => $request['head_communalservice'],
-            'refusal_notify' => $request['refusal_notify'],
-        ];
-
-        $consolidationObject = $this->getConsolidationObjectById(id: $request['id'],districtCode: $user->staff->district_soato);
-        $response = $this->PostRequest("update/id/" . $consolidationObject->gu_id . "/action/notification-refusal", $dataArray);
-
-        if ($response->status() != 200) {
-            return false;
-        }
-
-        $consolidationObject->update(
+        $claimObject->update(
             [
-                'status' => ClaimStatuses::TASK_STATUS_REJECTED,
+                'status' => ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG,
                 'end_date' => Carbon::now()
             ]
         );
 
         $this->historyService->createHistory(
-            guId: $consolidationObject->gu_id,
-            status: ClaimStatuses::TASK_STATUS_REJECTED,
+            guId: $claimObject->gu_id,
+            status: ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG,
             type: LogType::TASK_HISTORY,
             date: null
         );
@@ -236,7 +198,7 @@ class ClaimService
     public function getClaimFromApi($guId)
     {
         if ($guId) {
-            $consolidationDb = $this->getConsolidationObjectByGUID($guId);
+            $consolidationDb = $this->getClaimByGUID($guId);
             $response = $this->GetRequest('get-task?id=' . $guId);
             $consolidationResp = Response::where(['task_id' => $guId]);
             if ($response->status() != 200) {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\UserRoleEnum;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ClaimRequests\ClaimSendToMinstroy;
 use App\Models\Claim;
 use App\Models\Role;
 use App\Services\ClaimService;
@@ -118,5 +119,18 @@ class ClaimController extends BaseController
         );
 
         return $this->sendSuccess($data->items(), 'Successfully sent!', pagination($data));
+    }
+
+    public function sendToMinstroy(ClaimSendToMinstroy $request)
+    {
+
+        $response = $this->claimService->sendToMinstroy($request);
+
+        if ($response) {
+            return $this->sendSuccess("Yuborildi!", 'Success');
+        } else {
+            return $this->sendError("API ERROR", [], "message");
+        }
+
     }
 }

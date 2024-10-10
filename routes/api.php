@@ -161,6 +161,7 @@ Route::group([
         Route::get('get-pdf', [ClaimController::class, 'getPDF']);
         Route::get('get-conclusion-pdf', [ClaimController::class, 'getConclusionPDF']);
         Route::get('task-histories/{id}', [ClaimController::class, "tasksHistories"]);
+        Route::post('send-to-minstroy', [ClaimController::class, "sendToMinstroy"]);
     });
 
 });

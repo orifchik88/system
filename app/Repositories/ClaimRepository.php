@@ -173,6 +173,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                 'claims.region as region',
                 'claims.status as status',
                 DB::raw("(CASE WHEN claims.user_type = 'J' THEN claims.legal_name ELSE claims.ind_name END) as customer"),
+                DB::raw("(CASE WHEN claims.user_type = 'J' THEN claims.legal_tin ELSE claims.ind_pinfl END) as customer_inn"),
                 'claims.expiry_date as expiry_date',
                 'claims.expired as expired',
                 'claims.current_node as current_node',
