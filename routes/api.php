@@ -165,7 +165,6 @@ Route::group([
         Route::get('get-pdf', [ClaimController::class, 'getPDF']);
         Route::get('get-conclusion-pdf', [ClaimController::class, 'getConclusionPDF']);
         Route::get('task-histories/{id}', [ClaimController::class, "tasksHistories"]);
-        Route::get('objects/{id}', [ClaimController::class, "getObjects"]);
         Route::post('send-to-minstroy', [ClaimController::class, "sendToMinstroy"]);
         Route::post('accept-task', [ClaimController::class, "acceptTask"]);
         Route::post('attach-object', [ClaimController::class, "attachObject"]);
