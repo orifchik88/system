@@ -200,7 +200,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                 'claims.end_date as end_date',
                 'claims.created_at as created_at'
             ])
-            ->with(['region', 'district'])
+            ->with(['region', 'district', 'object'])
             ->where('claims.id', $id)->first();
     }
 
@@ -241,7 +241,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                 'claims.end_date as end_date',
                 'claims.created_at as created_at'
             ])
-            ->with(['region', 'district'])
+            ->with(['region', 'district', 'object'])
             ->where(['claims.guid' => $guid])->first();
     }
 
@@ -251,7 +251,7 @@ class ClaimRepository implements ClaimRepositoryInterface
 
         return Article::query()
             ->where('object_status_id', ObjectStatusEnum::PROGRESS->value)
-            ->where(function ($query) use ($claim){
+            ->where(function ($query) use ($claim) {
                 $query->where('cadastral_number', $claim->building_cadastral)
                     ->orWhere('number_protocol', $claim->number_conclusion_project);
             })
@@ -333,7 +333,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                 'claims.end_date as end_date',
                 'claims.created_at as created_at'
             ])
-            ->with(['region', 'district'])
+            ->with(['region', 'district', 'object'])
             ->paginate(request()->get('per_page'));
     }
 

@@ -32,4 +32,9 @@ class Claim extends Model
     {
         return $this->belongsTo(District::class, 'district', 'soato')->select('name_uz', 'soato');
     }
+
+    public function object(): BelongsTo
+    {
+        return $this->belongsTo(Article::class, 'object_id', 'id')->select('id', 'name');
+    }
 }
