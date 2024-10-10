@@ -106,17 +106,23 @@ class ClaimService
 
     public function getTaskList(
         ?int    $regionId,
-        ?string $main,
-        ?string $dateFrom,
-        ?string $dateTo,
+        ?int    $task_id,
+        ?string $name,
+        ?string $customer,
+        ?string $sender,
+        ?int    $districtId,
+        ?string $sortBy,
         ?int    $status,
         ?int    $expired,
     ){
         return $this->claimRepository->getList(
             regionId: $regionId,
-            main: $main,
-            dateFrom: $dateFrom,
-            dateTo: $dateTo,
+            task_id: $task_id,
+            name: $name,
+            customer: $customer,
+            sender: $sender,
+            districtId: $districtId,
+            sortBy: $sortBy,
             status: $status,
             expired: $expired,
         );

@@ -88,9 +88,13 @@ class ClaimController extends BaseController
 
     public function tasksList()
     {
-        $main = request()->get('main', null);
-        $dateFrom = request()->get('date_from', null);
-        $dateTo = request()->get('date_to', null);
+        $task_id = request()->get('task_id', null);
+        $building_name = request()->get('name', null);
+        $customer = request()->get('customer', null);
+        $sender = request()->get('sender', null);
+        $districtId = request()->get('district', null);
+        $sortBy = request()->get('sort_by_date', 'desc');
+
         $status = request()->get('status', null);
         $expired = request()->get('expired', 0);
 
@@ -103,9 +107,12 @@ class ClaimController extends BaseController
 
         $data = $this->claimService->getTaskList(
             regionId: $regionId,
-            main: $main,
-            dateFrom: $dateFrom,
-            dateTo: $dateTo,
+            task_id: $task_id,
+            name: $building_name,
+            customer: $customer,
+            sender: $sender,
+            districtId: $districtId,
+            sortBy: $sortBy,
             status: $status,
             expired: $expired,
         );

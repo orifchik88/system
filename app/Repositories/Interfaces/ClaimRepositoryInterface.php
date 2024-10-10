@@ -29,9 +29,12 @@ interface ClaimRepositoryInterface
 
     public function getList(
         ?int    $regionId,
-        ?string $main,
-        ?string $dateFrom,
-        ?string $dateTo,
+        ?int    $task_id,
+        ?string $name,
+        ?string $customer,
+        ?string $sender,
+        ?int    $districtId,
+        ?string $sortBy,
         ?int    $status,
         ?int    $expired,
     );

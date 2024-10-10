@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 
-
 class ClaimRepository implements ClaimRepositoryInterface
 {
     private Response $response;
@@ -240,30 +239,37 @@ class ClaimRepository implements ClaimRepositoryInterface
 
     public function getList(
         ?int    $regionId,
-        ?string $main,
-        ?string $dateFrom,
-        ?string $dateTo,
+        ?int    $task_id,
+        ?string $name,
+        ?string $customer,
+        ?string $sender,
+        ?int    $districtId,
+        ?string $sortBy,
         ?int    $status,
         ?int    $expired,
     ): LengthAwarePaginator
     {
         return $this->claim->query()
             ->join('regions', 'regions.soato', '=', 'claims.region')
+            ->join('districts', 'districts.soato', '=', 'claims.district')
             ->join('responses', 'responses.task_id', '=', 'claims.guid')
-            ->when(!empty($main), function ($q) use ($main) {
-                $q->where(function ($query) use ($main) {
-                    $query->where('claims.guid', 'LIKE', '%' . $main . '%')
-                        ->orWhere('claims.building_cadastral', 'iLIKE', '%' . $main . '%')
-                        ->orWhere('claims.legal_name', 'iLIKE', '%' . $main . '%')
-                        ->orWhere('claims.ind_name', 'iLIKE', '%' . $main . '%');
-                });
-            })
             ->when($regionId, function ($q) use ($regionId) {
                 $q->where('regions.id', $regionId);
             })
-            ->when((!empty($dateFrom)) && !empty($dateTo), function ($q) use ($dateFrom, $dateTo) {
-                $q->whereDate('claims.created_at', '>=', $dateFrom)
-                    ->whereDate('claims.created_at', '<=', $dateTo);
+            ->when($districtId, function ($q) use ($districtId) {
+                $q->where('districts.id', $districtId);
+            })
+            ->when($task_id, function ($q) use ($task_id) {
+                $q->where('claims.guid', 'LIKE', '%' . $task_id . '%');
+            })
+            ->when($name, function ($q) use ($name) {
+                $q->where('claims.building_name', 'iLIKE', '%' . $name . '%');
+            })
+            ->when($customer, function ($q) use ($customer) {
+                $q->where('claims.legal_name', 'iLIKE', '%' . $customer . '%')->orWhere('claims.ind_name', 'iLIKE', '%' . $customer . '%');
+            })
+            ->when($sender, function ($q) use ($sender) {
+                $q->where('claims.legal_name', 'iLIKE', '%' . $sender . '%')->orWhere('claims.ind_name', 'iLIKE', '%' . $sender . '%');
             })
             ->when($status, function ($q) use ($status) {
                 $q->where('claims.status', $status);
@@ -272,7 +278,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                 $q->where('claims.expired', $expired);
             })
             ->groupBy('claims.id', 'responses.api')
-            ->orderBy('claims.id', 'DESC')
+            ->orderBy('claims.created_at', strtoupper($sortBy))
             ->select([
                 'claims.id as id',
                 'claims.guid as gu_id',
@@ -369,6 +375,7 @@ class ClaimRepository implements ClaimRepositoryInterface
         $claimAdd->legal_address = $info->legal_address->real_value;
         $claimAdd->legal_phone = $info->legal_phone->real_value;
         $claimAdd->building_name = $info->building_name->real_value;
+        $claimAdd->property_owner = $info->property_owner->real_value;
         $claimAdd->building_address = $info->building_address->real_value;
         $claimAdd->building_type = $info->building_type->real_value;
 

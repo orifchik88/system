@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('created_date_mygov')->nullable();
             $table->string('updated_date_mygov')->nullable();
             $table->string('user_type')->nullable();
+            $table->string('property_owner')->nullable();
             $table->string('legal_name')->nullable();
             $table->string('legal_tin')->nullable();
             $table->string('legal_email')->nullable();
