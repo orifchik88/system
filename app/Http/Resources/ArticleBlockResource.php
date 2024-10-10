@@ -26,7 +26,8 @@ class ArticleBlockResource extends JsonResource
             'count_apartments' => $this->count_apartments,
             'height' => $this->height,
             'length' => $this->length,
-            'status' => $this->status
+            'status' => $this->status,
+            'accepted' => $this->accepted
         ];
     }
 }
