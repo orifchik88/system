@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\LogType;
 use App\Helpers\ClaimStatuses;
 use App\Http\Requests\ClaimRequests\AcceptTask;
+use App\Http\Requests\ClaimRequests\AttachBLockAndOrganization;
 use App\Http\Requests\ClaimRequests\AttachObject;
 use App\Http\Requests\ClaimRequests\ClaimSendToMinstroy;
 use App\Models\Response;
@@ -89,7 +90,7 @@ class ClaimService
 
     public function getStatistics(?int $regionId, ?int $districtId)
     {
-        return $this->claimRepository->getStatistics(regionId: $regionId, districtId:$districtId);
+        return $this->claimRepository->getStatistics(regionId: $regionId, districtId: $districtId);
     }
 
     public function getTaskStatisticsRepeated(int $region = null): array
@@ -98,11 +99,12 @@ class ClaimService
     }
 
     public function getStatisticsCount(
-        ?int $regionId,
-        ?int $expired,
+        ?int    $regionId,
+        ?int    $expired,
         ?string $dateFrom,
         ?string $dateTo,
-    ) {
+    )
+    {
         return $this->claimRepository->getStatisticsCount(
             regionId: $regionId,
             expired: $expired,
@@ -121,7 +123,8 @@ class ClaimService
         ?string $sortBy,
         ?int    $status,
         ?int    $expired,
-    ){
+    )
+    {
         return $this->claimRepository->getList(
             regionId: $regionId,
             task_id: $task_id,
@@ -203,7 +206,7 @@ class ClaimService
     {
         $claimObject = $this->getClaimById(id: $request['id']);
 
-        if(!$claimObject)
+        if (!$claimObject)
             return false;
 
         $claimObject->update(
@@ -218,6 +221,39 @@ class ClaimService
             type: LogType::TASK_HISTORY,
             date: null,
             comment: 'Obyekt biriktirildi! Obyekt ID raqami:' . $request['object_id']
+        );
+
+        return true;
+    }
+
+    public function attachBlockAndOrganization(AttachBLockAndOrganization $request): bool
+    {
+        $claimObject = $this->getClaimById(id: $request['id']);
+
+        if (!$claimObject)
+            return false;
+
+        $monitoring = $this->claimRepository->createMonitoring(blocks: $request['blocks'], id: $request['id'], object_id: $claimObject->object_id);
+
+        foreach ($request['organizations'] as $organization) {
+            $this->claimRepository->createOrganizationReview(
+                monitoring_id: $monitoring->id,
+                organization_id: $organization,
+                expiry_date: $this->getExpirationDate(Carbon::now(), 3)
+            );
+        }
+
+        $claimObject->update(
+            [
+                'status' => ClaimStatuses::TASK_STATUS_SENT_ORGANIZATION
+            ]
+        );
+
+        $this->historyService->createHistory(
+            guId: $claimObject->gu_id,
+            status: ClaimStatuses::TASK_STATUS_SENT_ORGANIZATION,
+            type: LogType::TASK_HISTORY,
+            date: null
         );
 
         return true;
@@ -317,7 +353,6 @@ class ClaimService
 
         return null;
     }
-
 
 
     private function GetRequest($url)

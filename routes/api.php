@@ -168,6 +168,7 @@ Route::group([
         Route::post('send-to-minstroy', [ClaimController::class, "sendToMinstroy"]);
         Route::post('accept-task', [ClaimController::class, "acceptTask"]);
         Route::post('attach-object', [ClaimController::class, "attachObject"]);
+        Route::post('attach-blocks', [ClaimController::class, "attachBlockAndOrganization"]);
     });
 
 });

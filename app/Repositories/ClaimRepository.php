@@ -7,6 +7,9 @@ use App\Enums\ObjectStatusEnum;
 use App\Helpers\ClaimStatuses;
 use App\Models\Article;
 use App\Models\Claim;
+use App\Models\ClaimMonitoring;
+use App\Models\ClaimObjectBlock;
+use App\Models\ClaimOrganizationReview;
 use App\Models\Response;
 use App\Repositories\Interfaces\ClaimRepositoryInterface;
 use App\Services\HistoryService;
@@ -273,7 +276,7 @@ class ClaimRepository implements ClaimRepositoryInterface
     ): LengthAwarePaginator
     {
         return $this->claim->query()
-            ->with(['object','region', 'district'])
+            ->with(['object', 'region', 'district'])
             ->join('regions', 'regions.soato', '=', 'claims.region')
             ->join('districts', 'districts.soato', '=', 'claims.district')
             ->join('responses', 'responses.task_id', '=', 'claims.guid')
@@ -434,5 +437,27 @@ class ClaimRepository implements ClaimRepositoryInterface
 
         return $claimAdd;
 
+    }
+
+    public function createMonitoring($blocks, $id, $object_id)
+    {
+        return ClaimMonitoring::query()->create(
+            [
+                'blocks' => $blocks,
+                'claim_id' => $id,
+                'object_id' => $object_id
+            ]
+        );
+    }
+
+    public function createOrganizationReview($monitoring_id, $organization_id, $expiry_date)
+    {
+        ClaimOrganizationReview::query()->create(
+            [
+                'monitoring_id' => $monitoring_id,
+                'organization_id' => $organization_id,
+                'expiry_date' => $expiry_date
+            ]
+        );
     }
 }

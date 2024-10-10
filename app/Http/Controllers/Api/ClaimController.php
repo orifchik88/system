@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Enums\UserRoleEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClaimRequests\AcceptTask;
+use App\Http\Requests\ClaimRequests\AttachBLockAndOrganization;
 use App\Http\Requests\ClaimRequests\AttachObject;
 use App\Http\Requests\ClaimRequests\ClaimSendToMinstroy;
+use App\Models\Block;
 use App\Models\Claim;
 use App\Models\Role;
 use App\Services\ClaimService;
@@ -165,6 +167,34 @@ class ClaimController extends BaseController
     public function attachObject(AttachObject $request)
     {
         $response = $this->claimService->attachObject($request);
+
+        if ($response) {
+            return $this->sendSuccess("Biriktirildi!", 'Success');
+        } else {
+            return $this->sendError("API ERROR", [], "message");
+        }
+    }
+
+    public function attachBlockAndOrganization(AttachBLockAndOrganization $request)
+    {
+        $blocks = $request['blocks'];
+        $errors = [];
+
+        foreach ($blocks as $blockId) {
+            $block = Block::find($blockId);
+
+            if (!$block) {
+                $errors[] = "Blok $blockId topilmadi.";
+            } elseif ($block->status) {
+                $errors[] = "Blok $blockId tugallanmagan.";
+            }
+        }
+
+        if (!empty($errors)) {
+            return $this->sendError('Bloklarda hatolik!', $errors, 400);
+        }
+
+        $response = $this->claimService->attachBlockAndOrganization($request);
 
         if ($response) {
             return $this->sendSuccess("Biriktirildi!", 'Success');
