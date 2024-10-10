@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\UserRoleEnum;
 use App\Http\Controllers\Controller;
+use App\Models\Claim;
 use App\Models\Role;
 use App\Services\ClaimService;
 use App\Services\HistoryService;
@@ -109,6 +110,6 @@ class ClaimController extends BaseController
             expired: $expired,
         );
 
-        return $this->sendSuccess($data, 'Successfully sent!');
+        return $this->sendSuccess($data->items(), 'Successfully sent!', pagination($data));
     }
 }
