@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Enums\LogType;
 use App\Repositories\Interfaces\HistoryRepositoryInterface;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class HistoryRepository implements HistoryRepositoryInterface
@@ -40,7 +41,9 @@ class HistoryRepository implements HistoryRepositoryInterface
         return DB::table($this->table)->insertGetId([
             'gu_id' => $guId,
             'content' => json_encode($content),
-            'type' => $type
+            'type' => $type,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
         ]);
     }
 }

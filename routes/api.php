@@ -2,11 +2,13 @@
 
 use App\Http\Controllers\Api\BlockController;
 use App\Http\Controllers\Api\ChecklistAnswerController;
+use App\Http\Controllers\Api\ClaimController;
 use App\Http\Controllers\Api\EGovController;
 use App\Http\Controllers\Api\PdfController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\RegionController;
 use App\Http\Controllers\Api\RegulationController;
+use App\Http\Controllers\Api\ResponseController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\UserTypeController;
 use App\Http\Controllers\Api\PermissionController;
@@ -29,6 +31,7 @@ Route::post('check-user', [InformationController::class, 'checkUser']);
 
 
 Route::post('test-api', [EGovController::class, 'getPassportInfo']);
+Route::get('{module}/{api}/responses', [ResponseController::class, 'receive']);
 
 Route::get('pdf-generation', [PdfController::class, 'generation']);
 
@@ -153,6 +156,16 @@ Route::group([
 
 
     Route::post('test', [RegulationController::class, 'test']);
+
+    Route::group(['prefix' => 'claim'], function () {
+        Route::get('tasks', [ClaimController::class, 'tasksList']);
+        Route::get('statistics', [ClaimController::class, 'statisticsQuantity']);
+        Route::get('task/{id}', [ClaimController::class, 'showTask']);
+        Route::get('get-pdf', [ClaimController::class, 'getPDF']);
+        Route::get('get-conclusion-pdf', [ClaimController::class, 'getConclusionPDF']);
+        Route::get('task-histories/{id}', [ClaimController::class, "tasksHistories"]);
+        Route::post('send-to-minstroy', [ClaimController::class, "sendToMinstroy"]);
+    });
 
 });
 
