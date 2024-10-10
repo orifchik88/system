@@ -16,10 +16,10 @@ class CheckListAnswerResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'task_id' => $this->object->task_id ?? null,
+            'block' => ArticleBlockResource::make($this->block),
             'object_name' => $this->object->name,
-            'block_id' => $this->block_id,
             'object_id' => $this->object_id,
-            'block_name' => $this->block->name,
             'question_name' => $this->question->name,
             'deadline' => $this->created_at
         ];

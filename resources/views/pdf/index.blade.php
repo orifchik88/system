@@ -92,6 +92,15 @@
     <table style="margin-bottom: 30px; width:100%; border: none; border-collapse:collapse">
         <tbody>
         <tr>
+            <td style="width: 40%; vertical-align: middle;">
+                Kimga:
+            </td>
+            <td style="text-align: center;">
+                <div style="text-transform: uppercase; padding-bottom: 5px; border-bottom: 1px solid #BFBFBF">"TEZKOR SHINAM QURILISH" XUSUSIY KORXONA</div>
+                <span style="font-size: 10px">(Tashkilot nomi)</span>
+            </td>
+        </tr>
+        <tr>
             <td style="width: 40%; vertical-align: bottom;">
                 Qurilish obyektining nomi:
             </td>

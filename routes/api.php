@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\BlockController;
 use App\Http\Controllers\Api\ChecklistAnswerController;
 use App\Http\Controllers\Api\EGovController;
+use App\Http\Controllers\Api\PdfController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\RegionController;
 use App\Http\Controllers\Api\RegulationController;
@@ -145,6 +146,8 @@ Route::group([
     Route::post('checklist-file-send', [MonitoringController::class, 'sendCheckListFile']);
 
     Route::get('check-list-answer', [CheckListAnswerController::class, 'index']);
+
+    Route::post('pdf-generation', [PdfController::class, 'generation']);
 
     Route::post('test', [RegulationController::class, 'test']);
 
