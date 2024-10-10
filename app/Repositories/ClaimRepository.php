@@ -3,7 +3,9 @@
 namespace App\Repositories;
 
 use App\Enums\LogType;
+use App\Enums\ObjectStatusEnum;
 use App\Helpers\ClaimStatuses;
+use App\Models\Article;
 use App\Models\Claim;
 use App\Models\Response;
 use App\Repositories\Interfaces\ClaimRepositoryInterface;
@@ -202,7 +204,6 @@ class ClaimRepository implements ClaimRepositoryInterface
             ->where('claims.id', $id)->first();
     }
 
-
     public function getClaimByGUID(int $guid)
     {
         return $this->claim->query()
@@ -244,6 +245,18 @@ class ClaimRepository implements ClaimRepositoryInterface
             ->where(['claims.guid' => $guid])->first();
     }
 
+    public function getObjects(int $id)
+    {
+        $claim = $this->getClaimById($id);
+
+        return Article::query()
+            ->where('object_status_id', ObjectStatusEnum::PROGRESS->value)
+            ->where(function ($query) use ($claim){
+                $query->where('cadastral_number', $claim->building_cadastral)
+                    ->orWhere('number_protocol', $claim->number_conclusion_project);
+            })
+            ->get();
+    }
 
     public function getList(
         ?int    $regionId,

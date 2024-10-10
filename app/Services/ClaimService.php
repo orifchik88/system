@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\LogType;
 use App\Helpers\ClaimStatuses;
 use App\Http\Requests\ClaimRequests\AcceptTask;
+use App\Http\Requests\ClaimRequests\AttachObject;
 use App\Http\Requests\ClaimRequests\ClaimSendToMinstroy;
 use App\Models\Response;
 use App\Repositories\Interfaces\ClaimRepositoryInterface;
@@ -77,7 +78,7 @@ class ClaimService
 
     public function getObjects(int $id)
     {
-
+        return $this->claimRepository->getObjects(id: $id);
     }
 
     public function getClaimByGUID(int $guid)
@@ -193,6 +194,30 @@ class ClaimService
             status: ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG,
             type: LogType::TASK_HISTORY,
             date: null
+        );
+
+        return true;
+    }
+
+    public function attachObject(AttachObject $request): bool
+    {
+        $claimObject = $this->getClaimById(id: $request['id']);
+
+        if(!$claimObject)
+            return false;
+
+        $claimObject->update(
+            [
+                'object_id' => $request['object_id']
+            ]
+        );
+
+        $this->historyService->createHistory(
+            guId: $claimObject->gu_id,
+            status: ClaimStatuses::TASK_STATUS_ATTACH_OBJECT,
+            type: LogType::TASK_HISTORY,
+            date: null,
+            comment: 'Obyekt biriktirildi! Obyekt ID raqami:' . $request['object_id']
         );
 
         return true;

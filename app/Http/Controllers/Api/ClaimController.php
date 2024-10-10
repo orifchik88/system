@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Enums\UserRoleEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClaimRequests\AcceptTask;
+use App\Http\Requests\ClaimRequests\AttachObject;
 use App\Http\Requests\ClaimRequests\ClaimSendToMinstroy;
 use App\Models\Claim;
 use App\Models\Role;
@@ -150,7 +151,7 @@ class ClaimController extends BaseController
 
     public function getObjects($id)
     {
-        $data = $this->claimService->getClaimById(
+        $data = $this->claimService->getObjects(
             id: $id
         );
 
@@ -159,5 +160,16 @@ class ClaimController extends BaseController
         }
 
         return $this->sendSuccess($data, 'Success!');
+    }
+
+    public function attachObject(AttachObject $request)
+    {
+        $response = $this->claimService->attachObject($request);
+
+        if ($response) {
+            return $this->sendSuccess("Biriktirildi!", 'Success');
+        } else {
+            return $this->sendError("API ERROR", [], "message");
+        }
     }
 }
