@@ -443,7 +443,7 @@ class ClaimRepository implements ClaimRepositoryInterface
     {
         return ClaimMonitoring::query()->create(
             [
-                'blocks' => $blocks,
+                'blocks' => json_encode($blocks),
                 'claim_id' => $id,
                 'object_id' => $object_id
             ]
