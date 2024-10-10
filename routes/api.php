@@ -33,6 +33,10 @@ Route::post('check-user', [InformationController::class, 'checkUser']);
 Route::post('test-api', [EGovController::class, 'getPassportInfo']);
 Route::get('{module}/{api}/responses', [ResponseController::class, 'receive']);
 
+Route::get('pdf-generation', [PdfController::class, 'generation']);
+
+
+
 Route::group([
     'middleware' => 'auth:api'
 ], function() {
@@ -150,7 +154,6 @@ Route::group([
 
     Route::get('check-list-answer', [CheckListAnswerController::class, 'index']);
 
-    Route::post('pdf-generation', [PdfController::class, 'generation']);
 
     Route::post('test', [RegulationController::class, 'test']);
 

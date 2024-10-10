@@ -49,4 +49,9 @@ class Violation extends Model
     {
         return $this->belongsTo(Basis::class, 'bases_id');
     }
+
+    public function question(): BelongsTo
+    {
+        return $this->belongsTo(Question::class, 'question_id');
+    }
 }
