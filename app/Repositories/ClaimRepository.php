@@ -271,6 +271,7 @@ class ClaimRepository implements ClaimRepositoryInterface
     ): LengthAwarePaginator
     {
         return $this->claim->query()
+            ->with(['object','region', 'district'])
             ->join('regions', 'regions.soato', '=', 'claims.region')
             ->join('districts', 'districts.soato', '=', 'claims.district')
             ->join('responses', 'responses.task_id', '=', 'claims.guid')
@@ -307,6 +308,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                 'claims.district as district',
                 'claims.region as region',
                 'claims.status as status',
+                'claims.object_id as object_id',
                 DB::raw("(CASE WHEN claims.user_type = 'J' THEN claims.legal_name ELSE claims.ind_name END) as customer"),
                 DB::raw("(CASE WHEN claims.user_type = 'J' THEN claims.legal_tin ELSE claims.ind_pinfl END) as customer_inn"),
                 DB::raw("(CASE WHEN claims.property_owner = '2' THEN claims.ind_name ELSE null END) as property_owner"),
@@ -333,7 +335,6 @@ class ClaimRepository implements ClaimRepositoryInterface
                 'claims.end_date as end_date',
                 'claims.created_at as created_at'
             ])
-            ->with(['region', 'district', 'object'])
             ->paginate(request()->get('per_page'));
     }
 
