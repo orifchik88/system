@@ -138,7 +138,7 @@ class ClaimController extends BaseController
     public function acceptTask(AcceptTask $request)
     {
 
-        $response = $this->claimService->sendToMinstroy($request);
+        $response = $this->claimService->acceptTask($request);
 
         if ($response) {
             return $this->sendSuccess("Yuborildi!", 'Success');
