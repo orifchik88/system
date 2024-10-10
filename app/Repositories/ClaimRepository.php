@@ -174,6 +174,8 @@ class ClaimRepository implements ClaimRepositoryInterface
                 'claims.status as status',
                 DB::raw("(CASE WHEN claims.user_type = 'J' THEN claims.legal_name ELSE claims.ind_name END) as customer"),
                 DB::raw("(CASE WHEN claims.user_type = 'J' THEN claims.legal_tin ELSE claims.ind_pinfl END) as customer_inn"),
+                DB::raw("(CASE WHEN claims.property_owner IS NOT NULL THEN claims.ind_name ELSE claims.ind_name END) as property_owner"),
+                DB::raw("(CASE WHEN claims.property_owner IS NOT NULL THEN claims.ind_pinfl ELSE claims.ind_pinfl END) as property_tin"),
                 'claims.expiry_date as expiry_date',
                 'claims.expired as expired',
                 'claims.current_node as current_node',
@@ -181,6 +183,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                 'claims.building_address as building_address',
                 'claims.building_name as building_name',
                 'claims.building_type as building_type',
+                'claims.building_type_name as building_type_name',
                 'claims.user_type as user_type',
                 'claims.document_registration_based as document_registration_based',
                 'claims.object_project_user as object_project_user',
@@ -213,6 +216,9 @@ class ClaimRepository implements ClaimRepositoryInterface
                 'claims.region as region',
                 'claims.status as status',
                 DB::raw("(CASE WHEN claims.user_type = 'J' THEN claims.legal_name ELSE claims.ind_name END) as customer"),
+                DB::raw("(CASE WHEN claims.user_type = 'J' THEN claims.legal_tin ELSE claims.ind_pinfl END) as customer_inn"),
+                DB::raw("(CASE WHEN claims.property_owner IS NOT NULL THEN claims.ind_name ELSE claims.ind_name END) as property_owner"),
+                DB::raw("(CASE WHEN claims.property_owner IS NOT NULL THEN claims.ind_pinfl ELSE claims.ind_pinfl END) as property_tin"),
                 'claims.expiry_date as expiry_date',
                 'claims.expired as expired',
                 'claims.current_node as current_node',
@@ -220,6 +226,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                 'claims.building_address as building_address',
                 'claims.building_name as building_name',
                 'claims.building_type as building_type',
+                'claims.building_type_name as building_type_name',
                 'claims.user_type as user_type',
                 'claims.document_registration_based as document_registration_based',
                 'claims.object_project_user as object_project_user',
@@ -290,6 +297,9 @@ class ClaimRepository implements ClaimRepositoryInterface
                 'claims.region as region',
                 'claims.status as status',
                 DB::raw("(CASE WHEN claims.user_type = 'J' THEN claims.legal_name ELSE claims.ind_name END) as customer"),
+                DB::raw("(CASE WHEN claims.user_type = 'J' THEN claims.legal_tin ELSE claims.ind_pinfl END) as customer_inn"),
+                DB::raw("(CASE WHEN claims.property_owner IS NOT NULL THEN claims.ind_name ELSE claims.ind_name END) as property_owner"),
+                DB::raw("(CASE WHEN claims.property_owner IS NOT NULL THEN claims.ind_pinfl ELSE claims.ind_pinfl END) as property_tin"),
                 'claims.expiry_date as expiry_date',
                 'claims.expired as expired',
                 'claims.current_node as current_node',
@@ -297,12 +307,13 @@ class ClaimRepository implements ClaimRepositoryInterface
                 'claims.building_address as building_address',
                 'claims.building_name as building_name',
                 'claims.building_type as building_type',
+                'claims.building_type_name as building_type_name',
                 'claims.user_type as user_type',
                 'claims.document_registration_based as document_registration_based',
                 'claims.object_project_user as object_project_user',
                 'claims.type_object_dic as type_object_dic',
                 'claims.cadastral_passport_object_file as cadastral_passport_object_file',
-                'claims.property_owner as property_owner',
+
                 'claims.ownership_document as ownership_document',
                 'claims.act_acceptance_customer_file as act_acceptance_customer_file',
                 'claims.declaration_conformity_file as declaration_conformity_file',
@@ -382,6 +393,7 @@ class ClaimRepository implements ClaimRepositoryInterface
         $claimAdd->property_owner = $info->property_owner->real_value;
         $claimAdd->building_address = $info->building_address->real_value;
         $claimAdd->building_type = $info->building_type->real_value;
+        $claimAdd->building_type_name = $info->building_type->value;
 
         $claimAdd->ind_pinfl = $info->ind_pinfl->real_value;
         $claimAdd->ind_passport = $info->ind_passport->real_value;
