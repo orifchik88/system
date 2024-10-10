@@ -81,6 +81,16 @@ class Regulation extends Model
         return $this->belongsTo(LawyerStatus::class);
     }
 
+    public function question(): BelongsTo
+    {
+        return $this->belongsTo(Question::class);
+    }
+
+    public function checklist(): BelongsTo
+    {
+        return $this->belongsTo(CheckListAnswer::class, 'checklist_id');
+    }
+
 
 
 
