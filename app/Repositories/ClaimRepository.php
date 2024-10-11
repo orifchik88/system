@@ -206,7 +206,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                     'claims.end_date as end_date',
                     'claims.created_at as created_at'
                 ])
-                ->with(['region', 'district', 'object'])
+                ->with(['region', 'district', 'object', 'reviews'])
                 ->where('claims.id', $id)->first();
         else
             return $this->claim->query()
