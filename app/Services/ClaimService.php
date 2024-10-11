@@ -423,14 +423,14 @@ class ClaimService
 
         $claimObject->update(
             [
-                'status' => ClaimStatuses::TASK_STATUS_REJECTED,
+                'status' => ClaimStatuses::TASK_STATUS_ORGANIZATION_REJECTED,
                 'end_date' => Carbon::now()
             ]
         );
 
         $this->historyService->createHistory(
             guId: $claimObject->gu_id,
-            status: ClaimStatuses::TASK_STATUS_REJECTED,
+            status: ClaimStatuses::TASK_STATUS_ORGANIZATION_REJECTED,
             type: LogType::TASK_HISTORY,
             date: null,
             comment: $request['comment']
