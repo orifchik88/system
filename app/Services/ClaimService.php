@@ -330,7 +330,8 @@ class ClaimService
 
         if ($countFinished == count($reviews)) {
             if ($countSuccessFinished == count($reviews)) {
-                $reviewObject->monitoring->claim->update(
+                $this->claimRepository->updateClaim(
+                    $reviewObject->monitoring->claim->guid,
                     [
                         'status' => ClaimStatuses::TASK_STATUS_INSPECTOR
                     ]
@@ -343,7 +344,8 @@ class ClaimService
                     date: null
                 );
             } else {
-                $reviewObject->monitoring->claim->update(
+                $this->claimRepository->updateClaim(
+                    $reviewObject->monitoring->claim->guid,
                     [
                         'status' => ClaimStatuses::TASK_STATUS_OPERATOR
                     ]
