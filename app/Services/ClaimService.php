@@ -398,7 +398,7 @@ class ClaimService
     public function rejectByOperator(RejectClaimByOperator $request)
     {
         $dataArray['SendToStepConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
-            'comment_gasn' => $request['comment'],
+            'comment_gasn' => 'Ariza tashkilotlar tomonidan ijobiy xulosa taqdim etilmaganligi sababli rad etildi.',
         ];
 
         $claimObject = $this->getClaimById(id: $request['id'], role_id: null);
