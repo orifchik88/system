@@ -46,12 +46,14 @@ class QuestionService
         $this->historyService = new HistoryService('check_list_histories');
     }
 
-    public function getQuestionList($blockId = null, $type = null)
+    public function getQuestionList($blockId = null, $type = null, $block_type = null)
     {
         $block = Block::find($blockId) ?? null;
-
-
-        $workTypes = WorkType::query()->orderBy('id', 'ASC')->get();
+        
+        if ($block_type == null)
+            $workTypes = WorkType::query()->where(['type' => 1])->orderBy('id', 'ASC')->get();
+        else
+            $workTypes = WorkType::query()->orderBy('id', 'ASC')->get();
 
         $generatedQuestions = [];
 
@@ -91,7 +93,7 @@ class QuestionService
                             'work_type_status' => $workTypeStatus,
                             'status' => $answer ? $answer->status : 1,
                             'checklist_id' => $answer ? $answer->id : null,
-                            'inspector_answered' => $answer ? $answer->inspector_answered: null,
+                            'inspector_answered' => $answer ? $answer->inspector_answered : null,
                             'technic_answered' => $answer ? $answer->technic_answered : null,
                             'author_answered' => $answer ? $answer->author_answered : null,
                             'logs' => $answer ? CheckListHistoryResource::collection($answer->logs) : null
@@ -112,7 +114,7 @@ class QuestionService
                         'status' => $answer ? $answer->status : 1,
                         'work_type_status' => $workTypeStatus,
                         'checklist_id' => $answer ? $answer->id : null,
-                        'inspector_answered' => $answer ? $answer->inspector_answered: null,
+                        'inspector_answered' => $answer ? $answer->inspector_answered : null,
                         'technic_answered' => $answer ? $answer->technic_answered : null,
                         'author_answered' => $answer ? $answer->author_answered : null,
                         'logs' => $answer ? CheckListHistoryResource::collection($answer->logs) : null
@@ -150,7 +152,8 @@ class QuestionService
         return $workTypeStatus;
     }
 
-    private function filterAnswers($answers, $workTypeId, $floor = null, $questionId = null) {
+    private function filterAnswers($answers, $workTypeId, $floor = null, $questionId = null)
+    {
         return $answers->filter(function ($value, $key) use ($workTypeId, $floor, $questionId) {
             $parts = explode('-', $key);
 
@@ -169,6 +172,7 @@ class QuestionService
             return true;
         });
     }
+
     public function createRegulation($data)
     {
         try {
@@ -178,15 +182,14 @@ class QuestionService
 
             $monitoring = $this->createMonitoring($data, $object, $roleId);
 
-            if (!empty($data['public'])){
+            if (!empty($data['public'])) {
                 $this->createPublicChecklist($data['public'], $object, $roleId, $monitoring->id);
             }
 
-            if (!empty($data['positive']))
-            {
+            if (!empty($data['positive'])) {
                 $this->handleChecklists($data['positive'], $object, $data['block_id'], $roleId, true, null);
             }
-            if (!empty($data['negative'])){
+            if (!empty($data['negative'])) {
                 $allRoleViolations = $this->handleChecklists($data['negative'], $object, $data['block_id'], $roleId, false, null);
                 $this->createRegulations($allRoleViolations, $object, $monitoring->id, $roleId);
             }
@@ -200,13 +203,13 @@ class QuestionService
 
     private function createPublicChecklist($data, $object, $roleId, $monitoringID)
     {
-            if (!empty($data['positive'])){
-                $this->handleChecklists($data['positive'], $object, null, $roleId, true, $monitoringID);
-            }
-            if (!empty($data['negative'])){
-                $allRoleViolations = $this->handleChecklists($data['negative'], $object, null, $roleId, false, $monitoringID);
-                $this->createRegulations($allRoleViolations, $object, $monitoringID, $roleId);
-            }
+        if (!empty($data['positive'])) {
+            $this->handleChecklists($data['positive'], $object, null, $roleId, true, $monitoringID);
+        }
+        if (!empty($data['negative'])) {
+            $allRoleViolations = $this->handleChecklists($data['negative'], $object, null, $roleId, false, $monitoringID);
+            $this->createRegulations($allRoleViolations, $object, $monitoringID, $roleId);
+        }
     }
 
     private function createMonitoring($data, $object, $roleId)
@@ -228,8 +231,7 @@ class QuestionService
             $checklist = $this->getOrCreateChecklist($checklistData, $object, $blockId, $monitoringID);
 
             $this->updateChecklistStatus($checklist, $checklistData, $roleId, $isPositive);
-            if ($isPositive)
-            {
+            if ($isPositive) {
                 $answeredField = $this->getAnsweredFieldByRole($roleId);
                 $meta = ['user_answered' => $checklist->$answeredField];
 
@@ -240,8 +242,7 @@ class QuestionService
                     date: null,
                     additionalInfo: $meta
                 );
-            }
-            else{
+            } else {
                 $allRoleViolations[$index] = $this->handleViolations($checklistData, $checklist, $roleId);
             }
         }
@@ -327,6 +328,7 @@ class QuestionService
             }
             : null;
     }
+
     private function handleViolations($checklistData, $checklist, $roleId)
     {
         $roleViolations = [];
@@ -357,7 +359,7 @@ class QuestionService
             status: $checklist->status->value,
             type: LogType::TASK_HISTORY,
             date: null,
-            additionalInfo:$meta,
+            additionalInfo: $meta,
         );
 
         return $roleViolations;
@@ -434,8 +436,7 @@ class QuestionService
             ]);
             $actViolations = $regulation->actViolations()->where('act_violation_type_id', 1)->get();
 
-            if ($actViolations->isNotEmpty())
-            {
+            if ($actViolations->isNotEmpty()) {
                 foreach ($dto->meta as $item) {
                     $act = ActViolation::query()
                         ->where('regulation_violation_id', $item['violation_id'])
@@ -444,9 +445,9 @@ class QuestionService
                         ->first();
 
                     $act->update([
-                            'act_status_id' => 1,
-                            'comment' => $item['comment'],
-                            'status' => ActViolation::PROGRESS,
+                        'act_status_id' => 1,
+                        'comment' => $item['comment'],
+                        'status' => ActViolation::PROGRESS,
                     ]);
 
                     $act->images()->delete();
@@ -464,8 +465,7 @@ class QuestionService
                         'status' => ActViolation::PROGRESS
                     ]);
 
-                    if (!empty($item['images']))
-                    {
+                    if (!empty($item['images'])) {
                         foreach ($item['images'] as $image) {
                             $path = $image->store('images/act-violation', 'public');
                             $act->images()->create(['url' => $path]);
@@ -473,8 +473,7 @@ class QuestionService
                         }
                     }
 
-                    if (!empty($item['files']))
-                    {
+                    if (!empty($item['files'])) {
                         foreach ($item['files'] as $document) {
                             $path = $document->store('document/act-violation', 'public');
                             $act->documents()->create(['url' => $path]);
@@ -483,7 +482,7 @@ class QuestionService
                     }
                 }
 
-            }else{
+            } else {
                 foreach ($dto->meta as $item) {
                     $act = ActViolation::create([
                         'regulation_violation_id' => $item['violation_id'],
@@ -507,8 +506,7 @@ class QuestionService
                         'status' => ActViolation::PROGRESS
                     ]);
 
-                    if (!empty($item['images']))
-                    {
+                    if (!empty($item['images'])) {
                         foreach ($item['images'] as $image) {
                             $path = $image->store('images/act-violation', 'public');
                             $act->images()->create(['url' => $path]);
@@ -516,8 +514,7 @@ class QuestionService
                         }
                     }
 
-                    if (!empty($item['files']))
-                    {
+                    if (!empty($item['files'])) {
                         foreach ($item['files'] as $document) {
                             $path = $document->store('document/act-violation', 'public');
                             $act->documents()->create(['url' => $path]);
@@ -527,7 +524,6 @@ class QuestionService
 
                 }
             }
-
 
 
             DB::commit();
