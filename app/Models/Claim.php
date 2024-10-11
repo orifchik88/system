@@ -57,7 +57,7 @@ class Claim extends Model
     {
         if ($this->monitoring() != null) {
             $blockArray = json_decode($this->monitoring()->first()->blocks, true);
-            return Block::whereIn('id', $blockArray)->get();
+            return Block::with(['type', 'mode'])->whereIn('id', $blockArray)->get();
         } else return null;
     }
 }
