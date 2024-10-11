@@ -295,7 +295,7 @@ class ClaimService
             $apiType . "_datetime" => Carbon::now()
         ];
 
-        $statusReview = $request['comment'] == 1;
+        $statusReview = $request['answer_type'] == 1;
         $this->claimRepository->updateConclusionOrganization(data: $requestData, id: $reviewObject->id, status: $statusReview);
 
         if ($reviewObject->organization_id != 18) {
