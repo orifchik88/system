@@ -9,6 +9,7 @@ use App\Http\Requests\ClaimRequests\AttachBLockAndOrganization;
 use App\Http\Requests\ClaimRequests\AttachObject;
 use App\Http\Requests\ClaimRequests\ClaimSendToMinstroy;
 use App\Http\Requests\ClaimRequests\ConclusionOrganization;
+use App\Http\Requests\ClaimRequests\RejectClaimByOperator;
 use App\Models\Block;
 use App\Models\Claim;
 use App\Models\ClaimMonitoring;
@@ -216,6 +217,17 @@ class ClaimController extends BaseController
 
         if ($response) {
             return $this->sendSuccess($response, 'Success');
+        } else {
+            return $this->sendError("API ERROR", "message");
+        }
+    }
+
+    public function rejectClaimByOperator(RejectClaimByOperator $request)
+    {
+        $response = $this->claimService->rejectByOperator($request);
+
+        if ($response) {
+            return $this->sendSuccess('Rad Qilindi!', 'Success');
         } else {
             return $this->sendError("API ERROR", "message");
         }

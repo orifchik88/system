@@ -170,6 +170,7 @@ Route::group([
         Route::post('attach-object', [ClaimController::class, "attachObject"]);
         Route::post('attach-blocks', [ClaimController::class, "attachBlockAndOrganization"]);
         Route::post('conclusion-organization', [ClaimController::class, "conclusionOrganization"]);
+        Route::post('reject-by-operator', [ClaimController::class, "rejectClaimByOperator"]);
     });
 
 });

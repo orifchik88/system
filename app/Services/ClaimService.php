@@ -9,6 +9,7 @@ use App\Http\Requests\ClaimRequests\AttachBLockAndOrganization;
 use App\Http\Requests\ClaimRequests\AttachObject;
 use App\Http\Requests\ClaimRequests\ClaimSendToMinstroy;
 use App\Http\Requests\ClaimRequests\ConclusionOrganization;
+use App\Http\Requests\ClaimRequests\RejectClaimByOperator;
 use App\Models\ClaimOrganizationReview;
 use App\Models\Response;
 use App\Models\Role;
@@ -289,7 +290,7 @@ class ClaimService
 
         $requestData = [
             $apiType . "_match" => $request['answer_type'],
-            $apiType . "_territory" => Auth::user()->district->name_uz,
+            $apiType . "_territory" => (in_array($reviewObject->organization_id, [15, 16])) ? Auth::user()->district->name_uz : Auth::user()->region->name_uz,
             $apiType . "_name" => Auth::user()->name . ' ' . Auth::user()->surname,
             $apiType . "_conclusion_act" => $request['comment'],
             $apiType . "_datetime" => Carbon::now()
@@ -394,6 +395,50 @@ class ClaimService
         return true;
     }
 
+    public function rejectByOperator(RejectClaimByOperator $request)
+    {
+        $dataArray['SendToStepConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
+            'comment_gasn' => $request['comment'],
+        ];
+
+        $claimObject = $this->getClaimById(id: $request['id'], role_id: null);
+        $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/send-to-step-conclusion-gasn", $dataArray);
+
+        if ($response->status() != 200) {
+            return false;
+        }
+
+        $dataArray['IssuanceExtractRejectGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
+            "gasn_name_reject" => Auth::user()->name . ' ' . Auth::user()->surname,
+            "gasn_match" => 2,
+            "gasn_cause_reject" => $request['comment'],
+            "gasn_territory_reject" => Auth::user()->region->name_uz
+        ];
+
+        $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/send-to-step-conclusion-gasn", $dataArray);
+
+        if ($response->status() != 200) {
+            return false;
+        }
+
+        $claimObject->update(
+            [
+                'status' => ClaimStatuses::TASK_STATUS_REJECTED,
+                'end_date' => Carbon::now()
+            ]
+        );
+
+        $this->historyService->createHistory(
+            guId: $claimObject->gu_id,
+            status: ClaimStatuses::TASK_STATUS_REJECTED,
+            type: LogType::TASK_HISTORY,
+            date: null,
+            comment: $request['comment']
+        );
+
+        return true;
+    }
+
     public function getClaimFromApi($guId)
     {
         if ($guId) {
@@ -457,7 +502,6 @@ class ClaimService
 
         return null;
     }
-
 
     private function GetRequest($url)
     {
