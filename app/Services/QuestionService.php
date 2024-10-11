@@ -49,7 +49,7 @@ class QuestionService
     public function getQuestionList($blockId = null, $type = null, $block_type = null)
     {
         $block = Block::find($blockId) ?? null;
-        
+
         if ($block_type == null)
             $workTypes = WorkType::query()->where(['type' => 1])->orderBy('id', 'ASC')->get();
         else

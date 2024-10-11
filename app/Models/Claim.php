@@ -16,7 +16,7 @@ class Claim extends Model
     protected $table = 'claims';
 
     protected $guarded = [];
-    protected $appends = ['expiry_day'];
+    protected $appends = ['expiry_day', 'blocks'];
 
     public function getExpiryDayAttribute()
     {
@@ -46,5 +46,16 @@ class Claim extends Model
     public function reviews(): HasMany
     {
         return $this->hasMany(ClaimOrganizationReview::class);
+    }
+
+    public function monitoring(): BelongsTo
+    {
+        return $this->belongsTo(ClaimMonitoring::class, 'id', 'claim_id');
+    }
+
+    public function getBlocksAttribute()
+    {
+        $blockArray = json_decode($this->monitoring()->first()->blocks, true);
+        return Block::whereIn('id', $blockArray)->get();
     }
 }
