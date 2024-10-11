@@ -295,7 +295,8 @@ class ClaimService
             $apiType . "_datetime" => Carbon::now()
         ];
 
-        $this->claimRepository->updateConclusionOrganization(data: $requestData, id: $reviewObject->id);
+        $statusReview = $request['comment'] == 1;
+        $this->claimRepository->updateConclusionOrganization(data: $requestData, id: $reviewObject->id, status: $statusReview);
 
         if ($reviewObject->organization_id != 18) {
             $dataArray['Conclusion' . ucfirst($apiType) . 'V2FormCompletedBuildingsRegistrationCadastral'] = $requestData;
