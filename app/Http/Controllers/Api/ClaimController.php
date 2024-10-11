@@ -11,6 +11,7 @@ use App\Http\Requests\ClaimRequests\ClaimSendToMinstroy;
 use App\Http\Requests\ClaimRequests\ConclusionOrganization;
 use App\Models\Block;
 use App\Models\Claim;
+use App\Models\ClaimMonitoring;
 use App\Models\Role;
 use App\Services\ClaimService;
 use App\Services\HistoryService;
@@ -121,7 +122,9 @@ class ClaimController extends BaseController
             sortBy: $sortBy,
             status: $status,
             expired: $expired,
+            role_id: (in_array($roleId, [15, 16, 17, 18, 19])) ? $roleId : null
         );
+
 
         return $this->sendSuccess($data->items(), 'Successfully sent!', pagination($data));
     }

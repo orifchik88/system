@@ -126,6 +126,7 @@ class ClaimService
         ?string $sortBy,
         ?int    $status,
         ?int    $expired,
+        ?int    $role_id
     )
     {
         return $this->claimRepository->getList(
@@ -138,6 +139,7 @@ class ClaimService
             sortBy: $sortBy,
             status: $status,
             expired: $expired,
+            role_id: $role_id
         );
     }
 
@@ -236,10 +238,15 @@ class ClaimService
         if (!$claimObject)
             return false;
 
-        $monitoring = $this->claimRepository->createMonitoring(blocks: $request['blocks'], id: $request['id'], object_id: $claimObject->object_id);
+        $monitoring = $this->claimRepository->createMonitoring(
+            blocks: $request['blocks'],
+            organizations: $request['organizations'],
+            id: $request['id'],
+            object_id: $claimObject->object_id);
 
         foreach ($request['organizations'] as $organization) {
             $this->claimRepository->createOrganizationReview(
+                claim_id: $request['id'],
                 monitoring_id: $monitoring->id,
                 organization_id: $organization,
                 expiry_date: $this->getExpirationDate(Carbon::now(), 3)

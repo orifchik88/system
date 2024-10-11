@@ -37,9 +37,10 @@ interface ClaimRepositoryInterface
         ?string $sortBy,
         ?int    $status,
         ?int    $expired,
+        ?int    $role_id
     );
 
-    public function createOrganizationReview(int $monitoring_id, int $organization_id, string $expiry_date);
-    public function createMonitoring(array $blocks, int $id, int $object_id);
+    public function createOrganizationReview(int $claim_id, int $monitoring_id, int $organization_id, string $expiry_date);
+    public function createMonitoring(array $blocks, array $organizations, int $id, int $object_id);
     public function updateConclusionOrganization(array $data, $id);
 }
