@@ -249,7 +249,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                     'claims.created_at as created_at'
                 ])
                 ->with(['region', 'district', 'object'])
-                ->where('claims.id', $id)->first();
+                ->where('claims.id', $id)->where('claim_organization_reviews.organization_id', $role_id)->first();
     }
 
     public function getClaimByGUID(int $guid)
@@ -418,6 +418,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                 ->when($expired, function ($q) use ($expired) {
                     $q->where('claims.expired', $expired);
                 })
+                ->where('claim_organization_reviews.organization_id', $role_id)
                 ->groupBy('claims.id', 'responses.api', 'claim_organization_reviews.id')
                 ->orderBy('claims.created_at', strtoupper($sortBy))
                 ->select([
