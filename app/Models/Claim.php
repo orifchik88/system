@@ -55,7 +55,9 @@ class Claim extends Model
 
     public function getBlocksAttribute()
     {
-        $blockArray = json_decode($this->monitoring()->first()->blocks, true);
-        return Block::whereIn('id', $blockArray)->get();
+        if ($this->monitoring() != null) {
+            $blockArray = json_decode($this->monitoring()->first()->blocks, true);
+            return Block::whereIn('id', $blockArray)->get();
+        } else return null;
     }
 }
