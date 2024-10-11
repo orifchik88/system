@@ -215,9 +215,9 @@ class ClaimController extends BaseController
         $response = $this->claimService->conclusionOrganization($request);
 
         if ($response) {
-            return $this->sendSuccess("Saqlandi!", 'Success');
+            return $this->sendSuccess($response, 'Success');
         } else {
-            return $this->sendError("API ERROR", [], "message");
+            return $this->sendError("API ERROR", "message");
         }
     }
 }

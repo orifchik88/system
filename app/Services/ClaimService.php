@@ -328,8 +328,8 @@ class ClaimService
             }
         }
 
-        if ($countFinished == count($reviews)) {
-            if ($countSuccessFinished == count($reviews)) {
+        if ($countFinished == $reviews->count()) {
+            if ($countSuccessFinished == $reviews->count()) {
                 $this->claimRepository->updateClaim(
                     $reviewObject->monitoring->claim->guid,
                     [
@@ -360,7 +360,7 @@ class ClaimService
             }
         }
 
-        return true;
+        return $this->claimRepository->getClaimById($reviewObject->monitoring->claim->id, Auth::user()->getRoleFromToken());
     }
 
     public function acceptTask(AcceptTask $request): bool
