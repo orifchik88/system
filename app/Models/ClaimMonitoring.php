@@ -11,4 +11,9 @@ class ClaimMonitoring extends Model
 
     protected $guarded = [];
     protected $table = 'claim_monitoring';
+
+    public function claim()
+    {
+        return $this->belongsTo(Claim::class, 'claim_id', 'id');
+    }
 }

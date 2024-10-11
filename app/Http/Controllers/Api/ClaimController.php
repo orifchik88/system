@@ -8,6 +8,7 @@ use App\Http\Requests\ClaimRequests\AcceptTask;
 use App\Http\Requests\ClaimRequests\AttachBLockAndOrganization;
 use App\Http\Requests\ClaimRequests\AttachObject;
 use App\Http\Requests\ClaimRequests\ClaimSendToMinstroy;
+use App\Http\Requests\ClaimRequests\ConclusionOrganization;
 use App\Models\Block;
 use App\Models\Claim;
 use App\Models\Role;
@@ -198,6 +199,17 @@ class ClaimController extends BaseController
 
         if ($response) {
             return $this->sendSuccess("Biriktirildi!", 'Success');
+        } else {
+            return $this->sendError("API ERROR", [], "message");
+        }
+    }
+
+    public function conclusionOrganization(ConclusionOrganization $request)
+    {
+        $response = $this->claimService->conclusionOrganization($request);
+
+        if ($response) {
+            return $this->sendSuccess("Saqlandi!", 'Success');
         } else {
             return $this->sendError("API ERROR", [], "message");
         }

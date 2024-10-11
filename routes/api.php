@@ -169,6 +169,7 @@ Route::group([
         Route::post('accept-task', [ClaimController::class, "acceptTask"]);
         Route::post('attach-object', [ClaimController::class, "attachObject"]);
         Route::post('attach-blocks', [ClaimController::class, "attachBlockAndOrganization"]);
+        Route::post('conclusion-organization', [ClaimController::class, "conclusionOrganization"]);
     });
 
 });

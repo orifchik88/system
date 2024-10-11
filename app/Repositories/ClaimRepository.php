@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Enums\LogType;
 use App\Enums\ObjectStatusEnum;
 use App\Helpers\ClaimStatuses;
+use App\Http\Requests\ClaimRequests\ConclusionOrganization;
 use App\Models\Article;
 use App\Models\Claim;
 use App\Models\ClaimMonitoring;
@@ -457,6 +458,16 @@ class ClaimRepository implements ClaimRepositoryInterface
                 'monitoring_id' => $monitoring_id,
                 'organization_id' => $organization_id,
                 'expiry_date' => $expiry_date
+            ]
+        );
+    }
+
+    public function updateConclusionOrganization(array $data, $id)
+    {
+        ClaimOrganizationReview::query()->where('id', $id)->update(
+            [
+                'answered_at' => Carbon::now(),
+                'answer' => base64_encode(gzcompress($data, 9))
             ]
         );
     }

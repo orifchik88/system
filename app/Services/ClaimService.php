@@ -8,7 +8,10 @@ use App\Http\Requests\ClaimRequests\AcceptTask;
 use App\Http\Requests\ClaimRequests\AttachBLockAndOrganization;
 use App\Http\Requests\ClaimRequests\AttachObject;
 use App\Http\Requests\ClaimRequests\ClaimSendToMinstroy;
+use App\Http\Requests\ClaimRequests\ConclusionOrganization;
+use App\Models\ClaimOrganizationReview;
 use App\Models\Response;
+use App\Models\Role;
 use App\Repositories\Interfaces\ClaimRepositoryInterface;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -254,6 +257,56 @@ class ClaimService
             status: ClaimStatuses::TASK_STATUS_SENT_ORGANIZATION,
             type: LogType::TASK_HISTORY,
             date: null
+        );
+
+        return true;
+    }
+
+    public function conclusionOrganization(ConclusionOrganization $request)
+    {
+        $reviewObject = ClaimOrganizationReview::with('monitoring')->where('id', $request['review_id'])->first();
+
+        if (!$reviewObject)
+            return false;
+
+
+        $apiType = match ($reviewObject->organization_id) {
+            15 => 'mchs',
+            16 => 'ses',
+            17, 18 => 'nogiron',
+            19 => 'kvartira',
+        };
+
+
+        $apiUrl = "update/id/" . $reviewObject->monitoring->claim->guid . "/action/conclusion-" . $apiType;
+
+        $requestData = [
+            $apiType . "_match" => $request['answer_type'],
+            $apiType . "_territory" => Auth::user()->district->name_uz,
+            $apiType . "_name" => Auth::user()->name . ' ' . Auth::user()->surname,
+            $apiType . "_conclusion_act" => $request['comment'],
+            $apiType . "_datetime" => Carbon::now()
+        ];
+
+        $this->claimRepository->updateConclusionOrganization(data: $requestData, id: $reviewObject->id);
+
+        if ($reviewObject->organization_id != 18) {
+            $dataArray['Conclusion' . ucfirst($apiType) . 'V2FormCompletedBuildingsRegistrationCadastral'] = $requestData;
+            $response = $this->PostRequest($apiUrl, $dataArray);
+
+            if ($response->status() != 200) {
+                return false;
+            }
+        }
+
+        $role = Role::find($reviewObject->organization_id);
+
+        $this->historyService->createHistory(
+            guId: $reviewObject->monitoring->claim->guid,
+            status: ClaimStatuses::TASK_STATUS_SENT_ORGANIZATION,
+            type: LogType::TASK_HISTORY,
+            date: null,
+            comment: $role->name . ' xulosa berdi! Xulosa shakllantirgan shaxs: ' . $requestData[$apiType . '_name']
         );
 
         return true;
