@@ -218,6 +218,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                     'responses.api as api_type',
                     'claims.district as district',
                     'claim_organization_reviews.id as review_id',
+                    'claim_organization_reviews.answered_at as answered_at',
                     'claims.region as region',
                     'claims.status as status',
                     'claims.object_id as object_id',
