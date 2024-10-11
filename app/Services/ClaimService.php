@@ -402,11 +402,11 @@ class ClaimService
         ];
 
         $claimObject = $this->getClaimById(id: $request['id'], role_id: null);
-        $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/send-to-step-conclusion-gasn", $dataArray);
+        //$response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/send-to-step-conclusion-gasn", $dataArray);
 
-        if ($response->status() != 200) {
-            return false;
-        }
+//        if ($response->status() != 200) {
+//            return false;
+//        }
 
         $dataArray['IssuanceExtractRejectGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
             "gasn_name_reject" => Auth::user()->name . ' ' . Auth::user()->surname,
@@ -415,7 +415,7 @@ class ClaimService
             "gasn_territory_reject" => Auth::user()->region->name_uz
         ];
 
-        $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/send-to-step-conclusion-gasn", $dataArray);
+        $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/issuance-extract-reject-gasn", $dataArray);
 
         if ($response->status() != 200) {
             return false;
