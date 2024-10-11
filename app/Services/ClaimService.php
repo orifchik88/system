@@ -273,7 +273,7 @@ class ClaimService
     {
         $reviewObject = ClaimOrganizationReview::with('monitoring')->where('id', $request['review_id'])->first();
 
-        if (!$reviewObject)
+        if (!$reviewObject || $reviewObject->answered_at != null)
             return false;
 
 
@@ -316,6 +316,47 @@ class ClaimService
             date: null,
             comment: $role->name . ' xulosa berdi! Xulosa shakllantirgan shaxs: ' . $requestData[$apiType . '_name']
         );
+
+        $reviews = ClaimOrganizationReview::where('claim_id', $reviewObject->claim_id)->get();
+        $countFinished = 0;
+        $countSuccessFinished = 0;
+        foreach ($reviews as $review) {
+            if ($review->answered_at != null) {
+                $countFinished++;
+                if ($review->status)
+                    $countSuccessFinished++;
+            }
+        }
+
+        if ($countFinished == count($reviews)) {
+            if ($countSuccessFinished == count($reviews)) {
+                $reviewObject->monitoring->claim->update(
+                    [
+                        'status' => ClaimStatuses::TASK_STATUS_INSPECTOR
+                    ]
+                );
+
+                $this->historyService->createHistory(
+                    guId: $reviewObject->monitoring->claim->guid,
+                    status: ClaimStatuses::TASK_STATUS_INSPECTOR,
+                    type: LogType::TASK_HISTORY,
+                    date: null
+                );
+            } else {
+                $reviewObject->monitoring->claim->update(
+                    [
+                        'status' => ClaimStatuses::TASK_STATUS_OPERATOR
+                    ]
+                );
+
+                $this->historyService->createHistory(
+                    guId: $reviewObject->monitoring->claim->guid,
+                    status: ClaimStatuses::TASK_STATUS_OPERATOR,
+                    type: LogType::TASK_HISTORY,
+                    date: null
+                );
+            }
+        }
 
         return true;
     }
