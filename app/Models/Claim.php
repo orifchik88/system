@@ -55,7 +55,7 @@ class Claim extends Model
 
     public function getBlocksAttribute()
     {
-        if ($this->monitoring() != null) {
+        if ($this->monitoring()->first() != null) {
             $blockArray = json_decode($this->monitoring()->first()->blocks, true);
             return Block::with(['type', 'mode'])->whereIn('id', $blockArray)->get();
         } else return null;
