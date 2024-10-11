@@ -22,7 +22,7 @@ interface ClaimRepositoryInterface
         ?string $dateTo
     );
     public function getStatistics(?int $regionId, ?int $districtId);
-    public function getClaimById(int $id);
+    public function getClaimById(int $id, ?int $role_id);
     public function getClaimByGUID(int $guid);
     public function getObjects(int $id);
     public function createClaim($consolidationGov, $expiryDate);

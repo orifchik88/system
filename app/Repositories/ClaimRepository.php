@@ -167,46 +167,88 @@ class ClaimRepository implements ClaimRepositoryInterface
             ->first();
     }
 
-    public function getClaimById(int $id, int $districtCode = null)
+    public function getClaimById(int $id, ?int $role_id)
     {
-        return $this->claim->query()
-            ->join('responses', 'responses.task_id', '=', 'claims.guid')
-            ->select([
-                'claims.id as id',
-                'claims.guid as gu_id',
-                'responses.api as api_type',
-                'claims.district as district',
-                'claims.region as region',
-                'claims.status as status',
-                'claims.object_id as object_id',
-                DB::raw("(CASE WHEN claims.user_type = 'J' THEN claims.legal_name ELSE claims.ind_name END) as customer"),
-                DB::raw("(CASE WHEN claims.user_type = 'J' THEN claims.legal_tin ELSE claims.ind_pinfl END) as customer_inn"),
-                DB::raw("(CASE WHEN claims.property_owner = '2' THEN claims.ind_name ELSE null END) as property_owner"),
-                DB::raw("(CASE WHEN claims.property_owner = '2' THEN claims.ind_pinfl ELSE null END) as property_tin"),
-                'claims.expiry_date as expiry_date',
-                'claims.expired as expired',
-                'claims.current_node as current_node',
-                'claims.building_cadastral as building_cadastral',
-                'claims.building_address as building_address',
-                'claims.building_name as building_name',
-                'claims.building_type as building_type',
-                'claims.building_type_name as building_type_name',
-                'claims.user_type as user_type',
-                'claims.document_registration_based as document_registration_based',
-                'claims.object_project_user as object_project_user',
-                'claims.type_object_dic as type_object_dic',
-                'claims.cadastral_passport_object_file as cadastral_passport_object_file',
-                'claims.ownership_document as ownership_document',
-                'claims.act_acceptance_customer_file as act_acceptance_customer_file',
-                'claims.declaration_conformity_file as declaration_conformity_file',
-                'claims.conclusion_approved_planning_file as conclusion_approved_planning_file',
-                'claims.building_cadastral as building_cadastral',
-                'claims.number_conclusion_project as number_conclusion_project',
-                'claims.end_date as end_date',
-                'claims.created_at as created_at'
-            ])
-            ->with(['region', 'district', 'object'])
-            ->where('claims.id', $id)->first();
+        if ($role_id == null)
+            return $this->claim->query()
+                ->join('responses', 'responses.task_id', '=', 'claims.guid')
+                ->select([
+                    'claims.id as id',
+                    'claims.guid as gu_id',
+                    'responses.api as api_type',
+                    'claims.district as district',
+                    'claims.region as region',
+                    'claims.status as status',
+                    'claims.object_id as object_id',
+                    DB::raw("(CASE WHEN claims.user_type = 'J' THEN claims.legal_name ELSE claims.ind_name END) as customer"),
+                    DB::raw("(CASE WHEN claims.user_type = 'J' THEN claims.legal_tin ELSE claims.ind_pinfl END) as customer_inn"),
+                    DB::raw("(CASE WHEN claims.property_owner = '2' THEN claims.ind_name ELSE null END) as property_owner"),
+                    DB::raw("(CASE WHEN claims.property_owner = '2' THEN claims.ind_pinfl ELSE null END) as property_tin"),
+                    'claims.expiry_date as expiry_date',
+                    'claims.expired as expired',
+                    'claims.current_node as current_node',
+                    'claims.building_cadastral as building_cadastral',
+                    'claims.building_address as building_address',
+                    'claims.building_name as building_name',
+                    'claims.building_type as building_type',
+                    'claims.building_type_name as building_type_name',
+                    'claims.user_type as user_type',
+                    'claims.document_registration_based as document_registration_based',
+                    'claims.object_project_user as object_project_user',
+                    'claims.type_object_dic as type_object_dic',
+                    'claims.cadastral_passport_object_file as cadastral_passport_object_file',
+                    'claims.ownership_document as ownership_document',
+                    'claims.act_acceptance_customer_file as act_acceptance_customer_file',
+                    'claims.declaration_conformity_file as declaration_conformity_file',
+                    'claims.conclusion_approved_planning_file as conclusion_approved_planning_file',
+                    'claims.building_cadastral as building_cadastral',
+                    'claims.number_conclusion_project as number_conclusion_project',
+                    'claims.end_date as end_date',
+                    'claims.created_at as created_at'
+                ])
+                ->with(['region', 'district', 'object'])
+                ->where('claims.id', $id)->first();
+        else
+            return $this->claim->query()
+                ->join('responses', 'responses.task_id', '=', 'claims.guid')
+                ->join('claim_organization_reviews', 'claim_organization_reviews.claim_id', '=', 'claims.id')
+                ->select([
+                    'claims.id as id',
+                    'claims.guid as gu_id',
+                    'responses.api as api_type',
+                    'claims.district as district',
+                    'claim_organization_reviews.id as review_id',
+                    'claims.region as region',
+                    'claims.status as status',
+                    'claims.object_id as object_id',
+                    DB::raw("(CASE WHEN claims.user_type = 'J' THEN claims.legal_name ELSE claims.ind_name END) as customer"),
+                    DB::raw("(CASE WHEN claims.user_type = 'J' THEN claims.legal_tin ELSE claims.ind_pinfl END) as customer_inn"),
+                    DB::raw("(CASE WHEN claims.property_owner = '2' THEN claims.ind_name ELSE null END) as property_owner"),
+                    DB::raw("(CASE WHEN claims.property_owner = '2' THEN claims.ind_pinfl ELSE null END) as property_tin"),
+                    'claims.expiry_date as expiry_date',
+                    'claims.expired as expired',
+                    'claims.current_node as current_node',
+                    'claims.building_cadastral as building_cadastral',
+                    'claims.building_address as building_address',
+                    'claims.building_name as building_name',
+                    'claims.building_type as building_type',
+                    'claims.building_type_name as building_type_name',
+                    'claims.user_type as user_type',
+                    'claims.document_registration_based as document_registration_based',
+                    'claims.object_project_user as object_project_user',
+                    'claims.type_object_dic as type_object_dic',
+                    'claims.cadastral_passport_object_file as cadastral_passport_object_file',
+                    'claims.ownership_document as ownership_document',
+                    'claims.act_acceptance_customer_file as act_acceptance_customer_file',
+                    'claims.declaration_conformity_file as declaration_conformity_file',
+                    'claims.conclusion_approved_planning_file as conclusion_approved_planning_file',
+                    'claims.building_cadastral as building_cadastral',
+                    'claims.number_conclusion_project as number_conclusion_project',
+                    'claims.end_date as end_date',
+                    'claims.created_at as created_at'
+                ])
+                ->with(['region', 'district', 'object'])
+                ->where('claims.id', $id)->first();
     }
 
     public function getClaimByGUID(int $guid)
@@ -253,7 +295,7 @@ class ClaimRepository implements ClaimRepositoryInterface
 
     public function getObjects(int $id)
     {
-        $claim = $this->getClaimById($id);
+        $claim = $this->getClaimById(id: $id, role_id: null);
 
         return Article::query()
             ->where('object_status_id', ObjectStatusEnum::PROGRESS->value)

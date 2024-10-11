@@ -82,8 +82,11 @@ class ClaimController extends BaseController
 
     public function showTask($id)
     {
+        $roleId = Auth::user()->getRoleFromToken() ?? null;
+
         $data = $this->claimService->getClaimById(
-            id: $id
+            id: $id,
+            role_id: (in_array($roleId, [15, 16, 17, 18, 19])) ? $roleId : null
         );
 
         if (!$data) {

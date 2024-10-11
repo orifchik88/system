@@ -75,9 +75,9 @@ class ClaimService
         );
     }
 
-    public function getClaimById(int $id)
+    public function getClaimById(int $id, ?int $role_id)
     {
-        return $this->claimRepository->getClaimById(id: $id);
+        return $this->claimRepository->getClaimById(id: $id, role_id: $role_id);
     }
 
     public function getObjects(int $id)
@@ -209,7 +209,7 @@ class ClaimService
 
     public function attachObject(AttachObject $request): bool
     {
-        $claimObject = $this->getClaimById(id: $request['id']);
+        $claimObject = $this->getClaimById(id: $request['id'], role_id: null);
 
         if (!$claimObject)
             return false;
@@ -233,7 +233,7 @@ class ClaimService
 
     public function attachBlockAndOrganization(AttachBLockAndOrganization $request): bool
     {
-        $claimObject = $this->getClaimById(id: $request['id']);
+        $claimObject = $this->getClaimById(id: $request['id'], role_id: null);
 
         if (!$claimObject)
             return false;
