@@ -582,7 +582,7 @@ class ClaimRepository implements ClaimRepositoryInterface
         ClaimOrganizationReview::query()->where('id', $id)->update(
             [
                 'answered_at' => Carbon::now(),
-                'answer' => base64_encode(gzcompress($data, 9))
+                'answer' => base64_encode(gzcompress(json_encode($data), 9))
             ]
         );
     }
