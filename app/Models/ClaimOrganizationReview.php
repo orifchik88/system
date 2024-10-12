@@ -19,11 +19,14 @@ class ClaimOrganizationReview extends Model
 
     public function getAnswerAttribute()
     {
-        $answers = json_decode(gzuncompress(base64_decode($this->attributes['answer'])), true);
-        foreach ($answers as $key => $value) {
-            if (str_contains($key, 'conclusion_act'))
-                $answers['conclusion_act'] = $value;
+        $answers = ($this->attributes['answer']) ? json_decode(gzuncompress(base64_decode($this->attributes['answer'])), true) : null;
+        if ($answers != null) {
+            foreach ($answers as $key => $value) {
+                if (str_contains($key, 'conclusion_act'))
+                    $answers['conclusion_act'] = $value;
+            }
         }
-        return $answers['conclusion_act'];
+
+        return ($answers != null) ? $answers['conclusion_act'] : null;
     }
 }

@@ -173,6 +173,8 @@ Route::group([
         Route::post('reject-by-operator', [ClaimController::class, "rejectClaimByOperator"]);
         Route::post('conclusion-by-inspector', [ClaimController::class, "conclusionClaimByInspector"]);
         Route::post('conclusion-by-director', [ClaimController::class, "conclusionClaimByDirector"]);
+        Route::post('reject-from-director', [ClaimController::class, "rejectFromDirector"]);
+        Route::post('send-to-director', [ClaimController::class, "sendToDirector"]);
     });
 
 });

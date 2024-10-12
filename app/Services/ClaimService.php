@@ -13,6 +13,8 @@ use App\Http\Requests\ClaimRequests\ConclusionClaimByInspector;
 use App\Http\Requests\ClaimRequests\ConclusionOrganization;
 use App\Http\Requests\ClaimRequests\RejectClaimByInspector;
 use App\Http\Requests\ClaimRequests\RejectClaimByOperator;
+use App\Http\Requests\ClaimRequests\RejectFromDirector;
+use App\Http\Requests\ClaimRequests\SendToDirector;
 use App\Models\ClaimOrganizationReview;
 use App\Models\Response;
 use App\Models\Role;
@@ -439,6 +441,57 @@ class ClaimService
         return true;
     }
 
+    public function sendToDirector(SendToDirector $request)
+    {
+        $claimObject = $this->getClaimById(id: $request['id'], role_id: null);
+
+        $claimObject->monitoring->update(
+            [
+                'operator_answer' => base64_encode(gzcompress(json_encode($request['buildings']), 9))
+            ]
+        );
+
+        $claimObject->update(
+            [
+                'status' => ClaimStatuses::TASK_STATUS_DIRECTOR,
+            ]
+        );
+
+        $this->historyService->createHistory(
+            guId: $claimObject->gu_id,
+            status: ClaimStatuses::TASK_STATUS_DIRECTOR,
+            type: LogType::TASK_HISTORY,
+            date: null,
+            comment: 'Operator boshliqga yubordi!'
+        );
+
+        return true;
+    }
+
+    public function rejectFromDirector(RejectFromDirector $request)
+    {
+        $claimObject = $this->getClaimById(id: $request['id'], role_id: null);
+
+        if ($claimObject->status != ClaimStatuses::TASK_STATUS_DIRECTOR)
+            return false;
+
+        $claimObject->update(
+            [
+                'status' => $request['to_role'],
+            ]
+        );
+
+        $this->historyService->createHistory(
+            guId: $claimObject->gu_id,
+            status: $request['to_role'],
+            type: LogType::TASK_HISTORY,
+            date: null,
+            comment: $request['comment']
+        );
+
+        return true;
+    }
+
     public function conclusionByDirector(ConclusionClaimByDirector $request)
     {
         $claimObject = $this->getClaimById(id: $request['id'], role_id: null);
@@ -446,18 +499,18 @@ class ClaimService
         if ($claimObject->status != ClaimStatuses::TASK_STATUS_DIRECTOR)
             return false;
 
-//        $histories = $this->historyService->getFilteredList(guId: $claimObject->gu_id, jsonColumn: 'role', needle: 3);
-//        $lastInspectorConclusion = json_decode($histories[0]->content, true);
-//
-//        $dataArray['SendToStepConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
-//            'comment_gasn' => $lastInspectorConclusion['comment'],
-//        ];
-//
-//        $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/send-to-step-conclusion-gasn", $dataArray);
-//
-//        if ($response->status() != 200) {
-//            return false;
-//        }
+        $histories = $this->historyService->getFilteredList(guId: $claimObject->gu_id, jsonColumn: 'role', needle: 3);
+        $lastInspectorConclusion = json_decode($histories[0]->content, true);
+
+        $dataArray['SendToStepConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
+            'comment_gasn' => $lastInspectorConclusion['comment'],
+        ];
+
+        $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/send-to-step-conclusion-gasn", $dataArray);
+
+        if ($response->status() != 200) {
+            return false;
+        }
 
         if ($request['type'] == 15) {
             $dataArray['IssuanceExtractRejectGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
@@ -495,7 +548,7 @@ class ClaimService
                 "gasn_territory" => Auth::user()->region->name_uz,
                 "date_issue_act_gasn" => Carbon::now(),
                 "object_project_gasn" => "file",
-                "address_object_gasn" => $claimObject->object->region->name_uz . ', ' . $claimObject->object->district->name_uz .', ' .$claimObject->object->location_building,
+                "address_object_gasn" => $claimObject->object->region->name_uz . ', ' . $claimObject->object->district->name_uz . ', ' . $claimObject->object->location_building,
                 "buildings_title_documents_gasn" => "example"
             ];
 
@@ -520,6 +573,14 @@ class ClaimService
                 comment: $request['comment']
             );
         }
+
+        $claimObject->monitoring->update(
+            [
+                'director_answer' =>  $request['type']
+            ]
+        );
+
+        return true;
     }
 
     public function conclusionByInspector(ConclusionClaimByInspector $request)
