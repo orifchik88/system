@@ -9,6 +9,7 @@ use App\Http\Requests\ClaimRequests\AttachBLockAndOrganization;
 use App\Http\Requests\ClaimRequests\AttachObject;
 use App\Http\Requests\ClaimRequests\ClaimSendToMinstroy;
 use App\Http\Requests\ClaimRequests\ConclusionOrganization;
+use App\Http\Requests\ClaimRequests\RejectClaimByInspector;
 use App\Http\Requests\ClaimRequests\RejectClaimByOperator;
 use App\Models\ClaimOrganizationReview;
 use App\Models\Response;
@@ -319,18 +320,10 @@ class ClaimService
         );
 
         $reviews = ClaimOrganizationReview::where('claim_id', $reviewObject->claim_id)->get();
-        $countFinished = 0;
-        $countSuccessFinished = 0;
-        foreach ($reviews as $review) {
-            if ($review->answered_at != null) {
-                $countFinished++;
-                if ($review->status)
-                    $countSuccessFinished++;
-            }
-        }
+        list($isFinished, $allSuccess) = $this->checkReviewCount($reviews);
 
-        if ($countFinished == $reviews->count()) {
-            if ($countSuccessFinished == $reviews->count()) {
+        if ($isFinished) {
+            if ($allSuccess) {
                 $this->claimRepository->updateClaim(
                     $reviewObject->monitoring->claim->guid,
                     [
@@ -364,6 +357,22 @@ class ClaimService
         return $this->claimRepository->getClaimById($reviewObject->monitoring->claim->id, Auth::user()->getRoleFromToken());
     }
 
+    private function checkReviewCount($reviews)
+    {
+        $countFinished = 0;
+        $countSuccessFinished = 0;
+        foreach ($reviews as $review) {
+            if ($review->answered_at != null) {
+                $countFinished++;
+                if ($review->status)
+                    $countSuccessFinished++;
+            }
+        }
+        $isFinished = $countFinished == $reviews->count();
+        $allSuccess = $countSuccessFinished == $reviews->count();
+        return [$isFinished, $allSuccess];
+    }
+
     public function acceptTask(AcceptTask $request): bool
     {
         $dataArray['SendObjectToGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
@@ -395,7 +404,7 @@ class ClaimService
         return true;
     }
 
-    public function rejectByOperator(RejectClaimByOperator $request)
+    public function rejectByInspector(RejectClaimByInspector $request)
     {
         $dataArray['SendToStepConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
             'comment_gasn' => 'Ariza tashkilotlar tomonidan ijobiy xulosa taqdim etilmaganligi sababli rad etildi.',
@@ -406,6 +415,44 @@ class ClaimService
 
         if ($response->status() != 200) {
             return false;
+        }
+
+        $claimObject->update(
+            [
+                'status' => ClaimStatuses::TASK_STATUS_OPERATOR,
+                'end_date' => Carbon::now()
+            ]
+        );
+
+        $this->historyService->createHistory(
+            guId: $claimObject->gu_id,
+            status: ClaimStatuses::TASK_STATUS_OPERATOR,
+            type: LogType::TASK_HISTORY,
+            date: null,
+            comment: $request['comment']
+        );
+
+        return true;
+    }
+
+    public function rejectByOperator(RejectClaimByOperator $request)
+    {
+        $claimObject = $this->getClaimById(id: $request['id'], role_id: null);
+        list($isFinished, $allSuccess) = $this->checkReviewCount($claimObject->reviews);
+
+        if(!$isFinished)
+            return false;
+
+        if(!$allSuccess){
+            $dataArray['SendToStepConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
+                'comment_gasn' => 'Ariza tashkilotlar tomonidan ijobiy xulosa taqdim etilmaganligi sababli rad etildi.',
+            ];
+
+            $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/send-to-step-conclusion-gasn", $dataArray);
+
+            if ($response->status() != 200) {
+                return false;
+            }
         }
 
         $dataArray['IssuanceExtractRejectGasnV2FormCompletedBuildingsRegistrationCadastral'] = [

@@ -3,17 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\UserRoleEnum;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\ClaimRequests\AcceptTask;
 use App\Http\Requests\ClaimRequests\AttachBLockAndOrganization;
 use App\Http\Requests\ClaimRequests\AttachObject;
 use App\Http\Requests\ClaimRequests\ClaimSendToMinstroy;
 use App\Http\Requests\ClaimRequests\ConclusionOrganization;
+use App\Http\Requests\ClaimRequests\rejectClaimByInspector;
 use App\Http\Requests\ClaimRequests\RejectClaimByOperator;
 use App\Models\Block;
-use App\Models\Claim;
-use App\Models\ClaimMonitoring;
-use App\Models\Role;
 use App\Services\ClaimService;
 use App\Services\HistoryService;
 use Illuminate\Support\Facades\Auth;
@@ -225,6 +222,17 @@ class ClaimController extends BaseController
     public function rejectClaimByOperator(RejectClaimByOperator $request)
     {
         $response = $this->claimService->rejectByOperator($request);
+
+        if ($response) {
+            return $this->sendSuccess('Rad Qilindi!', 'Success');
+        } else {
+            return $this->sendError("API ERROR", "message");
+        }
+    }
+
+    public function rejectClaimByInspector(RejectClaimByInspector $request)
+    {
+        $response = $this->claimService->rejectByInspector($request);
 
         if ($response) {
             return $this->sendSuccess('Rad Qilindi!', 'Success');

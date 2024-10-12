@@ -127,7 +127,7 @@ class MonitoringController extends BaseController
             $data = request()->all();
             $object = Article::query()->findOrFail($data['object_id']);
             foreach ($data['regular_checklist'] as $item) {
-                if ($item['checklist_id']) {
+                if (isset($item['checklist_id'])) {
                     $answer = CheckListAnswer::query()->findOrFail($item['checklist_id']);
                     $answer->update([
                         'status' => CheckListStatusEnum::FIRST,
