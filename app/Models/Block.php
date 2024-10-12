@@ -35,6 +35,11 @@ class Block extends Model
         return $this->belongsTo(BlockMode::class, 'block_mode_id');
     }
 
+    public function getClaimChecklistCount($claim_id)
+    {
+        return CheckListAnswer::query()->where(['monitoring_id' => $claim_id, 'type' => 2, 'block_id' => $this->id])->get()->count();
+    }
+
     public function type(): BelongsTo
     {
         return $this->belongsTo(BlockType::class, 'block_type_id');

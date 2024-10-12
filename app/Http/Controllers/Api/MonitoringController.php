@@ -148,6 +148,7 @@ class MonitoringController extends BaseController
                     $answer->floor = $item['floor'] ?? null;
                     $answer->status = CheckListStatusEnum::FIRST;
                     $answer->type = isset($data['type']) ? 2 : 1;
+                    $answer->monitoring_id = isset($data['type']) ? $data['claim_id'] : null;
                     $answer->save();
                 }
 

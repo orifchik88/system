@@ -57,7 +57,16 @@ class Claim extends Model
     {
         if ($this->monitoring()->first() != null) {
             $blockArray = json_decode($this->monitoring()->first()->blocks, true);
-            return Block::with(['type', 'mode'])->whereIn('id', $blockArray)->get();
+            $blocks = Block::with(['type', 'mode'])->whereIn('id', $blockArray)->get();
+            $blockResponseArr = [];
+            foreach ($blocks as $block) {
+                $countChecklist = $block->getClaimChecklistCount($this->id);
+                $blockArr = $block->toArray();
+                $blockArr['is_filled'] = $countChecklist == 7;
+                $blockResponseArr[] = $blockArr;
+            }
+
+            return $blockResponseArr;
         } else return null;
     }
 }
