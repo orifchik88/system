@@ -4,8 +4,15 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\UserRoleEnum;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ClaimRequests\AcceptTask;
+use App\Http\Requests\ClaimRequests\AttachBLockAndOrganization;
+use App\Http\Requests\ClaimRequests\AttachObject;
 use App\Http\Requests\ClaimRequests\ClaimSendToMinstroy;
+use App\Http\Requests\ClaimRequests\ConclusionOrganization;
+use App\Http\Requests\ClaimRequests\RejectClaimByOperator;
+use App\Models\Block;
 use App\Models\Claim;
+use App\Models\ClaimMonitoring;
 use App\Models\Role;
 use App\Services\ClaimService;
 use App\Services\HistoryService;
@@ -76,8 +83,11 @@ class ClaimController extends BaseController
 
     public function showTask($id)
     {
+        $roleId = Auth::user()->getRoleFromToken() ?? null;
+
         $data = $this->claimService->getClaimById(
-            id: $id
+            id: $id,
+            role_id: (in_array($roleId, [15, 16, 17, 18, 19])) ? $roleId : null
         );
 
         if (!$data) {
@@ -116,7 +126,9 @@ class ClaimController extends BaseController
             sortBy: $sortBy,
             status: $status,
             expired: $expired,
+            role_id: (in_array($roleId, [15, 16, 17, 18, 19])) ? $roleId : null
         );
+
 
         return $this->sendSuccess($data->items(), 'Successfully sent!', pagination($data));
     }
@@ -132,5 +144,92 @@ class ClaimController extends BaseController
             return $this->sendError("API ERROR", [], "message");
         }
 
+    }
+
+    public function acceptTask(AcceptTask $request)
+    {
+
+        $response = $this->claimService->acceptTask($request);
+
+        if ($response) {
+            return $this->sendSuccess("Yuborildi!", 'Success');
+        } else {
+            return $this->sendError("API ERROR", [], "message");
+        }
+
+    }
+
+    public function getObjects($id)
+    {
+        $data = $this->claimService->getObjects(
+            id: $id
+        );
+
+        if (!$data) {
+            return $this->sendError("Tizimda xatolik", [], 422);
+        }
+
+        return $this->sendSuccess($data, 'Success!');
+    }
+
+    public function attachObject(AttachObject $request)
+    {
+        $response = $this->claimService->attachObject($request);
+
+        if ($response) {
+            return $this->sendSuccess("Biriktirildi!", 'Success');
+        } else {
+            return $this->sendError("API ERROR", [], "message");
+        }
+    }
+
+    public function attachBlockAndOrganization(AttachBLockAndOrganization $request)
+    {
+        $blocks = $request['blocks'];
+        $errors = [];
+
+        foreach ($blocks as $blockId) {
+            $block = Block::find($blockId);
+
+            if (!$block) {
+                $errors[] = "Blok $blockId topilmadi.";
+            } elseif ($block->status) {
+                $errors[] = "Blok $blockId tugallanmagan.";
+            }
+        }
+
+        if (!empty($errors)) {
+            return $this->sendError('Bloklarda hatolik!', $errors, 400);
+        }
+
+        $response = $this->claimService->attachBlockAndOrganization($request);
+
+        if ($response) {
+            return $this->sendSuccess("Biriktirildi!", 'Success');
+        } else {
+            return $this->sendError("API ERROR", [], "message");
+        }
+    }
+
+    public function conclusionOrganization(ConclusionOrganization $request)
+    {
+        $response = $this->claimService->conclusionOrganization($request);
+
+        if ($response) {
+            return $this->sendSuccess($response, 'Success');
+        } else {
+            return $this->sendError("API ERROR", "message");
+        }
+    }
+
+    public function rejectClaimByOperator(RejectClaimByOperator $request)
+    {
+        $response = $this->claimService->rejectByOperator($request);
+
+        if ($response) {
+            return $this->sendSuccess('Rad Qilindi!', 'Success');
+        } else {
+            return $this->sendError("API ERROR", "message");
+        }
     }
 }
