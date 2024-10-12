@@ -407,7 +407,7 @@ class ClaimService
     public function rejectByInspector(RejectClaimByInspector $request)
     {
         $dataArray['SendToStepConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
-            'comment_gasn' => 'Ariza tashkilotlar tomonidan ijobiy xulosa taqdim etilmaganligi sababli rad etildi.',
+            'comment_gasn' => $request['comment'],
         ];
 
         $claimObject = $this->getClaimById(id: $request['id'], role_id: null);
