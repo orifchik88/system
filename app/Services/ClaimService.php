@@ -8,6 +8,7 @@ use App\Http\Requests\ClaimRequests\AcceptTask;
 use App\Http\Requests\ClaimRequests\AttachBLockAndOrganization;
 use App\Http\Requests\ClaimRequests\AttachObject;
 use App\Http\Requests\ClaimRequests\ClaimSendToMinstroy;
+use App\Http\Requests\ClaimRequests\ConclusionClaimByInspector;
 use App\Http\Requests\ClaimRequests\ConclusionOrganization;
 use App\Http\Requests\ClaimRequests\RejectClaimByInspector;
 use App\Http\Requests\ClaimRequests\RejectClaimByOperator;
@@ -338,16 +339,14 @@ class ClaimService
                     date: null
                 );
             } else {
-                $this->claimRepository->updateClaim(
-                    $reviewObject->monitoring->claim->guid,
-                    [
-                        'status' => ClaimStatuses::TASK_STATUS_OPERATOR
-                    ]
-                );
+                $autoReject = $this->autoRejectByOrganization($reviewObject);
+
+                if(!$autoReject)
+                    return false;
 
                 $this->historyService->createHistory(
                     guId: $reviewObject->monitoring->claim->guid,
-                    status: ClaimStatuses::TASK_STATUS_OPERATOR,
+                    status: ClaimStatuses::TASK_STATUS_ORGANIZATION_REJECTED,
                     type: LogType::TASK_HISTORY,
                     date: null
                 );
@@ -355,6 +354,41 @@ class ClaimService
         }
 
         return $this->claimRepository->getClaimById($reviewObject->monitoring->claim->id, Auth::user()->getRoleFromToken());
+    }
+
+    private function autoRejectByOrganization($reviewObject): bool
+    {
+        $dataArray['SendToStepConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
+            'comment_gasn' => 'Ariza tashkilotlar tomonidan ijobiy xulosa taqdim etilmaganligi sababli rad etildi.',
+        ];
+
+        $response = $this->PostRequest("update/id/" . $reviewObject->monitoring->claim->guid . "/action/send-to-step-conclusion-gasn", $dataArray);
+
+        if ($response->status() != 200) {
+            return false;
+        }
+
+        $dataArray['IssuanceExtractRejectGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
+            "gasn_name_reject" => 'Shaffof qurilish milliy axborot tizimi',
+            "gasn_match" => 2,
+            "gasn_cause_reject" => 'Ariza tashkilotlar tomonidan ijobiy xulosa taqdim etilmaganligi sababli rad etildi.',
+            "gasn_territory_reject" => $reviewObject->monitoring->claim->region->name_uz
+        ];
+
+        $response = $this->PostRequest("update/id/" . $reviewObject->monitoring->claim->guid . "/action/issuance-extract-reject-gasn", $dataArray);
+
+        if ($response->status() != 200) {
+            return false;
+        }
+
+        $reviewObject->monitoring->claim->update(
+            [
+                'status' => ClaimStatuses::TASK_STATUS_ORGANIZATION_REJECTED,
+                'end_date' => Carbon::now()
+            ]
+        );
+
+        return true;
     }
 
     private function checkReviewCount($reviews)
@@ -404,7 +438,7 @@ class ClaimService
         return true;
     }
 
-    public function rejectByInspector(RejectClaimByInspector $request)
+    public function conclusionByInspector(ConclusionClaimByInspector $request)
     {
         $dataArray['SendToStepConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
             'comment_gasn' => $request['comment'],
@@ -416,6 +450,12 @@ class ClaimService
         if ($response->status() != 200) {
             return false;
         }
+
+        $claimObject->monitoring->update(
+            [
+                'inspector_answered' => $request['type'],
+            ]
+        );
 
         $claimObject->update(
             [
@@ -438,22 +478,6 @@ class ClaimService
     public function rejectByOperator(RejectClaimByOperator $request)
     {
         $claimObject = $this->getClaimById(id: $request['id'], role_id: null);
-        list($isFinished, $allSuccess) = $this->checkReviewCount($claimObject->reviews);
-
-        if(!$isFinished)
-            return false;
-
-        if(!$allSuccess){
-            $dataArray['SendToStepConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
-                'comment_gasn' => 'Ariza tashkilotlar tomonidan ijobiy xulosa taqdim etilmaganligi sababli rad etildi.',
-            ];
-
-            $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/send-to-step-conclusion-gasn", $dataArray);
-
-            if ($response->status() != 200) {
-                return false;
-            }
-        }
 
         $dataArray['IssuanceExtractRejectGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
             "gasn_name_reject" => Auth::user()->name . ' ' . Auth::user()->surname,

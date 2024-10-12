@@ -4,7 +4,7 @@ namespace App\Http\Requests\ClaimRequests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class RejectClaimByInspector extends FormRequest
+class ConclusionClaimByInspector extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,7 +23,8 @@ class RejectClaimByInspector extends FormRequest
     {
         return [
             'id' => 'required',
-            'comment' => 'required'
+            'comment' => 'required',
+            'type' => 'required'
         ];
     }
 }
