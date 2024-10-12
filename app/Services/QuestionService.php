@@ -9,24 +9,21 @@ use App\Enums\LogType;
 use App\Enums\ObjectTypeEnum;
 use App\Enums\UserRoleEnum;
 use App\Enums\WorkTypeStatusEnum;
-use App\Exceptions\NotFoundException;
 use App\Http\Resources\CheckListHistoryResource;
 use App\Models\ActViolation;
-use App\Models\ActViolationBlock;
 use App\Models\Article;
+use App\Models\AuthorRegulation;
 use App\Models\Block;
-use App\Models\BlockViolation;
 use App\Models\CheckListAnswer;
 use App\Models\Monitoring;
 use App\Models\Question;
 use App\Models\Regulation;
 use App\Models\RegulationDemand;
 use App\Models\RegulationViolation;
-use App\Models\RegulationViolationBlock;
+use App\Models\User;
 use App\Models\Violation;
 use App\Models\WorkType;
 use Carbon\Carbon;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -190,8 +187,14 @@ class QuestionService
                 $this->handleChecklists($data['positive'], $object, $data['block_id'], $roleId, true, null);
             }
             if (!empty($data['negative'])) {
-                $allRoleViolations = $this->handleChecklists($data['negative'], $object, $data['block_id'], $roleId, false, null);
-                $this->createRegulations($allRoleViolations, $object, $monitoring->id, $roleId);
+                if ($roleId == UserRoleEnum::MUALLIF->value)
+                {
+                    $this->createAuthorRegulation($data['negative'], $object, $roleId, $data['block_id']);
+                }else{
+                    $allRoleViolations = $this->handleChecklists($data['negative'], $object, $data['block_id'], $roleId, false, null);
+                    $this->createRegulations($allRoleViolations, $object, $monitoring->id, $roleId);
+                }
+
             }
             DB::commit();
         } catch (\Exception $exception) {
@@ -199,6 +202,47 @@ class QuestionService
             throw $exception;
         }
 
+    }
+
+    private function createAuthorRegulation($checklists, $object, $roleId, $blockId)
+    {
+        foreach ($checklists as $index => $checklistData) {
+            $checklist = $this->getOrCreateChecklist($checklistData, $object, $blockId, null);
+            $this->updateChecklistStatus($checklist, $checklistData, $roleId, false);
+            $this->saveAuthorRegulation($checklist, $checklistData, $object, $roleId, $blockId);
+
+        }
+    }
+
+    private function saveAuthorRegulation($checklist, $checklistData, $object, $roleId, $blockId)
+    {
+        foreach ($checklistData['violations'] as $item) {
+            $images = $this->saveAuthorImages($item['images']);
+            $authorRegulation = AuthorRegulation::query()->create([
+                'object_id' => $object->id,
+                'block_id' => $blockId,
+                'author_id' => Auth::id(),
+                'author_role_id' => $roleId,
+                'user_id' => $object->users()->wherePivot('role_id', UserRoleEnum::ICHKI->value)->pluck('users.id')->first(),
+                'role_id' => UserRoleEnum::ICHKI->value,
+                'bases_id' => $item['basis_id'],
+                'work_type_id' => $checklistData['work_type_id'],
+                'author_images' => json_encode($images),
+                'author_comment' => $item['comment'],
+                'deadline' => Carbon::now()->addDays($checklistData['deadline']),
+                'checklist_answer_id' => $checklist->id,
+            ]);
+        }
+    }
+
+    private function saveAuthorImages($images)
+    {
+        $meta = [];
+        foreach ($images as $image) {
+            $path = $image->store('images/author-regulation', 'public');
+            $meta[] = $path;
+        }
+        return $meta;
     }
 
     private function createPublicChecklist($data, $object, $roleId, $monitoringID)
@@ -228,9 +272,9 @@ class QuestionService
     {
         $allRoleViolations = [];
         foreach ($checklists as $index => $checklistData) {
-            $checklist = $this->getOrCreateChecklist($checklistData, $object, $blockId, $monitoringID);
+        $checklist = $this->getOrCreateChecklist($checklistData, $object, $blockId, $monitoringID);
 
-            $this->updateChecklistStatus($checklist, $checklistData, $roleId, $isPositive);
+        $this->updateChecklistStatus($checklist, $checklistData, $roleId, $isPositive);
             if ($isPositive) {
                 $answeredField = $this->getAnsweredFieldByRole($roleId);
                 $meta = ['user_answered' => $checklist->$answeredField];
@@ -390,6 +434,7 @@ class QuestionService
         foreach ($allRoleViolations as $roles) {
             foreach ($roles as $roleId => $role) {
                 $regulation = $this->createRegulationEntry($object, $monitoringID, $role, $roleId, $createdByRole);
+                $this->sendSms($regulation, $object->task_id);
                 $this->linkViolationsToRegulation($regulation, $role['violation_ids']);
             }
         }
@@ -403,7 +448,7 @@ class QuestionService
             'checklist_id' => $role['checklist_id'],
             'question_id' => $role['question_id'],
             'regulation_status_id' => 1,
-            'level_id' => 1,
+//            'level_id' => 1,
             'regulation_type_id' => 1,
             'created_by_role_id' => $createdByRole,
             'created_by_user_id' => Auth::id(),
@@ -411,6 +456,19 @@ class QuestionService
             'monitoring_id' => $monitoringID,
             'role_id' => $roleId,
         ]);
+
+    }
+
+    private function sendSms($regulation, $objectNumber)
+    {
+        try {
+            $user = User::query()->find($regulation->user_id);
+            $message = MessageTemplate::regulationCreated($regulation->regulation_number, $objectNumber);
+            (new SmsService($user->phone, $message))->sendSms();
+        }catch (\Exception $exception){
+
+        }
+
     }
 
     private function linkViolationsToRegulation($regulation, $violationIds)

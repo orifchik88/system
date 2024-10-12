@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 
+use App\Enums\UserRoleEnum;
 use App\Http\Requests\PinflRequest;
 use App\Http\Requests\UserEditRequest;
 use App\Http\Requests\UserRequest;
@@ -14,6 +15,7 @@ use App\Models\UserRole;
 use App\Models\UserStatus;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
@@ -78,9 +80,14 @@ class UserController extends BaseController
     {
         try {
             $inspectors = User::query()
-                ->where('district_id', request('district_id'))
+                ->when(request('region_id'), function ($query, $region_id) {
+                    $query->where('region_id', $region_id);
+                })
+                ->when(request('district_id'), function ($query, $district_id) {
+                    $query->where('district_id', $district_id);
+                })
                 ->whereHas('roles', function ($query) {
-                    $query->where('roles.id', 3);
+                    $query->where('roles.id', UserRoleEnum::INSPECTOR->value);
                 })
                 ->paginate(request('per_page', 10));
             return $this->sendSuccess(UserResource::collection($inspectors), 'All inspectors', pagination($inspectors));
@@ -107,6 +114,16 @@ class UserController extends BaseController
            ];
            return $this->sendSuccess($meta, 'Passport Information Get Successfully');
 
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function getEmployees(): JsonResponse
+    {
+        try {
+            $user = Auth::user();
+            return $this->sendSuccess(UserResource::collection($user->employees), 'All Employees');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }

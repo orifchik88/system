@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class ArticleUser extends Model
 {
     use HasFactory;
+
+    protected $guarded = false;
+
+    public $timestamps = false;
 }

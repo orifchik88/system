@@ -49,7 +49,7 @@ class RoleSeeder extends Seeder
 
             ],
             [
-                'name' => 'Muallif nazorati',
+                'name' => 'Mualliflik nazorati',
                 'description' => 'Muallif nazorati',
                 'type' => null
             ],
