@@ -26,6 +26,19 @@ class HistoryRepository implements HistoryRepositoryInterface
         ]);
     }
 
+    public function getFilteredList(int $guId, string $jsonColumn, $needle)
+    {
+        return DB::table($this->table)->where('gu_id', $guId)
+            ->where("content->$jsonColumn", $needle)
+            ->orderBy('id', 'desc')
+            ->get([
+                'id',
+                'gu_id',
+                'content',
+                'created_at'
+            ]);
+    }
+
     public function getHistory(int $id)
     {
         return DB::table($this->table)->where('id', $id)->where('type', LogType::TASK_HISTORY)->first([

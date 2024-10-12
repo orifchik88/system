@@ -7,6 +7,7 @@ use App\Http\Requests\ClaimRequests\AcceptTask;
 use App\Http\Requests\ClaimRequests\AttachBLockAndOrganization;
 use App\Http\Requests\ClaimRequests\AttachObject;
 use App\Http\Requests\ClaimRequests\ClaimSendToMinstroy;
+use App\Http\Requests\ClaimRequests\ConclusionClaimByDirector;
 use App\Http\Requests\ClaimRequests\ConclusionClaimByInspector;
 use App\Http\Requests\ClaimRequests\ConclusionOrganization;
 use App\Http\Requests\ClaimRequests\rejectClaimByInspector;
@@ -234,6 +235,17 @@ class ClaimController extends BaseController
     public function conclusionClaimByInspector(ConclusionClaimByInspector $request)
     {
         $response = $this->claimService->conclusionByInspector($request);
+
+        if ($response) {
+            return $this->sendSuccess('Rad Qilindi!', 'Success');
+        } else {
+            return $this->sendError("API ERROR", "message");
+        }
+    }
+
+    public function conclusionClaimByDirector(ConclusionClaimByDirector $request)
+    {
+        $response = $this->claimService->conclusionByDirector($request);
 
         if ($response) {
             return $this->sendSuccess('Rad Qilindi!', 'Success');

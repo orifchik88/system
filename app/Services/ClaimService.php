@@ -8,6 +8,7 @@ use App\Http\Requests\ClaimRequests\AcceptTask;
 use App\Http\Requests\ClaimRequests\AttachBLockAndOrganization;
 use App\Http\Requests\ClaimRequests\AttachObject;
 use App\Http\Requests\ClaimRequests\ClaimSendToMinstroy;
+use App\Http\Requests\ClaimRequests\ConclusionClaimByDirector;
 use App\Http\Requests\ClaimRequests\ConclusionClaimByInspector;
 use App\Http\Requests\ClaimRequests\ConclusionOrganization;
 use App\Http\Requests\ClaimRequests\RejectClaimByInspector;
@@ -341,7 +342,7 @@ class ClaimService
             } else {
                 $autoReject = $this->autoRejectByOrganization($reviewObject);
 
-                if(!$autoReject)
+                if (!$autoReject)
                     return false;
 
                 $this->historyService->createHistory(
@@ -438,23 +439,95 @@ class ClaimService
         return true;
     }
 
-    public function confirmByDirector($request)
+    public function conclusionByDirector(ConclusionClaimByDirector $request)
     {
         $claimObject = $this->getClaimById(id: $request['id'], role_id: null);
-        $dataArray['SendToStepConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
-            'comment_gasn' => $request['comment'],
-        ];
 
-        $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/send-to-step-conclusion-gasn", $dataArray);
-
-        if ($response->status() != 200) {
+        if ($claimObject->status != ClaimStatuses::TASK_STATUS_DIRECTOR)
             return false;
+
+//        $histories = $this->historyService->getFilteredList(guId: $claimObject->gu_id, jsonColumn: 'role', needle: 3);
+//        $lastInspectorConclusion = json_decode($histories[0]->content, true);
+//
+//        $dataArray['SendToStepConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
+//            'comment_gasn' => $lastInspectorConclusion['comment'],
+//        ];
+//
+//        $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/send-to-step-conclusion-gasn", $dataArray);
+//
+//        if ($response->status() != 200) {
+//            return false;
+//        }
+
+        if ($request['type'] == 15) {
+            $dataArray['IssuanceExtractRejectGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
+                "gasn_name_reject" => Auth::user()->name . ' ' . Auth::user()->surname,
+                "gasn_match" => 2,
+                "gasn_cause_reject" => $request['comment'],
+                "gasn_territory_reject" => Auth::user()->region->name_uz
+            ];
+
+            $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/issuance-extract-reject-gasn", $dataArray);
+
+            if ($response->status() != 200) {
+                return false;
+            }
+
+            $claimObject->update(
+                [
+                    'status' => ClaimStatuses::TASK_STATUS_REJECTED,
+                    'end_date' => Carbon::now()
+                ]
+            );
+
+            $this->historyService->createHistory(
+                guId: $claimObject->gu_id,
+                status: ClaimStatuses::TASK_STATUS_REJECTED,
+                type: LogType::TASK_HISTORY,
+                date: null,
+                comment: $request['comment']
+            );
+        } else {
+            $dataArray['ConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
+                "gasn_name" => Auth::user()->name . ' ' . Auth::user()->surname,
+                "gasn_match" => 1,
+                "gasn_cause" => $request['comment'],
+                "gasn_territory" => Auth::user()->region->name_uz,
+                "date_issue_act_gasn" => Carbon::now(),
+                "object_project_gasn" => "file",
+                "address_object_gasn" => $claimObject->object->region->name_uz . ', ' . $claimObject->object->district->name_uz .', ' .$claimObject->object->location_building,
+                "buildings_title_documents_gasn" => "example"
+            ];
+
+            $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/conclusion-gasn", $dataArray);
+
+            if ($response->status() != 200) {
+                return false;
+            }
+
+            $claimObject->update(
+                [
+                    'status' => ClaimStatuses::TASK_STATUS_CONFIRMED,
+                    'end_date' => Carbon::now()
+                ]
+            );
+
+            $this->historyService->createHistory(
+                guId: $claimObject->gu_id,
+                status: ClaimStatuses::TASK_STATUS_CONFIRMED,
+                type: LogType::TASK_HISTORY,
+                date: null,
+                comment: $request['comment']
+            );
         }
     }
 
     public function conclusionByInspector(ConclusionClaimByInspector $request)
     {
         $claimObject = $this->getClaimById(id: $request['id'], role_id: null);
+
+        if ($claimObject->status != ClaimStatuses::TASK_STATUS_INSPECTOR)
+            return false;
 
         $claimObject->monitoring->update(
             [
