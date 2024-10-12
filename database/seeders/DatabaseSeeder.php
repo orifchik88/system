@@ -34,7 +34,7 @@ class DatabaseSeeder extends Seeder
             RegulationStatusSeeder::class,
             RegulationTypeSeeder::class,
             UserStatusSeeder::class,
-//            UserSeeder::class,
+            UserSeeder::class,
             AppearanceTypeSeeder::class,
             FundingSourceSeeder::class,
             SphereSeeder::class,

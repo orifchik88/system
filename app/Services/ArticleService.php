@@ -9,6 +9,7 @@ use App\Enums\DxaResponseStatusEnum;
 use App\Enums\LevelStatusEnum;
 use App\Enums\ObjectStatusEnum;
 use App\Enums\ObjectTypeEnum;
+use App\Enums\UserRoleEnum;
 use App\Enums\UserStatusEnum;
 use App\Exceptions\NotFoundException;
 use App\Models\Article;
@@ -223,39 +224,14 @@ class ArticleService
                 10 => 5,
             ];
 
-            foreach ($article->users as $user) {
-                foreach ($roleMapping as $childRoleId => $parentRoleId) {
-                    if ($user->roles()->where('role_id', $childRoleId)->exists()) {
-                        $parentUser = User::whereHas('roles', function ($query) use ($parentRoleId) {
-                            $query->where('role_id', $parentRoleId);
-                        })->first();
-
-                        if ($parentUser) {
-                            $existingEmployee = UserEmployee::where('user_id', $user->id)
-                                ->where('parent_id', $parentUser->id)
-                                ->first();
-
-                            if (!$existingEmployee) {
-                                UserEmployee::create([
-                                    'user_id' => $user->id,
-                                    'parent_id' => $parentUser->id,
-                                ]);
-                            }
-                        }
-                    }
-                }
-            }
 
             $article->users()->attach($response->inspector_id, ['role_id' => 3]);
 
-
-
-
-
             $this->acceptResponse($response);
             $this->saveBlocks($response, $article);
+            $this->saveEmployee($article);
 
-            $this->saveChecklist($article);
+//            $this->saveChecklist($article);
 
             DB::commit();
 
@@ -267,16 +243,37 @@ class ArticleService
         }
 
     }
-    private function saveChecklist($article)
+
+    private function saveEmployee($object)
     {
-        foreach ($article->blocks as $block) {
-            if ($block->block_mode_id == BlockModeEnum::TARMOQ) {
-                $workTypes = WorkType::query()->where('object_type_id', ObjectTypeEnum::LINEAR)->get();
-                $this->processWorkTypes($workTypes, $block, $article, ObjectTypeEnum::LINEAR);
-            } else {
-                $workTypes = WorkType::query()->where('object_type_id', ObjectTypeEnum::BUILDING)->get();
-                $this->processBuildingWorkTypes($workTypes, $block, $article);
-            }
+        $muallif = $object->users()->where('role_id', UserRoleEnum::MUALLIF->value)->first();
+        $texnik = $object->users()->where('role_id', UserRoleEnum::TEXNIK->value)->first();
+        $buyurtmachi = $object->users()->where('role_id', UserRoleEnum::BUYURTMACHI->value)->first();
+        $loyiha = $object->users()->where('role_id', UserRoleEnum::LOYIHA->value)->first();
+        $ichki = $object->users()->where('role_id', UserRoleEnum::ICHKI->value)->first();
+        $qurilish = $object->users()->where('role_id', UserRoleEnum::QURILISH->value)->first();
+
+
+
+        if (!UserEmployee::query()->where('user_id', $texnik->id)->where('parent_id', $buyurtmachi->id)->exists()) {
+            UserEmployee::query()->create([
+                'user_id' => $texnik->id,
+                'parent_id' => $buyurtmachi->id,
+            ]);
+        }
+
+        if (!UserEmployee::query()->where('user_id', $muallif->id)->where('parent_id', $loyiha->id)->exists()) {
+            UserEmployee::query()->create([
+                'user_id' => $muallif->id,
+                'parent_id' => $loyiha->id,
+            ]);
+        }
+
+        if (!UserEmployee::query()->where('user_id', $ichki->id)->where('parent_id', $qurilish->id)->exists()) {
+            UserEmployee::query()->create([
+                'user_id' => $ichki->id,
+                'parent_id' => $qurilish->id,
+            ]);
         }
     }
 

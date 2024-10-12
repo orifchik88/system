@@ -9,24 +9,20 @@ use App\Enums\LogType;
 use App\Enums\ObjectTypeEnum;
 use App\Enums\UserRoleEnum;
 use App\Enums\WorkTypeStatusEnum;
-use App\Exceptions\NotFoundException;
 use App\Http\Resources\CheckListHistoryResource;
 use App\Models\ActViolation;
-use App\Models\ActViolationBlock;
 use App\Models\Article;
 use App\Models\Block;
-use App\Models\BlockViolation;
 use App\Models\CheckListAnswer;
 use App\Models\Monitoring;
 use App\Models\Question;
 use App\Models\Regulation;
 use App\Models\RegulationDemand;
 use App\Models\RegulationViolation;
-use App\Models\RegulationViolationBlock;
+use App\Models\User;
 use App\Models\Violation;
 use App\Models\WorkType;
 use Carbon\Carbon;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -388,6 +384,7 @@ class QuestionService
         foreach ($allRoleViolations as $roles) {
             foreach ($roles as $roleId => $role) {
                 $regulation = $this->createRegulationEntry($object, $monitoringID, $role, $roleId, $createdByRole);
+                $this->sendSms($regulation, $object->task_id);
                 $this->linkViolationsToRegulation($regulation, $role['violation_ids']);
             }
         }
@@ -409,6 +406,14 @@ class QuestionService
             'monitoring_id' => $monitoringID,
             'role_id' => $roleId,
         ]);
+
+    }
+
+    private function sendSms($regulation, $objectNumber)
+    {
+        $user = User::query()->find($regulation->user_id);
+        $message = MessageTemplate::regulationCreated($regulation->regulation_number, $objectNumber);
+        (new SmsService($user->phone, $message))->sendSms();
     }
 
     private function linkViolationsToRegulation($regulation, $violationIds)

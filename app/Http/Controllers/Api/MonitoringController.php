@@ -19,8 +19,11 @@ use App\Models\CheckListAnswer;
 use App\Models\CheckListHistory;
 use App\Models\Level;
 use App\Models\Monitoring;
+use App\Models\User;
 use App\Services\HistoryService;
+use App\Services\MessageTemplate;
 use App\Services\QuestionService;
+use App\Services\SmsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -154,6 +157,10 @@ class MonitoringController extends BaseController
                     $answer->save();
                 }
 
+                $author = $object->users()->where('role_id', UserRoleEnum::MUALLIF->value)->get();
+                $this->sendSms($object, $author);
+                $technic = $object->users()->where('role_id', UserRoleEnum::MUALLIF->value)->get();
+                $this->sendSms($object, $technic);
 
                 $tableId = $this->historyService->createHistory(
                     guId: $answer->id,
@@ -198,6 +205,12 @@ class MonitoringController extends BaseController
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
+    }
+
+    private function sendSms($object, $user)
+    {
+        $message = MessageTemplate::checklistCreated($object->task_id);
+        (new SmsService($user->phone, $message))->sendSms();
     }
 
 

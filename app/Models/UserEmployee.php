@@ -9,7 +9,7 @@ class UserEmployee extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $guarded = false;
 
     public $timestamps = false;
 }

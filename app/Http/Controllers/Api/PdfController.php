@@ -22,7 +22,7 @@ class PdfController extends BaseController
             $responsibleUser = User::query()->findOrFail($regulation->user_id);
             $responsibleRole = Role::query()->findOrFail($regulation->role_id);
             $pdf = Pdf::loadView('pdf.regulation', compact('regulation', 'object', 'responsibleUser', 'responsibleRole', 'createdByUser', 'createdByRole'));
-            
+
             $pdfOutput = $pdf->output();
             $pdfBase64 = base64_encode($pdfOutput);
            return $this->sendSuccess($pdfBase64, 'PDF');

@@ -2,6 +2,11 @@
 
 namespace App\Models\Traits;
 
+use App\Models\User;
+use App\Models\UserEmployee;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 trait UserRoleTrait
 {
     public function isKadr(): bool
@@ -70,6 +75,11 @@ trait UserRoleTrait
     public function viewer(): bool
     {
         return $this->roles()->where('role_id', 14)->exists();
+    }
+
+    public function employees(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_employees', 'parent_id');
     }
 
 

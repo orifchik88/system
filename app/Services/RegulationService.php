@@ -5,8 +5,10 @@ namespace App\Services;
 use App\Exceptions\NotFoundException;
 use App\Models\ActViolation;
 use App\Models\ActViolationBlock;
+use App\Models\Article;
 use App\Models\Regulation;
 use App\Models\RegulationDemand;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -50,6 +52,7 @@ class RegulationService
                 ]);
                 $violation->demands()->update(['status' => ActViolation::REJECTED]);
             }
+            $this->sendSms($regulation, 2);
             DB::commit();
         }catch (\Exception $exception){
             DB::rollBack();
@@ -94,6 +97,7 @@ class RegulationService
                 ]);
                 $actViolation->demands()->update(['status' => ActViolation::ACCEPTED]);
             }
+            $this->sendSms($regulation, 1);
             DB::commit();
         }catch (\Exception $exception){
             DB::rollBack();
@@ -248,6 +252,7 @@ class RegulationService
                 ]);
                 $violation->demands()->update(['status' => ActViolation::REJECTED]);
             }
+            $this->sendSms($regulation, 2);
             DB::commit();
         }catch (\Exception $exception){
             DB::rollBack();
@@ -289,7 +294,10 @@ class RegulationService
                     'act_status_id' => 9,
                 ]);
                 $violation->demands()->update(['status' => ActViolation::REJECTED]);
+
             }
+            $this->sendSms($regulation, 2);
+
             DB::commit();
         }catch (\Exception $exception){
             DB::rollBack();
@@ -334,6 +342,7 @@ class RegulationService
                 ]);
                 $actViolation->demands()->update(['status' => ActViolation::ACCEPTED]);
             }
+            $this->sendSms($regulation, 1);
             DB::commit();
         }catch (\Exception $exception){
             DB::rollBack();
@@ -377,11 +386,25 @@ class RegulationService
                 ]);
                 $actViolation->demands()->update(['status' => ActViolation::ACCEPTED]);
             }
+            $this->sendSms($regulation, 1);
             DB::commit();
         }catch (\Exception $exception){
             DB::rollBack();
             throw $exception;
         }
+    }
+
+    private function sendSms($regulation, $type)
+    {
+        $object = Article::query()->find($regulation->object_id);
+        $user = User::query()->find($regulation->user_id);
+        if ($type == 1)
+        {
+            $message = MessageTemplate::acceptRegulation($object->task_id, $regulation->regulation_number);
+        }else{
+            $message = MessageTemplate::rejectRegulation($object->task_id, $regulation->regulation_number);
+        }
+        (new SmsService($user->phone, $message))->sendSms();
     }
 
 }
