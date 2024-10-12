@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Models\WorkType;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class AuthorRegulationResource extends JsonResource
 {
@@ -17,12 +18,12 @@ class AuthorRegulationResource extends JsonResource
     {
         $authorImages = collect(json_decode($this->author_images, true))->map(function ($image) {
             return [
-                'url' => url($image),
+                'url' => Storage::disk('public')->url($image),
             ];
         });
         $images = collect(json_decode($this->images, true))->map(function ($image) {
             return [
-                'url' => url($image),
+                'url' => Storage::disk('public')->url($image),
             ];
         });
         return [
