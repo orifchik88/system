@@ -14,6 +14,6 @@ class ClaimMonitoring extends Model
 
     public function claim()
     {
-        return $this->belongsTo(Claim::class, 'claim_id', 'id');
+        return $this->belongsTo(Claim::class, 'claim_id', 'id')->with('region');
     }
 }

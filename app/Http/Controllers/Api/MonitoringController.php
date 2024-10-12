@@ -130,7 +130,7 @@ class MonitoringController extends BaseController
             $data = request()->all();
             $object = Article::query()->findOrFail($data['object_id']);
             foreach ($data['regular_checklist'] as $item) {
-                if ($item['checklist_id']) {
+                if (isset($item['checklist_id'])) {
                     $answer = CheckListAnswer::query()->findOrFail($item['checklist_id']);
                     $answer->update([
                         'status' => CheckListStatusEnum::FIRST,
@@ -151,6 +151,7 @@ class MonitoringController extends BaseController
                     $answer->floor = $item['floor'] ?? null;
                     $answer->status = CheckListStatusEnum::FIRST;
                     $answer->type = isset($data['type']) ? 2 : 1;
+                    $answer->monitoring_id = isset($data['type']) ? $data['claim_id'] : null;
                     $answer->save();
                 }
 

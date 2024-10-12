@@ -15,10 +15,16 @@ class HistoryService
         $this->repository = new HistoryRepository($tableName);
     }
 
-    public function getHistoryList(int $id)
+    public function getHistoryList(int $guId)
     {
-        return $this->repository->getHistoryList(guId: $id);
+        return $this->repository->getHistoryList(guId: $guId);
     }
+
+    public function getFilteredList(int $guId, string $jsonColumn, $needle)
+    {
+        return $this->repository->getFilteredList(guId: $guId, jsonColumn: $jsonColumn, needle: $needle);
+    }
+
     public function getHistory(int $id)
     {
         return $this->repository->getHistory(id: $id);
@@ -28,7 +34,7 @@ class HistoryService
     public function createHistory(int $guId, int $status, int $type, ?string $date, ?string $comment = "", mixed $additionalInfo = null): int
     {
         $content = match ($type) {
-            LogType::TASK_HISTORY => $this->shapeTaskContent(
+            LogType::TASK_HISTORY, LogType::CLAIM_HISTORY => $this->shapeTaskContent(
                 status: $status,
                 comment: $comment,
                 date: $date,
