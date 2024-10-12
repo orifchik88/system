@@ -12,6 +12,8 @@ use App\Http\Requests\ClaimRequests\ConclusionClaimByInspector;
 use App\Http\Requests\ClaimRequests\ConclusionOrganization;
 use App\Http\Requests\ClaimRequests\rejectClaimByInspector;
 use App\Http\Requests\ClaimRequests\RejectClaimByOperator;
+use App\Http\Requests\ClaimRequests\RejectFromDirector;
+use App\Http\Requests\ClaimRequests\SendToDirector;
 use App\Models\Block;
 use App\Services\ClaimService;
 use App\Services\HistoryService;
@@ -237,7 +239,7 @@ class ClaimController extends BaseController
         $response = $this->claimService->conclusionByInspector($request);
 
         if ($response) {
-            return $this->sendSuccess('Rad Qilindi!', 'Success');
+            return $this->sendSuccess('Yuborildi!', 'Success');
         } else {
             return $this->sendError("API ERROR", "message");
         }
@@ -248,7 +250,28 @@ class ClaimController extends BaseController
         $response = $this->claimService->conclusionByDirector($request);
 
         if ($response) {
-            return $this->sendSuccess('Rad Qilindi!', 'Success');
+            return $this->sendSuccess('Javob berildi!', 'Success');
+        } else {
+            return $this->sendError("API ERROR", "message");
+        }
+    }
+
+    public function rejectFromDirector(RejectFromDirector $request)
+    {
+        $response = $this->claimService->rejectFromDirector($request);
+
+        if ($response) {
+            return $this->sendSuccess('Qaytarildi!', 'Success');
+        } else {
+            return $this->sendError("API ERROR", "message");
+        }
+    }
+    public function sendToDirector(SendToDirector $request)
+    {
+        $response = $this->claimService->sendToDirector($request);
+
+        if ($response) {
+            return $this->sendSuccess('Yuborildi!', 'Success');
         } else {
             return $this->sendError("API ERROR", "message");
         }
