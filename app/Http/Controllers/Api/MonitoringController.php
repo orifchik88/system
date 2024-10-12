@@ -147,6 +147,7 @@ class MonitoringController extends BaseController
                     $answer->object_type_id = $object->object_type_id;
                     $answer->floor = $item['floor'] ?? null;
                     $answer->status = CheckListStatusEnum::FIRST;
+                    $answer->type = isset($data['type']) ? 2 : 1;
                     $answer->save();
                 }
 
@@ -154,7 +155,7 @@ class MonitoringController extends BaseController
                 $tableId = $this->historyService->createHistory(
                     guId: $answer->id,
                     status: $answer->status->value,
-                    type: LogType::TASK_HISTORY,
+                    type: isset($data['type']) ? LogType::CLAIM_HISTORY : LogType::TASK_HISTORY,
                     date: null,
                     comment: $item['comment'] ?? ""
                 );
