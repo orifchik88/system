@@ -24,13 +24,13 @@ class SendToDirector extends FormRequest
         return [
             'id' => 'required',
             'buildings' => 'required|array|min:1',
-            'buildings.*.building_name' => 'required',
-            'buildings.*.building_cadastr' => 'required',
-            'buildings.*.building_count' => 'required|numeric|min:1',
-            'buildings.*.building_all_field' => 'required',
-            'buildings.*.building_used_field' => 'required',
-            'buildings.*.building_living_field' => 'required',
-            'buildings.*.building_backend_field' => 'required',
+            'buildings.*.name' => 'required',
+            'buildings.*.cadaster' => 'required',
+            'buildings.*.building_number' => 'required|numeric|min:1',
+            'buildings.*.total_area' => 'required',
+            'buildings.*.total_use_area' => 'required',
+            'buildings.*.living_area' => 'required',
+            'buildings.*.area' => 'required',
         ];
     }
 }

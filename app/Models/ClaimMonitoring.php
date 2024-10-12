@@ -18,7 +18,7 @@ class ClaimMonitoring extends Model
         return $this->belongsTo(Claim::class, 'claim_id', 'id')->with('region');
     }
 
-    public function getAnswerAttribute()
+    public function getOperatorFieldAttribute()
     {
         $answers = ($this->attributes['operator_answer'] != null) ? json_decode(gzuncompress(base64_decode($this->attributes['operator_answer'])), true) : null;
 
