@@ -183,14 +183,13 @@ class MonitoringController extends BaseController
                         $history->images()->create(['url' => $path]);
                     }
                 }
-
             }
             DB::commit();
             return $this->sendSuccess([], 'Check list files sent');
 
         } catch (\Exception $exception) {
             DB::rollBack();
-            return $this->sendError($exception->getMessage(), $exception->getCode());
+            return $this->sendError($exception->getMessage(), $exception->getLine());
         }
     }
 
