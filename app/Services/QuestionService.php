@@ -227,7 +227,7 @@ class QuestionService
                 'role_id' => UserRoleEnum::ICHKI->value,
                 'bases_id' => $item['basis_id'],
                 'work_type_id' => $checklistData['work_type_id'],
-                'author_images' => json_encode($images),
+                'author_images' => $images,
                 'author_comment' => $item['comment'],
                 'deadline' => Carbon::now()->addDays($checklistData['deadline']),
                 'checklist_answer_id' => $checklist->id,

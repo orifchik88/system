@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RegulationAcceptRequest;
 use App\Http\Requests\RegulationDemandRequest;
 use App\Http\Requests\RegulationFineRequest;
+use App\Http\Resources\AuthorRegulationResource;
 use App\Http\Resources\CheckListAnswerResource;
 use App\Http\Resources\ChecklistResource;
 use App\Http\Resources\MonitoringResource;
@@ -16,6 +17,7 @@ use App\Http\Resources\RegulationResource;
 use App\Http\Resources\ViolationResource;
 use App\Models\ActViolation;
 use App\Models\Article;
+use App\Models\AuthorRegulation;
 use App\Models\CheckListAnswer;
 use App\Models\Monitoring;
 use App\Models\Regulation;
@@ -109,6 +111,16 @@ class RegulationController extends BaseController
             );
 
         } catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function getAuthorRegulations(): JsonResponse
+    {
+        try {
+            $authorRegulations = AuthorRegulation::query()->paginate(request('per_page', 10));
+            return $this->sendSuccess(AuthorRegulationResource::collection($authorRegulations), 'Regulations', pagination($authorRegulations));
+        }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
