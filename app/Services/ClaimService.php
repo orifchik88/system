@@ -438,18 +438,23 @@ class ClaimService
         return true;
     }
 
-    public function conclusionByInspector(ConclusionClaimByInspector $request)
+    public function confirmByDirector($request)
     {
+        $claimObject = $this->getClaimById(id: $request['id'], role_id: null);
         $dataArray['SendToStepConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
             'comment_gasn' => $request['comment'],
         ];
 
-        $claimObject = $this->getClaimById(id: $request['id'], role_id: null);
         $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/send-to-step-conclusion-gasn", $dataArray);
 
         if ($response->status() != 200) {
             return false;
         }
+    }
+
+    public function conclusionByInspector(ConclusionClaimByInspector $request)
+    {
+        $claimObject = $this->getClaimById(id: $request['id'], role_id: null);
 
         $claimObject->monitoring->update(
             [
@@ -460,7 +465,6 @@ class ClaimService
         $claimObject->update(
             [
                 'status' => ClaimStatuses::TASK_STATUS_OPERATOR,
-                'end_date' => Carbon::now()
             ]
         );
 
