@@ -15,6 +15,16 @@ class AuthorRegulationResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $authorImages = collect(json_decode($this->author_images, true))->map(function ($image) {
+            return [
+                'url' => url($image),
+            ];
+        });
+        $images = collect(json_decode($this->images, true))->map(function ($image) {
+            return [
+                'url' => url($image),
+            ];
+        });
         return [
             'id' => $this->id,
             'object_name' => $this->object->name,
@@ -24,8 +34,8 @@ class AuthorRegulationResource extends JsonResource
             'work_type' => WorkTypeResource::make($this->workType),
             'author_comment' => $this->author_comment,
             'comment' => $this->comment,
-            'author_images' => $this->author_images,
-            'images' => $this->images,
+            'author_images' => $authorImages,
+            'images' => $images ?? null,
         ];
     }
 }
