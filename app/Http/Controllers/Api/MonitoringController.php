@@ -206,8 +206,11 @@ class MonitoringController extends BaseController
 
     private function sendSms($object, $user)
     {
-        $message = MessageTemplate::checklistCreated($object->task_id);
-        (new SmsService($user->phone, $message))->sendSms();
+        try {
+            $message = MessageTemplate::checklistCreated($object->task_id);
+            (new SmsService($user->phone, $message))->sendSms();
+        }catch (\Exception $exception) {}
+
     }
 
 
