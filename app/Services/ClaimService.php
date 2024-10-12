@@ -458,7 +458,7 @@ class ClaimService
 
         $claimObject->monitoring->update(
             [
-                'inspector_answered' => $request['type'],
+                'inspector_answer' => $request['type'],
             ]
         );
 
