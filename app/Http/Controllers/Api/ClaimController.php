@@ -15,6 +15,7 @@ use App\Http\Requests\ClaimRequests\RejectClaimByOperator;
 use App\Http\Requests\ClaimRequests\RejectFromDirector;
 use App\Http\Requests\ClaimRequests\SendToDirector;
 use App\Models\Block;
+use App\Models\ClaimOrganizationReview;
 use App\Services\ClaimService;
 use App\Services\HistoryService;
 use Illuminate\Support\Facades\Auth;
@@ -234,7 +235,10 @@ class ClaimController extends BaseController
         $response = $this->claimService->conclusionOrganization($request);
 
         if ($response) {
-            return $this->sendSuccess($response, 'Success');
+            $review = ClaimOrganizationReview::with('monitoring')->where('id', $response['review_id'])->first();
+            $claim = $this->claimService->getClaimById(id: $review->monitoring->claim->id, role_id: null);
+
+            return $this->sendSuccess($claim, 'Success');
         } else {
             return $this->sendError("API ERROR", "message");
         }
@@ -272,6 +276,7 @@ class ClaimController extends BaseController
             return $this->sendError("API ERROR", "message");
         }
     }
+
     public function sendToDirector(SendToDirector $request)
     {
         $response = $this->claimService->sendToDirector($request);
