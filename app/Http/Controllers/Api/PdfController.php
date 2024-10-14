@@ -59,4 +59,30 @@ class PdfController extends BaseController
         }
     }
 
+    public function pdfOrganizationDownload($id)
+    {
+        try {
+            $review = ClaimOrganizationReview::with('monitoring')->where('id', $id)->first();
+            $jsonTable = DB::table('claim_organization_reviews')->where('id', $id)->first();
+            $jsonTable = json_decode(gzuncompress(base64_decode($jsonTable->answer)), true);
+
+            $name = '';
+            foreach ($jsonTable as $key => $value) {
+                if (str_contains($key, '_name'))
+                    $name = $value;
+            }
+//            $qrCode = QrCode::format('png')->size(150)->generate('Test');
+//            $qrCode = base64_encode($qrCode);
+            $qrCode = base64_encode(file_get_contents('https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' . url('/api/organization-pdf/' . $id)));
+            $pdf = Pdf::loadView('pdf.review', ['review' => $review, 'name' => $name, 'qrCode' => $qrCode]);
+
+            $pdfOutput = $pdf->output();
+            $pdfBase64 = base64_encode($pdfOutput);
+            return $this->sendSuccess($pdfBase64, 'PDF');
+
+        } catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage(), $exception->getLine());
+        }
+    }
+
 }
