@@ -66,8 +66,7 @@ class ClaimController extends BaseController
         $data = $this->claimService->getOrganizationStatistics(
             roleId: $roleId,
             dateFrom: $dateFrom,
-            dateTo: $dateTo,
-            status: request()->get('status', null)
+            dateTo: $dateTo
         );
 
         return $this->sendSuccess($data, 'Successfully sent!');

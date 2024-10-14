@@ -122,13 +122,12 @@ class ClaimService
         );
     }
 
-    public function getOrganizationStatistics(int $roleId, ?string $dateFrom, ?string $dateTo, ?int $status)
+    public function getOrganizationStatistics(int $roleId, ?string $dateFrom, ?string $dateTo)
     {
         return $this->claimRepository->organizationStatistics(
             roleId: $roleId,
             dateFrom: $dateFrom,
-            dateTo: $dateTo,
-            status: $status
+            dateTo: $dateTo
         );
     }
 
