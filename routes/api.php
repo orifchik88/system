@@ -34,6 +34,7 @@ Route::post('test-api', [EGovController::class, 'getPassportInfo']);
 Route::get('{module}/{api}/responses', [ResponseController::class, 'receive']);
 
 Route::get('pdf-generation', [PdfController::class, 'generation']);
+Route::get('organization-pdf/{id}', [PdfController::class, 'pdfOrganization']);
 
 
 
