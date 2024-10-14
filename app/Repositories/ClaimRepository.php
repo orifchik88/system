@@ -103,7 +103,7 @@ class ClaimRepository implements ClaimRepositoryInterface
             ->get()->toArray();
     }
 
-    public function organizationStatistics(int $roleId, ?string $dateFrom, ?string $dateTo)
+    public function organizationStatistics(int $roleId, ?string $dateFrom, ?string $dateTo, ?int $status)
     {
         return $this->claim->query()
             ->join('claim_organization_reviews', 'claim_organization_reviews.claim_id', '=', 'claims.id')
@@ -117,6 +117,9 @@ class ClaimRepository implements ClaimRepositoryInterface
             })
             ->when($dateTo, function ($q) use ($dateTo) {
                 $q->whereDate('claims.created_at', '<=', $dateTo);
+            })
+            ->when($status, function ($q) use ($status) {
+                ($status == 1) ? $q->whereNull('claims.answered_at') : $q->whereNotNull('claims.answered_at');
             })
             ->when($roleId, function ($q) use ($roleId) {
                 $q->where('claim_organization_reviews.organization_id', $roleId);
