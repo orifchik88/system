@@ -367,7 +367,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                     $q->where('claims.legal_name', 'iLIKE', '%' . $sender . '%')->orWhere('claims.ind_name', 'iLIKE', '%' . $sender . '%');
                 })
                 ->when($status, function ($q) use ($status) {
-                    ($status == 1) ? $q->whereNull('claim_organization_reviews.answered_at') : $q->whereNotNull('claim_organization_reviews.answered_at');
+                    $q->where('claims.status', $status);
                 })
                 ->when($expired, function ($q) use ($expired) {
                     $q->where('claims.expired', $expired);
@@ -435,7 +435,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                     $q->where('claims.legal_name', 'iLIKE', '%' . $sender . '%')->orWhere('claims.ind_name', 'iLIKE', '%' . $sender . '%');
                 })
                 ->when($status, function ($q) use ($status) {
-                    $q->where('claims.status', $status);
+                    ($status == 1) ? $q->whereNull('claim_organization_reviews.answered_at') : $q->whereNotNull('claim_organization_reviews.answered_at');
                 })
                 ->when($expired, function ($q) use ($expired) {
                     $q->where('claims.expired', $expired);
