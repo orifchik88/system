@@ -162,6 +162,7 @@ Route::group([
     Route::group(['prefix' => 'claim'], function () {
         Route::get('tasks', [ClaimController::class, 'tasksList']);
         Route::get('statistics', [ClaimController::class, 'statisticsQuantity']);
+        Route::get('organization-statistics', [ClaimController::class, 'organizationStatisticsQuantity']);
         Route::get('task/{id}', [ClaimController::class, 'showTask']);
         Route::get('objects/{id}', [ClaimController::class, 'getObjects']);
         Route::get('get-pdf', [ClaimController::class, 'getPDF']);

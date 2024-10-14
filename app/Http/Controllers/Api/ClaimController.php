@@ -54,6 +54,23 @@ class ClaimController extends BaseController
         return $this->sendSuccess($data, 'Successfully sent!');
     }
 
+    public function organizationStatisticsQuantity()
+    {
+        $dateFrom = request()->get('date_from', null);
+        $dateTo = request()->get('date_to', null);
+
+        $roleId = Auth::user()->getRoleFromToken() ?? null;
+
+
+        $data = $this->claimService->getOrganizationStatistics(
+            roleId: $roleId,
+            dateFrom: $dateFrom,
+            dateTo: $dateTo
+        );
+
+        return $this->sendSuccess($data, 'Successfully sent!');
+    }
+
     public function getPDF()
     {
         $result = $this->claimService->getPDF(request()->get('task_id'));

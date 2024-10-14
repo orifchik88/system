@@ -122,6 +122,15 @@ class ClaimService
         );
     }
 
+    public function getOrganizationStatistics(int $roleId, ?string $dateFrom, ?string $dateTo)
+    {
+        return $this->claimRepository->organizationStatistics(
+            roleId: $roleId,
+            dateFrom: $dateFrom,
+            dateTo: $dateTo
+        );
+    }
+
     public function getTaskList(
         ?int    $regionId,
         ?int    $task_id,
@@ -576,7 +585,7 @@ class ClaimService
 
         $claimObject->monitoring->update(
             [
-                'director_answer' =>  $request['type']
+                'director_answer' => $request['type']
             ]
         );
 
