@@ -223,17 +223,6 @@ class ClaimController extends BaseController
         }
     }
 
-    public function rejectClaimByOperator(RejectClaimByOperator $request)
-    {
-        $response = $this->claimService->rejectByOperator($request);
-
-        if ($response) {
-            return $this->sendSuccess('Rad Qilindi!', 'Success');
-        } else {
-            return $this->sendError("API ERROR", "message");
-        }
-    }
-
     public function conclusionClaimByInspector(ConclusionClaimByInspector $request)
     {
         $response = $this->claimService->conclusionByInspector($request);
