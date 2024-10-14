@@ -119,7 +119,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                 $q->whereDate('claims.created_at', '<=', $dateTo);
             })
             ->when($status, function ($q) use ($status) {
-                ($status == 1) ? $q->whereNull('claims.answered_at') : $q->whereNotNull('claims.answered_at');
+                ($status == 1) ? $q->whereNull('claim_organization_reviews.answered_at') : $q->whereNotNull('claim_organization_reviews.answered_at');
             })
             ->when($roleId, function ($q) use ($roleId) {
                 $q->where('claim_organization_reviews.organization_id', $roleId);
