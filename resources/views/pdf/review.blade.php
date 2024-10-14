@@ -46,7 +46,7 @@
         <tbody>
         <tr>
             <td style="font-weight: 700; font-size: 22px; text-align: center; text-transform: uppercase;padding-bottom: 10px;">
-                O'zbekiston respublikasi favqulotda vaziyatlar vazirligi
+                {{ $headName }}
             </td>
         </tr>
         <tr>

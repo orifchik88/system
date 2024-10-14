@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\OrganizationNames;
 use App\Http\Resources\UserResource;
 use App\Models\ClaimOrganizationReview;
 use App\Models\Regulation;
@@ -41,6 +42,8 @@ class PdfController extends BaseController
             $review = ClaimOrganizationReview::with('monitoring')->where('id', $id)->first();
             $jsonTable = DB::table('claim_organization_reviews')->where('id', $id)->first();
             $jsonTable = json_decode(gzuncompress(base64_decode($jsonTable->answer)), true);
+            $region = (in_array($review->organization_id, [15,16])) ? $review->monitoring->claim->district()->first()->name_uz : $review->monitoring->claim->region()->first()->name_uz;
+            $headName = str_replace('{region}', $region, OrganizationNames::NAMES[$review->organization_id]);
 
             $name = '';
             foreach ($jsonTable as $key => $value) {
@@ -50,7 +53,7 @@ class PdfController extends BaseController
 //            $qrCode = QrCode::format('png')->size(150)->generate('Test');
 //            $qrCode = base64_encode($qrCode);
             $qrCode = base64_encode(file_get_contents('https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' . url('/api/organization-pdf/' . $id)));
-            $pdf = Pdf::loadView('pdf.review', ['review' => $review, 'name' => $name, 'qrCode' => $qrCode]);
+            $pdf = Pdf::loadView('pdf.review', ['review' => $review, 'name' => $name, 'qrCode' => $qrCode, 'headName' => $headName]);
 
             return $pdf->stream();
 
@@ -65,6 +68,8 @@ class PdfController extends BaseController
             $review = ClaimOrganizationReview::with('monitoring')->where('id', $id)->first();
             $jsonTable = DB::table('claim_organization_reviews')->where('id', $id)->first();
             $jsonTable = json_decode(gzuncompress(base64_decode($jsonTable->answer)), true);
+            $region = (in_array($review->organization_id, [15,16])) ? $review->monitoring->claim->district()->first()->name_uz : $review->monitoring->claim->region()->first()->name_uz;
+            $headName = str_replace('{region}', $region, OrganizationNames::NAMES[$review->organization_id]);
 
             $name = '';
             foreach ($jsonTable as $key => $value) {
@@ -74,7 +79,7 @@ class PdfController extends BaseController
 //            $qrCode = QrCode::format('png')->size(150)->generate('Test');
 //            $qrCode = base64_encode($qrCode);
             $qrCode = base64_encode(file_get_contents('https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' . url('/api/organization-pdf/' . $id)));
-            $pdf = Pdf::loadView('pdf.review', ['review' => $review, 'name' => $name, 'qrCode' => $qrCode]);
+            $pdf = Pdf::loadView('pdf.review', ['review' => $review, 'name' => $name, 'qrCode' => $qrCode, 'headName' => $headName]);
 
             $pdfOutput = $pdf->output();
             $pdfBase64 = base64_encode($pdfOutput);
