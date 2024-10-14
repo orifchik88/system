@@ -550,15 +550,77 @@ class ClaimService
                 comment: $request['comment']
             );
         } else {
+            $operatorBlocks = $claimObject->monitoring->operator_field;
+            if (!$operatorBlocks)
+                return false;
+            $tableHtml = '<table style="border-collapse: collapse; width: 100%;">
+                              <thead>
+                                <tr>
+                                  <th style="border: 1px solid black; padding: 5px; text-align: center;">Бино ва иншоотнинг номи</th>
+                                  <th style="border: 1px solid black; padding: 5px; text-align: center;">Кадастр рақами</th>
+                                  <th style="border: 1px solid black; padding: 5px; text-align: center;">Бинолар сони</th>
+                                  <th style="border: 1px solid black; padding: 5px; text-align: center;">Умумий майдон (ташқи) (м²)</th>
+                                  <th style="border: 1px solid black; padding: 5px; text-align: center;">Умумий фойдаланиш майдони (m²)</th>
+                                  <th style="border: 1px solid black; padding: 5px; text-align: center;">Яшаш майдони (м²)</th>
+                                  <th style="border: 1px solid black; padding: 5px; text-align: center;">Қурилиш ости майдони (м²)</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {blocks}
+                              </tbody>
+                              <tfoot>
+                                {footer}
+                              </tfoot>
+                            </table>';
+            $totalArr = [
+                'building_number' => 0,
+                'total_area' => 0,
+                'total_use_area' => 0,
+                'living_area' => 0,
+                'area' => 0,
+            ];
+            $tableTr = '';
+            foreach ($operatorBlocks as $operatorBlock) {
+                $totalArr['building_number'] += $totalArr['building_number'];
+                $totalArr['total_area'] += $totalArr['total_area'];
+                $totalArr['total_use_area'] += $totalArr['total_use_area'];
+                $totalArr['living_area'] += $totalArr['living_area'];
+                $totalArr['area'] += $totalArr['area'];
+
+                $tableTr .= '<tr>
+                                  <td style="border: 1px solid black; padding: 5px; text-align: center;"> ' . $operatorBlock['name'] . '</td>
+                                  <td style="border: 1px solid black; padding: 5px; text-align: center;">' . $operatorBlock['cadaster'] . '</td>
+                                  <td style="border: 1px solid black; padding: 5px; text-align: center;">' . $operatorBlock['building_number'] . '</td>
+                                  <td style="border: 1px solid black; padding: 5px; text-align: center;">' . $operatorBlock['total_area'] . '</td>
+                                  <td style="border: 1px solid black; padding: 5px; text-align: center;">' . $operatorBlock['total_use_area'] . '</td>
+                                  <td style="border: 1px solid black; padding: 5px; text-align: center;">' . $operatorBlock['living_area'] . '</td>
+                                  <td style="border: 1px solid black; padding: 5px; text-align: center;">' . $operatorBlock['area'] . '</td>
+                                </tr>';
+            }
+
+            $footer = '<tr>
+                                  <th style="border: 1px solid black; padding: 5px;" colspan="2">Жами:</th>
+                                  <th style="border: 1px solid black; padding: 5px; text-align: center;">' . $totalArr['building_number'] . '</th>
+                                  <th style="border: 1px solid black; padding: 5px; text-align: center;">' . $totalArr['total_area'] . '</th>
+                                  <th style="border: 1px solid black; padding: 5px; text-align: center;">' . $totalArr['total_use_area'] . '</th>
+                                  <th style="border: 1px solid black; padding: 5px; text-align: center;">' . $totalArr['living_area'] . '</th>
+                                  <th style="border: 1px solid black; padding: 5px; text-align: center;">' . $totalArr['area'] . '</th>
+                                </tr>';
+            $tableHtml = str_replace('{blocks}', $tableTr, $tableHtml);
+            $tableHtml = str_replace('{footer}', $footer, $tableHtml);
             $dataArray['ConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
                 "gasn_name" => Auth::user()->name . ' ' . Auth::user()->surname,
                 "gasn_match" => 1,
                 "gasn_cause" => $request['comment'],
                 "gasn_territory" => Auth::user()->region->name_uz,
                 "date_issue_act_gasn" => Carbon::now(),
-                "object_project_gasn" => "file",
+                "object_project_gasn" => [
+                    "target" => "file",
+                    "ext" => "jpg",
+                    "file" => "iVBORw0KGgoAAAANSUhEUgAAAPgAAADLCAMAAAB04a46AAAAKlBMVEX///8AAABMTEw/Pz+cnJz19fU6OjpDQ0NLS0tISEhycnIMDAyampqsrKz4G7DdAAABLUlEQVR4nO3UyRHCQAwAQbABL1f+6QIPKEfAPqYnAnVJpcNBtZ7bGEur6+0DPx17jSp8+cLXUNt9B5/3YSa07uDn2cP8sws4eCNw8Ejg4JHAwSOBg0cCB48EDh4JHDwSOHgkcPBI4OCRwMEjgYNHAgePBA4eCRw8Ejh4JHDwSODgkcDBI4GDRwIHjwQOHgkcPBI4eCRw8Ejg4JHAwSOBg0cCB48EDh4JHDwSOHgkcPBI4OCRwMEjgYNHAgePBA4eCRw8Ejh4JHDwSODgkcDBI4GDRwIHjwQOHgkcPBI4eCRw8Ejg4JHAwSOBg0cCB48EDh4JHDwSOHgkcPBI4OCRwMEjgYNHAgePBF6FP97w2bP8tXW38TXUdt/Ba/1Ovdb4wJ/bMpZW19u8D6NZvQAHUx5B5LstjAAAAABJRU5ErkJggg=="
+                ],
                 "address_object_gasn" => $claimObject->object->region->name_uz . ', ' . $claimObject->object->district->name_uz . ', ' . $claimObject->object->location_building,
-                "buildings_title_documents_gasn" => "example"
+                "buildings_title_documents_gasn" => $tableHtml
             ];
 
             $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/conclusion-gasn", $dataArray);
