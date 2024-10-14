@@ -510,7 +510,7 @@ class ClaimService
 
         $histories = $this->historyService->getFilteredList(guId: $claimObject->gu_id, jsonColumn: 'role', needle: 3);
         $lastInspectorConclusion = json_decode($histories[0]->content, true);
-
+        
         $dataArray['SendToStepConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
             'comment_gasn' => $lastInspectorConclusion['comment'],
         ];

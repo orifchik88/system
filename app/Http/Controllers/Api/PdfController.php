@@ -47,10 +47,11 @@ class PdfController extends BaseController
                 if (str_contains($key, '_name'))
                     $name = $value;
             }
-            $qrCode = QrCode::format('png')->size(150)->generate('Test');
-            $qrCode = base64_encode($qrCode);
+//            $qrCode = QrCode::format('png')->size(150)->generate('Test');
+//            $qrCode = base64_encode($qrCode);
+            $qrCode = base64_encode(file_get_contents('https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' . url('/api/organization-pdf/' . $id)));
             $pdf = Pdf::loadView('pdf.review', ['review' => $review, 'name' => $name, 'qrCode' => $qrCode]);
-            
+
             return $pdf->stream();
 
         } catch (\Exception $exception) {
