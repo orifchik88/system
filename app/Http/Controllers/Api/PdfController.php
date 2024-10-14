@@ -11,6 +11,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class PdfController extends BaseController
 {
@@ -40,19 +41,21 @@ class PdfController extends BaseController
             $review = ClaimOrganizationReview::with('monitoring')->where('id', $id)->first();
             $jsonTable = DB::table('claim_organization_reviews')->where('id', $id)->first();
             $jsonTable = json_decode(gzuncompress(base64_decode($jsonTable->answer)), true);
+
             $name = '';
             foreach ($jsonTable as $key => $value) {
                 if (str_contains($key, '_name'))
                     $name = $value;
             }
-            $pdf = Pdf::loadView('pdf.review', compact('review', 'name'));
-
-            $pdfOutput = $pdf->output();
-            $pdfBase64 = base64_encode($pdfOutput);
-            return $this->sendSuccess($pdfBase64, 'PDF');
+            $qrCode = QrCode::format('png')->size(150)->generate('Test');
+            $qrCode = base64_encode($qrCode);
+            $pdf = Pdf::loadView('pdf.review', ['review' => $review, 'name' => $name, 'qrCode' => $qrCode]);
+            
+            return $pdf->stream();
 
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getLine());
         }
     }
+
 }

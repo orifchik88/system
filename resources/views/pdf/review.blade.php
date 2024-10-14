@@ -3,20 +3,17 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, charset=utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>PDF</title>
-
-
+    <title>Xulosa</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
     </style>
 
     <style>
         * {
-            font-family: "Inter", sans-serif !important;
-            font-size: 20px;
+            font-family: "DejaVu Sans", sans-serif;
+            font-size: 16px;
             color: #080B22;
         }
 
@@ -27,7 +24,7 @@
         }
 
         body {
-            font-family: "Inter", sans-serif;
+            font-family: "DejaVu Sans", sans-serif;
             color: #080B22;
         }
 
@@ -38,6 +35,7 @@
 
         @page {
             size: A4 landscape;
+            margin: 10px;
         }
     </style>
 </head>
@@ -47,7 +45,7 @@
     <table style="margin-bottom: 30px; width:100%; border: none; border-collapse:collapse">
         <tbody>
         <tr>
-            <td style="font-weight: 700; font-size: 24px; text-align: center; text-transform: uppercase;padding-bottom: 10px;">
+            <td style="font-weight: 700; font-size: 22px; text-align: center; text-transform: uppercase;padding-bottom: 10px;">
                 O'zbekiston respublikasi favqulotda vaziyatlar vazirligi
             </td>
         </tr>
@@ -61,11 +59,11 @@
         </tbody>
     </table>
 
-    <table style="margin-bottom: 40px; width:100%; border: none; border-collapse:collapse">
+    <table style="margin-bottom: 30px; width:100%; border: none; border-collapse:collapse">
         <tbody>
         <tr>
             <td>
-                <div style="font-weight: 600; margin-bottom: 12px; text-transform: uppercase; font-size: 22px;">
+                <div style="font-weight: 600; margin-bottom: 12px; text-transform: uppercase; font-size: 20px;">
                     Qurilish-montaj ishlari tugallangan obyektdan foydalanish uchun <br> ruxsatnoma berish va kadastr
                     hujjatlarini rasmiylashtirish bo'yicha XULOSA:
                 </div>
@@ -79,7 +77,7 @@
         </tbody>
     </table>
 
-    <table style="margin-bottom: 15px; width:100%; border: none; border-collapse:collapse">
+    <table style="margin-bottom: 10px; width:100%; border: none; border-collapse:collapse">
         <tbody>
         <tr>
             <td colspan="2" style="padding: 5px 0;">
@@ -94,13 +92,13 @@
             </td>
             <td style="padding: 10px 0;">
                 <span style="font-weight: 600;">Hudud:</span>
-                <div>{{ $review->monitoring->claim->district->name }}</div>
+                <div>{{ $review->monitoring->claim->district()->first()->name_uz }}</div>
             </td>
         </tr>
         </tbody>
     </table>
 
-    <table style="margin-bottom: 20px; width:100%; border: none; border-collapse:collapse">
+    <table style="margin-bottom: 10px; width:100%; border: none; border-collapse:collapse">
         <tbody>
         <tr>
             <td style="width: 50%; padding: 5px 0;">
@@ -135,10 +133,10 @@
         <tbody>
         <tr>
             <td style="width: 50%; padding: 10px 0;">
-                <img width="150" height="150" src="https://picsum.photos/150" alt="">
+                <img src='data:image/png;base64," . {{ $qrCode }} . "'>
             </td>
             <td style="vertical-align: bottom; text-align: right;">
-                <svg width="267" height="40" viewBox="0 0 267 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <img src="data:image/svg+xml;base64,{{ base64_encode('<svg width="267" height="40" viewBox="0 0 267 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g clip-path="url(#clip0_17_2)">
                         <path
                             d="M58.617 29.0605C59.7935 30.0402 61.2316 30.4972 63.0617 30.4972C64.6958 30.4972 65.9378 30.1707 66.9836 29.4525C67.964 28.734 68.487 27.7545 68.487 26.5135C68.487 25.5992 68.2255 24.8809 67.6373 24.3584C67.1143 23.836 66.3954 23.4441 65.5455 23.1829C64.6958 22.9217 63.5193 22.6605 62.0159 22.3992C59.6628 22.0074 57.8324 21.3543 56.3944 20.44C55.0217 19.5257 54.3028 18.0236 54.3028 15.9991C54.3028 14.693 54.6297 13.5174 55.2832 12.4725C55.937 11.4276 56.9174 10.6439 58.094 10.1214C59.2705 9.599 60.7086 9.27245 62.2774 9.27245C63.9116 9.27245 65.4147 9.599 66.6567 10.1868C67.8986 10.7745 68.9446 11.6235 69.6635 12.7337C70.3827 13.844 70.8401 15.0848 70.9055 16.4563H68.0293C67.8332 15.0848 67.2451 13.9746 66.1993 13.1909C65.1535 12.3419 63.8462 11.95 62.2774 11.95C60.7086 11.95 59.4666 12.2766 58.5516 12.995C57.6363 13.648 57.1789 14.6277 57.1789 15.8685C57.1789 16.7828 57.4404 17.4359 57.9632 17.9583C58.4862 18.4808 59.2051 18.8073 60.055 19.0686C60.9047 19.3298 62.0812 19.591 63.5193 19.8522C65.8724 20.2441 67.7681 20.8972 69.1405 21.8115C70.5786 22.7258 71.2324 24.2278 71.2324 26.2522C71.2324 27.5585 70.9055 28.7992 70.1866 29.8442C69.4674 30.8892 68.487 31.7382 67.2451 32.2607C66.0031 32.8485 64.5651 33.1097 62.9309 33.1097C61.1008 33.1097 59.532 32.783 58.1593 32.13C56.7867 31.477 55.7409 30.5627 55.0217 29.3217C54.3028 28.1462 53.8452 26.7747 53.7798 25.2075H56.6559C56.7867 26.8402 57.4404 28.081 58.617 29.0605Z"
@@ -204,7 +202,8 @@
                             <rect width="267" height="40" fill="white"/>
                         </clipPath>
                     </defs>
-                </svg>
+                </svg>') }}"  />
+
             </td>
         </tr>
         </tbody>

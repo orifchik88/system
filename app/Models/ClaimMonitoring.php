@@ -15,7 +15,7 @@ class ClaimMonitoring extends Model
     protected $hidden = ['operator_answer'];
     public function claim()
     {
-        return $this->belongsTo(Claim::class, 'claim_id', 'id')->with('region');
+        return $this->belongsTo(Claim::class, 'claim_id', 'id')->with(['region', 'district']);
     }
 
     public function getOperatorFieldAttribute()
