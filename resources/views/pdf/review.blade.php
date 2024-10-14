@@ -109,7 +109,7 @@
             </td>
             <td style="padding: 10px 0;">
                 <span style="font-weight: 600;">Berilgan javob: </span>
-                <div>{{ ($review->status ? 'Qabul qilindi' : 'Rad qilingi'}}</div>
+                <div>{{ $review->status ? 'Qabul qilindi' : 'Rad qilingi'}}</div>
             </td>
         </tr>
         <tr>
