@@ -581,11 +581,11 @@ class ClaimService
             ];
             $tableTr = '';
             foreach ($operatorBlocks as $operatorBlock) {
-                $totalArr['building_number'] += $totalArr['building_number'];
-                $totalArr['total_area'] += $totalArr['total_area'];
-                $totalArr['total_use_area'] += $totalArr['total_use_area'];
-                $totalArr['living_area'] += $totalArr['living_area'];
-                $totalArr['area'] += $totalArr['area'];
+                $totalArr['building_number'] += $operatorBlock['building_number'];
+                $totalArr['total_area'] += $operatorBlock['total_area'];
+                $totalArr['total_use_area'] += $operatorBlock['total_use_area'];
+                $totalArr['living_area'] += $operatorBlock['living_area'];
+                $totalArr['area'] += $operatorBlock['area'];
 
                 $tableTr .= '<tr>
                                   <td style="border: 1px solid black; padding: 5px; text-align: center;"> ' . $operatorBlock['name'] . '</td>
