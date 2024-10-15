@@ -9,6 +9,7 @@ use App\Models\Article;
 use App\Models\Regulation;
 use App\Models\RegulationDemand;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -392,6 +393,13 @@ class RegulationService
             DB::rollBack();
             throw $exception;
         }
+    }
+
+    private function deadlineRejected($regulation)
+    {
+        $today = Carbon::today();
+        $deadline = Carbon::parse($this->deadline);
+
     }
 
     private function sendSms($regulation, $type)
