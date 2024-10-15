@@ -25,7 +25,8 @@ class ResponseBlockResource extends JsonResource
             'count_apartments' => $this->count_apartments,
             'height' => $this->height,
             'length' => $this->length,
-            'status' => $this->status
+            'status' => $this->status,
+            'appearance_type' => AppearanceTypeResource::make($this->appearance_type)
         ];
     }
 }

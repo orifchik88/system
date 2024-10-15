@@ -36,6 +36,7 @@ class BlockRequest extends FormRequest
             'block_type_id' => 'required|integer|exists:block_types,id',
             'created_by' => 'required|integer|exists:users,id',
             'status' => 'required|boolean',
+            'appearance_type' => 'sometimes|integer',
         ];
     }
 

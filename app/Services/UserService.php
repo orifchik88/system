@@ -28,6 +28,9 @@ class UserService
             ->when(request('district_id'), function ($query) {
                 $query->where('district_id', request('district_id'));
             })
+            ->when(request('status'), function ($query) {
+                $query->where('user_status_id', request('status'));
+            })
             ->when(request('role_id'), function ($query) {
                 $query->whereHas('roles', function ($query){
                     $query->where('role_id', request('role_id'));
