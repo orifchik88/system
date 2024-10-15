@@ -52,7 +52,8 @@ class ArticleResource extends JsonResource
             'file_energy_efficiency' => $this->file_energy_efficiency,
             'blocks' => ResponseBlockResource::collection($this->blocks),
             'users' => ArticleUserResource::collection($this->users),
-            'payment_logs' => ArticlePaymentLogResource::collection($this->paymentLogs)
+            'payment_logs' => ArticlePaymentLogResource::collection($this->paymentLogs),
+            'rating' => json_decode($this->rating)
         ];
     }
 }

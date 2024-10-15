@@ -15,7 +15,9 @@ use App\Http\Resources\ObjectStatusResource;
 use App\Http\Resources\ObjectTypeResource;
 use App\Models\Article;
 use App\Models\ArticlePaymentLog;
+use App\Models\ArticleUser;
 use App\Models\ObjectStatus;
+use App\Models\User;
 use App\Models\UserRole;
 use App\Services\ArticleService;
 use App\Services\HistoryService;
@@ -23,6 +25,7 @@ use Illuminate\Http\FileHelpers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ObjectController extends BaseController
 {
@@ -80,6 +83,73 @@ class ObjectController extends BaseController
             ->orderBy('created_at', request('sort_by_date', 'DESC'))
             ->paginate(\request('per_page', 10));
         return $this->sendSuccess(ArticleResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
+    }
+
+    public function rotation(): JsonResponse
+    {
+        try {
+            $firstUserArticles = ArticleUser::where('user_id', request('user_id'))
+                ->where('role_id', UserRoleEnum::INSPECTOR->value)
+                ->pluck('article_id');
+
+            $secondUserArticles = ArticleUser::where('user_id', request('rotation_user_id'))
+                ->where('role_id', UserRoleEnum::INSPECTOR->value)
+                ->pluck('article_id');
+
+            ArticleUser::whereIn('article_id', $firstUserArticles)
+                ->where('role_id', UserRoleEnum::INSPECTOR->value)
+                ->update(['user_id' => request('rotation_user_id')]);
+
+            ArticleUser::whereIn('article_id', $secondUserArticles)
+                ->where('role_id', UserRoleEnum::INSPECTOR->value)
+                ->update(['user_id' => request('user_id')]);
+
+            return $this->sendSuccess([], 'Objects retrieved successfully.');
+
+
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function objectByParams(): JsonResponse
+    {
+        try {
+            if (!request('task_id') && !request('gnk_id') && !request('expertize_number')) throw new NotFoundHttpException('Object not found');
+
+            $object = Article::query()
+                ->when(request('task_id'), function ($query) {
+                    $query->where('task_id', request('task_id'));
+                })
+                ->when(request('gnk_id'), function ($query) {
+                    $query->where('gnk_id', request('gnk_id'));
+                })
+                ->when(request('expertize_number'), function ($query) {
+                    $query->where('number_protocol', request('expertize_number'));
+                })
+                ->firstOrFail();
+            return $this->sendSuccess(ArticleResource::make($object), 'Object retrieved successfully.');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function userObjects(): JsonResponse
+    {
+        try {
+            $user = User::query()
+                ->where('identification_number', request('inn'))
+                ->whereHas('roles', function ($query) {
+                    $query->where('role_id', UserRoleEnum::QURILISH->value);
+                })
+                ->first();
+            if (!$user) throw new NotFoundHttpException('User not found');
+            $objects = $user->objects()->paginate(\request('per_page', 10));
+            return $this->sendSuccess(ArticleResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
+
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
     }
 
     public function accountObjects(): JsonResponse

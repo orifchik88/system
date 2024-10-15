@@ -29,13 +29,13 @@ class UserService
                 $query->where('district_id', request('district_id'));
             })
             ->when(request('role_id'), function ($query) {
-                $query->where('role_id', request('role_id'));
-            })
-            ->when(request('status'), function ($query) {
-                $query->where('user_status_id', request('status'));
+                $query->whereHas('roles', function ($query){
+                    $query->where('role_id', request('role_id'));
+                });
             });
 
         if ($auth->isKadr()){
+//            dd($users->toSql());
             return $users->paginate(\request('perPage', 10));
         }else{
             return $users->where('created_by', $auth->id)->paginate(\request('perPage', 10));

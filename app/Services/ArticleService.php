@@ -218,11 +218,6 @@ class ArticleService
                         ]);
                     }
             }
-            $roleMapping = [
-                8 => 6,
-                9 => 7,
-                10 => 5,
-            ];
 
 
             $article->users()->attach($response->inspector_id, ['role_id' => 3]);
@@ -231,7 +226,6 @@ class ArticleService
             $this->saveBlocks($response, $article);
             $this->saveEmployee($article);
 
-//            $this->saveChecklist($article);
 
             DB::commit();
 
@@ -246,6 +240,7 @@ class ArticleService
 
     private function saveEmployee($object)
     {
+        $rating = [];
         $muallif = $object->users()->where('role_id', UserRoleEnum::MUALLIF->value)->first();
         $texnik = $object->users()->where('role_id', UserRoleEnum::TEXNIK->value)->first();
         $buyurtmachi = $object->users()->where('role_id', UserRoleEnum::BUYURTMACHI->value)->first();
@@ -253,7 +248,21 @@ class ArticleService
         $ichki = $object->users()->where('role_id', UserRoleEnum::ICHKI->value)->first();
         $qurilish = $object->users()->where('role_id', UserRoleEnum::QURILISH->value)->first();
 
+        $loyihaRating = getData(config('app.gasn.rating'), (int)$loyiha->identification_number);
+        if (!$loyihaRating) throw new NotFoundException('Loyiha tashkilotining reytinggini olishda muammo');
 
+        $qurilishRating = getData(config('app.gasn.rating'), (int)$qurilish->identification_number);
+
+        if (!$qurilishRating) throw new NotFoundException('Qurilish tashkilotining reytinggini olishda muammo');
+
+        $rating[] = [
+            'loyiha' => $loyihaRating['data']['data'],
+            'qurilish' => $qurilishRating['data']['data'],
+        ];
+
+        $object->update([
+            'rating' => json_encode($rating)
+        ]);
 
         if (!UserEmployee::query()->where('user_id', $texnik->id)->where('parent_id', $buyurtmachi->id)->exists()) {
             UserEmployee::query()->create([
@@ -277,39 +286,6 @@ class ArticleService
         }
     }
 
-    private function processBuildingWorkTypes($workTypes, $block, $article)
-    {
-        foreach ($workTypes as $workType) {
-            if ($workType->is_multiple_floor) {
-                if ($block->floor) {
-                    for ($i = 1; $i <= (int)$block->floor; $i++) {
-                        $levelName = $i . ' - qavat ' . $workType->name;
-                        $level = $this->createLevel($levelName, $workType->id, $block->id, $article->id, LevelStatusEnum::NOT_BEGIN);
-                        foreach ($workType->questions as $question) {
-                            $this->createChecklist($question, $level->id, $workType->id, $block->id, ObjectTypeEnum::BUILDING->value, $article->id);
-                        }
-                    }
-                }
-
-            } else {
-                $level = $this->createLevel($workType->name, $workType->id, $block->id, $article->id, LevelStatusEnum::NOT_BEGIN->value);
-                foreach ($workType->questions as $question) {
-                    $this->createChecklist($question, $level->id, $workType->id, $block->id, ObjectTypeEnum::BUILDING->value, $article->id);
-                }
-            }
-        }
-    }
-    private function createLevel($name, $workTypeId,  $blockId, $articleId, $statusId)
-    {
-        $level = new Level();
-        $level->name = $name;
-        $level->work_type_id = $workTypeId;
-        $level->block_id = $blockId;
-        $level->article_id = $articleId;
-        $level->level_status_id = $statusId;
-        $level->save();
-        return $level;
-    }
 
     private function createChecklist($question, $levelId, $workTypeId, $blockId, $objectTypeId, $articleId)
     {
@@ -324,17 +300,6 @@ class ArticleService
         $checklist->save();
     }
 
-
-    private function processWorkTypes($workTypes, $block, $article, $objectType)
-    {
-
-        foreach ($workTypes as $workType) {
-            $level = $this->createLevel($workType->name, $workType->id, $block->id, $article->id, LevelStatusEnum::NOT_BEGIN->value);
-            foreach ($workType->questions as $question) {
-                $this->createChecklist($question, $level->id, $workType->id, $block->id, $objectType, $article->id);
-            }
-        }
-    }
 
 
     private function saveBlocks($response, $article)

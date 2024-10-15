@@ -174,7 +174,7 @@ class RoleSeeder extends Seeder
         }
 
         $role1 = Role::query()->find(1)->update([
-            'children' => [2, 3, 4, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 26]
+            'children' => [2, 3, 4, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 26, 27, 28]
         ]);
         $role2 = Role::query()->find(2)->update([
             'children' => [3, 4, 11, 13, 15, 16, 17, 18, 19, 21, 23]

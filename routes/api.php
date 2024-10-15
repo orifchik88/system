@@ -104,6 +104,8 @@ Route::group([
     Route::get('object-status', [ObjectController::class, 'status']);
     Route::get('object-types', [ObjectController::class, 'objectTypes']);
     Route::get('object-count', [ObjectController::class, 'objectCount']);
+    Route::get('get-object', [ObjectController::class, 'objectByParams']);
+    Route::get('user-objects', [ObjectController::class, 'userObjects']);
     Route::get('funding-sources', [ObjectController::class, 'fundingSource']);
     Route::get('object-sectors/{id}', [ObjectController::class, 'objectSectors']);
     Route::post('object-create', [ObjectController::class, 'create']);
@@ -113,6 +115,7 @@ Route::group([
     Route::get('total-payment', [ObjectController::class, 'totalPayment']);
     Route::get('payment-statistics', [ObjectController::class, 'paymentStatistics']);
     Route::get('accountant-objects', [ObjectController::class, 'accountObjects']);
+    Route::get('rotation', [ObjectController::class, 'rotation']);
 
     Route::get('blocks/{id}', [BlockController::class, 'index']);
     Route::get('block/{id}', [BlockController::class, 'getBlock']);
@@ -145,6 +148,7 @@ Route::group([
     Route::post('create-fine', [RegulationController::class, 'fine']);
     Route::post('send-court', [RegulationController::class, 'sendCourt']);
     Route::get('author-regulation', [RegulationController::class, 'getAuthorRegulations']);
+    Route::get('send-answer-author-regulation', [RegulationController::class, 'sendAnswerAuthorRegulation']);
 
     Route::get('act-violations', [ViolationController::class, 'actViolations']);
     Route::get('violations', [ViolationController::class, 'violations']);

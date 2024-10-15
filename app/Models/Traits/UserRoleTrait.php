@@ -82,26 +82,30 @@ trait UserRoleTrait
         return $this->belongsToMany(User::class, 'user_employees', 'parent_id');
     }
 
-
-
-
-
-
-
-
+//    public function scopeSearchByFullName($query, $searchTerm)
+//    {
+//        $searchTerm = strtolower($searchTerm);
+//        return $query->whereRaw('LOWER(name) LIKE ?', ['%' . $searchTerm . '%'])
+//            ->orWhereRaw('LOWER(middle_name) LIKE ?', ['%' . $searchTerm . '%'])
+//            ->orWhereRaw('LOWER(surname) LIKE ?', ['%' . $searchTerm . '%']);
+//    }
 
     public function scopeSearchByFullName($query, $searchTerm)
     {
         $searchTerm = strtolower($searchTerm);
-        return $query->whereRaw('LOWER(name) LIKE ?', ['%' . $searchTerm . '%'])
-            ->orWhereRaw('LOWER(middle_name) LIKE ?', ['%' . $searchTerm . '%'])
-            ->orWhereRaw('LOWER(surname) LIKE ?', ['%' . $searchTerm . '%']);
+        return $query->where(function ($query) use ($searchTerm) {
+            $query->whereRaw('LOWER(name) LIKE ?', ['%' . $searchTerm . '%'])
+                ->orWhereRaw('LOWER(middle_name) LIKE ?', ['%' . $searchTerm . '%'])
+                ->orWhereRaw('LOWER(surname) LIKE ?', ['%' . $searchTerm . '%']);
+        });
     }
 
     public function scopeSearchByPinfOrPhone($query, $searchTerm)
     {
-        return $query->where('pinfl LIKE ?', ['%' . $searchTerm . '%'])
-            ->orWhereRaw('phone LIKE ?', ['%' . $searchTerm . '%']);
+        return $query->where(function ($query) use ($searchTerm) {
+            $query->where('pinfl', 'LIKE', '%' . $searchTerm . '%')
+                ->orWhere('phone', 'LIKE', '%' . $searchTerm . '%');
+        });
     }
     public function getFullNameAttribute()
     {

@@ -17,21 +17,6 @@ class ProfileController extends BaseController
     {
         $user = Auth::guard('api')->user();
 
-        $roleId = JWTAuth::parseToken()->getClaim('role_id');
-
-//        $permissions = $user->getAllPermissions()->groupBy('group_name')->map(function ($group) {
-//            return [
-//                'group_name' => $group->first()->group_name,
-//                'permissions' => $group->map(function ($permission) {
-//                    return [
-//                        'id' => $permission->id,
-//                        'name' => $permission->name,
-//                    ];
-//                })->values()->all(),
-//            ];
-//        })->values()->all();
-
-
         return $this->sendSuccess(new UserResource($user), 'User found.');
     }
 

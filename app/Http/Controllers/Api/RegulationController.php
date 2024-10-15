@@ -35,8 +35,9 @@ use Spatie\Permission\Models\Role;
 class RegulationController extends BaseController
 {
 
-    public function __construct(protected RegulationService $regulationService){}
-
+    public function __construct(protected RegulationService $regulationService)
+    {
+    }
 
 
     public function regulations(): JsonResponse
@@ -46,33 +47,33 @@ class RegulationController extends BaseController
             $roleId = $user->getRoleFromToken();
 
             $query = Regulation::query();
-                switch ($roleId) {
-                    case 26:
-                        $query->whereHas('monitoring', function ($q) use ($user) {
-                            $q->whereHas('article', function ($articleQuery) use ($user) {
-                                $articleQuery->where('region_id', $user->region_id);
-                            });
+            switch ($roleId) {
+                case 26:
+                    $query->whereHas('monitoring', function ($q) use ($user) {
+                        $q->whereHas('article', function ($articleQuery) use ($user) {
+                            $articleQuery->where('region_id', $user->region_id);
                         });
-                        break;
-                    case 27:
-//                    case 28:
-                        $query->where('regulation_status_id', request('status'));
-                        break;
-                    default:
-                        $query->where(function ($q) use ($user) {
-                            $q->where('regulations.user_id', $user->id)
-                                ->orWhere('regulations.created_by_user_id', $user->id)
-                                ->orWhere('regulations.role_id', $user->getRoleFromToken())
-                                ->orWhere('regulations.created_by_role_id', $user->getRoleFromToken());
-                        });
-                        break;
-                }
-
-                $query->when(request('object_name'), function ($q) {
-                    $q->whereHas('monitoring.article', function ($query) {
-                        $query->where('name', 'like', '%' . request('object_name') . '%');
                     });
-                })
+                    break;
+                case 27:
+//                    case 28:
+                    $query->where('regulation_status_id', request('status'));
+                    break;
+                default:
+                    $query->where(function ($q) use ($user) {
+                        $q->where('regulations.user_id', $user->id)
+                            ->orWhere('regulations.created_by_user_id', $user->id)
+                            ->orWhere('regulations.role_id', $user->getRoleFromToken())
+                            ->orWhere('regulations.created_by_role_id', $user->getRoleFromToken());
+                    });
+                    break;
+            }
+
+            $query->when(request('object_name'), function ($q) {
+                $q->whereHas('monitoring.article', function ($query) {
+                    $query->where('name', 'like', '%' . request('object_name') . '%');
+                });
+            })
                 ->when(request('region_id'), function ($q) {
                     $q->whereHas('monitoring.article', function ($query) {
                         $query->where('region_id', request('region_id'));
@@ -99,7 +100,7 @@ class RegulationController extends BaseController
                     });
                 })
                 ->when(request('status'), function ($query) {
-                   $query->where('regulation_status_id', request('status'));
+                    $query->where('regulation_status_id', request('status'));
                 });
 
             $regulations = $query->paginate(request('per_page', 10));
@@ -120,7 +121,7 @@ class RegulationController extends BaseController
         try {
             $authorRegulations = AuthorRegulation::query()->paginate(request('per_page', 10));
             return $this->sendSuccess(AuthorRegulationResource::collection($authorRegulations), 'Regulations', pagination($authorRegulations));
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -130,7 +131,7 @@ class RegulationController extends BaseController
         try {
             $regulation = Regulation::query()->findOrFail($id);
             return $this->sendSuccess(new RegulationResource($regulation), 'Regulation found');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -249,7 +250,7 @@ class RegulationController extends BaseController
             $this->regulationService->acceptAnswer($dto);
 
             return $this->sendSuccess([], "Data saved successfully");
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -265,7 +266,7 @@ class RegulationController extends BaseController
             $this->regulationService->acceptDeed($dto);
 
             return $this->sendSuccess([], 'Data saved successfully');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -281,11 +282,33 @@ class RegulationController extends BaseController
             $this->regulationService->acceptDeedCmr($dto);
 
             return $this->sendSuccess([], 'Data saved successfully');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
 
+    public function sendAnswerAuthorRegulation(): JsonResponse
+    {
+        try {
+            $files = [];
+            $regulation = AuthorRegulation::query()->findOrFaiL(request('regulation_id'));
+            if (request()->hasFile('files')) {
+                foreach (request()->file('files') as $file) {
+                    $path = $file->store('images/author-regulation', 'public');
+                    $files[] = $path;
+                }
+            }
+            $regulation->update([
+                'comment' => request('comment'),
+                'images' => json_encode($files),
+            ]);
+
+            return $this->sendSuccess([], 'Data saved successfully');
+
+        } catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
 
 
     public function rejectAnswer(): JsonResponse
@@ -299,12 +322,11 @@ class RegulationController extends BaseController
             $this->regulationService->rejectToAnswer($dto);
 
             return $this->sendSuccess([], 'Data saved successfully');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
 
     }
-
 
 
     public function sendDeed(): JsonResponse
@@ -318,7 +340,7 @@ class RegulationController extends BaseController
             $this->regulationService->sendToDeed($dto);
 
             return $this->sendSuccess([], 'Data saved successfully');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -333,10 +355,11 @@ class RegulationController extends BaseController
             $this->regulationService->rejectDeed($dto);
 
             return $this->sendSuccess([], 'Data saved successfully');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
+
     public function rejectDeedCmr(): JsonResponse
     {
         try {
@@ -347,7 +370,7 @@ class RegulationController extends BaseController
             $this->regulationService->rejectDeedCmr($dto);
 
             return $this->sendSuccess([], 'Data saved successfully');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -361,7 +384,7 @@ class RegulationController extends BaseController
                 return $this->sendSuccess(RegulationResource::make($regulation), 'Get data successfully');
             }
 
-            if (request('object_id')){
+            if (request('object_id')) {
                 $object = Article::query()->findOrFaiL(request('object_id'));
                 $data = $object->regulations()->where('created_by_user_id', Auth::id())->paginate(request('per_page', 10));
                 return $this->sendSuccess(RegulationResource::collection($data), 'Get data successfully', pagination($data));
@@ -369,14 +392,14 @@ class RegulationController extends BaseController
 
             $regulations = Regulation::query()
                 ->where('created_by_user_id', Auth::id())
-                ->whereIn('act_status_id', [1,4,7])
+                ->whereIn('act_status_id', [1, 4, 7])
                 ->paginate(request('per_page', 10));
             return $this->sendSuccess(
                 RegulationResource::collection($regulations),
                 'Regulations',
                 pagination($regulations)
             );
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -402,16 +425,14 @@ class RegulationController extends BaseController
             $fine->date = $request->date;
             $fine->save();
 
-            if ($request->hasFile('images'))
-            {
+            if ($request->hasFile('images')) {
                 foreach ($request->images as $image) {
                     $path = $image->store('images/fines', 'public');
                     $fine->images()->create(['url' => $path]);
                 }
             }
 
-            if ($request->hasFile('files'))
-            {
+            if ($request->hasFile('files')) {
                 foreach ($request->files as $document) {
                     $path = $document->store('document/fines', 'public');
                     $fine->documents()->create(['url' => $path]);
@@ -422,15 +443,12 @@ class RegulationController extends BaseController
 
             if (!$demand) {
                 $status = 1;
-            }
-            elseif($demand->act_violation_type_id = 1)
-            {
+            } elseif ($demand->act_violation_type_id = 1) {
                 $status = 1;
-            }elseif ($demand->act_violation_type_id = 1)
-            {
+            } elseif ($demand->act_violation_type_id = 1) {
                 $status = 3;
 
-            }else{
+            } else {
                 $status = 1;
             }
 
@@ -442,7 +460,7 @@ class RegulationController extends BaseController
 
 
             return $this->sendSuccess([], 'Data saved successfully');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -453,13 +471,13 @@ class RegulationController extends BaseController
             $regulation = Regulation::query()->findOrFaiL(request('regulation_id'));
 
             $regulation->update([
-               'lawyer_status_type' => request('type'),
+                'lawyer_status_type' => request('type'),
                 'lawyer_status_id' => LawyerStatusEnum::PROCESS
             ]);
 
             return $this->sendSuccess([], 'Data saved successfully');
 
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -467,10 +485,7 @@ class RegulationController extends BaseController
 
     public function test()
     {
-       $user = Auth::user();
-       $role = $user->getRoleFromToken();
-       $checklist = CheckListAnswer::query()->findOrFail(73);
-
-       return $this->sendSuccess(ChecklistResource::make($checklist), 'Get data successfully');
+        $data = getData(config('app.gasn.rating'), \request('inn'));
+        return $data['data']['data'];
     }
 }
