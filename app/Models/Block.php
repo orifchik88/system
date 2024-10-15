@@ -55,4 +55,9 @@ class Block extends Model
         return $this->belongsTo(ActViolationBlock::class, 'block_id');
     }
 
+    public function appearanceType(): BelongsTo
+    {
+        return $this->belongsTo(AppearanceType::class, 'appearance_type');
+    }
+
 }
