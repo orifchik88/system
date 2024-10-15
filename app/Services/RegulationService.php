@@ -34,6 +34,7 @@ class RegulationService
             $regulation->update([
                 'regulation_status_id' => 1,
             ]);
+            $this->deadlineRejected($regulation);
 
             foreach ($violations as $violation) {
                  RegulationDemand::create([
@@ -235,6 +236,9 @@ class RegulationService
                 'regulation_status_id' => 3,
             ]);
 
+            $this->deadlineRejected($regulation);
+
+
             foreach ($violations as $violation) {
                 RegulationDemand::create([
                     'regulation_id' => $dto->regulationId,
@@ -277,6 +281,8 @@ class RegulationService
             $regulation->update([
                 'regulation_status_id' => 3,
             ]);
+
+            $this->deadlineRejected($regulation);
 
             foreach ($violations as $violation) {
                 RegulationDemand::create([
@@ -398,7 +404,13 @@ class RegulationService
     private function deadlineRejected($regulation)
     {
         $today = Carbon::today();
-        $deadline = Carbon::parse($this->deadline);
+        $deadline = Carbon::parse($regulation->deadline);
+
+        if ($deadline->isSameDay($today) && !$regulation->deadline_rejected) {
+            $regulation->update([
+                'deadline' => $deadline->addDay(),
+            ]);
+        }
 
     }
 

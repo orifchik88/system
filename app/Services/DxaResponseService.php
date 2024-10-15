@@ -124,6 +124,7 @@ class DxaResponseService
                 'length' => $blockData['length'],
                 'block_mode_id' => $blockData['block_mode_id'],
                 'block_type_id' => $blockData['block_type_id'],
+                'appearance_type' => $blockData['appearance_type'],
                 'created_by' => Auth::id(),
                 'status' => true,
             ];
