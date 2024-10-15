@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('regulations', function (Blueprint $table) {
-            $table->boolean('deadline_asked')->default(false);
             $table->boolean('deadline_rejected')->default(false);
         });
     }
