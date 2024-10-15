@@ -34,6 +34,8 @@ Route::post('test-api', [EGovController::class, 'getPassportInfo']);
 Route::get('{module}/{api}/responses', [ResponseController::class, 'receive']);
 
 Route::get('pdf-generation', [PdfController::class, 'generation']);
+Route::get('organization-pdf/{id}', [PdfController::class, 'pdfOrganization']);
+Route::get('organization-pdf/{id}/download', [PdfController::class, 'pdfOrganizationDownload']);
 
 
 
@@ -166,6 +168,7 @@ Route::group([
     Route::group(['prefix' => 'claim'], function () {
         Route::get('tasks', [ClaimController::class, 'tasksList']);
         Route::get('statistics', [ClaimController::class, 'statisticsQuantity']);
+        Route::get('organization-statistics', [ClaimController::class, 'organizationStatisticsQuantity']);
         Route::get('task/{id}', [ClaimController::class, 'showTask']);
         Route::get('objects/{id}', [ClaimController::class, 'getObjects']);
         Route::get('get-pdf', [ClaimController::class, 'getPDF']);
@@ -176,7 +179,6 @@ Route::group([
         Route::post('attach-object', [ClaimController::class, "attachObject"]);
         Route::post('attach-blocks', [ClaimController::class, "attachBlockAndOrganization"]);
         Route::post('conclusion-organization', [ClaimController::class, "conclusionOrganization"]);
-        Route::post('reject-by-operator', [ClaimController::class, "rejectClaimByOperator"]);
         Route::post('conclusion-by-inspector', [ClaimController::class, "conclusionClaimByInspector"]);
         Route::post('conclusion-by-director', [ClaimController::class, "conclusionClaimByDirector"]);
         Route::post('reject-from-director', [ClaimController::class, "rejectFromDirector"]);

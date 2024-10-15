@@ -103,6 +103,28 @@ class ClaimRepository implements ClaimRepositoryInterface
             ->get()->toArray();
     }
 
+    public function organizationStatistics(int $roleId, ?string $dateFrom, ?string $dateTo)
+    {
+        return $this->claim->query()
+            ->join('claim_organization_reviews', 'claim_organization_reviews.claim_id', '=', 'claims.id')
+            ->select(DB::raw("
+                COUNT(CASE WHEN claim_organization_reviews.answered_at IS NOT NULL THEN 1 ELSE null END) as answered,
+                COUNT(CASE WHEN claim_organization_reviews.answered_at IS NULL THEN 1 ELSE null END) as not_answered,
+                COUNT(claim_organization_reviews.id) as total
+            "))
+            ->when($dateFrom, function ($q) use ($dateFrom) {
+                $q->whereDate('claims.created_at', '>=', $dateFrom);
+            })
+            ->when($dateTo, function ($q) use ($dateTo) {
+                $q->whereDate('claims.created_at', '<=', $dateTo);
+            })
+            ->when($roleId, function ($q) use ($roleId) {
+                $q->where('claim_organization_reviews.organization_id', $roleId);
+            })
+            ->first()
+            ->setAppends([]);
+    }
+
     public function getStatisticsCount(
         ?int    $regionId,
         ?int    $expired,
@@ -248,7 +270,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                     'claims.end_date as end_date',
                     'claims.created_at as created_at'
                 ])
-                ->with(['region', 'district', 'object'])
+                ->with(['region', 'district', 'object', 'reviews', 'monitoring'])
                 ->where('claims.id', $id)->where('claim_organization_reviews.organization_id', $role_id)->first();
     }
 
@@ -413,7 +435,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                     $q->where('claims.legal_name', 'iLIKE', '%' . $sender . '%')->orWhere('claims.ind_name', 'iLIKE', '%' . $sender . '%');
                 })
                 ->when($status, function ($q) use ($status) {
-                    $q->where('claims.status', $status);
+                    ($status == 1) ? $q->whereNull('claim_organization_reviews.answered_at') : $q->whereNotNull('claim_organization_reviews.answered_at');
                 })
                 ->when($expired, function ($q) use ($expired) {
                     $q->where('claims.expired', $expired);

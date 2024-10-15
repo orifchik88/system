@@ -15,6 +15,7 @@
         "laravel/scout": "^10.10",
         "laravel/tinker": "^2.8",
         "maatwebsite/excel": "^3.1",
+        "simplesoftwareio/simple-qrcode": "^4.2",
         "spatie/laravel-permission": "^6.7",
         "tymon/jwt-auth": "^2.1"
     },

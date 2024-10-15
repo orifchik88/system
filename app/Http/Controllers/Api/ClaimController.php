@@ -15,6 +15,7 @@ use App\Http\Requests\ClaimRequests\RejectClaimByOperator;
 use App\Http\Requests\ClaimRequests\RejectFromDirector;
 use App\Http\Requests\ClaimRequests\SendToDirector;
 use App\Models\Block;
+use App\Models\ClaimOrganizationReview;
 use App\Services\ClaimService;
 use App\Services\HistoryService;
 use Illuminate\Support\Facades\Auth;
@@ -47,6 +48,23 @@ class ClaimController extends BaseController
         $data = $this->claimService->getStatisticsCount(
             regionId: $regionId,
             expired: null,
+            dateFrom: $dateFrom,
+            dateTo: $dateTo
+        );
+
+        return $this->sendSuccess($data, 'Successfully sent!');
+    }
+
+    public function organizationStatisticsQuantity()
+    {
+        $dateFrom = request()->get('date_from', null);
+        $dateTo = request()->get('date_to', null);
+
+        $roleId = Auth::user()->getRoleFromToken() ?? null;
+
+
+        $data = $this->claimService->getOrganizationStatistics(
+            roleId: $roleId,
             dateFrom: $dateFrom,
             dateTo: $dateTo
         );
@@ -217,18 +235,10 @@ class ClaimController extends BaseController
         $response = $this->claimService->conclusionOrganization($request);
 
         if ($response) {
-            return $this->sendSuccess($response, 'Success');
-        } else {
-            return $this->sendError("API ERROR", "message");
-        }
-    }
+            $review = ClaimOrganizationReview::with('monitoring')->where('id', $response['review_id'])->first();
+            $claim = $this->claimService->getClaimById(id: $review->monitoring->claim->id, role_id: null);
 
-    public function rejectClaimByOperator(RejectClaimByOperator $request)
-    {
-        $response = $this->claimService->rejectByOperator($request);
-
-        if ($response) {
-            return $this->sendSuccess('Rad Qilindi!', 'Success');
+            return $this->sendSuccess($claim, 'Success');
         } else {
             return $this->sendError("API ERROR", "message");
         }
@@ -266,6 +276,7 @@ class ClaimController extends BaseController
             return $this->sendError("API ERROR", "message");
         }
     }
+
     public function sendToDirector(SendToDirector $request)
     {
         $response = $this->claimService->sendToDirector($request);

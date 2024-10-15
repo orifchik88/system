@@ -27,6 +27,11 @@ interface ClaimRepositoryInterface
         ?string $dateTo
     );
 
+    public function organizationStatistics(
+        int     $roleId,
+        ?string $dateFrom,
+        ?string $dateTo);
+
     public function getStatistics(?int $regionId, ?int $districtId);
 
     public function getClaimById(int $id, ?int $role_id);
