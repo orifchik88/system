@@ -117,14 +117,14 @@ class DxaResponseService
 
             $blockAttributes = [
                 'name' => $blockData['name'],
-                'floor' => $blockData['floor'],
+                'floor' => $blockData['floor'] ?? null,
                 'construction_area' => $blockData['construction_area'],
                 'count_apartments' => $blockData['count_apartments'],
-                'height' => $blockData['height'],
-                'length' => $blockData['length'],
-                'block_mode_id' => $blockData['block_mode_id'],
-                'block_type_id' => $blockData['block_type_id'],
-                'appearance_type' => $blockData['appearance_type'],
+                'height' => $blockData['height'] ?? null,
+                'length' => $blockData['length'] ?? null,
+                'block_mode_id' => $blockData['block_mode_id'] ?? null,
+                'block_type_id' => $blockData['block_type_id'] ?? null,
+                'appearance_type' => $blockData['appearance_type'] ?? null,
                 'created_by' => Auth::id(),
                 'status' => true,
             ];
