@@ -492,20 +492,18 @@ class RegulationController extends BaseController
                 $authUsername = config('app.mygov.login');
                 $authPassword = config('app.mygov.password');
 
-                $apiUrl = config('app.mygov.linear').'/update/id/' . request('task_id') . '/action/accept-consideration';
-                $formName = 'AcceptConsiderationFormRegistrationStartLinearObject';
+                $apiUrl = config('app.mygov.url') . '/update/id/' . request('task_id') . '/action/accept-consideration';
+                $formName = 'AcceptConsiderationV4FormNoticeBeginningConstructionWorks';
 
                 return Http::withBasicAuth($authUsername, $authPassword)
                     ->post($apiUrl, [
                         $formName => [
-                            "notice" =>  "Qabul qilindi"
+                            "notice" => "Qabul qilindi"
                         ]
                     ]);
-            }else{
-                return null;
             }
-        }catch (\Exception $exception) {
-            Log::info($exception->getMessage());
+        }catch (\Exception $exception){
+            Log::info($exception->getMessage());;
         }
     }
 }
