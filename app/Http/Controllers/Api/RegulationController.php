@@ -29,6 +29,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Queue\Jobs\SqsJob;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Js;
 use Spatie\Permission\Models\Role;
 
@@ -485,7 +487,25 @@ class RegulationController extends BaseController
 
     public function test()
     {
-        $data = getData(config('app.gasn.rating'), \request('inn'));
-        return $data['data']['data'];
+        try {
+            if (env('APP_ENV') === 'development') {
+                $authUsername = config('app.mygov.login');
+                $authPassword = config('app.mygov.password');
+
+                $apiUrl = config('app.mygov.linear').'/update/id/' . request('task_id') . '/action/accept-consideration';
+                $formName = 'AcceptConsiderationFormRegistrationStartLinearObject';
+
+                return Http::withBasicAuth($authUsername, $authPassword)
+                    ->post($apiUrl, [
+                        $formName => [
+                            "notice" =>  "Qabul qilindi"
+                        ]
+                    ]);
+            }else{
+                return null;
+            }
+        }catch (\Exception $exception) {
+            Log::info($exception->getMessage());
+        }
     }
 }
