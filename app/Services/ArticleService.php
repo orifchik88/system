@@ -287,19 +287,6 @@ class ArticleService
     }
 
 
-    private function createChecklist($question, $levelId, $workTypeId, $blockId, $objectTypeId, $articleId)
-    {
-        $checklist = new Checklist();
-        $checklist->name = $question->name;
-        $checklist->question_id = $question->id;
-        $checklist->level_id = $levelId;
-        $checklist->work_type_id = $workTypeId;
-        $checklist->block_id = $blockId;
-        $checklist->object_type_id = $objectTypeId;
-        $checklist->article_id = $articleId;
-        $checklist->save();
-    }
-
 
 
     private function saveBlocks($response, $article)
