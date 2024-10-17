@@ -327,16 +327,25 @@ class RegulationService
                 throw new NotFoundException('Dalolatnoma topilmadi');
             }
 
-            $regulation->update([
-                'regulation_status_id' => 5,
-            ]);
+            if ($regulation->created_by_role_id  == 3){
+                $regulation->update([
+                    'regulation_status_id' => 6,
+                ]);
+                $status = 13;
+            }else{
+                $regulation->update([
+                    'regulation_status_id' => 5,
+                ]);
+
+                $status = 7;
+            }
 
             foreach ($actViolations as $actViolation) {
                 RegulationDemand::create([
                     'regulation_id' => $dto->regulationId,
                     'user_id' => Auth::id(),
                     'role_id' => $roleId,
-                    'act_status_id' => 7,
+                    'act_status_id' => $status,
                     'act_violation_type_id' => 2,
                     'comment' => 'Dalolatnoma ma\'qullandi',
                     'act_violation_id' => $actViolation->id,
@@ -345,7 +354,7 @@ class RegulationService
 
                 $actViolation->update([
                     'status' => ActViolation::ACCEPTED,
-                    'act_status_id' => 7,
+                    'act_status_id' => $status,
                 ]);
                 $actViolation->demands()->update(['status' => ActViolation::ACCEPTED]);
             }
