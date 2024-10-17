@@ -46,7 +46,8 @@ class MonitoringController extends BaseController
     public function monitoring(): JsonResponse
     {
         $user = Auth::user();
-        $objectIds = $user->objects()->pluck('articles.id')->toArray();
+        $roleId = $user->getRoleFromToken();
+        $objectIds = $user->objects()->where('role_id', $roleId)->pluck('articles.id')->toArray();
         $monitorings = Monitoring::query()->whereIn('object_id', $objectIds)
             ->when(request('object_name'), function ($q) {
                 $q->whereHas('article', function ($query) {
