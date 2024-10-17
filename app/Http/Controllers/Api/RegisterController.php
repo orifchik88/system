@@ -23,6 +23,8 @@ class RegisterController extends BaseController
         protected DxaResponseService $service
     )
     {
+        $this->middleware('auth');
+        parent::__construct();
     }
 
     public function registers(): JsonResponse

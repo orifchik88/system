@@ -15,7 +15,8 @@ class BaseController extends Controller
     public function __construct()
     {
         $this->user = Auth::guard('api')->user();
-        $this->roleId = $this->user->getRoleFromToken();
+        if ($this->user)  $this->roleId = $this->user->getRoleFromToken();
+
     }
 
     public function sendSuccess($result, $message, $meta = []): JsonResponse

@@ -5,12 +5,15 @@ namespace App\Services;
 use App\DTO\ObjectDto;
 use App\Enums\DifficultyCategoryEnum;
 use App\Enums\DxaResponseStatusEnum;
+use App\Enums\LogType;
 use App\Enums\ObjectStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Enums\UserStatusEnum;
 use App\Exceptions\NotFoundException;
 use App\Models\Article;
+use App\Models\ArticlePaymentLog;
 use App\Models\DxaResponse;
+use App\Models\FundingSource;
 use App\Models\UserEmployee;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use App\Repositories\Interfaces\BlockRepositoryInterface;
@@ -21,13 +24,18 @@ use Illuminate\Support\Facades\Http;
 class ArticleRefactorService
 {
     protected ObjectDto $objectDto;
+    private HistoryService $historyService;
 
     public function __construct(
         protected ArticleRepositoryInterface $articleRepository,
         protected UserRepositoryInterface $userRepository,
         protected BlockRepositoryInterface $blockRepository,
-        protected DxaResponse $dxaResponse
-    ) {}
+        protected DxaResponse $dxaResponse,
+        protected ImageService  $imageService,
+        protected DocumentService  $documentService,
+    ) {
+        $this->historyService = new HistoryService('article_payment_logs');
+    }
 
     public function setObjectDto(ObjectDto $objectDto): void
     {
@@ -86,6 +94,11 @@ class ArticleRefactorService
         $this->articleRepository->rotateUsers($firstUserId, $secondUserId);
     }
 
+    public function getAllFundingSources(): object
+    {
+        return FundingSource::all();
+    }
+
     public function findArticleByParams($params)
     {
         return $this->articleRepository->findArticleByParams($params);
@@ -136,6 +149,41 @@ class ArticleRefactorService
                 return $totalPaid == 0;
             })->count(),
         ];
+    }
+
+    public function createPayment($user, $roleId, $objectId)
+    {
+        $object = $this->getObjectById($user, $roleId,$objectId);
+
+        $paid = $object->paymentLogs()
+            ->get()
+            ->sum(function ($log) {
+                return $log->content->additionalInfo->amount ?? 0;
+            });
+
+        $cost = (float)$object->price_supervision_service - (request('amount') + $paid);
+
+
+        $meta = ['amount' => request('amount'), 'cost' => $cost];
+
+        $tableId = $this->historyService->createHistory(
+            guId: $object->id,
+            status: $object->object_status_id->value,
+            type: LogType::TASK_HISTORY,
+            date: null,
+            comment: $item['comment'] ?? "",
+            additionalInfo: $meta
+        );
+
+        $log = ArticlePaymentLog::query()->findOrFail($tableId);
+
+        if (request()->hasFile('file')) {
+            $this->documentService->saveFile($log, 'payment-log',request()->file('file'));
+        }
+
+        if (request()->hasFile('image')) {
+            $this->imageService->saveImage($log, 'payment-log',request()->file('image'));
+        }
     }
 
     public function getObjectCount($user, $roleId)

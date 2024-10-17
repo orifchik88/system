@@ -36,13 +36,14 @@ class MonitoringController extends BaseController
 
     public function __construct(QuestionService $questionService)
     {
+        $this->middleware('auth');
+        parent::__construct();
         $this->questionService = $questionService;
         $this->historyService = new HistoryService('check_list_histories');
     }
 
     public function monitoring(): JsonResponse
     {
-
         $user = Auth::user();
         $objectIds = $user->objects()->pluck('articles.id')->toArray();
         $monitorings = Monitoring::query()->whereIn('object_id', $objectIds)

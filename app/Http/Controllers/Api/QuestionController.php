@@ -31,9 +31,10 @@ class QuestionController extends BaseController
 
     public function __construct(
         public QuestionService $questionService,
-
     )
     {
+        $this->middleware('auth');
+        parent::__construct();
     }
 
     public function questionUsers(): JsonResponse

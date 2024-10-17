@@ -31,7 +31,6 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class ObjectController extends BaseController
 {
 
-    private HistoryService $historyService;
 
     public function __construct(
         protected ArticleRefactorService $service,
@@ -39,7 +38,6 @@ class ObjectController extends BaseController
     {
         $this->middleware('auth');
         parent::__construct();
-        $this->historyService = new HistoryService('article_payment_logs');
     }
 
     public function index(): JsonResponse
@@ -148,8 +146,6 @@ class ObjectController extends BaseController
         }
     }
 
-
-
     public function fundingSource(): JsonResponse
     {
         return $this->sendSuccess(FundingSourceResource::collection($this->service->getAllFundingSources()), 'Funding sources');
@@ -170,9 +166,6 @@ class ObjectController extends BaseController
         }
     }
 
-
-
-
     public function objectCount(): JsonResponse
     {
         try {
@@ -187,41 +180,8 @@ class ObjectController extends BaseController
     public function payment(): JsonResponse
     {
         try {
-            $object = Article::query()->with('paymentLogs')->findOrFail(request('object_id'));
 
-            $paid = $object->paymentLogs()
-                ->get()
-                ->sum(function ($log) {
-                    return $log->content->additionalInfo->amount ?? 0;
-                });
-
-            $cost = (float)$object->price_supervision_service - (request('amount') + $paid);
-
-
-            $meta = ['amount' => request('amount'), 'cost' => $cost];
-
-            $tableId = $this->historyService->createHistory(
-                guId: $object->id,
-                status: $object->object_status_id->value,
-                type: LogType::TASK_HISTORY,
-                date: null,
-                comment: $item['comment'] ?? "",
-                additionalInfo: $meta
-            );
-
-            $log = ArticlePaymentLog::query()->findOrFail($tableId);
-
-            if (request()->hasFile('file')) {
-                $file = request()->file('file');
-                $path = $file->store('document/payment-log', 'public');
-                $log->documents()->create(['url' => $path]);
-            }
-
-            if (request()->hasFile('image')) {
-                $file = request()->file('image');
-                $path = $file->store('images/payment-log', 'public');
-                $log->images()->create(['url' => $path]);
-            }
+            $this->service->createPayment($this->user, $this->roleId,request('object_id'));
 
             return $this->sendSuccess([], 'Article retrieved successfully.');
 
@@ -233,8 +193,7 @@ class ObjectController extends BaseController
     public function changeObjectStatus(): JsonResponse
     {
         try {
-
-            Article::findOrFail(request('object_id'))->update(['object_status_id' => request('status')]);
+            $this->service->getObjectById($this->user, $this->roleId, request('object_id'))->update(['object_status_id' => request('status')]);
             return $this->sendSuccess(null, 'Object status updated');
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
