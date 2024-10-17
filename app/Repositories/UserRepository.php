@@ -4,8 +4,9 @@ namespace App\Repositories;
 
 use App\Models\User;
 use App\Models\UserRole;
+use App\Repositories\Interfaces\UserRepositoryInterface;
 
-class UserRepository
+class UserRepository implements UserRepositoryInterface
 {
     public function findByPinfl($pinfl): ?User
     {

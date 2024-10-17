@@ -19,6 +19,7 @@ use App\Models\ArticleUser;
 use App\Models\ObjectStatus;
 use App\Models\User;
 use App\Models\UserRole;
+use App\Services\ArticleRefactorService;
 use App\Services\ArticleService;
 use App\Services\HistoryService;
 use Illuminate\Http\FileHelpers;
@@ -33,22 +34,21 @@ class ObjectController extends BaseController
     private HistoryService $historyService;
 
     public function __construct(
-        protected ArticleService $service,
+        protected ArticleRefactorService $service,
     )
     {
+        $this->middleware('auth');
+        parent::__construct();
         $this->historyService = new HistoryService('article_payment_logs');
     }
 
     public function index(): JsonResponse
     {
-        $user = Auth::user();
-        $roleId = $user->getRoleFromToken();
-
-        if (UserRoleEnum::from($roleId) == UserRoleEnum::REGISTRATOR) {
-            $query = Article::query()->where('region_id', $user->region_id);
+        if (UserRoleEnum::from($this->roleId) == UserRoleEnum::REGISTRATOR) {
+            $query = Article::query()->where('region_id', $this->user->region_id);
         } else {
-            $query = $user->objects()
-                ->wherePivot('role_id', $roleId);
+            $query = $this->user->objects()
+                ->wherePivot('role_id', $this->roleId);
         }
 
         $objects = $query->when(request('status'), function ($query) {
@@ -87,6 +87,17 @@ class ObjectController extends BaseController
 
     public function rotation(): JsonResponse
     {
+
+        try {
+            $firstUserArticles = request('user_id');
+            $secondUserArticles = request('rotation_user_id');
+
+            $this->service->rotateUsers($firstUserArticles, $secondUserArticles, request('user_id'), request('rotation_user_id'));
+
+            return $this->sendSuccess([], 'Rotation completed successfully.');
+        } catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
         try {
             $firstUserArticles = ArticleUser::where('user_id', request('user_id'))
                 ->where('role_id', UserRoleEnum::INSPECTOR->value)
@@ -328,13 +339,13 @@ class ObjectController extends BaseController
             $this->service->setObjectDto($dto);
 
             $object = $this->service->createObject();
-            return $this->sendSuccess($object, 'Object created');
+            return $this->sendSuccess(ArticleResource::make($object), 'Object created');
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
 
-    public function checkObject()
+    public function checkObject(): JsonResponse
     {
         try {
             $object = Article::findOrFail(request()->get('id'));
