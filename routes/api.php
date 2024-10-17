@@ -30,7 +30,6 @@ Route::post('auth', [LoginController::class, 'auth']);
 Route::post('check-user', [InformationController::class, 'checkUser']);
 
 
-Route::post('test-api', [EGovController::class, 'getPassportInfo']);
 Route::get('{module}/{api}/responses', [ResponseController::class, 'receive']);
 
 Route::get('pdf-generation', [PdfController::class, 'generation']);
