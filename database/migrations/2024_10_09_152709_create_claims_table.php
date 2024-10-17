@@ -31,7 +31,7 @@ return new class extends Migration
             $table->string('building_cadastral')->nullable();
             $table->string('building_address')->nullable();
             $table->integer('building_type')->nullable();
-            $table->integer('building_type_name')->nullable();
+            $table->string('building_type_name')->nullable();
             $table->string('ind_pinfl')->nullable();
             $table->string('ind_passport')->nullable();
             $table->string('ind_address')->nullable();

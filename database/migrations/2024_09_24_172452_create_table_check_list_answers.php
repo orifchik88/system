@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('object_type_id');
             $table->integer('floor')->nullable();
             $table->integer('status')->default(0);
+            $table->integer('type')->default(1);
             $table->timestamps();
         });
     }

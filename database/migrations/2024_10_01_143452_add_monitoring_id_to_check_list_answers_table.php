@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('check_list_answers', function (Blueprint $table) {
-            $table->foreignId('monitoring_id')->nullable()->after('check_list_id')->constrained()->nullOnDelete();
+            $table->integer('monitoring_id')->nullable()->after('check_list_id');
             $table->integer('block_id')->nullable()->change();
         });
     }
