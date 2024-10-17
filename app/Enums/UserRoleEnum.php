@@ -15,6 +15,11 @@ enum UserRoleEnum: int
    case LOYIHA = 9;
    case QURILISH = 10;
    case OPERATOR = 11;
+   case INSPEKSIYA = 12;
+   case HUDUDIY_KUZATUVCHI = 13;
+   case RESPUBLIKA_KUZATUVCHI = 14;
+   case QURILISH_MONTAJ = 26;
+   case YURIST = 27;
    case BUXGALTER = 28;
 
 //    public static function toArray(): array

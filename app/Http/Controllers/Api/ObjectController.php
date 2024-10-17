@@ -41,6 +41,8 @@ class ObjectController extends BaseController
 
     public function index(): JsonResponse
     {
+
+       
         $user = Auth::user();
         $roleId = $user->getRoleFromToken();
 
