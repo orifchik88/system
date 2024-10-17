@@ -44,7 +44,7 @@ class ArticleService
 
     public function getObjectById($user, $roleId, $id)
     {
-        return $this->getObjects($user, $roleId)->where('id', $id)->first();
+        return $this->getObjects($user, $roleId)->where('articles.id', $id)->first();
     }
 
     public function getObjects($user, $roleId)
