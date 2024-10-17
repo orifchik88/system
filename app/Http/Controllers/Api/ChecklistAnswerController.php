@@ -20,7 +20,7 @@ class ChecklistAnswerController extends BaseController
     {
         try {
 
-            $objectIds = $this->user->objects()->pluck('article_id');
+            $objectIds = $this->user->objects()->where('role_id', $this->roleId)->pluck('article_id');
 
             $query = CheckListAnswer::query()->whereIn('object_id', $objectIds);
                  switch ($this->roleId) {
