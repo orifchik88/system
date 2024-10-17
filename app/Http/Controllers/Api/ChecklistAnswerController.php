@@ -28,10 +28,10 @@ class ChecklistAnswerController extends BaseController
                          $query->where('status', 3)->where('inspector_answered', null);
                          break;
                      case 6:
-                         $query->where('status', 2)->where('technic_answered', null);
+                         $query->where('status', 2)->whereNotIn('work_type_id',  [1, 11])->whereNull('technic_answered');
                          break;
                      case 7:
-                         $query->where('status', 2)->where('author_answered', null);
+                         $query->where('status', 2)->whereNotIn('work_type_id',  [1, 11])->whereNull('author_answered');
                          break;
                      default:
                          break;
