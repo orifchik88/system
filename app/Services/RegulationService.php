@@ -327,7 +327,7 @@ class RegulationService
                 throw new NotFoundException('Dalolatnoma topilmadi');
             }
 
-            if ($regulation->created_by_role_id  == 3){
+            if ($regulation->created_by_role_id  != 3){
                 $regulation->update([
                     'regulation_status_id' => 6,
                 ]);
