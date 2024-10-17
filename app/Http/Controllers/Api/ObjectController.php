@@ -3,29 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\DTO\ObjectDto;
-use App\Enums\LogType;
-use App\Enums\ObjectCheckEnum;
-use App\Enums\ObjectStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Http\Requests\ObjectRequest;
 use App\Http\Resources\ArticleResource;
 use App\Http\Resources\FundingSourceResource;
-use App\Http\Resources\ObjectSectorResource;
-use App\Http\Resources\ObjectStatusResource;
-use App\Http\Resources\ObjectTypeResource;
-use App\Models\Article;
-use App\Models\ArticlePaymentLog;
-use App\Models\ArticleUser;
-use App\Models\ObjectStatus;
-use App\Models\User;
-use App\Models\UserRole;
-use App\Services\ArticleRefactorService;
 use App\Services\ArticleService;
-use App\Services\HistoryService;
-use Illuminate\Http\FileHelpers;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ObjectController extends BaseController
@@ -33,7 +16,7 @@ class ObjectController extends BaseController
 
 
     public function __construct(
-        protected ArticleRefactorService $service,
+        protected ArticleService $service,
     )
     {
         $this->middleware('auth');
