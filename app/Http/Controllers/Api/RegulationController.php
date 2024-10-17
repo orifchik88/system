@@ -39,6 +39,8 @@ class RegulationController extends BaseController
 
     public function __construct(protected RegulationService $regulationService)
     {
+        $this->middleware('auth');
+        parent::__construct();
     }
 
 

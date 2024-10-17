@@ -9,16 +9,21 @@ use Illuminate\Support\Facades\Auth;
 
 class ChecklistAnswerController extends BaseController
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+        parent::__construct();
+    }
+
     public function index(): JsonResponse
     {
         try {
-            $user = Auth::user();
-            $roleId = $user->getRoleFromToken();
 
-            $objectIds = $user->objects()->pluck('article_id');
+            $objectIds = $this->user->objects()->pluck('article_id');
 
             $query = CheckListAnswer::query()->whereIn('object_id', $objectIds);
-                 switch ($roleId) {
+                 switch ($this->roleId) {
                      case 3:
                          $query->where('status', 3)->where('inspector_answered', null);
                          break;

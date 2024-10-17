@@ -14,12 +14,12 @@ return new class extends Migration
         Schema::create('articles', function (Blueprint $table) {
             $table->id();
             $table->text('name');
-            $table->foreignId('region_id')->constrained();
-            $table->foreignId('district_id')->constrained();
-            $table->foreignId('object_status_id')->constrained();
-            $table->foreignId('appearance_type_id')->constrained();
-            $table->foreignId('difficulty_category_id')->nullable()->constrained();
-            $table->foreignId('customer_id')->nullable()->constrained();
+            $table->foreignId('region_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('district_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('object_status_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('appearance_type_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('difficulty_category_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('customer_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('object_specific_id')->nullable()->comment('object types tabledagi idlar')->constrained();
             $table->foreignId('funding_source_id')->nullable()->constrained();
             $table->foreignId('object_sector_id')->nullable()->constrained();

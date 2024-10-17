@@ -139,8 +139,6 @@ class ArticleService
                 $article->program_id  = $response->program_id;
                 $article->construction_works  = $response->construction_works;
                 $article->linear_type  = $response->linear_type;
-                $article->appearance_type_id = 1;
-                $article->is_accepted = true;
                 $article->organization_projects = $response->organization_projects;
                 $article->specialists_certificates = $response->specialists_certificates;
                 $article->contract_file = $response->contract_file;
@@ -156,8 +154,6 @@ class ArticleService
                 $article->positive_opinion_number = $response->positive_opinion_number;
                 $article->date_protocol = $response->date_protocol;
                 $article->funding_source_id = $response->funding_source_id;
-                $article->paid = 0;
-                $article->payment_deadline = Carbon::now();
                 $article->deadline = $response->end_term_work;
                 $article->gnk_id = $response->gnk_id;
                 $article->reestr_number = (int)$response->reestr_number;
@@ -238,15 +234,15 @@ class ArticleService
 
     }
 
-    private function saveEmployee($object)
+    private function saveEmployee($article)
     {
         $rating = [];
-        $muallif = $object->users()->where('role_id', UserRoleEnum::MUALLIF->value)->first();
-        $texnik = $object->users()->where('role_id', UserRoleEnum::TEXNIK->value)->first();
-        $buyurtmachi = $object->users()->where('role_id', UserRoleEnum::BUYURTMACHI->value)->first();
-        $loyiha = $object->users()->where('role_id', UserRoleEnum::LOYIHA->value)->first();
-        $ichki = $object->users()->where('role_id', UserRoleEnum::ICHKI->value)->first();
-        $qurilish = $object->users()->where('role_id', UserRoleEnum::QURILISH->value)->first();
+        $muallif = $article->users()->where('role_id', UserRoleEnum::MUALLIF->value)->first();
+        $texnik = $article->users()->where('role_id', UserRoleEnum::TEXNIK->value)->first();
+        $buyurtmachi = $article->users()->where('role_id', UserRoleEnum::BUYURTMACHI->value)->first();
+        $loyiha = $article->users()->where('role_id', UserRoleEnum::LOYIHA->value)->first();
+        $ichki = $article->users()->where('role_id', UserRoleEnum::ICHKI->value)->first();
+        $qurilish = $article->users()->where('role_id', UserRoleEnum::QURILISH->value)->first();
 
         $loyihaRating = getData(config('app.gasn.rating'), (int)$loyiha->identification_number);
         if (!$loyihaRating) throw new NotFoundException('Loyiha tashkilotining reytinggini olishda muammo');
@@ -260,7 +256,7 @@ class ArticleService
             'qurilish' => $qurilishRating['data']['data'],
         ];
 
-        $object->update([
+        $article->update([
             'rating' => json_encode($rating)
         ]);
 
@@ -286,19 +282,6 @@ class ArticleService
         }
     }
 
-
-    private function createChecklist($question, $levelId, $workTypeId, $blockId, $objectTypeId, $articleId)
-    {
-        $checklist = new Checklist();
-        $checklist->name = $question->name;
-        $checklist->question_id = $question->id;
-        $checklist->level_id = $levelId;
-        $checklist->work_type_id = $workTypeId;
-        $checklist->block_id = $blockId;
-        $checklist->object_type_id = $objectTypeId;
-        $checklist->article_id = $articleId;
-        $checklist->save();
-    }
 
 
 
