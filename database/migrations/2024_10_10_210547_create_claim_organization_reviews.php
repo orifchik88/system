@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->bigInteger('monitoring_id');
             $table->integer('organization_id');
+            $table->bigInteger('claim_id');
             $table->timestamp('expiry_date');
             $table->text('answer')->nullable();
             $table->integer('expired')->default(0);
+            $table->timestamp('answered-at')->nullable();
             $table->boolean('status')->default(false);
             $table->timestamps();
         });
