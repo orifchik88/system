@@ -37,31 +37,31 @@ class QuestionController extends BaseController
         parent::__construct();
     }
 
-    public function questionUsers(): JsonResponse
-    {
-        try {
-            return $this->sendSuccess(QuestionResource::collection($this->questionService->getQuestions()), 'Questions by user');
-        } catch (\Exception $exception) {
-            return $this->sendError($exception->getMessage(), $exception->getCode());
-        }
-    }
+//    public function questionUsers(): JsonResponse
+//    {
+//        try {
+//            return $this->sendSuccess(QuestionResource::collection($this->questionService->getQuestions()), 'Questions by user');
+//        } catch (\Exception $exception) {
+//            return $this->sendError($exception->getMessage(), $exception->getCode());
+//        }
+//    }
 
-    public function levels(): JsonResponse
-    {
-        try {
-            if (\request('id')) {
-                $level = Level::findOrFail(request('id'));
-                return $this->sendSuccess(LevelResource::make($level), 'Level by id');
-            }
-            $levels = Level::search(request('s'))
-                ->when(request('sort'), function ($query) {
-                    $query->orderBy('id', request('sort'));
-                })->get();
-            return $this->sendSuccess(LevelResource::collection($levels), 'All Levels');
-        } catch (\Exception $exception) {
-            return $this->sendError($exception->getMessage(), $exception->getCode());
-        }
-    }
+//    public function levels(): JsonResponse
+//    {
+//        try {
+//            if (\request('id')) {
+//                $level = Level::findOrFail(request('id'));
+//                return $this->sendSuccess(LevelResource::make($level), 'Level by id');
+//            }
+//            $levels = Level::search(request('s'))
+//                ->when(request('sort'), function ($query) {
+//                    $query->orderBy('id', request('sort'));
+//                })->get();
+//            return $this->sendSuccess(LevelResource::collection($levels), 'All Levels');
+//        } catch (\Exception $exception) {
+//            return $this->sendError($exception->getMessage(), $exception->getCode());
+//        }
+//    }
 
     public function sendAnswer(): JsonResponse
     {
