@@ -14,7 +14,11 @@ return new class extends Migration
         Schema::create('claim_monitoring', function (Blueprint $table) {
             $table->id();
             $table->json('blocks');
+            $table->json('organizations');
+            $table->text('operator_answer')->nullable();
             $table->bigInteger('claim_id');
+            $table->smallInteger('inspector_answer')->default(0);
+            $table->smallInteger('director_answer')->default(0);
             $table->bigInteger('object_id');
             $table->timestamps();
         });

@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('length')->nullable()->comment('Tarmoq uzunligi');
             $table->integer('created_by');
             $table->boolean('status')->default(false);
+            $table->boolean('accepted')->default(false);
             $table->softDeletes();
             $table->timestamps();
         });
