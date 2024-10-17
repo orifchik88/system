@@ -109,7 +109,7 @@ trait UserRoleTrait
     }
     public function getFullNameAttribute()
     {
-        return ucwords("{$this->surname} {$this->name} {$this->middle_name}");
+        return  isset($this->name) ? ucwords("{$this->surname} {$this->name} {$this->middle_name}") : '';
     }
 
 }
