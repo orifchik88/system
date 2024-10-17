@@ -2,10 +2,12 @@
 
 namespace App\Repositories;
 
+use App\Enums\UserRoleEnum;
 use App\Models\Article;
 use App\Models\ArticleUser;
 use App\Models\User;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
+use Illuminate\Support\Facades\DB;
 
 class ArticleRepository implements ArticleRepositoryInterface
 {
@@ -71,14 +73,22 @@ class ArticleRepository implements ArticleRepositoryInterface
             });
     }
 
-    public function rotateUsers($firstUserArticles, $secondUserArticles, $firstUserId, $secondUserId, $roleId)
+    public function rotateUsers($firstUserId, $secondUserId): void
     {
+        $firstUserArticles = ArticleUser::where('user_id',$firstUserId)
+            ->where('role_id', UserRoleEnum::INSPECTOR->value)
+            ->pluck('article_id');
+
+        $secondUserArticles = ArticleUser::where('user_id', $secondUserId)
+            ->where('role_id', UserRoleEnum::INSPECTOR->value)
+            ->pluck('article_id');
+
         ArticleUser::whereIn('article_id', $firstUserArticles)
-            ->where('role_id', $roleId)
+            ->where('role_id', UserRoleEnum::INSPECTOR->value)
             ->update(['user_id' => $secondUserId]);
 
         ArticleUser::whereIn('article_id', $secondUserArticles)
-            ->where('role_id', $roleId)
+            ->where('role_id', UserRoleEnum::INSPECTOR->value)
             ->update(['user_id' => $firstUserId]);
     }
 
@@ -106,6 +116,34 @@ class ArticleRepository implements ArticleRepositoryInterface
             })
             ->first();
     }
+
+    public function getAccountObjectsQuery($query, $status)
+    {
+        if ($status == 1) {
+            $query->whereDoesntHave('paymentLogs')
+                ->orWhereHas('paymentLogs', function ($q) {
+                    $q->select(DB::raw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) as total_paid'))
+                        ->groupBy('gu_id')
+                        ->havingRaw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) = 0');
+                });
+        } elseif ($status == 2) {
+            $query->whereHas('paymentLogs', function ($q) {
+                $q->select(DB::raw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) as total_paid'))
+                    ->groupBy('gu_id')
+                    ->havingRaw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) < CAST(price_supervision_service AS DECIMAL)');
+            });
+        } elseif ($status == 3) {
+            $query->whereHas('paymentLogs', function ($q) {
+                $q->select(DB::raw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) as total_paid'))
+                    ->groupBy('gu_id')
+                    ->havingRaw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) >= CAST(price_supervision_service AS DECIMAL)');
+            });
+        }
+
+        return $query;
+
+    }
+
 
     public function getTotalPaymentStatistics($regionId)
     {

@@ -34,6 +34,38 @@ class ArticleRefactorService
         $this->objectDto = $objectDto;
     }
 
+    public function getObjectById($user, $roleId, $id)
+    {
+        return $this->getObjects($user, $roleId)->where('id', $id)->first();
+    }
+
+    public function getObjects($user, $roleId)
+    {
+        switch ($roleId) {
+            case UserRoleEnum::INSPECTOR->value:
+            case UserRoleEnum::ICHKI->value:
+            case UserRoleEnum::MUALLIF->value:
+            case UserRoleEnum::TEXNIK->value:
+            case UserRoleEnum::LOYIHA->value:
+            case UserRoleEnum::BUYURTMACHI->value:
+            case UserRoleEnum::QURILISH->value:
+                return $this->getArticlesByUserRole($user, $roleId);
+            case UserRoleEnum::REGISTRATOR->value:
+            case UserRoleEnum::OPERATOR->value:
+            case UserRoleEnum::INSPEKSIYA->value:
+            case UserRoleEnum::HUDUDIY_KUZATUVCHI->value:
+            case UserRoleEnum::QURILISH_MONTAJ->value:
+            case UserRoleEnum::BUXGALTER->value:
+            case UserRoleEnum::REGKADR->value:
+            case UserRoleEnum::YURIST->value:
+                return $this->getArticlesByRegion($user->region_id);
+            case UserRoleEnum::RESKADR->value:
+                return Article::query();
+            default:
+                return [];
+        }
+    }
+
     public function getArticlesByUserRole($user, $roleId)
     {
         return $this->articleRepository->getArticlesByUserRole($user, $roleId);
@@ -49,9 +81,9 @@ class ArticleRefactorService
         return $this->articleRepository->searchObjects($query, $filters);
     }
 
-    public function rotateUsers($firstUserArticles, $secondUserArticles, $firstUserId, $secondUserId)
+    public function rotateUsers($firstUserId, $secondUserId)
     {
-        $this->articleRepository->rotateUsers($firstUserArticles, $secondUserArticles, $firstUserId, $secondUserId, UserRoleEnum::INSPECTOR->value);
+        $this->articleRepository->rotateUsers($firstUserId, $secondUserId);
     }
 
     public function findArticleByParams($params)
@@ -64,9 +96,63 @@ class ArticleRefactorService
         return $this->articleRepository->getUserByInnAndRole($inn, $role);
     }
 
-    public function getTotalPaymentStatistics($regionId)
+    public function calculateTotalPayment($regionId)
     {
-        return $this->articleRepository->getTotalPaymentStatistics($regionId);
+        $totalPaid = Article::with('paymentLogs')
+            ->where('region_id', $regionId)
+            ->get()
+            ->reduce(function ($carry, $article) {
+                return $carry + $article->paymentLogs->sum(function ($log) {
+                        return isset($log->content->additionalInfo->amount)
+                            ? (float)$log->content->additionalInfo->amount
+                            : 0;
+                    });
+            });
+
+        $totalAmount = $this->getArticlesByRegion($regionId)->get()->sum('price_supervision_service');
+
+        return [
+            'totalAmount' => $totalAmount,
+            'totalPaid' => $totalPaid,
+            'notPaid' => $totalAmount - $totalPaid,
+        ];
+    }
+    public function calculatePaymentStatistics($regionId)
+    {
+        $articles = Article::with('paymentLogs')->where('region_id', $regionId)->get();
+
+        return [
+            'all' => $articles->count(),
+            'paid' => $articles->filter(function ($article) {
+                $totalPaid = $article->paymentLogs->sum('content->additionalInfo->amount');
+                return $totalPaid >= $article->price_supervision_service;
+            })->count(),
+            'partiallyPaid' => $articles->filter(function ($article) {
+                $totalPaid = $article->paymentLogs->sum('content->additionalInfo->amount');
+                return $totalPaid < $article->price_supervision_service && $totalPaid > 0;
+            })->count(),
+            'notPaid' => $articles->filter(function ($article) {
+                $totalPaid = $article->paymentLogs->sum('content->additionalInfo->amount');
+                return $totalPaid == 0;
+            })->count(),
+        ];
+    }
+
+    public function getObjectCount($user, $roleId)
+    {
+        $query = $this->getObjects($user, $roleId);
+        return [
+            'all' => $query->clone()->count(),
+            'progress' => $query->clone()->where('object_status_id', ObjectStatusEnum::PROGRESS)->count(),
+            'frozen' => $query->clone()->where('object_status_id', ObjectStatusEnum::FROZEN)->count(),
+            'suspended' => $query->clone()->where('object_status_id', ObjectStatusEnum::SUSPENDED)->count(),
+            'submitted' => $query->clone()->where('object_status_id', ObjectStatusEnum::SUBMITTED)->count(),
+        ];
+    }
+
+    public function getAccountObjectsQuery($query, $status)
+    {
+        return $this->articleRepository->getAccountObjectsQuery($query, $status);
     }
 
 

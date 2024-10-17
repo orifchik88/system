@@ -103,13 +103,10 @@ Route::group([
 
     Route::get('objects', [ObjectController::class, 'index']);
     Route::get('object/{id}', [ObjectController::class, 'getObject']);
-    Route::get('object-status', [ObjectController::class, 'status']);
-    Route::get('object-types', [ObjectController::class, 'objectTypes']);
     Route::get('object-count', [ObjectController::class, 'objectCount']);
     Route::get('get-object', [ObjectController::class, 'objectByParams']);
     Route::get('user-objects', [ObjectController::class, 'userObjects']);
     Route::get('funding-sources', [ObjectController::class, 'fundingSource']);
-    Route::get('object-sectors/{id}', [ObjectController::class, 'objectSectors']);
     Route::post('object-create', [ObjectController::class, 'create']);
     Route::post('check-object', [ObjectController::class, 'checkObject']);
     Route::post('change-object-status', [ObjectController::class, 'changeObjectStatus']);

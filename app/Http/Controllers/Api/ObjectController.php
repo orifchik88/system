@@ -44,81 +44,30 @@ class ObjectController extends BaseController
 
     public function index(): JsonResponse
     {
-        if (UserRoleEnum::from($this->roleId) == UserRoleEnum::REGISTRATOR) {
-            $query = Article::query()->where('region_id', $this->user->region_id);
-        } else {
-            $query = $this->user->objects()
-                ->wherePivot('role_id', $this->roleId);
+        try {
+            $query = $this->service->getObjects($this->user, $this->roleId);
+
+            $filters = request()->only(['status', 'name', 'customer', 'funding_source', 'object_type', 'task_id', 'region_id', 'district_id', 'user_search']);
+
+            $objects = $this->service->searchObjects($query, $filters)
+                ->orderBy('created_at', request('sort_by_date', 'DESC'))
+                ->paginate(request('per_page', 10));
+
+            return $this->sendSuccess(ArticleResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage());
         }
 
-        $objects = $query->when(request('status'), function ($query) {
-            $query->where('articles.object_status_id', request('status'));
-        })
-            ->when(request('name'), function ($query) {
-                $query->searchByName(request('name'));
-            })
-            ->when(request('customer'), function ($q) {
-                $q->sarchByOrganization(request('customer'));
-            })
-            ->when(request('funding_source'), function ($q) {
-                $q->where('funding_source_id', request('funding_source'));
-            })
-            ->when(request('object_type'), function ($q) {
-                $q->where('object_type_id', request('object_type'));
-            })
-            ->when(request('task_id'), function ($query) {
-                $query->searchByTaskId(request('task_id'));
-            })
-            ->when(request('region_id'), function ($query) {
-                $query->where('articles.region_id', request('region_id'));
-            })
-            ->when(request('district_id'), function ($query) {
-                $query->where('articles.district_id', request('district_id'));
-            })
-            ->when(request('user_search'), function ($query) {
-                $query->whereHas('users', function ($query) {
-                    $query->searchByFullName(request('user_search'));
-                });
-            })
-            ->orderBy('created_at', request('sort_by_date', 'DESC'))
-            ->paginate(\request('per_page', 10));
-        return $this->sendSuccess(ArticleResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
     }
 
     public function rotation(): JsonResponse
     {
-
         try {
-            $firstUserArticles = request('user_id');
-            $secondUserArticles = request('rotation_user_id');
-
-            $this->service->rotateUsers($firstUserArticles, $secondUserArticles, request('user_id'), request('rotation_user_id'));
+            $this->service->rotateUsers(request('user_id'), request('rotation_user_id'));
 
             return $this->sendSuccess([], 'Rotation completed successfully.');
+
         } catch (\Exception $exception) {
-            return $this->sendError($exception->getMessage(), $exception->getCode());
-        }
-        try {
-            $firstUserArticles = ArticleUser::where('user_id', request('user_id'))
-                ->where('role_id', UserRoleEnum::INSPECTOR->value)
-                ->pluck('article_id');
-
-            $secondUserArticles = ArticleUser::where('user_id', request('rotation_user_id'))
-                ->where('role_id', UserRoleEnum::INSPECTOR->value)
-                ->pluck('article_id');
-
-            ArticleUser::whereIn('article_id', $firstUserArticles)
-                ->where('role_id', UserRoleEnum::INSPECTOR->value)
-                ->update(['user_id' => request('rotation_user_id')]);
-
-            ArticleUser::whereIn('article_id', $secondUserArticles)
-                ->where('role_id', UserRoleEnum::INSPECTOR->value)
-                ->update(['user_id' => request('user_id')]);
-
-            return $this->sendSuccess([], 'Objects retrieved successfully.');
-
-
-        }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -128,18 +77,11 @@ class ObjectController extends BaseController
         try {
             if (!request('task_id') && !request('gnk_id') && !request('expertize_number')) throw new NotFoundHttpException('Object not found');
 
-            $object = Article::query()
-                ->when(request('task_id'), function ($query) {
-                    $query->where('task_id', request('task_id'));
-                })
-                ->when(request('gnk_id'), function ($query) {
-                    $query->where('gnk_id', request('gnk_id'));
-                })
-                ->when(request('expertize_number'), function ($query) {
-                    $query->where('number_protocol', request('expertize_number'));
-                })
-                ->firstOrFail();
+            $params = request()->only(['task_id', 'gnk_id', 'expertize_number']);
+            $object = $this->service->findArticleByParams($params);
+
             return $this->sendSuccess(ArticleResource::make($object), 'Object retrieved successfully.');
+
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
@@ -148,14 +90,12 @@ class ObjectController extends BaseController
     public function userObjects(): JsonResponse
     {
         try {
-            $user = User::query()
-                ->where('identification_number', request('inn'))
-                ->whereHas('roles', function ($query) {
-                    $query->where('role_id', UserRoleEnum::QURILISH->value);
-                })
-                ->first();
+            $user = $this->service->getUserByInnAndRole(request('inn'), UserRoleEnum::QURILISH->value);
+
             if (!$user) throw new NotFoundHttpException('User not found');
-            $objects = $user->objects()->paginate(\request('per_page', 10));
+
+            $objects = $user->objects()->paginate(request('per_page', 10));
+
             return $this->sendSuccess(ArticleResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
 
         }catch (\Exception $exception){
@@ -165,60 +105,14 @@ class ObjectController extends BaseController
 
     public function accountObjects(): JsonResponse
     {
-        $user = Auth::user();
-        $query = Article::query()->where('region_id', $user->region_id)->orderBy('created_at', request('sort_by_date', 'DESC'));
+        $filters = request()->only(['status', 'name', 'customer', 'funding_source', 'object_type', 'task_id', 'region_id', 'district_id', 'user_search']);
 
-        if ($status = request('status')) {
-            if ($status == 1) {
-                $query->whereDoesntHave('paymentLogs')
-                    ->orWhereHas('paymentLogs', function ($q) {
-                        $q->select(DB::raw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) as total_paid'))
-                            ->groupBy('gu_id')
-                            ->havingRaw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) = 0');
-                    });
-            } elseif ($status == 2) {
-                $query->whereHas('paymentLogs', function ($q) {
-                    $q->select(DB::raw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) as total_paid'))
-                        ->groupBy('gu_id')
-                        ->havingRaw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) < CAST(price_supervision_service AS DECIMAL)');
-                });
-            } elseif ($status == 3) {
-                $query->whereHas('paymentLogs', function ($q) {
-                    $q->select(DB::raw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) as total_paid'))
-                        ->groupBy('gu_id')
-                        ->havingRaw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) >= CAST(price_supervision_service AS DECIMAL)');
-                });
-            }
-        }
+        $query = $this->service->getObjects($this->user, $this->roleId);
+        $query = $this->service->getAccountObjectsQuery($query, request('status'));
+        $query = $this->service->searchObjects($query, $filters);
 
-        $objects = $query
-            ->when(request('name'), function ($query) {
-                $query->searchByName(request('name'));
-            })
-            ->when(request('task_id'), function ($query) {
-                $query->searchByTaskId(request('task_id'));
-            })
-            ->when(request('funding_source'), function ($q) {
-                $q->where('funding_source_id', request('funding_source'));
-            })
-            ->when(request('object_type'), function ($q) {
-                $q->where('object_type_id', request('object_type'));
-            })
-            ->when(request('customer'), function ($q) {
-                $q->searchByOrganization(request('customer'));
-            })
-            ->when(request('region_id'), function ($query) {
-                $query->where('articles.region_id', request('region_id'));
-            })
-            ->when(request('district_id'), function ($query) {
-                $query->where('articles.district_id', request('district_id'));
-            })
-            ->when(request('user_search'), function ($query) {
-                $query->whereHas('users', function ($query) {
-                    $query->searchByFullName(request('user_search'));
-                });
-            })
-            ->paginate(\request('perPage', 10));
+        $objects = $query->orderBy('created_at', request('sort_by_date', 'DESC'))
+                        ->paginate(\request('perPage', 10));
 
         return $this->sendSuccess(ArticleResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
     }
@@ -226,28 +120,9 @@ class ObjectController extends BaseController
     public function totalPayment(): JsonResponse
     {
         try {
-            $totalPaid = Article::with('paymentLogs')
-                ->where('region_id', request('region_id'))
-                ->get()
-                ->reduce(function ($carry, $article) {
-                    return $carry + $article->paymentLogs->sum(function ($log) {
-                            return isset($log->content->additionalInfo->amount)
-                                ? (float)$log->content->additionalInfo->amount
-                                : 0;
-                        });
-                });
+            $result = $this->service->calculateTotalPayment(request('region_id'));
+            return $this->sendSuccess($result, 'All Payments');
 
-            $totalAmount = Article::where('region_id', request('region_id'))->get()->sum(function ($article) {
-                return (float)$article->price_supervision_service;
-            });
-
-            return $this->sendSuccess([
-                'totalAmount' => $totalAmount,
-                'totalPaid' => $totalPaid,
-                'notPaid' => $totalAmount - $totalPaid,
-            ],
-                'All Payments'
-            );
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
@@ -256,37 +131,7 @@ class ObjectController extends BaseController
     public function paymentStatistics(): JsonResponse
     {
         try {
-            $regionId = request('region_id');
-
-            $articles = Article::with('paymentLogs')
-                ->where('region_id', $regionId)
-                ->get();
-
-            $statistics = [
-                'all' => $articles->count(),
-                'paid' => 0,
-                'partiallyPaid' => 0,
-                'notPaid' => 0,
-            ];
-
-            foreach ($articles as $article) {
-                $totalPaid = $article->paymentLogs()
-                    ->get()
-                    ->sum(function ($log) {
-                        return $log->content->additionalInfo->amount ?? 0;
-                    });
-
-                $priceSupervisionService = (float)$article->price_supervision_service;
-
-                if ($totalPaid >= $priceSupervisionService) {
-                    $statistics['paid']++;
-                } elseif ($totalPaid < $priceSupervisionService && $totalPaid > 0) {
-                    $statistics['partiallyPaid']++;
-                } else {
-                    $statistics['notPaid']++;
-                }
-            }
-
+            $statistics = $this->service->calculatePaymentStatistics(request('region_id'));
             return $this->sendSuccess($statistics, 'Payment Statistics');
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
@@ -296,34 +141,14 @@ class ObjectController extends BaseController
     public function getObject($id): JsonResponse
     {
         try {
-            $object = Article::query()->findOrFail($id);
+            $object = $this->service->getObjectById($this->user, $this->roleId, $id);
             return $this->sendSuccess(ArticleResource::make($object), 'Object retrieved successfully.');
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
 
-    public function objectTypes(): JsonResponse
-    {
-        try {
-            if (request('id')) {
-                return $this->sendSuccess(ObjectTypeResource::make($this->service->getType(request('id'))), 'Object type retrieved successfully.');
-            }
-            return $this->sendSuccess(ObjectTypeResource::collection($this->service->getAllTypes()), 'Object types');
-        } catch (\Exception $exception) {
-            return $this->sendError($exception->getMessage(), $exception->getCode());
-        }
-    }
 
-    public function objectSectors($id): JsonResponse
-    {
-        try {
-            return $this->sendSuccess(ObjectSectorResource::collection($this->service->getObjectSectors($id)), 'Object sectors');
-
-        } catch (\Exception $exception) {
-            return $this->sendError($exception->getMessage(), $exception->getCode());
-        }
-    }
 
     public function fundingSource(): JsonResponse
     {
@@ -345,82 +170,14 @@ class ObjectController extends BaseController
         }
     }
 
-    public function checkObject(): JsonResponse
-    {
-        try {
-            $object = Article::findOrFail(request()->get('id'));
 
-            $missingRoles = $this->checkUsers($object);
-            $blocks = $this->checkBlocks($object);
 
-            if (!empty($missingRoles)) {
-                return $this->sendError('Obyekt qatnashchilari yetarli emas ' . implode(', ', $missingRoles));
-            }
-
-            if (!empty($blocks)) {
-                return $this->sendError('Obyekt blocklar foydalanishga topshirilgan ' . implode(', ', $blocks));
-            }
-
-            return $this->sendSuccess(ArticleResource::make($object), 'Article retrieved successfully.');
-
-        } catch (\Exception $exception) {
-            return $this->sendError($exception->getMessage(), $exception->getCode());
-        }
-    }
-
-    private function checkUsers($object): array
-    {
-        $users = $object->users;
-        $missingRoles = [];
-        foreach (ObjectCheckEnum::cases() as $role) {
-            $method = $role->value;
-            $hasRole = $users->contains(function ($user) use ($method) {
-                return $user->{$method}();
-            });
-            if (!$hasRole) {
-                $missingRoles[] = $role->name;
-            }
-        }
-
-        return $missingRoles;
-    }
-
-    private function checkBlocks($object): array
-    {
-        $inactiveBlocks = [];
-        foreach ($object->blocks as $block) {
-            if (!$block->status) {
-                $inactiveBlocks[] = $block->name;
-            }
-        }
-        return $inactiveBlocks;
-    }
-
-    public function status(): JsonResponse
-    {
-        try {
-            if (request('id')) {
-                return $this->sendSuccess(ObjectStatusResource::make(ObjectStatus::find(request('id'))), 'Object Status');
-            }
-            return $this->sendSuccess(ObjectStatusResource::collection(ObjectStatus::all()), 'All Object Statuses');
-        } catch (\Exception $exception) {
-            return $this->sendError($exception->getMessage(), $exception->getCode());
-        }
-    }
 
     public function objectCount(): JsonResponse
     {
-
-        $user = Auth::user();
-        $query = $user->objects();
         try {
-            $data = [
-                'all' => $query->clone()->count(),
-                'progress' => $query->clone()->where('object_status_id', ObjectStatusEnum::PROGRESS)->count(),
-                'frozen' => $query->clone()->where('object_status_id', ObjectStatusEnum::FROZEN)->count(),
-                'suspended' => $query->clone()->where('object_status_id', ObjectStatusEnum::SUSPENDED)->count(),
-                'submitted' => $query->clone()->where('object_status_id', ObjectStatusEnum::SUBMITTED)->count(),
-            ];
+            $data = $this->service->getObjectCount($this->user, $this->roleId);
+
             return $this->sendSuccess($data, 'Object count retrieved successfully.');
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
