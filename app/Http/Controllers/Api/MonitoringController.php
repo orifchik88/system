@@ -28,6 +28,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use function PHPUnit\Framework\isFalse;
 
 class MonitoringController extends BaseController
 {
@@ -131,10 +132,17 @@ class MonitoringController extends BaseController
             $data = request()->all();
             $object = Article::query()->findOrFail($data['object_id']);
             foreach ($data['regular_checklist'] as $item) {
+                if (isset($item['status']))
+                {
+                    $status = CheckListStatusEnum::SECOND;
+                }else{
+                    $status = CheckListStatusEnum::FIRST;
+                }
                 if (isset($item['checklist_id'])) {
                     $answer = CheckListAnswer::query()->findOrFail($item['checklist_id']);
+
                     $answer->update([
-                        'status' => CheckListStatusEnum::FIRST,
+                        'status' => $status,
                         'inspector_answered' => null,
                         'technic_answered' => null,
                         'author_answered' => null,
@@ -150,7 +158,7 @@ class MonitoringController extends BaseController
                     $answer->object_id = $data['object_id'];
                     $answer->object_type_id = $object->object_type_id;
                     $answer->floor = $item['floor'] ?? null;
-                    $answer->status = CheckListStatusEnum::FIRST;
+                    $answer->status = $status;
                     $answer->type = isset($data['type']) ? 2 : 1;
                     $answer->monitoring_id = isset($data['type']) ? $data['claim_id'] : null;
                     $answer->save();
