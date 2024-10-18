@@ -145,6 +145,7 @@ Route::group([
     Route::post('reject-answer', [RegulationController::class, 'rejectAnswer']);
     Route::post('create-fine', [RegulationController::class, 'fine']);
     Route::post('send-court', [RegulationController::class, 'sendCourt']);
+    Route::get('regulation-count', [RegulationController::class, 'regulationCount']);
     Route::get('author-regulation', [RegulationController::class, 'getAuthorRegulations']);
     Route::get('send-answer-author-regulation', [RegulationController::class, 'sendAnswerAuthorRegulation']);
 

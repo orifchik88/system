@@ -18,30 +18,11 @@ trait RegulationTrait
         parent::boot();
 
         static::creating(function ($model) {
-            $model->regulation_number = self::generateRegulationNumber();
+            $lastRegulationNumber = self::max('regulation_number') ?? 199999;
+            $model->regulation_number = $lastRegulationNumber + 1;
         });
     }
 
-    protected static function generateRegulationNumber()
-    {
-        $prefix = date('ym');
-
-        $maxNumber = self::where('regulation_number', 'LIKE', "$prefix%")
-            ->orderBy('regulation_number', 'desc')
-            ->first();
-
-        if ($maxNumber) {
-            $lastNumber = intval(substr($maxNumber->regulation_number, 5, 7)) + 1;
-        } else {
-            $lastNumber = 1;
-        }
-
-        $number = str_pad($lastNumber, 7, '0', STR_PAD_LEFT);
-
-        $suffix = rand(1,3);
-
-        return $prefix . '-' . $number . '/'.$suffix;
-    }
 
     public function scopeWithInspectorRole(Builder $query): Builder
     {

@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Enums\RegulationStatusEnum;
+use App\Enums\UserRoleEnum;
 use App\Exceptions\NotFoundException;
 use App\Models\ActViolation;
 use App\Models\ActViolationBlock;
@@ -9,13 +11,74 @@ use App\Models\Article;
 use App\Models\Regulation;
 use App\Models\RegulationDemand;
 use App\Models\User;
+use App\Repositories\Interfaces\RegulationRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class RegulationService
 {
-    public function __construct(protected Regulation  $regulation){}
+    public function __construct(
+        protected Regulation  $regulation,
+        protected RegulationRepositoryInterface $regulationRepository,
+    ){}
+
+    public function getRegulations($user, $roleId)
+    {
+        switch ($roleId) {
+            case UserRoleEnum::INSPECTOR->value:
+            case UserRoleEnum::ICHKI->value:
+            case UserRoleEnum::MUALLIF->value:
+            case UserRoleEnum::TEXNIK->value:
+            case UserRoleEnum::LOYIHA->value:
+            case UserRoleEnum::BUYURTMACHI->value:
+            case UserRoleEnum::QURILISH->value:
+                return $this->getRegulationsByUserRole($user, $roleId);
+            case UserRoleEnum::REGISTRATOR->value:
+            case UserRoleEnum::OPERATOR->value:
+            case UserRoleEnum::INSPEKSIYA->value:
+            case UserRoleEnum::HUDUDIY_KUZATUVCHI->value:
+            case UserRoleEnum::QURILISH_MONTAJ->value:
+            case UserRoleEnum::BUXGALTER->value:
+            case UserRoleEnum::REGKADR->value:
+            case UserRoleEnum::YURIST->value:
+                return $this->getRegulationByRegion($user->region_id);
+            case UserRoleEnum::RESKADR->value:
+                return $this->regulation->query();
+            default:
+                return [];
+        }
+    }
+
+    public function getRegulationsByUserRole($user, $roleId)
+    {
+        return $this->regulationRepository->getRegulationsByUserRole($user, $roleId);
+    }
+
+    public function getRegulationByRegion($regionId)
+    {
+        return $this->regulationRepository->getRegulationByRegion($regionId);
+    }
+
+    public function getRegulationById($user, $roleId, $id): Regulation
+    {
+       return $this->getRegulations($user, $roleId)->whereId($id)->firstOrFail();
+    }
+
+    public function regulationCountByStatus($user, $roleId): array
+    {
+        $query = $this->getRegulations($user, $roleId);
+        return [
+            'provide_remedy' => $query->clone()->where('regulation_status_id', RegulationStatusEnum::PROVIDE_REMEDY)->count(),
+            'confirm_remedy' => $query->clone()->where('regulation_status_id', RegulationStatusEnum::CONFIRM_REMEDY)->count(),
+            'attach_deed' => $query->clone()->where('regulation_status_id', RegulationStatusEnum::ATTACH_DEED)->count(),
+            'confirm_deed' => $query->clone()->where('regulation_status_id', RegulationStatusEnum::CONFIRM_DEED)->count(),
+            'confirm_deed_cmr' => $query->clone()->where('regulation_status_id', RegulationStatusEnum::CONFIRM_DEED_CMR)->count(),
+            'eliminated' => $query->clone()->where('regulation_status_id', RegulationStatusEnum::ELIMINATED)->count(),
+            'in_lawyer' => $query->clone()->where('regulation_status_id', RegulationStatusEnum::IN_LAWYER)->count(),
+            'late_execution' => $query->clone()->where('regulation_status_id', RegulationStatusEnum::LATE_EXECUTION)->count(),
+        ];
+    }
 
 
     public function rejectToAnswer($dto)
@@ -32,7 +95,7 @@ class RegulationService
                 throw new NotFoundException('Chora tadbir topilmadi');
             }
             $regulation->update([
-                'regulation_status_id' => 1,
+                'regulation_status_id' => RegulationStatusEnum::PROVIDE_REMEDY,
             ]);
             $this->deadlineRejected($regulation);
 
@@ -78,7 +141,7 @@ class RegulationService
             }
 
             $regulation->update([
-                'regulation_status_id' => 3,
+                'regulation_status_id' => RegulationStatusEnum::ATTACH_DEED,
             ]);
 
             foreach ($actViolations as $actViolation) {
@@ -115,7 +178,7 @@ class RegulationService
             $roleId = $user->getRoleFromToken();
             $regulation = Regulation::query()->findOrFail($dto->regulationId);
             $regulation->update([
-                'regulation_status_id' => 4,
+                'regulation_status_id' => RegulationStatusEnum::CONFIRM_DEED,
             ]);
             $actViolations = $regulation->actViolations()->whereActViolationTypeId(2)->get();
 
@@ -233,7 +296,7 @@ class RegulationService
                 throw new NotFoundException('Dalolatnoma topilmadi');
             }
             $regulation->update([
-                'regulation_status_id' => 3,
+                'regulation_status_id' => RegulationStatusEnum::ATTACH_DEED,
             ]);
 
             $this->deadlineRejected($regulation);
@@ -279,7 +342,7 @@ class RegulationService
                 throw new NotFoundException('Dalolatnoma topilmadi');
             }
             $regulation->update([
-                'regulation_status_id' => 3,
+                'regulation_status_id' => RegulationStatusEnum::ATTACH_DEED,
             ]);
 
             $this->deadlineRejected($regulation);
@@ -329,12 +392,12 @@ class RegulationService
 
             if ($regulation->created_by_role_id  != 3){
                 $regulation->update([
-                    'regulation_status_id' => 6,
+                    'regulation_status_id' => RegulationStatusEnum::ELIMINATED,
                 ]);
                 $status = 13;
             }else{
                 $regulation->update([
-                    'regulation_status_id' => 5,
+                    'regulation_status_id' => RegulationStatusEnum::CONFIRM_DEED_CMR,
                 ]);
 
                 $status = 7;
@@ -381,7 +444,7 @@ class RegulationService
             }
 
             $regulation->update([
-                'regulation_status_id' => 6,
+                'regulation_status_id' => RegulationStatusEnum::ELIMINATED,
             ]);
 
             foreach ($actViolations as $actViolation) {

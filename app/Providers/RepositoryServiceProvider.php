@@ -9,7 +9,9 @@ use App\Repositories\ClaimRepository;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use App\Repositories\Interfaces\BlockRepositoryInterface;
 use App\Repositories\Interfaces\ClaimRepositoryInterface;
+use App\Repositories\Interfaces\RegulationRepositoryInterface;
 use App\Repositories\Interfaces\UserRepositoryInterface;
+use App\Repositories\RegulationRepository;
 use App\Repositories\UserRepository;
 use Illuminate\Support\ServiceProvider;
 
@@ -36,5 +38,6 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(ArticleRepositoryInterface::class,ArticleRepository::class);
         $this->app->bind(BlockRepositoryInterface::class,BlockRepository::class);
         $this->app->bind(UserRepositoryInterface::class,UserRepository::class);
+        $this->app->bind(RegulationRepositoryInterface::class,RegulationRepository::class);
     }
 }

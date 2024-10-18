@@ -121,10 +121,19 @@ class RegulationController extends BaseController
         }
     }
 
+    public function regulationCount(): JsonResponse
+    {
+        try {
+            return $this->sendSuccess($this->regulationService->regulationCountByStatus($this->user, $this->roleId), 'Regulation Count');
+        } catch (\Exception $exception){
+            return $this->sendError($exception->getMessage());
+        }
+    }
+
     public function getAuthorRegulations(): JsonResponse
     {
         try {
-            $authorRegulations = AuthorRegulation::query()->paginate(request('per_page', 10));
+            $authorRegulations = AuthorRegulation::query()->where('object_id', request('object_id'))->paginate(request('per_page', 10));
             return $this->sendSuccess(AuthorRegulationResource::collection($authorRegulations), 'Regulations', pagination($authorRegulations));
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());

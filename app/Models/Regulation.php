@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\LawyerStatusEnum;
+use App\Enums\RegulationStatusEnum;
 use App\Models\Traits\RegulationTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,7 +18,8 @@ class Regulation extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'lawyer_status_id' => LawyerStatusEnum::class
+        'lawyer_status_id' => LawyerStatusEnum::class,
+        'regulation_status_id' => RegulationStatusEnum::class,
     ];
 
     public function regulationStatus(): BelongsTo
