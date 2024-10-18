@@ -303,19 +303,23 @@ class RegulationController extends BaseController
 
     public function sendAnswerAuthorRegulation(): JsonResponse
     {
+        $data = request()->all();
         try {
-            $files = [];
-            $regulation = AuthorRegulation::query()->findOrFaiL(request('regulation_id'));
-            if (request()->hasFile('files')) {
-                foreach (request()->file('files') as $file) {
-                    $path = $file->store('images/author-regulation', 'public');
-                    $files[] = $path;
+            foreach ($data['journal'] as $item) {
+                $files = [];
+                $regulation = AuthorRegulation::query()->findOrFaiL($item['regulation_id']);
+                if ($item['files']) {
+                    foreach ($item['files'] as $file) {
+                        $path = $file->store('images/author-regulation', 'public');
+                        $files[] = $path;
+                    }
                 }
+                $regulation->update([
+                    'comment' => request('comment'),
+                    'images' => json_encode($files),
+                ]);
             }
-            $regulation->update([
-                'comment' => request('comment'),
-                'images' => json_encode($files),
-            ]);
+
 
             return $this->sendSuccess([], 'Data saved successfully');
 
