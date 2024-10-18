@@ -147,7 +147,7 @@ Route::group([
     Route::post('send-court', [RegulationController::class, 'sendCourt']);
     Route::get('regulation-count', [RegulationController::class, 'regulationCount']);
     Route::get('author-regulation', [RegulationController::class, 'getAuthorRegulations']);
-    Route::get('send-answer-author-regulation', [RegulationController::class, 'sendAnswerAuthorRegulation']);
+    Route::post('send-answer-author-regulation', [RegulationController::class, 'sendAnswerAuthorRegulation']);
 
     Route::get('act-violations', [ViolationController::class, 'actViolations']);
     Route::get('violations', [ViolationController::class, 'violations']);
