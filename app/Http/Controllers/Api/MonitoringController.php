@@ -131,13 +131,18 @@ class MonitoringController extends BaseController
         DB::beginTransaction();
         try {
             $data = request()->all();
+            $inspectorAnswered = null;
+            $technicAnswered = null;
+
             $object = Article::query()->findOrFail($data['object_id']);
             foreach ($data['regular_checklist'] as $item) {
                 if (isset($item['status']))
                 {
                     $status = CheckListStatusEnum::SECOND;
+                    $inspectorAnswered = now()->addDays(3)->setTime(23, 59, 59);
                 }else{
                     $status = CheckListStatusEnum::FIRST;
+                    $technicAnswered = now()->addDays(3)->setTime(23, 59, 59);
                 }
                 if (isset($item['checklist_id'])) {
                     $answer = CheckListAnswer::query()->findOrFail($item['checklist_id']);
@@ -147,6 +152,7 @@ class MonitoringController extends BaseController
                         'inspector_answered' => null,
                         'technic_answered' => null,
                         'author_answered' => null,
+                        'inspector_answered' => $inspectorAnswered,
                     ]);
                     $answer->images()->delete();
                     $answer->documents()->delete();
