@@ -15,6 +15,7 @@ use App\Http\Requests\ClaimRequests\RejectClaimByInspector;
 use App\Http\Requests\ClaimRequests\RejectClaimByOperator;
 use App\Http\Requests\ClaimRequests\RejectFromDirector;
 use App\Http\Requests\ClaimRequests\SendToDirector;
+use App\Models\Block;
 use App\Models\ClaimOrganizationReview;
 use App\Models\Response;
 use App\Models\Role;
@@ -635,6 +636,17 @@ class ClaimService
                     'end_date' => Carbon::now()
                 ]
             );
+
+            foreach ($claimObject->blocks as $block) {
+                $blockId = $block['id'];
+                $blockModel = Block::find($blockId);
+
+                $blockModel->update(
+                    [
+                        'accepted' => true
+                    ]
+                );
+            }
 
             $this->historyService->createHistory(
                 guId: $claimObject->gu_id,

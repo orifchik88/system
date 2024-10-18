@@ -110,7 +110,7 @@ class ClaimController extends BaseController
         );
 
         if (!$data) {
-            return $this->sendError("Tizimda xatolik", [], 422);
+            return $this->sendError("Ma'lumot topilmadi!", [], 422);
         }
 
         return $this->sendSuccess($data, 'Success!');
