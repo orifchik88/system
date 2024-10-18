@@ -42,33 +42,33 @@ class ArticleRepository implements ArticleRepositoryInterface
     public function searchObjects($query, $filters)
     {
         return $query
-            ->when(isset($filters['status']), function ($query, $status) {
-                $query->where('articles.object_status_id', $status);
+            ->when(isset($filters['status']), function ($query) use ($filters) {
+                $query->where('articles.object_status_id', $filters['status']);
             })
-            ->when(isset($filters['name']), function ($query, $name) {
-                $query->searchByName($name);
+            ->when(isset($filters['name']), function ($query) use($filters) {
+                $query->searchByName($filters['name']);
             })
-            ->when(isset($filters['customer']), function ($query, $customer) {
-                $query->searchByOrganization($customer);
+            ->when(isset($filters['customer']), function ($query) use($filters) {
+                $query->searchByOrganization($filters['customer']);
             })
-            ->when(isset($filters['funding_source']), function ($query, $fundingSource) {
-                $query->where('funding_source_id', $fundingSource);
+            ->when(isset($filters['funding_source']), function ($query) use($filters) {
+                $query->where('funding_source_id', $filters['funding_source']);
             })
-            ->when(isset($filters['object_type']), function ($query, $objectType) {
-                $query->where('object_type_id', $objectType);
+            ->when(isset($filters['object_type']), function ($query) use($filters) {
+                $query->where('object_type_id', $filters['object_type']);
             })
-            ->when(isset($filters['task_id']), function ($query, $taskId) {
-                $query->searchByTaskId($taskId);
+            ->when(isset($filters['task_id']), function ($query) use($filters) {
+                $query->searchByTaskId($filters['task_id']);
             })
-            ->when(isset($filters['region_id']), function ($query, $regionId) {
-                $query->where('articles.region_id', $regionId);
+            ->when(isset($filters['region_id']), function ($query) use($filters) {
+                $query->where('articles.region_id', $filters['region_id']);
             })
-            ->when(isset($filters['district_id']), function ($query, $districtId) {
-                $query->where('articles.district_id', $districtId);
+            ->when(isset($filters['district_id']), function ($query) use($filters) {
+                $query->where('articles.district_id', $filters['district_id']);
             })
-            ->when(isset($filters['user_search']), function ($query, $userSearch) {
-                $query->whereHas('users', function ($query) use ($userSearch) {
-                    $query->searchByFullName($userSearch);
+            ->when(isset($filters['user_search']), function ($query) use($filters) {
+                $query->whereHas('users', function ($query) use ($filters) {
+                    $query->searchByFullName($filters['user_search']);
                 });
             });
     }
