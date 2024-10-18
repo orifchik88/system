@@ -37,6 +37,7 @@ class AuthorRegulationResource extends JsonResource
             'comment' => $this->comment,
             'author_images' => $authorImages,
             'images' => $images ?? null,
+            'created_at' => $this->created_at
         ];
     }
 }
