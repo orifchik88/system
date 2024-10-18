@@ -315,7 +315,7 @@ class RegulationController extends BaseController
                     }
                 }
                 $regulation->update([
-                    'comment' => request('comment'),
+                    'comment' => $item['comment'],
                     'images' => json_encode($files),
                 ]);
             }
