@@ -39,6 +39,8 @@ class RegulationController extends BaseController
 
     public function __construct(protected RegulationService $regulationService)
     {
+        $this->middleware('auth');
+        parent::__construct();
     }
 
 
@@ -64,10 +66,11 @@ class RegulationController extends BaseController
                 default:
                     $query->where(function ($q) use ($user) {
                         $q->where('regulations.user_id', $user->id)
-                            ->orWhere('regulations.created_by_user_id', $user->id)
-                            ->orWhere('regulations.role_id', $user->getRoleFromToken())
-                            ->orWhere('regulations.created_by_role_id', $user->getRoleFromToken());
-                    });
+                            ->where('regulations.role_id', $user->getRoleFromToken());
+                    })->orWhere(function ($query) use ($user) {
+                            $query->where('regulations.created_by_user_id', $user->id)
+                                ->where('regulations.created_by_role_id', $user->getRoleFromToken());
+                        });;
                     break;
             }
 

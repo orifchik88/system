@@ -21,8 +21,6 @@ use Psy\Util\Json;
 class InformationController extends BaseController
 {
 
-    public function __construct(public InformationService $informationService){}
-
     public function monitoringObjects(): JsonResponse
     {
         $customerInn = request('customer_inn');

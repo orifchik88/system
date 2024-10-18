@@ -24,7 +24,7 @@ trait RegulationTrait
 
     protected static function generateRegulationNumber()
     {
-        $prefix = date('ym');;
+        $prefix = date('ym');
 
         $maxNumber = self::where('regulation_number', 'LIKE', "$prefix%")
             ->orderBy('regulation_number', 'desc')

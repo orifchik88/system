@@ -23,11 +23,14 @@ use Illuminate\Support\Facades\Auth;
 class ClaimController extends BaseController
 {
 
+
     private ClaimService $claimService;
     private HistoryService $historyService;
 
     public function __construct(ClaimService $claimService)
     {
+        $this->middleware('auth');
+        parent::__construct();
         $this->claimService = $claimService;
         $this->historyService = new HistoryService('claim_histories');
     }

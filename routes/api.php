@@ -30,7 +30,6 @@ Route::post('auth', [LoginController::class, 'auth']);
 Route::post('check-user', [InformationController::class, 'checkUser']);
 
 
-Route::post('test-api', [EGovController::class, 'getPassportInfo']);
 Route::get('{module}/{api}/responses', [ResponseController::class, 'receive']);
 
 Route::get('pdf-generation', [PdfController::class, 'generation']);
@@ -103,13 +102,10 @@ Route::group([
 
     Route::get('objects', [ObjectController::class, 'index']);
     Route::get('object/{id}', [ObjectController::class, 'getObject']);
-    Route::get('object-status', [ObjectController::class, 'status']);
-    Route::get('object-types', [ObjectController::class, 'objectTypes']);
     Route::get('object-count', [ObjectController::class, 'objectCount']);
     Route::get('get-object', [ObjectController::class, 'objectByParams']);
     Route::get('user-objects', [ObjectController::class, 'userObjects']);
     Route::get('funding-sources', [ObjectController::class, 'fundingSource']);
-    Route::get('object-sectors/{id}', [ObjectController::class, 'objectSectors']);
     Route::post('object-create', [ObjectController::class, 'create']);
     Route::post('check-object', [ObjectController::class, 'checkObject']);
     Route::post('change-object-status', [ObjectController::class, 'changeObjectStatus']);
@@ -128,7 +124,7 @@ Route::group([
     Route::post('block-delete', [BlockController::class, 'delete']);
     Route::post('block-edit', [BlockController::class, 'edit']);
 
-    Route::get('question-users', [QuestionController::class, 'questionUsers']);
+//    Route::get('question-users', [QuestionController::class, 'questionUsers']);
     Route::post('send-answer', [QuestionController::class, 'sendAnswer']);
     Route::get('levels', [QuestionController::class, 'levels']);
     Route::post('create-regulation', [QuestionController::class, 'createRegulation']);

@@ -20,7 +20,7 @@ class Article extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'object_status_id' => ObjectStatusEnum::class
+        'object_status_id' => ObjectStatusEnum::class,
     ];
 
     public function blocks(): HasMany

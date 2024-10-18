@@ -28,6 +28,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use function PHPUnit\Framework\isFalse;
 
 class MonitoringController extends BaseController
 {
@@ -36,15 +37,17 @@ class MonitoringController extends BaseController
 
     public function __construct(QuestionService $questionService)
     {
+        $this->middleware('auth');
+        parent::__construct();
         $this->questionService = $questionService;
         $this->historyService = new HistoryService('check_list_histories');
     }
 
     public function monitoring(): JsonResponse
     {
-
         $user = Auth::user();
-        $objectIds = $user->objects()->pluck('articles.id')->toArray();
+        $roleId = $user->getRoleFromToken();
+        $objectIds = $user->objects()->where('role_id', $roleId)->pluck('articles.id')->toArray();
         $monitorings = Monitoring::query()->whereIn('object_id', $objectIds)
             ->when(request('object_name'), function ($q) {
                 $q->whereHas('article', function ($query) {
@@ -130,10 +133,17 @@ class MonitoringController extends BaseController
             $data = request()->all();
             $object = Article::query()->findOrFail($data['object_id']);
             foreach ($data['regular_checklist'] as $item) {
+                if (isset($item['status']))
+                {
+                    $status = CheckListStatusEnum::SECOND;
+                }else{
+                    $status = CheckListStatusEnum::FIRST;
+                }
                 if (isset($item['checklist_id'])) {
                     $answer = CheckListAnswer::query()->findOrFail($item['checklist_id']);
+
                     $answer->update([
-                        'status' => CheckListStatusEnum::FIRST,
+                        'status' => $status,
                         'inspector_answered' => null,
                         'technic_answered' => null,
                         'author_answered' => null,
@@ -149,7 +159,7 @@ class MonitoringController extends BaseController
                     $answer->object_id = $data['object_id'];
                     $answer->object_type_id = $object->object_type_id;
                     $answer->floor = $item['floor'] ?? null;
-                    $answer->status = CheckListStatusEnum::FIRST;
+                    $answer->status = $status;
                     $answer->type = isset($data['type']) ? 2 : 1;
                     $answer->monitoring_id = isset($data['type']) ? $data['claim_id'] : null;
                     $answer->save();

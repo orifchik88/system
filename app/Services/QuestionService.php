@@ -285,7 +285,7 @@ class QuestionService
                     status: $checklist->status->value,
                     type: LogType::TASK_HISTORY,
                     date: null,
-                    comment: $checklistData['comment'],
+                    comment: $checklistData['comment'] ?? "",
                     additionalInfo: $meta
                 );
             } else {

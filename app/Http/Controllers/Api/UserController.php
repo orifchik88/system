@@ -21,7 +21,10 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends BaseController
 {
-    public function __construct(protected UserService $service){}
+    public function __construct(protected UserService $service){
+        $this->middleware('auth');
+        parent::__construct();
+    }
 
     public function users(): JsonResponse
     {
