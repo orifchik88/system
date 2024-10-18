@@ -27,7 +27,7 @@ class AuthorRegulation extends Model
 
     public function bases(): BelongsTo
     {
-        return $this->belongsTo(Basis::class, 'basis_id');
+        return $this->belongsTo(Basis::class, 'bases_id');
     }
 
     public function workType(): BelongsTo
