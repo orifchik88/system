@@ -189,10 +189,9 @@ class QuestionService
                 $this->handleChecklists($data['positive'], $object, $data['block_id'], $roleId, true, null);
             }
             if (!empty($data['negative'])) {
-                if ($roleId == UserRoleEnum::MUALLIF->value)
-                {
+                if ($roleId == UserRoleEnum::MUALLIF->value) {
                     $this->createAuthorRegulation($data['negative'], $object, $roleId, $data['block_id']);
-                }else{
+                } else {
                     $allRoleViolations = $this->handleChecklists($data['negative'], $object, $data['block_id'], $roleId, false, null);
                     $this->createRegulations($allRoleViolations, $object, $monitoring->id, $roleId);
                 }
@@ -223,6 +222,11 @@ class QuestionService
                 comment: $checklistData['comment'] ?? "",
                 additionalInfo: $meta
             );
+
+            $checklist->update([
+                'technic_author_answered_at' => null,
+                'inspector_answered_at' => null,
+            ]);
 
         }
     }
@@ -285,9 +289,9 @@ class QuestionService
     {
         $allRoleViolations = [];
         foreach ($checklists as $index => $checklistData) {
-        $checklist = $this->getOrCreateChecklist($checklistData, $object, $blockId, $monitoringID);
+            $checklist = $this->getOrCreateChecklist($checklistData, $object, $blockId, $monitoringID);
 
-        $this->updateChecklistStatus($checklist, $checklistData, $roleId, $isPositive);
+            $this->updateChecklistStatus($checklist, $checklistData, $roleId, $isPositive);
             if ($isPositive) {
                 $answeredField = $this->getAnsweredFieldByRole($roleId);
                 $meta = ['user_answered' => $checklist->$answeredField];
@@ -300,6 +304,28 @@ class QuestionService
                     comment: $checklistData['comment'] ?? "",
                     additionalInfo: $meta
                 );
+                if ($roleId == UserRoleEnum::MUALLIF->value) {
+                    if ($checklist->technic_answered == 1) {
+                        $checklist->update([
+                            'inspector_answered_at' => now()->addDays(3)->setTime(23, 59, 59)
+                        ]);
+                    }
+                }
+
+                if ($roleId == UserRoleEnum::TEXNIK->value) {
+                    if ($checklist->author_answered == 1) {
+                        $checklist->update([
+                            'inspector_answered_at' => now()->addDays(3)->setTime(23, 59, 59)
+                        ]);
+                    }
+                }
+
+                if ($roleId == UserRoleEnum::INSPECTOR->value) {
+                    $checklist->update([
+                        'inspector_answered_at' => null,
+                        'technic_author_answered_at' => null,
+                    ]);
+                }
             } else {
                 $allRoleViolations[$index] = $this->handleViolations($checklistData, $checklist, $roleId);
             }
@@ -412,6 +438,11 @@ class QuestionService
             'user_answered' => $checklist->$answeredField,
         ];
 
+        $checklist->update([
+            'inspector_answered_at' => null,
+            'technic_author_answered_at' => null,
+        ]);
+
         $this->historyService->createHistory(
             guId: $checklist->id,
             status: $checklist->status->value,
@@ -479,7 +510,7 @@ class QuestionService
             $user = User::query()->find($regulation->user_id);
             $message = MessageTemplate::regulationCreated($regulation->regulation_number, $objectNumber);
             (new SmsService($user->phone, $message))->sendSms();
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
 
         }
 
