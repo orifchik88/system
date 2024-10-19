@@ -3,7 +3,6 @@
 use App\Http\Controllers\Api\BlockController;
 use App\Http\Controllers\Api\ChecklistAnswerController;
 use App\Http\Controllers\Api\ClaimController;
-use App\Http\Controllers\Api\EGovController;
 use App\Http\Controllers\Api\PdfController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\RegionController;
@@ -12,7 +11,6 @@ use App\Http\Controllers\Api\ResponseController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\UserTypeController;
 use App\Http\Controllers\Api\PermissionController;
-use App\Http\Controllers\Api\ClientTypeController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\ViolationController;
 use Illuminate\Support\Facades\Route;
@@ -68,9 +66,6 @@ Route::group([
     Route::get('sphere', [SphereController::class, 'spheres']);
     Route::get('programs', [ProgramController::class, 'programs']);
 
-    Route::get('client-type', [ClientTypeController::class, 'index']);
-    Route::post('client-type/create', [ClientTypeController::class, 'create']);
-    Route::post('client-type/edit/{id}', [ClientTypeController::class, 'edit']);
 
     Route::get('regions', [RegionController::class, 'regions']);
     Route::get('districts/{id}', [RegionController::class, 'districts']);

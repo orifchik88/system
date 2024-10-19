@@ -213,6 +213,17 @@ class QuestionService
             $this->updateChecklistStatus($checklist, $checklistData, $roleId, false);
             $this->saveAuthorRegulation($checklist, $checklistData, $object, $roleId, $blockId);
 
+            $meta = ['user_answered' => $checklist->auhtor_answered];
+
+            $this->historyService->createHistory(
+                guId: $checklist->id,
+                status: $checklist->status->value,
+                type: LogType::TASK_HISTORY,
+                date: null,
+                comment: $checklistData['comment'] ?? "",
+                additionalInfo: $meta
+            );
+
         }
     }
 

@@ -19,7 +19,7 @@ trait RegulationTrait
 
         static::creating(function ($model) {
             $lastRegulationNumber = self::max('regulation_number') ?? 199999;
-            $model->regulation_number = $lastRegulationNumber + 1;
+            $model->regulation_number = (int)$lastRegulationNumber + 1;
         });
     }
 
