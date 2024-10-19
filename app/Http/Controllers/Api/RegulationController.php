@@ -47,68 +47,12 @@ class RegulationController extends BaseController
     public function regulations(): JsonResponse
     {
         try {
-            $user = Auth::user();
-            $roleId = $user->getRoleFromToken();
+            $query = $this->regulationService->getRegulations($this->user, $this->roleId);
+            $filters = request()->only(['object_name', 'region_id', 'district_id', 'organization_name', 'funding_source', 'category', 'status']);
 
-            $query = Regulation::query();
-            switch ($roleId) {
-                case 26:
-                    $query->whereHas('monitoring', function ($q) use ($user) {
-                        $q->whereHas('article', function ($articleQuery) use ($user) {
-                            $articleQuery->where('region_id', $user->region_id);
-                        });
-                    });
-                    break;
-                case 27:
-//                    case 28:
-                    $query->where('regulation_status_id', request('status'));
-                    break;
-                default:
-                    $query->where(function ($q) use ($user) {
-                        $q->where('regulations.user_id', $user->id)
-                            ->where('regulations.role_id', $user->getRoleFromToken());
-                    })->orWhere(function ($query) use ($user) {
-                            $query->where('regulations.created_by_user_id', $user->id)
-                                ->where('regulations.created_by_role_id', $user->getRoleFromToken());
-                        });;
-                    break;
-            }
-
-            $query->when(request('object_name'), function ($q) {
-                $q->whereHas('monitoring.article', function ($query) {
-                    $query->where('name', 'like', '%' . request('object_name') . '%');
-                });
-            })
-                ->when(request('region_id'), function ($q) {
-                    $q->whereHas('monitoring.article', function ($query) {
-                        $query->where('region_id', request('region_id'));
-                    });
-                })
-                ->when(request('district_id'), function ($q) {
-                    $q->whereHas('monitoring.article', function ($query) {
-                        $query->where('district_id', request('district_id'));
-                    });
-                })
-                ->when(request('organization_name'), function ($q) {
-                    $q->whereHas('monitoring.article', function ($query) {
-                        $query->where('organization_name', 'like', '%' . request('organization_name') . '%');
-                    });
-                })
-                ->when(request('funding_source'), function ($q) {
-                    $q->whereHas('monitoring.article', function ($query) {
-                        $query->where('funding_source_id', request('funding_source'));
-                    });
-                })
-                ->when(request('category'), function ($q) {
-                    $q->whereHas('monitoring.article', function ($query) {
-                        $query->where('difficulty_category_id', request('category'));
-                    });
-                })
-                ->when(request('status'), function ($query) {
-                    $query->where('regulation_status_id', request('status'));
-                });
-
-            $regulations = $query->paginate(request('per_page', 10));
+            $regulations = $this->regulationService->searchRegulations($query, $filters)
+                ->orderBy('created_at', request('sort_by_date', 'DESC'))
+                ->paginate(request('per_page', 10));
 
             return $this->sendSuccess(
                 RegulationResource::collection($regulations),
@@ -143,7 +87,7 @@ class RegulationController extends BaseController
     public function getRegulation($id): JsonResponse
     {
         try {
-            $regulation = Regulation::query()->findOrFail($id);
+            $regulation = $this->regulationService->getRegulationById($this->user, $this->roleId, $id);
             return $this->sendSuccess(new RegulationResource($regulation), 'Regulation found');
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());

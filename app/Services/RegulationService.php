@@ -27,38 +27,101 @@ class RegulationService
     {
         switch ($roleId) {
             case UserRoleEnum::INSPECTOR->value:
-            case UserRoleEnum::ICHKI->value:
-            case UserRoleEnum::MUALLIF->value:
+                 return  Regulation::query()->whereHas('object', function ($query) use ($user) {
+                    $query->whereHas('users', function ($query) use ($user) {
+                        $query->where('users.id', $user->id);
+                    });
+                });
             case UserRoleEnum::TEXNIK->value:
-            case UserRoleEnum::LOYIHA->value:
+                return Regulation::query()->where(function ($q) use ($user, $roleId) {
+                    $q->where('user_id', $user->id)
+                        ->where('role_id', $roleId);
+                })->orWhere(function ($query) use ($user, $roleId) {
+                    $query->where('created_by_user_id', $user->id)
+                        ->where('created_by_role_id', $roleId);
+                });
+            case UserRoleEnum::MUALLIF->value:
+            case UserRoleEnum::ICHKI->value:
+                return Regulation::query()->where('user_id', $user->id)->where('role_id', $roleId);
+
             case UserRoleEnum::BUYURTMACHI->value:
+                $employees = $user->employees()->pluck('id')->toArray();
+                return Regulation::query()
+                    ->whereHas('object', function ($query) use ($employees) {
+                        $query->whereHas('users', function ($query) use ($employees) {
+                            $query->whereIn('users.id', $employees);
+                        });
+                        })
+                    ->orWhere(function ($query) use ($employees) {
+                        $query->whereIn('user_id', $employees)
+                            ->where('role_id', UserRoleEnum::TEXNIK->value);
+                    })
+                    ->orWhere(function ($query) use ($employees) {
+                        $query->whereIn('created_by_user_id', $employees)
+                            ->where('created_by_role_id', UserRoleEnum::TEXNIK->value);
+                    });
+            case UserRoleEnum::LOYIHA->value:
+                $employees = $user->employees()->pluck('id')->toArray();
+                return Regulation::query()
+                    ->whereHas('object', function ($query) use ($employees) {
+                        $query->whereHas('users', function ($query) use ($employees) {
+                            $query->whereIn('users.id', $employees);
+                        });
+                    })
+                    ->where('user_id', $user->id)->where('role_id', UserRoleEnum::MUALLIF->value);
+
             case UserRoleEnum::QURILISH->value:
-                return $this->getRegulationsByUserRole($user, $roleId);
-            case UserRoleEnum::REGISTRATOR->value:
-            case UserRoleEnum::OPERATOR->value:
+                $employees = $user->employees()->pluck('id')->toArray();
+                return Regulation::query()
+                    ->whereHas('object', function ($query) use ($employees) {
+                        $query->whereHas('users', function ($query) use ($employees) {
+                            $query->whereIn('users.id', $employees);
+                        });
+                    })
+                    ->where('user_id', $user->id)->where('role_id', UserRoleEnum::ICHKI->value);
             case UserRoleEnum::INSPEKSIYA->value:
             case UserRoleEnum::HUDUDIY_KUZATUVCHI->value:
             case UserRoleEnum::QURILISH_MONTAJ->value:
-            case UserRoleEnum::BUXGALTER->value:
-            case UserRoleEnum::REGKADR->value:
+            return Regulation::query()
+                ->whereHas('article', function ($query) use ($user) {
+                    $query->where('region_id', $user->region_id);
+                });
+
+            case UserRoleEnum::RESPUBLIKA_KUZATUVCHI->value:
+                return Regulation::query();
+
             case UserRoleEnum::YURIST->value:
-                return $this->getRegulationByRegion($user->region_id);
-            case UserRoleEnum::RESKADR->value:
-                return $this->regulation->query();
+                return Regulation::query()
+                    ->whereHas('article', function ($query) use ($user) {
+                        $query->where('region_id', $user->region_id);
+                    })
+                    ->where('regulation_status_id', RegulationStatusEnum::IN_LAWYER)
+                    ->where('role_id', UserRoleEnum::INSPECTOR->value)
+                    ->where('region_id');
             default:
-                return [];
+                return null;
         }
     }
 
-    public function getRegulationsByUserRole($user, $roleId)
+    public function searchRegulations($query, $filters)
     {
-        return $this->regulationRepository->getRegulationsByUserRole($user, $roleId);
+        return $this->regulationRepository->searchRegulations($query, $filters);
     }
 
-    public function getRegulationByRegion($regionId)
-    {
-        return $this->regulationRepository->getRegulationByRegion($regionId);
-    }
+//    public function getRegulationsByObject($user, $roleId)
+//    {
+//        $this->regulationRepository->getRegulationsByObject($user, $roleId);
+//    }
+//
+//    public function getRegulationsByUserRole($user, $roleId)
+//    {
+//        return $this->regulationRepository->getRegulationsByUserRole($user, $roleId);
+//    }
+//
+//    public function getRegulationByRegion($regionId)
+//    {
+//        return $this->regulationRepository->getRegulationByRegion($regionId);
+//    }
 
     public function getRegulationById($user, $roleId, $id): Regulation
     {

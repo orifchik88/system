@@ -7,6 +7,7 @@ use App\Enums\BlockModeEnum;
 use App\Enums\CheckListStatusEnum;
 use App\Enums\LogType;
 use App\Enums\ObjectTypeEnum;
+use App\Enums\RegulationStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Enums\WorkTypeStatusEnum;
 use App\Http\Resources\CheckListHistoryResource;
@@ -449,7 +450,7 @@ class QuestionService
             'deadline' => Carbon::now()->addDays($role['deadline']),
             'checklist_id' => $role['checklist_id'],
             'question_id' => $role['question_id'],
-            'regulation_status_id' => 1,
+            'regulation_status_id' => RegulationStatusEnum::PROVIDE_REMEDY,
 //            'level_id' => 1,
             'regulation_type_id' => 1,
             'created_by_role_id' => $createdByRole,
@@ -492,7 +493,7 @@ class QuestionService
             $roleId = $user->getRoleFromToken();
             $regulation = Regulation::query()->findOrFail($dto->regulationId);
             $regulation->update([
-                'regulation_status_id' => 2,
+                'regulation_status_id' => RegulationStatusEnum::CONFIRM_REMEDY,
             ]);
             $actViolations = $regulation->actViolations()->where('act_violation_type_id', 1)->get();
 
