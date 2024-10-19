@@ -12,7 +12,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-//         $schedule->command('app:admin')->hourly();
+         $schedule->command('checklist:answer-accept')->everyMinute();
     }
 
     /**
