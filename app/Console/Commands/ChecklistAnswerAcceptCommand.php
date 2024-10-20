@@ -3,29 +3,30 @@
 namespace App\Console\Commands;
 
 use App\Enums\CheckListStatusEnum;
+use App\Enums\LogType;
+use App\Enums\UserRoleEnum;
+use App\Models\Article;
 use App\Models\CheckListAnswer;
+use App\Repositories\HistoryRepository;
+use App\Repositories\Interfaces\HistoryRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Auth;
 
 class ChecklistAnswerAcceptCommand extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
+    private HistoryRepositoryInterface $repository;
+
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->repository = new HistoryRepository('check_list_answer');
+    }
     protected $signature = 'checklist:answer-accept';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Command description';
 
-    /**
-     * Execute the console command.
-     */
     public function handle()
     {
 
@@ -35,9 +36,24 @@ class ChecklistAnswerAcceptCommand extends Command
             function ($checklist) {
                 $checklist->update([
                     'inspector_answered' => 1,
+                    'status' => CheckListStatusEnum::CONFIRMED,
                     'technic_author_answered_at' => null,
                     'inspector_answered_at' => null,
                 ]);
+
+                $object = Article::query()->find($checklist->object_id);
+                $inspector = $object->users()->where('role_id', UserRoleEnum::INSPECTOR->value)->first();
+
+                $content =  [
+                    'user' => $inspector->id ?? "",
+                    'role' => UserRoleEnum::INSPECTOR->value,
+                    'date' =>  now(),
+                    'status' => $checklist->status->value,
+                    'comment' => 'Automatik ravishda tasdiqlandi',
+                    'additionalInfo' => ['user_answered' => 1, 'answered' => 'auto']
+                ];
+                return $this->repository->createHistory(guId: $checklist->id, content: $content, type: LogType::TASK_HISTORY);
+
             }
         );
         $this->processChecklistAnswers(
@@ -51,9 +67,24 @@ class ChecklistAnswerAcceptCommand extends Command
                 } else {
                     $checklist->update([
                         'author_answered' => 1,
+                        'status' => CheckListStatusEnum::SECOND,
                         'technic_author_answered_at' => null,
                     ]);
                 }
+
+                $object = Article::query()->find($checklist->object_id);
+                $author = $object->users()->where('role_id', UserRoleEnum::MUALLIF->value)->first();
+
+                $content =  [
+                    'user' => $author->id ?? "",
+                    'role' => UserRoleEnum::MUALLIF->value,
+                    'date' =>  now(),
+                    'status' => $checklist->status->value,
+                    'comment' => 'Automatik ravishda tasdiqlandi',
+                    'additionalInfo' => ['user_answered' => 1, 'answered' => 'auto']
+                ];
+
+                return $this->repository->createHistory(guId: $checklist->id, content: $content, type: LogType::TASK_HISTORY);
             },
             ['author_answered' => null]
         );
@@ -69,9 +100,24 @@ class ChecklistAnswerAcceptCommand extends Command
                 } else {
                     $checklist->update([
                         'author_answered' => 1,
+                        'status' => CheckListStatusEnum::SECOND,
                         'technic_author_answered_at' => null,
                     ]);
                 }
+
+                $object = Article::query()->find($checklist->object_id);
+                $technic = $object->users()->where('role_id', UserRoleEnum::TEXNIK->value)->first();
+
+                $content =  [
+                    'user' => $technic->id ?? "",
+                    'role' => UserRoleEnum::TEXNIK->value,
+                    'date' =>  now(),
+                    'status' => $checklist->status->value,
+                    'comment' => 'Automatik ravishda tasdiqlandi',
+                    'additionalInfo' => ['user_answered' => 1, 'answered' => 'auto']
+                ];
+
+                return $this->repository->createHistory(guId: $checklist->id, content: $content, type: LogType::TASK_HISTORY);
             },
             ['technic_answered' => null]
         );

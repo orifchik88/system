@@ -47,10 +47,7 @@ class HistoryService
             return false;
         }
 
-
        return $this->repository->createHistory(guId: $guId, content: $content, type: $type);
-
-
     }
 
     private function shapeTaskContent(int $status, string $comment, ?string $date, mixed $additionalInfo): array
