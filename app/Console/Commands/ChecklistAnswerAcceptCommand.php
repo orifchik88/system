@@ -52,7 +52,8 @@ class ChecklistAnswerAcceptCommand extends Command
                     'comment' => 'Automatik ravishda tasdiqlandi',
                     'additionalInfo' => ['user_answered' => 1, 'answered' => 'auto']
                 ];
-                return $this->repository->createHistory(guId: $checklist->id, content: $content, type: LogType::TASK_HISTORY);
+
+                $this->repository->createHistory(guId: $checklist->id, content: $content, type: LogType::TASK_HISTORY);
 
             }
         );
@@ -84,7 +85,7 @@ class ChecklistAnswerAcceptCommand extends Command
                     'additionalInfo' => ['user_answered' => 1, 'answered' => 'auto']
                 ];
 
-                return $this->repository->createHistory(guId: $checklist->id, content: $content, type: LogType::TASK_HISTORY);
+                $this->repository->createHistory(guId: $checklist->id, content: $content, type: LogType::TASK_HISTORY);
             },
             ['author_answered' => null]
         );
@@ -117,7 +118,7 @@ class ChecklistAnswerAcceptCommand extends Command
                     'additionalInfo' => ['user_answered' => 1, 'answered' => 'auto']
                 ];
 
-                return $this->repository->createHistory(guId: $checklist->id, content: $content, type: LogType::TASK_HISTORY);
+                 $this->repository->createHistory(guId: $checklist->id, content: $content, type: LogType::TASK_HISTORY);
             },
             ['technic_answered' => null]
         );
