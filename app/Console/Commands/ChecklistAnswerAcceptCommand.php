@@ -21,7 +21,7 @@ class ChecklistAnswerAcceptCommand extends Command
     public function __construct()
     {
         parent::__construct();
-        $this->repository = new HistoryRepository('check_list_answer');
+        $this->repository = new HistoryRepository('check_list_histories');
     }
     protected $signature = 'checklist:answer-accept';
 
