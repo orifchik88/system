@@ -44,5 +44,6 @@ class RegulationDeadlineCommand extends Command
                     ]);
                 }
             });
+
     }
 }

@@ -213,6 +213,43 @@ class MonitoringController extends BaseController
         }
     }
 
+    public function acceptWorkType()
+    {
+        DB::beginTransaction();
+        try {
+            $data = request()->all();
+            $object = Article::query()->findOrFail($data['object_id']);
+            foreach ($data['regular_checklist'] as $item) {
+                    $answer = new CheckListAnswer();
+                    $answer->question_id = $item['question_id'];
+                    $answer->comment = $item['comment'];
+                    $answer->block_id = $data['block_id'] ?? null;
+                    $answer->work_type_id = $item['work_type_id'];
+                    $answer->object_id = $data['object_id'];
+                    $answer->object_type_id = $object->object_type_id;
+                    $answer->floor = $item['floor'] ?? null;
+                    $answer->status = CheckListStatusEnum::CONFIRMED;
+                    $answer->type = isset($data['type']) ? 2 : 1;
+                    $answer->inspector_answered = 1;
+                    $answer->monitoring_id = isset($data['type']) ? $data['claim_id'] : null;
+                    $answer->save();
+
+                     $this->historyService->createHistory(guId: $answer->id,
+                        status: $answer->status->value,
+                        type: isset($data['type']) ? LogType::CLAIM_HISTORY : LogType::TASK_HISTORY,
+                        date: null,
+                        comment: $item['comment'] ?? ""
+                );
+            }
+            DB::commit();
+            return $this->sendSuccess([], 'Check accepted');
+
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return $this->sendError($exception->getMessage(), $exception->getLine());
+        }
+    }
+
     public function getChecklistAnswer(): JsonResponse
     {
         try {

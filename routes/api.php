@@ -150,6 +150,7 @@ Route::group([
     Route::get('checklist-answer', [MonitoringController::class, 'getChecklistAnswer']);
     Route::get('checklist-regular', [MonitoringController::class, 'getChecklistRegular']);
     Route::post('checklist-file-send', [MonitoringController::class, 'sendCheckListFile']);
+    Route::post('accept-work-type', [MonitoringController::class, 'sendCheckListFile']);
 
     Route::get('check-list-answer', [CheckListAnswerController::class, 'index']);
 
