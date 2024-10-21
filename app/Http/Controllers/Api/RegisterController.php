@@ -11,7 +11,10 @@ use App\Http\Resources\DxaStatusResource;
 use App\Models\Article;
 use App\Models\DxaResponse;
 use App\Models\DxaResponseStatus;
+use App\Services\ArticleService;
 use App\Services\DxaResponseService;
+use App\Services\MonitoringService;
+use App\Services\RegulationService;
 use GuzzleHttp\Client;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +23,10 @@ use Illuminate\Support\Facades\Http;
 class RegisterController extends BaseController
 {
     public function __construct(
-        protected DxaResponseService $service
+        protected DxaResponseService $service,
+        protected ArticleService $articleService,
+        protected RegulationService $regulationService,
+        protected MonitoringService $monitoringService
     )
     {
         $this->middleware('auth');
@@ -93,41 +99,14 @@ class RegisterController extends BaseController
     public function totalCount(): JsonResponse
     {
         try {
-            $user = Auth::user();
-
-            $registerCount = DxaResponse::query()
-                ->when($user->inspector(), function ($query) use ($user) {
-                    return $query->where('inspector_id', $user->id);
-                })
-                ->when($user->register(), function ($query) use ($user) {
-                    return $query->where('region_id', $user->region_id);
-                })
-                ->where('notification_type', 1)
-                ->whereIn('dxa_response_status_id', [DxaResponseStatusEnum::NEW, DxaResponseStatusEnum::SEND_INSPECTOR, DxaResponseStatusEnum::IN_REGISTER])
-                ->count();
-            $reRegisterCount = DxaResponse::query()
-                ->when($user->inspector(), function ($query) use ($user) {
-                    return $query->where('inspector_id', $user->id);
-                })
-                ->when($user->register(), function ($query) use ($user) {
-                    return $query->where('region_id', $user->region_id);
-                })
-                ->where('notification_type', 2)
-                ->whereIn('dxa_response_status_id', [DxaResponseStatusEnum::NEW, DxaResponseStatusEnum::SEND_INSPECTOR, DxaResponseStatusEnum::IN_REGISTER])
-                ->count();
-
-            $petitionCount = 0;
-            if ($user->register()) {
-                $objectCount = Article::query()->where('region_id', $user->region_id)->count();
-            } else {
-                $objectCount = $user->objects()->count();
-            }
 
             $data = [
-                'register' => $registerCount,
-                're_register' => $reRegisterCount,
-                'petition' => $petitionCount,
-                'object' => $objectCount,
+                'register' => $this->service->getRegisters($this->user, $this->roleId, 1)->count(),
+                're_register' => $this->service->getRegisters($this->user, $this->roleId, 2)->count(),
+                'petition' => 0,
+                'object' => $this->articleService->getObjects($this->user, $this->roleId),
+                'regulation' => $this->regulationService->getRegulations($this->user, $this->roleId),
+                'monitoring' => $this->monitoringService->getMonitorings($this->user, $this->roleId)
             ];
 
             return $this->sendSuccess($data, 'All data');
