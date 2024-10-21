@@ -83,7 +83,7 @@ class RegulationService
             case UserRoleEnum::HUDUDIY_KUZATUVCHI->value:
             case UserRoleEnum::QURILISH_MONTAJ->value:
             return Regulation::query()
-                ->whereHas('article', function ($query) use ($user) {
+                ->whereHas('object', function ($query) use ($user) {
                     $query->where('region_id', $user->region_id);
                 });
 
@@ -92,7 +92,7 @@ class RegulationService
 
             case UserRoleEnum::YURIST->value:
                 return Regulation::query()
-                    ->whereHas('article', function ($query) use ($user) {
+                    ->whereHas('object', function ($query) use ($user) {
                         $query->where('region_id', $user->region_id);
                     })
                     ->where('regulation_status_id', RegulationStatusEnum::IN_LAWYER)
@@ -551,15 +551,20 @@ class RegulationService
 
     private function sendSms($regulation, $type)
     {
-        $object = Article::query()->find($regulation->object_id);
-        $user = User::query()->find($regulation->user_id);
-        if ($type == 1)
-        {
-            $message = MessageTemplate::acceptRegulation($object->task_id, $regulation->regulation_number);
-        }else{
-            $message = MessageTemplate::rejectRegulation($object->task_id, $regulation->regulation_number);
+        try {
+            $object = Article::query()->find($regulation->object_id);
+            $user = User::query()->find($regulation->user_id);
+            if ($type == 1)
+            {
+                $message = MessageTemplate::acceptRegulation($object->task_id, $regulation->regulation_number);
+            }else{
+                $message = MessageTemplate::rejectRegulation($object->task_id, $regulation->regulation_number);
+            }
+            (new SmsService($user->phone, $message))->sendSms();
+        }catch (\Exception $exception) {
+
         }
-        (new SmsService($user->phone, $message))->sendSms();
+
     }
 
 }
