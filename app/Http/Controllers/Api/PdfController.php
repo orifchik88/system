@@ -21,7 +21,7 @@ class PdfController extends BaseController
         try {
             $regulation = Regulation::query()->findOrFail(request('regulation_id'));
             $createdByRole = Role::query()->findOrFail($regulation->created_by_role_id);
-            $createdByUser = User::query()->findOrFail($regulation->created_by_role_id);
+            $createdByUser = User::query()->findOrFail($regulation->created_by_user_id);
             $object = $regulation->object;
             $responsibleUser = User::query()->findOrFail($regulation->user_id);
             $responsibleRole = Role::query()->findOrFail($regulation->role_id);
