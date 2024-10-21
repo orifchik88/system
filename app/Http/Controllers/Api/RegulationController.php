@@ -77,7 +77,7 @@ class RegulationController extends BaseController
     public function getAuthorRegulations(): JsonResponse
     {
         try {
-            $authorRegulations = AuthorRegulation::query()->where('object_id', request('object_id'))->paginate(request('per_page', 10));
+            $authorRegulations = AuthorRegulation::query()->where('object_id', request('object_id'))->orderBy('id', 'DESC')->paginate(request('per_page', 10));
             return $this->sendSuccess(AuthorRegulationResource::collection($authorRegulations), 'Regulations', pagination($authorRegulations));
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
