@@ -28,7 +28,12 @@ class ArticleUserResource extends JsonResource
                 $role = Role::find($this->pivot->role_id);
                 return RoleResource::make($role);
             }),
-            'object_count' => $this->objects()->where('role_id', $this->pivot->role_id)->count(),
+            'user_objects' => collect($this->roles)->map(function ($role) {
+                return [
+                    'role_name' => $role->name,
+                    'object_count' => $this->objects()->where('role_id', $role->id)->count(),
+                ];
+            }),
         ];
     }
 }
