@@ -252,7 +252,7 @@ class RegulationController extends BaseController
             foreach ($data['journal'] as $item) {
                 $files = [];
                 $regulation = AuthorRegulation::query()->findOrFaiL($item['regulation_id']);
-                if ($item['files']) {
+                if (isset($item['files'])) {
                     foreach ($item['files'] as $file) {
                         $path = $file->store('images/author-regulation', 'public');
                         $files[] = $path;
