@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\ObjectStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Models\Role;
 use Illuminate\Http\Request;
@@ -31,9 +32,15 @@ class ArticleUserResource extends JsonResource
             'user_objects' => collect($this->roles)->map(function ($role) {
                 return [
                     'role_name' => $role->name,
-                    'object_count' => $this->objects()->where('role_id', $role->id)->count(),
+                    'object_count' => $this->objects()
+                        ->whereIn('object_status_id', [
+                            ObjectStatusEnum::PROGRESS,
+                            ObjectStatusEnum::FROZEN,
+                            ObjectStatusEnum::SUSPENDED
+                        ])
+                        ->where('role_id', $role->id)->count(),
                 ];
-            }),
+            })->toArray(),
         ];
     }
 }
