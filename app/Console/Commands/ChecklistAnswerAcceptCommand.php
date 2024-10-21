@@ -40,7 +40,7 @@ class ChecklistAnswerAcceptCommand extends Command
                         'inspector_answered_at' => null,
                     ]);
 
-                    $this->saveHistory(UserRoleEnum::INSPECTOR->value, $checklist->id);
+                    $this->saveHistory(UserRoleEnum::INSPECTOR->value, $checklist);
                 }
             });
         CheckListAnswer::query()->where('technic_author_answered_at', '<=', Carbon::now())
@@ -62,7 +62,7 @@ class ChecklistAnswerAcceptCommand extends Command
                             'author_answered' => 1,
                         ]);
                     }
-                    $this->saveHistory(UserRoleEnum::MUALLIF->value, $checklist->id);
+                    $this->saveHistory(UserRoleEnum::MUALLIF->value, $checklist);
 
 
 
@@ -89,7 +89,7 @@ class ChecklistAnswerAcceptCommand extends Command
                         ]);
                     }
 
-                    $this->saveHistory(UserRoleEnum::TEXNIK->value, $checklist->id);
+                    $this->saveHistory(UserRoleEnum::TEXNIK->value, $checklist);
 
                 }
             });
