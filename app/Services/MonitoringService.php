@@ -33,7 +33,8 @@ class MonitoringService
             case UserRoleEnum::RESKADR->value:
                 return Monitoring::query();
             default:
-                return [];
+                return Monitoring::query()->whereRaw('1 = 0');
+
         }
     }
 

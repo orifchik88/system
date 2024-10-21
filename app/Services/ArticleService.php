@@ -70,7 +70,7 @@ class ArticleService
             case UserRoleEnum::RESKADR->value:
                 return Article::query();
             default:
-                return [];
+                return Article::query()->whereRaw('1 = 0');
         }
     }
 

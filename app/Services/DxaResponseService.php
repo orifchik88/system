@@ -48,7 +48,7 @@ class DxaResponseService
                     ->where('dxa_response_status_id', DxaResponseStatusEnum::REJECTED)
                     ->where('notification_type', $type);
             default:
-                return [];
+                return $this->dxaResponse->whereRaw('1 = 0');
         }
     }
 

@@ -99,7 +99,7 @@ class RegulationService
                     ->where('role_id', UserRoleEnum::INSPECTOR->value)
                     ->where('region_id');
             default:
-                return null;
+               return Regulation::query()->whereRaw('1 = 0');
         }
     }
 
