@@ -35,6 +35,7 @@ class ChecklistAnswerAcceptCommand extends Command
             ->chunk(50, function ($checklists) {
                 foreach ($checklists as $checklist) {
                     $checklist->update([
+                        'status' => CheckListStatusEnum::CONFIRMED,
                         'inspector_answered' => 1,
                         'technic_author_answered_at' => null,
                         'inspector_answered_at' => null,

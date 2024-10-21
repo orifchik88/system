@@ -38,6 +38,7 @@ class CheckListHistoryResource extends JsonResource
             'violations' => ViolationResource::collection($violations ?: collect()),
             'regulation_numbers' => $regulationNumbers ? $regulationNumbers->values() : null,
             'user_answered' => $additionalInfo->user_answered ?? null,
+            'answered' => $additionalInfo->answered ?? 'manual',
             'images' => ImageResource::collection($this->images),
             'files' => DocumentResource::collection($this->documents)
         ];
