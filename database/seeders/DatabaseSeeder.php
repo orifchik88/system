@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             QuestionSeeder::class,
             LevelStatusSeeder::class,
+            LawyerStatusSeeder::class,
             RegionSeeder::class,
             ResponseStatusSeeder::class,
             AdministrativeStatusSeeder::class,
