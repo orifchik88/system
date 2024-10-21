@@ -53,14 +53,14 @@ class ChecklistAnswerAcceptCommand extends Command
                         echo "tecnik answer null bolganda authorga  foreachga kirdi";
                         $checklist->update([
                             'author_answered' => 1,
-                        ]);
-                    }else{
-                        echo "tecnik answer null bolmaganda authorga  foreachga kirdi";
-
-                        $checklist->update([
-                            'author_answered' => 1,
                             'technic_author_answered_at' => null,
                             'inspector_answered_at' => now()->addDays(3)->setTime(23, 59, 59),
+                        ]);
+
+                    }else{
+                        echo "tecnik answer null bolmaganda authorga  foreachga kirdi";
+                        $checklist->update([
+                            'author_answered' => 1,
                         ]);
                     }
 
@@ -75,17 +75,16 @@ class ChecklistAnswerAcceptCommand extends Command
                     if ($checklist->author_answered)
                     {
                         echo "author answer null bolganda technic  foreachga kirdi";
-
                         $checklist->update([
-                            'author_answered' => 1,
-                        ]);
-                    }else{
-                        echo "author answer null bolmaganda technic  foreachga kirdi";
-
-                        $checklist->update([
-                            'author_answered' => 1,
+                            'technic_answered' => 1,
                             'technic_author_answered_at' => null,
                             'inspector_answered_at' => now()->addDays(3)->setTime(23, 59, 59),
+                        ]);
+
+                    }else{
+                        echo "author answer null bolmaganda technic  foreachga kirdi";
+                        $checklist->update([
+                            'technic_answered' => 1,
                         ]);
                     }
 
