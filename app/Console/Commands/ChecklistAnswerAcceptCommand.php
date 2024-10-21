@@ -12,17 +12,18 @@ use App\Repositories\Interfaces\HistoryRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ChecklistAnswerAcceptCommand extends Command
 {
-    private HistoryRepositoryInterface $repository;
-
-
-    public function __construct()
-    {
-        parent::__construct();
-        $this->repository = new HistoryRepository('check_list_histories');
-    }
+//    private HistoryRepositoryInterface $repository;
+//
+//
+//    public function __construct()
+//    {
+//        parent::__construct();
+//        $this->repository = new HistoryRepository('check_list_histories');
+//    }
     protected $signature = 'checklist:answer-accept';
 
     protected $description = 'Command description';
@@ -53,8 +54,7 @@ class ChecklistAnswerAcceptCommand extends Command
                     'additionalInfo' => ['user_answered' => 1, 'answered' => 'auto']
                 ];
 
-                $this->repository->createHistory(guId: $checklist->id, content: $content, type: LogType::TASK_HISTORY);
-
+                $this->saveTable($checklist->id, $content, LogType::TASK_HISTORY);
             }
         );
         $this->processChecklistAnswers(
@@ -84,8 +84,8 @@ class ChecklistAnswerAcceptCommand extends Command
                     'comment' => 'Automatik ravishda tasdiqlandi',
                     'additionalInfo' => ['user_answered' => 1, 'answered' => 'auto']
                 ];
+                $this->saveTable($checklist->id, $content, LogType::TASK_HISTORY);
 
-                $this->repository->createHistory(guId: $checklist->id, content: $content, type: LogType::TASK_HISTORY);
             },
             ['author_answered' => null]
         );
@@ -117,8 +117,7 @@ class ChecklistAnswerAcceptCommand extends Command
                     'comment' => 'Automatik ravishda tasdiqlandi',
                     'additionalInfo' => ['user_answered' => 1, 'answered' => 'auto']
                 ];
-
-                 $this->repository->createHistory(guId: $checklist->id, content: $content, type: LogType::TASK_HISTORY);
+                $this->saveTable($checklist->id, $content, LogType::TASK_HISTORY);
             },
             ['technic_answered' => null]
         );
@@ -137,5 +136,16 @@ class ChecklistAnswerAcceptCommand extends Command
                     $callback($checklist);
                 }
             });
+    }
+
+    private function saveTable($guId, $content, $type)
+    {
+        DB::table('check_list_histories')->insertGetId([
+            'gu_id' => $guId,
+            'content' => json_encode($content),
+            'type' => $type,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]);
     }
 }
