@@ -22,6 +22,7 @@ use App\Models\Monitoring;
 use App\Models\User;
 use App\Services\HistoryService;
 use App\Services\MessageTemplate;
+use App\Services\MonitoringService;
 use App\Services\QuestionService;
 use App\Services\SmsService;
 use Illuminate\Http\JsonResponse;
@@ -32,51 +33,32 @@ use function PHPUnit\Framework\isFalse;
 
 class MonitoringController extends BaseController
 {
-    private QuestionService $questionService;
     private HistoryService $historyService;
 
-    public function __construct(QuestionService $questionService)
+    public function __construct(
+        protected  QuestionService $questionService,
+        protected MonitoringService $monitoringService)
     {
         $this->middleware('auth');
         parent::__construct();
-        $this->questionService = $questionService;
         $this->historyService = new HistoryService('check_list_histories');
     }
 
     public function monitoring(): JsonResponse
     {
-        $user = Auth::user();
-        $roleId = $user->getRoleFromToken();
-        $objectIds = $user->objects()->where('role_id', $roleId)->pluck('articles.id')->toArray();
-        $monitorings = Monitoring::query()->whereIn('object_id', $objectIds)
-            ->when(request('object_name'), function ($q) {
-                $q->whereHas('article', function ($query) {
-                    $query->where('name', 'like', '%' . request('object_name') . '%');
-                });
-            })
-            ->when(request('region_id'), function ($q) {
-                $q->whereHas('article', function ($query) {
-                    $query->where('region_id', request('region_id'));
-                });
-            })
-            ->when(request('district_id'), function ($q) {
-                $q->whereHas('article', function ($query) {
-                    $query->where('district_id', request('district_id'));
-                });
-            })
-            ->when(request('funding_source'), function ($q) {
-                $q->whereHas('article', function ($query) {
-                    $query->where('funding_source_id', request('funding_source'));
-                });
-            })
-            ->when(request('category'), function ($q) {
-                $q->whereHas('article', function ($query) {
-                    $query->where('difficulty_category_id', request('category'));
-                });
-            })
-            ->paginate(\request('per_page', 10));
+        try {
+            $query = $this->monitoringService->getMonitorings($this->user, $this->roleId);
+            $filters = request()->only(['object_name', 'region_id', 'district_id', 'funding_source', 'category']);
 
-        return $this->sendSuccess(MonitoringResource::collection($monitorings), 'Monitorings', pagination($monitorings));
+            $monitorings = $this->monitoringService->searchMonitoring($query, $filters)
+                ->orderBy('created_at', request('sort_by_date', 'DESC'))
+                ->paginate(request('per_page', 10));
+
+            return $this->sendSuccess(MonitoringResource::collection($monitorings), 'Monitorings', pagination($monitorings));
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage());
+        }
+
     }
 
     public function create(MonitoringRequest $request): JsonResponse
