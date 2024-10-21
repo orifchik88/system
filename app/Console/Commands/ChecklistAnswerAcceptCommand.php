@@ -46,7 +46,7 @@ class ChecklistAnswerAcceptCommand extends Command
             ->whereNull('author_answered')
             ->chunk(50, function ($checklists) {
                 foreach ($checklists as $checklist) {
-                    if (is_null($checklist->technic_answered))
+                    if ($checklist->technic_answered)
                     {
                         $checklist->update([
                             'author_answered' => 1,
@@ -55,6 +55,7 @@ class ChecklistAnswerAcceptCommand extends Command
                         $checklist->update([
                             'author_answered' => 1,
                             'technic_author_answered_at' => null,
+                            'inspector_answered_at' => now()->addDays(3)->setTime(23, 59, 59),
                         ]);
                     }
 
@@ -66,7 +67,7 @@ class ChecklistAnswerAcceptCommand extends Command
             ->whereNull('technic_answered')
             ->chunk(50, function ($checklists) {
                 foreach ($checklists as $checklist) {
-                    if (is_null($checklist->author_answered))
+                    if ($checklist->author_answered)
                     {
                         $checklist->update([
                             'author_answered' => 1,
@@ -75,6 +76,7 @@ class ChecklistAnswerAcceptCommand extends Command
                         $checklist->update([
                             'author_answered' => 1,
                             'technic_author_answered_at' => null,
+                            'inspector_answered_at' => now()->addDays(3)->setTime(23, 59, 59),
                         ]);
                     }
 
