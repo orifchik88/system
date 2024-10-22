@@ -94,8 +94,8 @@ class QuestionService
                             'inspector_answered' => $answer ? $answer->inspector_answered : null,
                             'technic_answered' => $answer ? $answer->technic_answered : null,
                             'author_answered' => $answer ? $answer->author_answered : null,
-                            'inspector_deadline' => $this->inspector_answered_at,
-                            'technic_author_deadline' => $this->technic_author_answered_at,
+                            'inspector_deadline' =>  $answer ? $answer->inspector_answered_at : null,
+                            'technic_author_deadline' => $answer ? $answer->technic_author_answered_at: null,
                             'logs' => $answer ? CheckListHistoryResource::collection($answer->logs) : null
                         ];
                     }
