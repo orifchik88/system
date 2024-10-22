@@ -137,7 +137,7 @@ class UserController extends BaseController
     public function getEmployees(): JsonResponse
     {
         try {
-            $user = User::query()->findOrFail(request('user_id'));
+            $user = Auth::user();
             return $this->sendSuccess(UserResource::collection($user->employees), 'All Employees');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\ObjectStatusEnum;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -29,12 +30,23 @@ class UserResource extends JsonResource
             'district' => DistrictResource::make($this->district) ?? null,
             'middle_name' => $this->middle_name,
             'roles' => RoleResource::collection($this->roles),
-            'count_objects' => $this->objects ?  $this->objects()->count() : null,
             'phone'=> $this->phone,
             'pinfl'=> $this->pinfl,
             'login' => $this->login,
             'status' => UserStatusResource::make($this->status),
             'image' => $this->image ? Storage::disk('public')->url($this->image) : null,
+            'user_objects' => collect($this->roles)->map(function ($role) {
+                return [
+                    'role_name' => $role->name,
+                    'object_count' => $this->objects()
+                        ->whereIn('object_status_id', [
+                            ObjectStatusEnum::PROGRESS,
+                            ObjectStatusEnum::FROZEN,
+                            ObjectStatusEnum::SUSPENDED
+                        ])
+                        ->where('role_id', $role->id)->count(),
+                ];
+            })->toArray(),
         ];
     }
 }

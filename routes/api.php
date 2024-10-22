@@ -80,7 +80,6 @@ Route::group([
     Route::get('users/edit/{id}', [UserController::class, 'edit']);
     Route::post('passport-info', [UserController::class, 'getPassportInfo']);
     Route::get('employees', [UserController::class, 'getEmployees']);
-    Route::get('employees', [UserController::class, 'getEmployees']);
     Route::get('users-count', [UserController::class, 'count']);
 
 
