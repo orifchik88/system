@@ -19,7 +19,17 @@ enum UserRoleEnum: int
     case INSPEKSIYA = 12;
     case HUDUDIY_KUZATUVCHI = 13;
     case RESPUBLIKA_KUZATUVCHI = 14;
+    case FVB = 15;
+    case SEOM = 16;
+    case NOGIRONLAR_JAM = 17;
+    case NOGIRONLAR_ASSOT = 18;
     case QURILISH_MONTAJ = 26;
+    case SEOM_RES_KADR = 20;
+    case SEOM_REG_KADR = 21;
+    case FVV_RES_KADR = 22;
+    case FVB_REG_KADR = 23;
+    case NOGIRONLAR_JAM_KADR = 24;
+    case NOGIRONLAR_ASSOT_KADR = 25;
     case YURIST = 27;
     case BUXGALTER = 28;
 }

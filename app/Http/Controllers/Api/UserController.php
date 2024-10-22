@@ -28,7 +28,10 @@ class UserController extends BaseController
 
     public function users(): JsonResponse
     {
-        return $this->sendSuccess(new UserResourceCollection($this->service->getAllUsers(), []), 'All Users', pagination($this->service->getAllUsers()));
+        $query = $this->service->getAllUsers($this->user, $this->roleId);
+        $filters = request()->only(['search', 'region_id', 'district_id', 'status', 'role_id']);
+        $users = $this->service->searchByUser($query, $filters)->paginate(request('per_page', 10));
+        return $this->sendSuccess(new UserResourceCollection($users), 'All Users', pagination($users));
     }
 
     public function create(UserRequest $request): JsonResponse

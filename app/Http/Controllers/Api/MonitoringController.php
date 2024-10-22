@@ -204,7 +204,7 @@ class MonitoringController extends BaseController
             foreach ($data['regular_checklist'] as $item) {
                     $answer = new CheckListAnswer();
                     $answer->question_id = $item['question_id'];
-                    $answer->comment = $item['comment'];
+                    $answer->comment = $item['comment'] ?? null;
                     $answer->block_id = $data['block_id'] ?? null;
                     $answer->work_type_id = $item['work_type_id'];
                     $answer->object_id = $data['object_id'];
@@ -213,7 +213,6 @@ class MonitoringController extends BaseController
                     $answer->status = CheckListStatusEnum::CONFIRMED;
                     $answer->type = isset($data['type']) ? 2 : 1;
                     $answer->inspector_answered = 1;
-                    $answer->monitoring_id = isset($data['type']) ? $data['claim_id'] : null;
                     $answer->save();
 
                      $this->historyService->createHistory(guId: $answer->id,
