@@ -105,7 +105,7 @@ class RegisterController extends BaseController
                 'register' => $this->service->getRegisters($this->user, $this->roleId, 1)->count(),
                 're_register' => $this->service->getRegisters($this->user, $this->roleId, 2)->count(),
                 'petition' => 0,
-                'checklist' => $this->checkListService->getChecklists($this->user, $this->roleId, 1),
+                'checklist' => $this->checkListService->getChecklists($this->user, $this->roleId, 1)->count(),
                 'object' => $this->articleService->getObjects($this->user, $this->roleId)->count(),
                 'regulation' => $this->regulationService->getRegulations($this->user, $this->roleId)->count(),
                 'monitoring' => $this->monitoringService->getMonitorings($this->user, $this->roleId)->count()
