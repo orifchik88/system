@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\UserRoleEnum;
+use App\Enums\UserStatusEnum;
 use App\Models\User;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
@@ -78,32 +79,6 @@ class UserService
                 return User::query()->whereRaw('1 = 0');
 
         }
-//        $auth = Auth::user();
-//        $users = $this->user->query()
-//            ->when(request('search'), function ($query) {
-//                $query->searchByFullName(request('search'))
-//                    ->searchByPinfOrPhone(request('search'));
-//            })
-//            ->when(request('region_id'), function ($query) {
-//                $query->where('region_id', request('region_id'));
-//            })
-//            ->when(request('district_id'), function ($query) {
-//                $query->where('district_id', request('district_id'));
-//            })
-//            ->when(request('status'), function ($query) {
-//                $query->where('user_status_id', request('status'));
-//            })
-//            ->when(request('role_id'), function ($query) {
-//                $query->whereHas('roles', function ($query){
-//                    $query->where('role_id', request('role_id'));
-//                });
-//            });
-//
-//        if ($auth->isKadr()){
-//            return $users->paginate(\request('perPage', 10));
-//        }else{
-//            return $users->where('created_by', $auth->id)->paginate(\request('perPage', 10));
-//        }
     }
 
     public function searchByUser($query, $filters)
@@ -126,6 +101,17 @@ class UserService
                     $q->where('role_id', $filters['role_id']);
                 });
             });
+    }
+
+    public function getCountByUsers($user, $roleId): array
+    {
+        $query = $this->getAllUsers($user, $roleId)->getQuery();
+        return [
+            'all' => (clone $query)->count(),
+            'active' => (clone $query)->where('user_status_id', UserStatusEnum::ACTIVE)->count(),
+            'on_holiday' => (clone $query)->where('user_status_id', UserStatusEnum::ON_HOLIDAY)->count(),
+            'released' => (clone $query)->where('user_status_id', UserStatusEnum::RELEASED)->count(),
+        ];
     }
 
     public function getInfo(string $pinfl, string $birth_date)

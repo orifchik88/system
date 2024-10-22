@@ -34,6 +34,15 @@ class UserController extends BaseController
         return $this->sendSuccess(new UserResourceCollection($users), 'All Users', pagination($users));
     }
 
+    public function count(): JsonResponse
+    {
+        try {
+            return $this->sendSuccess($this->service->getCountByUsers($this->user, $this->roleId), 'All users count');
+        } catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
     public function create(UserRequest $request): JsonResponse
     {
         DB::beginTransaction();

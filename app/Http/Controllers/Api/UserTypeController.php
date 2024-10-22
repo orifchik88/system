@@ -31,36 +31,7 @@ class UserTypeController extends BaseController
         }
     }
 
-    public function count(): JsonResponse
-    {
-        try {
-            $data = [
-                'all' => User::query()->when(!Auth::user()->isKadr(), function ($query) {
-                    $query->where('created_by', Auth::id());
-                })->count(),
-                'active' => User::query()->when(!Auth::user()->isKadr(), function ($query) {
-                    $query->where('created_by', Auth::id());
-                })
-                    ->where('user_status_id', UserStatusEnum::ACTIVE)
-                    ->count(),
-                'on_holiday' => User::query()
-                    ->when(!Auth::user()->isKadr(), function ($query) {
-                        $query->where('created_by', Auth::id());
-                    })
-                    ->where('user_status_id', UserStatusEnum::ON_HOLIDAY)
-                    ->count(),
-                'released' => User::query()
-                    ->when(!Auth::user()->isKadr(), function ($query) {
-                        $query->where('created_by', Auth::id());
-                    })
-                    ->where('user_status_id', UserStatusEnum::RELEASED)
-                    ->count(),
-            ];
-            return $this->sendSuccess($data, 'All users count');
-        } catch (\Exception $exception) {
-            return $this->sendError($exception->getMessage(), $exception->getCode());
-        }
-    }
+
 
     public function create(UserTypeRequest $request): JsonResponse
     {

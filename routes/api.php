@@ -46,7 +46,6 @@ Route::group([
     Route::get('user-type', [UserTypeController::class, 'index']);
     Route::post('user-type/create', [UserTypeController::class, 'create']);
     Route::post('user-type/edit/{id}', [UserTypeController::class, 'edit']);
-    Route::get('users-count', [UserTypeController::class, 'count']);
 
     Route::get('monitoring-objects', [InformationController::class, 'monitoringObjects']);
     Route::get('monitoring-gnk', [InformationController::class, 'monitoringGNK']);
@@ -81,6 +80,8 @@ Route::group([
     Route::get('users/edit/{id}', [UserController::class, 'edit']);
     Route::post('passport-info', [UserController::class, 'getPassportInfo']);
     Route::get('employees', [UserController::class, 'getEmployees']);
+    Route::get('users-count', [UserController::class, 'count']);
+
 
     Route::get('registers', [RegisterController::class, 'registers']);
     Route::get('re-registers', [RegisterController::class, 'reRegister']);
