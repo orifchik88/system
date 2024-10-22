@@ -46,19 +46,35 @@ class RegulationService
 
             case UserRoleEnum::BUYURTMACHI->value:
                 $employees = $user->employees()->pluck('user_id')->toArray();
+//                return Regulation::query()
+//                    ->whereHas('object', function ($query) use ($employees) {
+//                        $query->whereHas('users', function ($query) use ($employees) {
+//                            $query->whereIn('users.id', $employees);
+//                        });
+//                        })
+//                    ->orWhere(function ($query) use ($employees) {
+//                        $query->whereIn('user_id', $employees)
+//                            ->where('role_id', UserRoleEnum::TEXNIK->value);
+//                    })
+//                    ->orWhere(function ($query) use ($employees) {
+//                        $query->whereIn('created_by_user_id', $employees)
+//                            ->where('created_by_role_id', UserRoleEnum::TEXNIK->value);
+//                    });
                 return Regulation::query()
-                    ->whereHas('object', function ($query) use ($employees) {
-                        $query->whereHas('users', function ($query) use ($employees) {
-                            $query->whereIn('users.id', $employees);
-                        });
+                    ->where(function ($query) use ($employees) {
+                        $query->whereHas('object', function ($q) use ($employees) {
+                            $q->whereHas('users', function ($q) use ($employees) {
+                                $q->whereIn('users.id', $employees);
+                            });
                         })
-                    ->orWhere(function ($query) use ($employees) {
-                        $query->whereIn('user_id', $employees)
-                            ->where('role_id', UserRoleEnum::TEXNIK->value);
-                    })
-                    ->orWhere(function ($query) use ($employees) {
-                        $query->whereIn('created_by_user_id', $employees)
-                            ->where('created_by_role_id', UserRoleEnum::TEXNIK->value);
+                            ->orWhere(function ($q) use ($employees) {
+                                $q->whereIn('user_id', $employees)
+                                    ->where('role_id', UserRoleEnum::TEXNIK->value);
+                            })
+                            ->orWhere(function ($q) use ($employees) {
+                                $q->whereIn('created_by_user_id', $employees)
+                                    ->where('created_by_role_id', UserRoleEnum::TEXNIK->value);
+                            });
                     });
             case UserRoleEnum::LOYIHA->value:
                 $employees = $user->employees()->pluck('id')->toArray();
