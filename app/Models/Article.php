@@ -107,6 +107,11 @@ class Article extends Model
         return $this->belongsTo(Program::class, 'program_id');
     }
 
+    public function checklists(): HasMany
+    {
+        return $this->hasMany(CheckListAnswer::class, 'object_id');
+    }
+
     public function sphere(): BelongsTo
     {
         return $this->belongsTo(Sphere::class, 'sphere_id');

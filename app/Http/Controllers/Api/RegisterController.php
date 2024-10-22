@@ -12,6 +12,7 @@ use App\Models\Article;
 use App\Models\DxaResponse;
 use App\Models\DxaResponseStatus;
 use App\Services\ArticleService;
+use App\Services\CheckListAnswerService;
 use App\Services\DxaResponseService;
 use App\Services\MonitoringService;
 use App\Services\RegulationService;
@@ -26,7 +27,8 @@ class RegisterController extends BaseController
         protected DxaResponseService $service,
         protected ArticleService $articleService,
         protected RegulationService $regulationService,
-        protected MonitoringService $monitoringService
+        protected MonitoringService $monitoringService,
+        protected CheckListAnswerService $checkListService,
     )
     {
         $this->middleware('auth');
@@ -103,7 +105,7 @@ class RegisterController extends BaseController
                 'register' => $this->service->getRegisters($this->user, $this->roleId, 1)->count(),
                 're_register' => $this->service->getRegisters($this->user, $this->roleId, 2)->count(),
                 'petition' => 0,
-                'checklist' => 0,
+                'checklist' => $this->checkListService->getChecklists($this->user, $this->roleId, 1),
                 'object' => $this->articleService->getObjects($this->user, $this->roleId)->count(),
                 'regulation' => $this->regulationService->getRegulations($this->user, $this->roleId)->count(),
                 'monitoring' => $this->monitoringService->getMonitorings($this->user, $this->roleId)->count()
