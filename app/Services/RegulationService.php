@@ -108,21 +108,6 @@ class RegulationService
         return $this->regulationRepository->searchRegulations($query, $filters);
     }
 
-//    public function getRegulationsByObject($user, $roleId)
-//    {
-//        $this->regulationRepository->getRegulationsByObject($user, $roleId);
-//    }
-//
-//    public function getRegulationsByUserRole($user, $roleId)
-//    {
-//        return $this->regulationRepository->getRegulationsByUserRole($user, $roleId);
-//    }
-//
-//    public function getRegulationByRegion($regionId)
-//    {
-//        return $this->regulationRepository->getRegulationByRegion($regionId);
-//    }
-
     public function getRegulationById($user, $roleId, $id): Regulation
     {
        return $this->getRegulations($user, $roleId)->whereId($id)->firstOrFail();
@@ -130,16 +115,16 @@ class RegulationService
 
     public function regulationCountByStatus($user, $roleId): array
     {
-        $query = $this->getRegulations($user, $roleId);
+        $query = $this->getRegulations($user, $roleId)->getQuery();
         return [
-            'provide_remedy' => $query->clone()->where('regulation_status_id', RegulationStatusEnum::PROVIDE_REMEDY)->count(),
-            'confirm_remedy' => $query->clone()->where('regulation_status_id', RegulationStatusEnum::CONFIRM_REMEDY)->count(),
-            'attach_deed' => $query->clone()->where('regulation_status_id', RegulationStatusEnum::ATTACH_DEED)->count(),
-            'confirm_deed' => $query->clone()->where('regulation_status_id', RegulationStatusEnum::CONFIRM_DEED)->count(),
-            'confirm_deed_cmr' => $query->clone()->where('regulation_status_id', RegulationStatusEnum::CONFIRM_DEED_CMR)->count(),
-            'eliminated' => $query->clone()->where('regulation_status_id', RegulationStatusEnum::ELIMINATED)->count(),
-            'in_lawyer' => $query->clone()->where('regulation_status_id', RegulationStatusEnum::IN_LAWYER)->count(),
-            'late_execution' => $query->clone()->where('regulation_status_id', RegulationStatusEnum::LATE_EXECUTION)->count(),
+            'provide_remedy' => (clone $query)->where('regulation_status_id', RegulationStatusEnum::PROVIDE_REMEDY)->count(),
+            'confirm_remedy' => (clone $query)->where('regulation_status_id', RegulationStatusEnum::CONFIRM_REMEDY)->count(),
+            'attach_deed' => (clone $query)->where('regulation_status_id', RegulationStatusEnum::ATTACH_DEED)->count(),
+            'confirm_deed' => (clone $query)->where('regulation_status_id', RegulationStatusEnum::CONFIRM_DEED)->count(),
+            'confirm_deed_cmr' => (clone $query)->where('regulation_status_id', RegulationStatusEnum::CONFIRM_DEED_CMR)->count(),
+            'eliminated' =>(clone $query)->where('regulation_status_id', RegulationStatusEnum::ELIMINATED)->count(),
+            'in_lawyer' => (clone $query)->where('regulation_status_id', RegulationStatusEnum::IN_LAWYER)->count(),
+            'late_execution' => (clone $query)->where('regulation_status_id', RegulationStatusEnum::LATE_EXECUTION)->count(),
         ];
     }
 
