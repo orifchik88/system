@@ -24,13 +24,15 @@ class UserService
             case UserRoleEnum::LOYIHA->value:
             case UserRoleEnum::QURILISH->value:
                 return $user->employees();
+
             case UserRoleEnum::QURILISH_MONTAJ->value:
-                return User::query()->whereHas('roles', function ($query) use ($user) {
+                return User::query()->whereHas('roles', function ($query) {
                     $query->where('id', UserRoleEnum::INSPECTOR->value);
                 })->where('region_id', $user->region_id);
+
             case UserRoleEnum::RESKADR->value:
-                return User::query()->whereHas('roles', function ($query) use ($user) {
-                    $query->whereIn('id', '!=', [
+                return User::query()->whereHas('roles', function ($query) {
+                    $query->whereNotIn('id', [
                         UserRoleEnum::BUYURTMACHI->value,
                         UserRoleEnum::LOYIHA->value,
                         UserRoleEnum::QURILISH->value,
@@ -39,9 +41,10 @@ class UserService
                         UserRoleEnum::MUALLIF->value,
                     ]);
                 });
+
             case UserRoleEnum::REGKADR->value:
-                return User::query()->whereHas('roles', function ($query) use ($user) {
-                    $query->whereIn('id', '!=', [
+                return User::query()->whereHas('roles', function ($query) {
+                    $query->whereNotIn('id', [
                         UserRoleEnum::BUYURTMACHI->value,
                         UserRoleEnum::LOYIHA->value,
                         UserRoleEnum::QURILISH->value,
@@ -50,34 +53,39 @@ class UserService
                         UserRoleEnum::MUALLIF->value,
                     ]);
                 })->where('region_id', $user->region_id);
+
             case UserRoleEnum::SEOM_RES_KADR->value:
-                return User::query()->whereHas('roles', function ($query) use ($user) {
+                return User::query()->whereHas('roles', function ($query) {
                     $query->whereIn('id', [UserRoleEnum::SEOM_REG_KADR->value, UserRoleEnum::SEOM->value]);
                 });
 
             case UserRoleEnum::SEOM_REG_KADR->value:
-                return User::query()->whereHas('roles', function ($query) use ($user) {
+                return User::query()->whereHas('roles', function ($query) {
                     $query->where('id', UserRoleEnum::SEOM->value);
                 });
+
             case UserRoleEnum::FVV_RES_KADR->value:
-                return User::query()->whereHas('roles', function ($query) use ($user) {
+                return User::query()->whereHas('roles', function ($query) {
                     $query->whereIn('id', [UserRoleEnum::FVB_REG_KADR->value, UserRoleEnum::FVB->value]);
                 });
+
             case UserRoleEnum::FVB_REG_KADR->value:
-                return User::query()->whereHas('roles', function ($query) use ($user) {
+                return User::query()->whereHas('roles', function ($query) {
                     $query->where('id', UserRoleEnum::FVB->value);
                 });
+
             case UserRoleEnum::NOGIRONLAR_JAM_KADR->value:
-                return User::query()->whereHas('roles', function ($query) use ($user) {
+                return User::query()->whereHas('roles', function ($query) {
                     $query->where('id', UserRoleEnum::NOGIRONLAR_JAM->value);
                 });
+
             case UserRoleEnum::NOGIRONLAR_ASSOT_KADR->value:
-                return User::query()->whereHas('roles', function ($query) use ($user) {
+                return User::query()->whereHas('roles', function ($query) {
                     $query->where('id', UserRoleEnum::NOGIRONLAR_ASSOT->value);
                 });
+
             default:
                 return User::query()->whereRaw('1 = 0');
-
         }
     }
 
