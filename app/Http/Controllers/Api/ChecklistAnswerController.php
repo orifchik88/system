@@ -22,7 +22,9 @@ class ChecklistAnswerController extends BaseController
 
             $objectIds = $this->user->objects()->where('role_id', $this->roleId)->pluck('article_id');
 
-            $query = CheckListAnswer::query()->whereIn('object_id', $objectIds);
+            $query = CheckListAnswer::query()->whereIn('object_id', $objectIds)->whereHas('workType', function ($query) {
+                $query->where('type', 1);
+            });
                  switch ($this->roleId) {
                      case 3:
                          $query->where('status', 3)->where('inspector_answered', null);
