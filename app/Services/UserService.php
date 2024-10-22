@@ -38,7 +38,6 @@ class UserService
             });
 
         if ($auth->isKadr()){
-//            dd($users->toSql());
             return $users->paginate(\request('perPage', 10));
         }else{
             return $users->where('created_by', $auth->id)->paginate(\request('perPage', 10));

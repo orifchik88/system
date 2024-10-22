@@ -22,7 +22,8 @@ class CheckListAnswerResource extends JsonResource
             'object_name' => $this->object->name,
             'object_id' => $this->object_id,
             'question_name' => $this->question->name,
-            'deadline' => $this->created_at
+            'inspector_deadline' => $this->inspector_answered_at,
+            'technic_author_deadline' => $this->technic_author_answered_at,
         ];
     }
 }
