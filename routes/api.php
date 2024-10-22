@@ -108,7 +108,7 @@ Route::group([
     Route::get('total-payment', [ObjectController::class, 'totalPayment']);
     Route::get('payment-statistics', [ObjectController::class, 'paymentStatistics']);
     Route::get('accountant-objects', [ObjectController::class, 'accountObjects']);
-    Route::get('rotation', [ObjectController::class, 'rotation']);
+    Route::post('rotation', [ObjectController::class, 'rotation']);
 
     Route::get('blocks/{id}', [BlockController::class, 'index']);
     Route::get('block/{id}', [BlockController::class, 'getBlock']);
