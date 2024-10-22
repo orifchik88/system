@@ -45,7 +45,7 @@ class RegulationService
                 return Regulation::query()->where('user_id', $user->id)->where('role_id', $roleId);
 
             case UserRoleEnum::BUYURTMACHI->value:
-                $employees = $user->employees()->pluck('id')->toArray();
+                $employees = $user->employees()->pluck('user_id')->toArray();
                 return Regulation::query()
                     ->whereHas('object', function ($query) use ($employees) {
                         $query->whereHas('users', function ($query) use ($employees) {

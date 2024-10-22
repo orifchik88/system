@@ -10,7 +10,6 @@ use function Symfony\Component\Translation\t;
 
 class UserService
 {
-//    private string $apiUrl = 'https://api.shaffofqurilish.uz/api/v1/get-egov-token';
 
     public function __construct(protected Client $client, protected User $user){}
 
