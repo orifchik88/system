@@ -22,9 +22,9 @@ class RegulationResource extends JsonResource
     {
 
         $fromUser = $this->regulationUser ?  User::query()->find($this->regulationUser->from_user_id) : null;
-        $fromRole = Role::query()->find($this->regulationUser->from_role_id);
-        $responsibleUser = User::query()->find($this->regulationUser->to_user_id);
-        $responsibleRole = Role::query()->find($this->regulationUser->to_role_id);
+        $fromRole = $this->regulationUser ?  Role::query()->find($this->regulationUser->from_role_id) : null;
+        $responsibleUser = $this->regulationUser ? User::query()->find($this->regulationUser->to_user_id): null;
+        $responsibleRole = $this->regulationUser ? Role::query()->find($this->regulationUser->to_role_id) : null;
 
         return [
             'id' => $this->id,
