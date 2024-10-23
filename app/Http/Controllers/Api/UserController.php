@@ -75,13 +75,19 @@ class UserController extends BaseController
                     ->where('role_id', UserRoleEnum::INSPECTOR->value)
                     ->update(['user_id' => $data['new_user_id']]);
 
-                 Regulation::query()->where('user_id', $data['old_user_id'])->where('role_id', UserRoleEnum::INSPECTOR->value)
+                 Regulation::query()
+                     ->where('object_id', $data['object_id'])
+                     ->where('user_id', $data['old_user_id'])
+                     ->where('role_id', UserRoleEnum::INSPECTOR->value)
                     ->update([
                         'user_id' => $data['new_user_id'],
                         'role_id' => $data['new_role_id'],
                     ]);
 
-                Regulation::query()->where('created_by_user_id', $data['old_user_id'])->where('created_by_role_id', UserRoleEnum::INSPECTOR->value)
+                Regulation::query()
+                    ->where('object_id', $data['object_id'])
+                    ->where('created_by_user_id', $data['old_user_id'])
+                    ->where('created_by_role_id', UserRoleEnum::INSPECTOR->value)
                     ->update([
                         'created_by_user_id' => $data['new_user_id'],
                         'created_by_role_id' => $data['new_role_id'],
@@ -131,17 +137,20 @@ class UserController extends BaseController
                 'content->comment' => request('comment') ?? 'Qabul qilindi',
             ]);
 
+            $objectId = $userHistory->content->additionalInfo->object_id;
             $oldUserId = $userHistory->content->additionalInfo->old_user_id;
             $oldRoleId = $userHistory->content->additionalInfo->old_role_id;
             $newUserId = $userHistory->content->additionalInfo->new_user_id;
             $newRoleId = $userHistory->content->additionalInfo->new_role_id;
 
-            ArticleUser::query()->where('article_id', $userHistory->content->additionalInfo->object_id)
+
+            ArticleUser::query()->where('article_id', $objectId)
                 ->where('role_id', $oldRoleId)
                 ->where('user_id', $oldUserId)
                 ->update(['user_id' => $newUserId]);
 
             Regulation::query()
+                ->where('object_id', $objectId)
                 ->where('user_id', $oldUserId)
                 ->where('role_id', $oldRoleId)
                 ->update([
@@ -150,6 +159,7 @@ class UserController extends BaseController
                 ]);
 
             Regulation::query()
+                ->where('object_id', $objectId)
                 ->where('created_by_user_id', $oldUserId)
                 ->where('created_by_role_id', $oldRoleId)
                 ->update([
