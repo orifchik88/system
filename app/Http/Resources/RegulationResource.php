@@ -21,11 +21,11 @@ class RegulationResource extends JsonResource
     public function toArray(Request $request): array
     {
 
-        $fromUser = User::query()->find($this->regulationUser->from_user_id);
+        $fromUser = $this->regulationUser ?  User::query()->find($this->regulationUser->from_user_id) : null;
         $fromRole = Role::query()->find($this->regulationUser->from_role_id);
         $responsibleUser = User::query()->find($this->regulationUser->to_user_id);
         $responsibleRole = Role::query()->find($this->regulationUser->to_role_id);
-        
+
         return [
             'id' => $this->id,
             'object_name' => $this->object->name ?? null,
@@ -42,13 +42,13 @@ class RegulationResource extends JsonResource
             'created_at' => $this->created_at,
             'deadline_asked' => $this->deadline_asked,
             'from_user' => [
-                'role' => RoleResource::make($fromRole) ?? null,
-                'phone' => $fromUser->phone ?? null,
+                'role' => $fromRole ? RoleResource::make($fromRole) : null,
+                'phone' => $fromUser ? $fromUser->phone : null,
                 'fish' => $fromUser ? "{$fromUser->surname} {$fromUser->name} {$fromUser->middle_name}" : null,
             ],
             'responsible_user' => [
-                'role' => RoleResource::make($responsibleRole) ?? null,
-                'phone' => $responsibleUser->phone ?? null,
+                'role' => $responsibleRole ? RoleResource::make($responsibleRole) : null,
+                'phone' => $responsibleUser ? $responsibleUser->phone : null,
                 'fish' => $responsibleUser ? "{$responsibleUser->surname} {$responsibleUser->name} {$responsibleUser->middle_name}" : null,
             ],
         ];
