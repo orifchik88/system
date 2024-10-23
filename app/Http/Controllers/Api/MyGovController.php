@@ -6,14 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Services\MyGovService;
 use Illuminate\Support\Facades\Auth;
 
-class MyGovController extends BaseController
+class MyGovController extends Controller
 {
     private MyGovService $myGovService;
 
     public function __construct(MyGovService $myGovService)
     {
-        $this->middleware('auth');
-        parent::__construct();
         $this->myGovService = $myGovService;
     }
 
@@ -22,10 +20,10 @@ class MyGovController extends BaseController
         $data = $this->myGovService->getDxaTaskById(task_id: $id);
 
         if (!$data) {
-            return $this->sendError("Ma'lumot topilmadi!", [], 422);
+            return ['success' =>  false, 'message' => "Ma'lumot topilmadi"];
         }
 
-        return $this->sendSuccess($data, 'Success!');
+        return $data;
     }
 
     public function getObjectsByPinfl()
@@ -33,9 +31,9 @@ class MyGovController extends BaseController
         $data = $this->myGovService->getObjectsByPinfl(pinfl: request()->get('pinfl'));
 
         if (!$data) {
-            return $this->sendError("Ma'lumot topilmadi!", [], 422);
+            return ['success' =>  false, 'message' => "Ma'lumot topilmadi"];
         }
 
-        return $this->sendSuccess($data, 'Success!');
+        return $data;
     }
 }

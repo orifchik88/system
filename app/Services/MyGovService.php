@@ -30,7 +30,10 @@ class MyGovService
         if(!$objects)
             return null;
 
-        dd($objects->objects()->count());
-        return $this->userRepository->findByPinfl($pinfl);
+
+        return [
+            'objects' => $objects->objects()->count(),
+            'can_assign' => true
+        ];
     }
 }
