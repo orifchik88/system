@@ -41,7 +41,7 @@ class MyGovService
 
         return [
             'objects' => $objects->objects()->count(),
-            'can_assign' => true
+            'can_assign' => !(($objects->objects()->count() >= 10))
         ];
     }
 
