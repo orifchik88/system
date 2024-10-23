@@ -27,9 +27,11 @@ use Illuminate\Support\Facades\Hash;
 class UserController extends BaseController
 {
     private HistoryService $historyService;
+
     public function __construct(
         protected UserService $service,
-    ){
+    )
+    {
         $this->middleware('auth');
         parent::__construct();
         $this->historyService = new HistoryService('user_histories');
@@ -55,7 +57,7 @@ class UserController extends BaseController
     public function userChange(): JsonResponse
     {
         try {
-           $data = request()->all();
+            $data = request()->all();
             if ($data['old_user_id'] == $data['new_user_id']) throw new \Exception('Bu foydalanuvchi biriktirilgan');
 
             $meta = [
@@ -66,27 +68,26 @@ class UserController extends BaseController
                 'object_id' => $data['object_id'],
             ];
 
-           if ($data['is_inspector'])
-           {
-               ArticleUser::query()->where('article_id', $data['object_id'])
-                   ->where('role_id', UserRoleEnum::INSPECTOR->value)
-                   ->update(['user_id' => $data['new_user_id']]);
+            if ($data['is_inspector']) {
+                ArticleUser::query()->where('article_id', $data['object_id'])
+                    ->where('role_id', UserRoleEnum::INSPECTOR->value)
+                    ->update(['user_id' => $data['new_user_id']]);
 
-           }else{
-               $meta['inspector_id'] = $data['inspector_id'] ?? null;
-               $this->historyService->createHistory(
-                   guId: $data['object_id'],
-                   status: UserHistoryStatusEnum::ASKED->value,
-                   type: UserHistoryTypeEnum::CHANGE->value,
-                   date: null,
-                   comment: $item['comment'] ?? "",
-                   additionalInfo: $meta
-               );
-           }
+            } else {
+                $meta['inspector_id'] = $data['inspector_id'] ?? null;
+                $this->historyService->createHistory(
+                    guId: $data['object_id'],
+                    status: UserHistoryStatusEnum::ASKED->value,
+                    type: UserHistoryTypeEnum::CHANGE->value,
+                    date: null,
+                    comment: $item['comment'] ?? "",
+                    additionalInfo: $meta
+                );
+            }
 
-           return $this->sendSuccess([], 'Send Successfully');
+            return $this->sendSuccess([], 'Send Successfully');
 
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -96,7 +97,7 @@ class UserController extends BaseController
         try {
             $userHistories = UserHistory::query()->where('content->additionalInfo->inspector_id', auth()->id())->paginate(request('per_page', 10));
             return $this->sendSuccess(UserHistoryResource::collection($userHistories), 'All User History', pagination($userHistories));
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -108,7 +109,8 @@ class UserController extends BaseController
             $userHistory = UserHistory::query()->findOrFail(request('id'));
 
             $userHistory->update([
-               'content->status' => UserHistoryStatusEnum::ACCEPTED->value
+                'content->status' => UserHistoryStatusEnum::ACCEPTED->value,
+                'content->comment' => request('comment') ?? 'Qabul qilindi',
             ]);
 
             $oldUserId = $userHistory->content->additionalInfo->old_user_id;
@@ -120,12 +122,25 @@ class UserController extends BaseController
                 ->update(['user_id' => $newUserId]);
             DB::commit();
             return $this->sendSuccess([], 'Success');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             DB::rollBack();
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
 
+    public function rejectUserChange(): JsonResponse
+    {
+        try {
+            $userHistory = UserHistory::query()->findOrFail(request('id'));
+            $userHistory->update([
+                'content->status' => UserHistoryStatusEnum::REJECTED->value,
+                'content->comment' => request('comment') ?? 'Rad etildi',
+            ]);
+            return $this->sendSuccess([], 'Success');
+        } catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
 
 
     public function create(UserRequest $request): JsonResponse
@@ -133,34 +148,33 @@ class UserController extends BaseController
         DB::beginTransaction();
 
         try {
-                $imagePath = null;
+            $imagePath = null;
 
-                if ($request->hasFile('image'))
-                {
-                    $imagePath = $request->file('image')->store('user', 'public');
-                }
-                $user =  new User();
-                $user->name = $request->name;
-                $user->phone = $request->phone;
-                $user->pinfl = $request->pinfl;
-                $user->password = Hash::make($request->phone);
-                $user->login = $request->phone;
-                $user->user_status_id = $request->user_status_id;
-                $user->surname = $request->surname;
-                $user->middle_name = $request->middle_name;
-                $user->region_id = $request->region_id;
-                $user->district_id = $request->district_id;
-                $user->created_by = $request->created_by;
-                $user->type = $request->type;
-                $user->image = $imagePath;
-                $user->save();
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store('user', 'public');
+            }
+            $user = new User();
+            $user->name = $request->name;
+            $user->phone = $request->phone;
+            $user->pinfl = $request->pinfl;
+            $user->password = Hash::make($request->phone);
+            $user->login = $request->phone;
+            $user->user_status_id = $request->user_status_id;
+            $user->surname = $request->surname;
+            $user->middle_name = $request->middle_name;
+            $user->region_id = $request->region_id;
+            $user->district_id = $request->district_id;
+            $user->created_by = $request->created_by;
+            $user->type = $request->type;
+            $user->image = $imagePath;
+            $user->save();
 
             if ($request->filled('role_ids')) {
                 foreach ($request->role_ids as $role_id) {
                     $role = UserRole::query()
                         ->where('user_id', $user->id)
                         ->where('role_id', $role_id)->first();
-                    if (!$role){
+                    if (!$role) {
                         UserRole::query()->create([
                             'user_id' => $user->id,
                             'role_id' => $role_id
@@ -169,8 +183,8 @@ class UserController extends BaseController
                 }
             }
             DB::commit();
-            return $this->sendSuccess(new UserResource($user),  'User Created Successfully');
-        }catch (\Exception $exception){
+            return $this->sendSuccess(new UserResource($user), 'User Created Successfully');
+        } catch (\Exception $exception) {
             DB::rollBack();
             return $this->sendError($exception->getMessage(), $exception->getLine());
         }
@@ -191,7 +205,7 @@ class UserController extends BaseController
                 })
                 ->paginate(request('per_page', 10));
             return $this->sendSuccess(UserResource::collection($inspectors), 'All inspectors', pagination($inspectors));
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -204,17 +218,17 @@ class UserController extends BaseController
     public function getPassportInfo(PinflRequest $request): JsonResponse
     {
         try {
-           $data = $this->service->getInfo($request->pinfl, $request->birth_date);
-           $meta = [
-               'pinfl' => $data['current_pinpp'],
-               'name' => $data['namelat'],
-               'surname' => $data['surnamelat'],
-               'middle_name' => $data['patronymlat'],
-               'image' => $data['photo'],
-           ];
-           return $this->sendSuccess($meta, 'Passport Information Get Successfully');
+            $data = $this->service->getInfo($request->pinfl, $request->birth_date);
+            $meta = [
+                'pinfl' => $data['current_pinpp'],
+                'name' => $data['namelat'],
+                'surname' => $data['surnamelat'],
+                'middle_name' => $data['patronymlat'],
+                'image' => $data['photo'],
+            ];
+            return $this->sendSuccess($meta, 'Passport Information Get Successfully');
 
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -224,7 +238,7 @@ class UserController extends BaseController
         try {
             $user = Auth::user();
             return $this->sendSuccess(UserResource::collection($user->employees), 'All Employees');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
