@@ -82,6 +82,7 @@ Route::group([
     Route::get('employees', [UserController::class, 'getEmployees']);
     Route::get('users-count', [UserController::class, 'count']);
     Route::post('users-change', [UserController::class, 'userChange']);
+    Route::get('users-change-list', [UserController::class, 'userChangeList']);
 
 
     Route::get('registers', [RegisterController::class, 'registers']);

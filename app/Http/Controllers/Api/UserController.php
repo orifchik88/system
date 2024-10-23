@@ -53,6 +53,7 @@ class UserController extends BaseController
     {
         try {
            $data = request()->all();
+           if ($data['user_id'] == $data['changed_user_id']) throw new \Exception('Bu foydalanuvchi biriktirilgan');
            $meta = [
                'user_id' => $data['user_id'],
                'role_id' => $data['role_id'],
