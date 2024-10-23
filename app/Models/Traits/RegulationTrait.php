@@ -77,4 +77,5 @@ trait RegulationTrait
     {
         return $this->belongsTo(Role::class, 'role_id');
     }
+
 }
