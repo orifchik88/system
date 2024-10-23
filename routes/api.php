@@ -84,6 +84,7 @@ Route::group([
     Route::post('users-change', [UserController::class, 'userChange']);
     Route::get('users-change-list', [UserController::class, 'userChangeList']);
     Route::get('accept-user-change', [UserController::class, 'acceptUserChange']);
+    Route::get('reject-user-change', [UserController::class, 'rejectUserChange']);
 
 
     Route::get('registers', [RegisterController::class, 'registers']);
