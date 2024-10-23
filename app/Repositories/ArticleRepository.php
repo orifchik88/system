@@ -26,7 +26,7 @@ class ArticleRepository implements ArticleRepositoryInterface
 
     public function findByTaskId($taskId): ?Article
     {
-        return Article::where('task_id', $taskId)->first();
+        return Article::with('objectType')->where('task_id', $taskId)->first();
     }
 
     public function getArticlesByUserRole($user, $roleId)
