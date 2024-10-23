@@ -11,6 +11,7 @@ use App\Http\Requests\UserRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\UserResourceCollection;
 use App\Http\Resources\UserStatusResource;
+use App\Models\ArticleUser;
 use App\Models\User;
 use App\Models\UserRole;
 use App\Models\UserStatus;
@@ -53,22 +54,38 @@ class UserController extends BaseController
     {
         try {
            $data = request()->all();
-           if ($data['user_id'] == $data['changed_user_id']) throw new \Exception('Bu foydalanuvchi biriktirilgan');
-           $meta = [
-               'user_id' => $data['user_id'],
-               'role_id' => $data['role_id'],
-               'changed_user_id' => $data['changed_user_id'],
-               'changed_role_id' => $data['changed_role_id'],
-           ];
+            if ($data['old_user_id'] == $data['new_user_id']) throw new \Exception('Bu foydalanuvchi biriktirilgan');
 
-           $this->historyService->createHistory(
-                guId: $data['object_id'],
-                status: UserHistoryStatusEnum::ASKED->value,
-                type: UserHistoryTypeEnum::CHANGE->value,
-                date: null,
-                comment: $item['comment'] ?? "",
-                additionalInfo: $meta
-            );
+            $meta = [
+                'old_user_id' => $data['old_user_id'],
+                'old_role_id' => $data['old_role_id'],
+                'new_user_id' => $data['new_user_id'],
+                'new_role_id' => $data['new_role_id'],
+                'object_id' => $data['object_id'],
+            ];
+
+           if ($data['is_inspector'])
+           {
+               $oldUserArticles = ArticleUser::where('user_id',$data['old_user_id'])
+                   ->where('role_id', UserRoleEnum::INSPECTOR->value)
+                   ->pluck('article_id');
+
+               ArticleUser::query()->whereIn('article_id', $oldUserArticles)
+                   ->where('role_id', UserRoleEnum::INSPECTOR->value)
+                   ->update(['user_id' => $data['new_user_id']]);
+
+           }else{
+               $meta['inspector_id'] = $data['inspector_id'] ?? null;
+               $this->historyService->createHistory(
+                   guId: $data['object_id'],
+                   status: UserHistoryStatusEnum::ASKED->value,
+                   type: UserHistoryTypeEnum::CHANGE->value,
+                   date: null,
+                   comment: $item['comment'] ?? "",
+                   additionalInfo: $meta
+               );
+           }
+
            return $this->sendSuccess([], 'Send Successfully');
 
         }catch (\Exception $exception){
