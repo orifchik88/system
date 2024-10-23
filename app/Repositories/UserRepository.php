@@ -10,7 +10,7 @@ class UserRepository implements UserRepositoryInterface
 {
     public function findByPinfl($pinfl): ?User
     {
-        return User::where('pinfl', $pinfl)->first();
+        return User::with('objects')->where('pinfl', $pinfl)->first();
     }
 
     public function createOrUpdate(array $data): User
