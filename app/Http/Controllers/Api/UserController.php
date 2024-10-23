@@ -8,11 +8,13 @@ use App\Enums\UserHistoryTypeEnum;
 use App\Enums\UserRoleEnum;
 use App\Http\Requests\PinflRequest;
 use App\Http\Requests\UserRequest;
+use App\Http\Resources\UserHistoryResource;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\UserResourceCollection;
 use App\Http\Resources\UserStatusResource;
 use App\Models\ArticleUser;
 use App\Models\User;
+use App\Models\UserHistory;
 use App\Models\UserRole;
 use App\Models\UserStatus;
 use App\Services\HistoryService;
@@ -84,6 +86,16 @@ class UserController extends BaseController
 
            return $this->sendSuccess([], 'Send Successfully');
 
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function userChangeList(): JsonResponse
+    {
+        try {
+            $userHistories = UserHistory::query()->where('content->additionalInfo->inspector_id', auth()->id())->get();
+            return $this->sendSuccess(UserHistoryResource::collection($userHistories), 'All User History');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
