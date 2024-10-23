@@ -129,6 +129,16 @@ class ObjectController extends BaseController
         }
     }
 
+    public function getObjectByTaskId($taskId): JsonResponse
+    {
+        try {
+            $object = $this->service->findByTaskId($taskId);
+            return $this->sendSuccess(ArticleResource::make($object), 'Object retrieved successfully.');
+        } catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
     public function fundingSource(): JsonResponse
     {
         return $this->sendSuccess(FundingSourceResource::collection($this->service->getAllFundingSources()), 'Funding sources');

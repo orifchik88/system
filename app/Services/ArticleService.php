@@ -47,6 +47,13 @@ class ArticleService
         return $this->getObjects($user, $roleId)->where('articles.id', $id)->first();
     }
 
+    public function findByTaskId($taskId)
+    {
+        return $this->articleRepository->findByTaskId($taskId);
+    }
+
+
+
     public function getObjects($user, $roleId)
     {
         switch ($roleId) {

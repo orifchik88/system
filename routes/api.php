@@ -103,6 +103,7 @@ Route::group([
 
     Route::get('objects', [ObjectController::class, 'index']);
     Route::get('object/{id}', [ObjectController::class, 'getObject']);
+    Route::get('object-by-task/{task_id}', [ObjectController::class, 'getObjectByTaskId']);
     Route::get('object-count', [ObjectController::class, 'objectCount']);
     Route::get('get-object', [ObjectController::class, 'objectByParams']);
     Route::get('user-objects', [ObjectController::class, 'userObjects']);
