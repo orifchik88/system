@@ -7,8 +7,6 @@ use App\Enums\UserStatusEnum;
 use App\Models\User;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
-use Illuminate\Support\Facades\Auth;
-use function Symfony\Component\Translation\t;
 
 class UserService
 {

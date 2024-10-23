@@ -19,6 +19,7 @@ class ArticleUserResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'fish' => $this->full_name,
             'image' => $this->image ? Storage::disk('public')->url($this->image) : null,
             'phone_number' => $this->phone,
