@@ -11,6 +11,7 @@ use App\Models\Article;
 use App\Models\Regulation;
 use App\Models\RegulationDemand;
 use App\Models\User;
+use App\Models\UserRole;
 use App\Repositories\Interfaces\RegulationRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -45,42 +46,40 @@ class RegulationService
                 return Regulation::query()->where('user_id', $user->id)->where('role_id', $roleId);
 
             case UserRoleEnum::BUYURTMACHI->value:
-                $employees = $user->employees()->pluck('user_id')->toArray();
+                $objectIds = $user->objects()->where('role_id', UserRoleEnum::BUYURTMACHI->value)->pluck('article_id')->toArray();
                 return Regulation::query()
-                    ->where(function ($query) use ($employees) {
-                        $query->whereHas('object', function ($q) use ($employees) {
-                            $q->whereHas('users', function ($q) use ($employees) {
-                                $q->whereIn('users.id', $employees);
-                            });
+                    ->where(function ($query) use ($objectIds) {
+                        $query->whereHas('object', function ($q) use ($objectIds) {
+                            $q->whereIn('id', $objectIds);
                         })
-                            ->orWhere(function ($q) use ($employees) {
-                                $q->whereIn('user_id', $employees)
-                                    ->where('role_id', UserRoleEnum::TEXNIK->value);
-                            })
-                            ->orWhere(function ($q) use ($employees) {
-                                $q->whereIn('created_by_user_id', $employees)
-                                    ->where('created_by_role_id', UserRoleEnum::TEXNIK->value);
+                            ->where(function ($q) {
+                                $q->where('role_id', UserRoleEnum::TEXNIK->value)
+                                    ->orWhere('created_by_role_id', UserRoleEnum::TEXNIK->value);
                             });
                     });
             case UserRoleEnum::LOYIHA->value:
-                $employees = $user->employees()->pluck('id')->toArray();
+                $objectIds = $user->objects()->where('role_id', UserRoleEnum::LOYIHA->value)->pluck('article_id')->toArray();
                 return Regulation::query()
-                    ->whereHas('object', function ($query) use ($employees) {
-                        $query->whereHas('users', function ($query) use ($employees) {
-                            $query->whereIn('users.id', $employees);
-                        });
-                    })
-                    ->where('user_id', $user->id)->where('role_id', UserRoleEnum::MUALLIF->value);
+                    ->where(function ($query) use ($objectIds) {
+                        $query->whereHas('object', function ($q) use ($objectIds) {
+                            $q->whereIn('id', $objectIds);
+                        })
+                            ->where(function ($q) {
+                                $q->where('role_id', UserRoleEnum::MUALLIF->value);
+                            });
+                    });
 
             case UserRoleEnum::QURILISH->value:
-                $employees = $user->employees()->pluck('id')->toArray();
+                $objectIds = $user->objects()->where('role_id', UserRoleEnum::QURILISH->value)->pluck('article_id')->toArray();
                 return Regulation::query()
-                    ->whereHas('object', function ($query) use ($employees) {
-                        $query->whereHas('users', function ($query) use ($employees) {
-                            $query->whereIn('users.id', $employees);
-                        });
-                    })
-                    ->where('user_id', $user->id)->where('role_id', UserRoleEnum::ICHKI->value);
+                    ->where(function ($query) use ($objectIds) {
+                        $query->whereHas('object', function ($q) use ($objectIds) {
+                            $q->whereIn('id', $objectIds);
+                        })
+                            ->where(function ($q) {
+                                $q->where('role_id', UserRoleEnum::ICHKI->value);
+                            });
+                    });
             case UserRoleEnum::INSPEKSIYA->value:
             case UserRoleEnum::HUDUDIY_KUZATUVCHI->value:
             case UserRoleEnum::QURILISH_MONTAJ->value:
