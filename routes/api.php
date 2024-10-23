@@ -192,6 +192,7 @@ Route::group([
 Route::middleware('auth.custom_basic')->prefix('mygov')->group(function () {
     Route::get('get-object-by-task-id/{id}', [MyGovController::class, 'showTask']);
     Route::get('get-objects-by-pinfl', [MyGovController::class, 'getObjectsByPinfl']);
+    Route::get('get-objects-by-customer', [MyGovController::class, 'getObjectsByCustomer']);
 });
 
 

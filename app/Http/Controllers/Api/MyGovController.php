@@ -36,4 +36,15 @@ class MyGovController extends Controller
 
         return $data;
     }
+
+    public function getObjectsByCustomer()
+    {
+        $data = $this->myGovService->getObjectsByCustomer(pinfl: request()->get('pinfl'));
+
+        if (!$data) {
+            return ['success' =>  false, 'message' => "Ma'lumot topilmadi"];
+        }
+
+        return $data;
+    }
 }
