@@ -101,6 +101,30 @@ class UserController extends BaseController
         }
     }
 
+    public function acceptUserChange(): JsonResponse
+    {
+        try {
+            $userHistory = UserHistory::query()->findOrFail(request('id'));
+
+            $userHistory->update([
+               'content->status' => UserHistoryStatusEnum::ACCEPTED->value
+            ]);
+
+            $oldUserId = $userHistory->content->additionalInfo->old_user_id;
+            $newUserId = $userHistory->content->additionalInfo->new_user_id;
+
+            ArticleUser::query()->where('article_id', $userHistory->content->additionalInfo->object_id)
+                ->where('role_id', $userHistory->content->additionalInfo->new_role_id)
+                ->where('user_id', $oldUserId)
+                ->update(['user_id' => $newUserId]);
+            return $this->sendSuccess([], 'Success');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+
+
     public function create(UserRequest $request): JsonResponse
     {
         DB::beginTransaction();
