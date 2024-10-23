@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 
+use App\Enums\UserHistoryStatusEnum;
+use App\Enums\UserHistoryTypeEnum;
 use App\Enums\UserRoleEnum;
 use App\Http\Requests\PinflRequest;
-use App\Http\Requests\UserEditRequest;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\UserResourceCollection;
@@ -13,6 +14,7 @@ use App\Http\Resources\UserStatusResource;
 use App\Models\User;
 use App\Models\UserRole;
 use App\Models\UserStatus;
+use App\Services\HistoryService;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -21,9 +23,13 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends BaseController
 {
-    public function __construct(protected UserService $service){
+    private HistoryService $historyService;
+    public function __construct(
+        protected UserService $service,
+    ){
         $this->middleware('auth');
         parent::__construct();
+        $this->historyService = new HistoryService('user_histories');
     }
 
     public function users(): JsonResponse
@@ -39,6 +45,32 @@ class UserController extends BaseController
         try {
             return $this->sendSuccess($this->service->getCountByUsers($this->user, $this->roleId), 'All users count');
         } catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function userChange(): JsonResponse
+    {
+        try {
+           $data = request()->all();
+           $meta = [
+               'user_id' => $data['user_id'],
+               'role_id' => $data['role_id'],
+               'changed_user_id' => $data['changed_user_id'],
+               'changed_role_id' => $data['changed_role_id'],
+           ];
+
+           $this->historyService->createHistory(
+                guId: $data['object_id'],
+                status: UserHistoryStatusEnum::ASKED->value,
+                type: UserHistoryTypeEnum::CHANGE->value,
+                date: null,
+                comment: $item['comment'] ?? "",
+                additionalInfo: $meta
+            );
+           return $this->sendSuccess([], 'Send Successfully');
+
+        }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }

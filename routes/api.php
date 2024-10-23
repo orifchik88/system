@@ -81,6 +81,7 @@ Route::group([
     Route::post('passport-info', [UserController::class, 'getPassportInfo']);
     Route::get('employees', [UserController::class, 'getEmployees']);
     Route::get('users-count', [UserController::class, 'count']);
+    Route::post('users-change', [UserController::class, 'userChange']);
 
 
     Route::get('registers', [RegisterController::class, 'registers']);
