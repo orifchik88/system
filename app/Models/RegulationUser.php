@@ -10,5 +10,6 @@ class RegulationUser extends Model
     use HasFactory;
 
     protected $guarded = false;
+    public $timestamps = false;
 
 }
