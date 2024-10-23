@@ -95,7 +95,10 @@ class UserController extends BaseController
     public function userChangeList(): JsonResponse
     {
         try {
-            $userHistories = UserHistory::query()->where('content->additionalInfo->inspector_id', auth()->id())->paginate(request('per_page', 10));
+            $userHistories = UserHistory::query()
+                ->where('type', UserHistoryTypeEnum::CHANGE->value)
+                ->where('content->additionalInfo->inspector_id', auth()->id())
+                ->paginate(request('per_page', 10));
             return $this->sendSuccess(UserHistoryResource::collection($userHistories), 'All User History', pagination($userHistories));
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
