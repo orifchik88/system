@@ -20,6 +20,7 @@ use App\Models\Monitoring;
 use App\Models\Question;
 use App\Models\Regulation;
 use App\Models\RegulationDemand;
+use App\Models\RegulationUser;
 use App\Models\RegulationViolation;
 use App\Models\User;
 use App\Models\Violation;
@@ -485,6 +486,7 @@ class QuestionService
         foreach ($allRoleViolations as $roles) {
             foreach ($roles as $roleId => $role) {
                 $regulation = $this->createRegulationEntry($object, $monitoringID, $role, $roleId, $createdByRole);
+                $this->createRegulationUser($regulation);
                 $this->sendSms($regulation, $object->task_id);
                 $this->linkViolationsToRegulation($regulation, $role['violation_ids']);
             }
@@ -508,6 +510,17 @@ class QuestionService
             'role_id' => $roleId,
         ]);
 
+    }
+
+    private function createRegulationUser($regulation)
+    {
+        RegulationUser::create([
+            'regulation_id' => $regulation->id,
+            'from_user_id' => $regulation->created_by_user_id,
+            'from_role_id' => $regulation->created_by_role_id,
+            'to_user_id' => $regulation->user_id,
+            'to_role_id' => $regulation->role_id,
+        ]);
     }
 
     private function sendSms($regulation, $objectNumber)
