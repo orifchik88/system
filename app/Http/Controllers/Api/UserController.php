@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 
+use App\Enums\RegulationStatusEnum;
 use App\Enums\UserHistoryStatusEnum;
 use App\Enums\UserHistoryTypeEnum;
 use App\Enums\UserRoleEnum;
@@ -13,6 +14,7 @@ use App\Http\Resources\UserResource;
 use App\Http\Resources\UserResourceCollection;
 use App\Http\Resources\UserStatusResource;
 use App\Models\ArticleUser;
+use App\Models\Regulation;
 use App\Models\User;
 use App\Models\UserHistory;
 use App\Models\UserRole;
@@ -73,6 +75,19 @@ class UserController extends BaseController
                     ->where('role_id', UserRoleEnum::INSPECTOR->value)
                     ->update(['user_id' => $data['new_user_id']]);
 
+                 Regulation::query()->where('user_id', $data['old_user_id'])->where('role_id', UserRoleEnum::INSPECTOR->value)
+                    ->update([
+                        'user_id' => $data['new_user_id'],
+                        'role_id' => $data['new_role_id'],
+                    ]);
+
+                Regulation::query()->where('created_by_user_id', $data['old_user_id'])->where('created_by_role_id', UserRoleEnum::INSPECTOR->value)
+                    ->update([
+                        'created_by_user_id' => $data['new_user_id'],
+                        'created_by_role_id' => $data['new_role_id'],
+                    ]);
+
+
             } else {
                 $meta['inspector_id'] = $data['inspector_id'] ?? null;
                 $this->historyService->createHistory(
@@ -117,12 +132,30 @@ class UserController extends BaseController
             ]);
 
             $oldUserId = $userHistory->content->additionalInfo->old_user_id;
+            $oldRoleId = $userHistory->content->additionalInfo->old_role_id;
             $newUserId = $userHistory->content->additionalInfo->new_user_id;
+            $newRoleId = $userHistory->content->additionalInfo->new_role_id;
 
             ArticleUser::query()->where('article_id', $userHistory->content->additionalInfo->object_id)
-                ->where('role_id', $userHistory->content->additionalInfo->new_role_id)
+                ->where('role_id', $oldRoleId)
                 ->where('user_id', $oldUserId)
                 ->update(['user_id' => $newUserId]);
+
+            Regulation::query()
+                ->where('user_id', $oldUserId)
+                ->where('role_id', $oldRoleId)
+                ->update([
+                    'user_id' => $newUserId,
+                    'role_id' => $newRoleId,
+                ]);
+
+            Regulation::query()
+                ->where('created_by_user_id', $oldUserId)
+                ->where('created_by_role_id', $oldRoleId)
+                ->update([
+                    'created_by_user_id' => $newUserId,
+                    'created_by_role_id' => $newRoleId,
+                ]);
             DB::commit();
             return $this->sendSuccess([], 'Success');
         } catch (\Exception $exception) {
