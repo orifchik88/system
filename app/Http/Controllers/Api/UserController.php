@@ -8,11 +8,13 @@ use App\Enums\UserHistoryTypeEnum;
 use App\Enums\UserRoleEnum;
 use App\Http\Requests\PinflRequest;
 use App\Http\Requests\UserRequest;
+use App\Http\Resources\UserHistoryResource;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\UserResourceCollection;
 use App\Http\Resources\UserStatusResource;
 use App\Models\ArticleUser;
 use App\Models\User;
+use App\Models\UserHistory;
 use App\Models\UserRole;
 use App\Models\UserStatus;
 use App\Services\HistoryService;
@@ -66,11 +68,7 @@ class UserController extends BaseController
 
            if ($data['is_inspector'])
            {
-               $oldUserArticles = ArticleUser::where('user_id',$data['old_user_id'])
-                   ->where('role_id', UserRoleEnum::INSPECTOR->value)
-                   ->pluck('article_id');
-
-               ArticleUser::query()->whereIn('article_id', $oldUserArticles)
+               ArticleUser::query()->where('article_id', $data['object_id'])
                    ->where('role_id', UserRoleEnum::INSPECTOR->value)
                    ->update(['user_id' => $data['new_user_id']]);
 
@@ -92,6 +90,40 @@ class UserController extends BaseController
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
+
+    public function userChangeList(): JsonResponse
+    {
+        try {
+            $userHistories = UserHistory::query()->where('content->additionalInfo->inspector_id', auth()->id())->paginate(request('per_page', 10));
+            return $this->sendSuccess(UserHistoryResource::collection($userHistories), 'All User History', pagination($userHistories));
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function acceptUserChange(): JsonResponse
+    {
+        try {
+            $userHistory = UserHistory::query()->findOrFail(request('id'));
+
+            $userHistory->update([
+               'content->status' => UserHistoryStatusEnum::ACCEPTED->value
+            ]);
+
+            $oldUserId = $userHistory->content->additionalInfo->old_user_id;
+            $newUserId = $userHistory->content->additionalInfo->new_user_id;
+
+            ArticleUser::query()->where('article_id', $userHistory->content->additionalInfo->object_id)
+                ->where('role_id', $userHistory->content->additionalInfo->new_role_id)
+                ->where('user_id', $oldUserId)
+                ->update(['user_id' => $newUserId]);
+            return $this->sendSuccess([], 'Success');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+
 
     public function create(UserRequest $request): JsonResponse
     {
