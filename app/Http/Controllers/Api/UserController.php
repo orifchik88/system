@@ -103,6 +103,7 @@ class UserController extends BaseController
 
     public function acceptUserChange(): JsonResponse
     {
+        DB::beginTransaction();
         try {
             $userHistory = UserHistory::query()->findOrFail(request('id'));
 
@@ -117,8 +118,10 @@ class UserController extends BaseController
                 ->where('role_id', $userHistory->content->additionalInfo->new_role_id)
                 ->where('user_id', $oldUserId)
                 ->update(['user_id' => $newUserId]);
+            DB::commit();
             return $this->sendSuccess([], 'Success');
         }catch (\Exception $exception){
+            DB::rollBack();
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }

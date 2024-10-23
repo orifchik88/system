@@ -56,7 +56,7 @@ class LoginController extends BaseController
 
     public function auth(): JsonResponse
     {
-        if (Auth::attempt(['login' => request('username'), 'password' => request('password'), ])) {
+        if (Auth::attempt(['login' => request('username'), 'password' => request('password')])) {
             $user = Auth::user();
             if ($user->user_status_id != UserStatusEnum::ACTIVE) return $this->sendError('Kirish huquqi mavjud emas', code: 401);
             $roleId = request('role_id');
@@ -66,7 +66,7 @@ class LoginController extends BaseController
             $success['token'] = $token;
             $success['full_name'] = $user->full_name;
             $success['pinfl'] = $user->pinfl;
-            $success['role'] = new RoleResource($role);
+            $success['role'] = $role ? new RoleResource($role) : null;
             $success['status'] = new UserStatusResource($user->status);
             $success['region'] = $user->region_id ? new RegionResource($user->region) : null;
             $success['district'] = $user->district_id ?  new DistrictResource($user->district) : null;
