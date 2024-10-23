@@ -66,11 +66,7 @@ class UserController extends BaseController
 
            if ($data['is_inspector'])
            {
-               $oldUserArticles = ArticleUser::where('user_id',$data['old_user_id'])
-                   ->where('role_id', UserRoleEnum::INSPECTOR->value)
-                   ->pluck('article_id');
-
-               ArticleUser::query()->whereIn('article_id', $oldUserArticles)
+               ArticleUser::query()->where('article_id', $data['object_id'])
                    ->where('role_id', UserRoleEnum::INSPECTOR->value)
                    ->update(['user_id' => $data['new_user_id']]);
 

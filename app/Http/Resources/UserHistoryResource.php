@@ -15,8 +15,8 @@ class UserHistoryResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-//            'id' => $this->id,
-//            'object' =>
+            'id' => $this->id,
+            'object' =>
         ];
     }
 }
