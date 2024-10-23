@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\BlockController;
 use App\Http\Controllers\Api\ChecklistAnswerController;
 use App\Http\Controllers\Api\ClaimController;
+use App\Http\Controllers\Api\MyGovController;
 use App\Http\Controllers\Api\PdfController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\RegionController;
@@ -182,6 +183,15 @@ Route::group([
         Route::post('send-to-director', [ClaimController::class, "sendToDirector"]);
     });
 
+    Route::group(['prefix' => 'mygov'], function () {
+        Route::get('tasks', [ClaimController::class, 'tasksList']);
+    });
+
+});
+
+Route::middleware('auth.custom_basic')->prefix('mygov')->group(function () {
+    Route::get('get-object-by-task-id/{id}', [MyGovController::class, 'showTask']);
+    Route::get('get-objects-by-pinfl', [MyGovController::class, 'getObjectsByPinfl']);
 });
 
 
