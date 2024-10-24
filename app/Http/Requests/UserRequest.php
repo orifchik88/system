@@ -27,7 +27,7 @@ class UserRequest extends FormRequest
             "name" => "required|string",
             "phone" => "required|string|unique:users,phone",
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg',
-            "pinfl" => "required|integer|digits:14|unique:users,pinfl",
+            "pinfl" => "required|integer|digits:14",
             "user_status_id" => "required|exists:user_statuses,id",
             "surname" => "string",
             "middle_name" => "string",
@@ -37,6 +37,7 @@ class UserRequest extends FormRequest
             "role_ids.*" => "required|integer|exists:roles,id",
             'created_by' => "required|exists:users,id",
             'type' => "required|integer",
+            'files.*' => "sometimes|array",
         ];
     }
 

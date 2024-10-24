@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('middle_name')->nullable();
             $table->text('organization_name')->nullable();
             $table->string('password');
-            $table->tinyInteger('active')->default(0);
+            $table->tinyInteger('active')->default(1);
             $table->integer('created_by')->index()->nullable();
             $table->string('image')->nullable();
             $table->string('pinfl')->index()->nullable();

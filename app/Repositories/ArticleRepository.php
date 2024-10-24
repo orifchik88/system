@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Enums\UserRoleEnum;
 use App\Models\Article;
 use App\Models\ArticleUser;
+use App\Models\Regulation;
 use App\Models\User;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use Illuminate\Support\Facades\DB;
@@ -90,6 +91,24 @@ class ArticleRepository implements ArticleRepositoryInterface
         ArticleUser::whereIn('article_id', $secondUserArticles)
             ->where('role_id', UserRoleEnum::INSPECTOR->value)
             ->update(['user_id' => $firstUserId]);
+
+        Regulation::query()
+            ->whereIn('object_id', $firstUserArticles)
+            ->where('created_by_user_id', $firstUserId)
+            ->where('created_by_role_id', UserRoleEnum::INSPECTOR->value)
+            ->update([
+                'created_by_user_id' => $secondUserId,
+                'created_by_role_id' => UserRoleEnum::INSPECTOR->value,
+            ]);
+
+        Regulation::query()
+            ->whereIn('object_id', $secondUserArticles)
+            ->where('created_by_user_id', $secondUserId)
+            ->where('created_by_role_id', UserRoleEnum::INSPECTOR->value)
+            ->update([
+                'created_by_user_id' => $firstUserId,
+                'created_by_role_id' => UserRoleEnum::INSPECTOR->value,
+            ]);
     }
 
     public function findArticleByParams($params)

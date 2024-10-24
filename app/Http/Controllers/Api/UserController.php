@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 
+use App\Enums\ObjectStatusEnum;
 use App\Enums\RegulationStatusEnum;
 use App\Enums\UserHistoryStatusEnum;
 use App\Enums\UserHistoryTypeEnum;
 use App\Enums\UserRoleEnum;
+use App\Enums\UserStatusEnum;
 use App\Http\Requests\PinflRequest;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\UserHistoryResource;
@@ -50,7 +52,16 @@ class UserController extends BaseController
     public function delete(): JsonResponse
     {
         try {
+            $user = User::query()->findOrFail(request('id'));
+            $objects = $user->objects()->where('object_status_id', '!=', ObjectStatusEnum::SUBMITTED);
 
+            if ($objects->count() > 0)  throw new \Exception('Userda faol obyektlari mavjud');
+
+            $user->update([
+                'active' => 0,
+                'user_status_id' => UserStatusEnum::RELEASED,
+            ]);
+            return $this->sendSuccess(null, 'User has been deleted');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
@@ -197,53 +208,166 @@ class UserController extends BaseController
         }
     }
 
-
     public function create(UserRequest $request): JsonResponse
     {
         DB::beginTransaction();
 
         try {
-            $imagePath = null;
+            $existingUser = $this->findUserByPinfl($request->pinfl);
 
-            if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('user', 'public');
-            }
-            $user = new User();
-            $user->name = $request->name;
-            $user->phone = $request->phone;
-            $user->pinfl = $request->pinfl;
-            $user->password = Hash::make($request->phone);
-            $user->login = $request->phone;
-            $user->user_status_id = $request->user_status_id;
-            $user->surname = $request->surname;
-            $user->middle_name = $request->middle_name;
-            $user->region_id = $request->region_id;
-            $user->district_id = $request->district_id;
-            $user->created_by = $request->created_by;
-            $user->type = $request->type;
-            $user->image = $imagePath;
-            $user->save();
-
-            if ($request->filled('role_ids')) {
-                foreach ($request->role_ids as $role_id) {
-                    $role = UserRole::query()
-                        ->where('user_id', $user->id)
-                        ->where('role_id', $role_id)->first();
-                    if (!$role) {
-                        UserRole::query()->create([
-                            'user_id' => $user->id,
-                            'role_id' => $role_id
-                        ]);
-                    }
+            if ($existingUser) {
+                if ($existingUser->user_status_id != UserStatusEnum::RELEASED) {
+                    throw new \Exception('Bu foydalanuvchi oldin qo\'shilgan.');
                 }
+
+                $this->updateExistingUser($existingUser, $request);
+                $this->updateUserRoles($existingUser, $request->role_ids);
+                $this->saveFiles($existingUser, $request);
+
+                DB::commit();
+                return $this->sendSuccess(new UserResource($existingUser), 'Foydalanuvchi tahrir qilindi.');
             }
+
+            $user = $this->createNewUser($request);
+            $this->updateUserRoles($user, $request->role_ids);
+            $this->saveFiles($user, $request);
+
             DB::commit();
-            return $this->sendSuccess(new UserResource($user), 'User Created Successfully');
+            return $this->sendSuccess(new UserResource($user), 'Foydalanuvchi muvaffaqiyatli yaratildi.');
+
         } catch (\Exception $exception) {
             DB::rollBack();
             return $this->sendError($exception->getMessage(), $exception->getLine());
         }
     }
+
+    private function saveFiles(User $user, UserRequest $request)
+    {
+        if ($request->hasFile('files')) {
+            $user->documents()->delete();
+            foreach ($request->file('files') as $file) {
+                $path = $file->store('user/docs', 'public');
+                $user->documents()->create(['url' => $path]);
+            }
+        }
+    }
+    private function findUserByPinfl($pinfl): ?User
+    {
+        return User::query()->where('pinfl', $pinfl)->first();
+    }
+
+    private function updateExistingUser(User $user, UserRequest $request): void
+    {
+        $user->name = $request->name;
+        $user->phone = $request->phone;
+        $user->surname = $request->surname;
+        $user->middle_name = $request->middle_name;
+        $user->region_id = $request->region_id;
+        $user->district_id = $request->district_id;
+        $user->active = 1;
+        $user->login = $request->phone;
+        $user->password = Hash::make($request->phone);
+        $user->user_status_id = UserStatusEnum::ACTIVE;
+        $user->type = $request->type;
+        $user->created_by = $request->created_by;
+        $user->image = $this->saveImage($request);
+
+        $user->save();
+    }
+
+    private function createNewUser(UserRequest $request): User
+    {
+        $user = new User();
+        $user->name = $request->name;
+        $user->phone = $request->phone;
+        $user->pinfl = $request->pinfl;
+        $user->password = Hash::make($request->phone);
+        $user->login = $request->phone;
+        $user->user_status_id = $request->user_status_id;
+        $user->surname = $request->surname;
+        $user->middle_name = $request->middle_name;
+        $user->region_id = $request->region_id;
+        $user->district_id = $request->district_id;
+        $user->created_by = $request->created_by;
+        $user->type = $request->type;
+
+        $user->image = $this->saveImage($request);
+
+        $user->save();
+
+        return $user;
+    }
+
+    private function updateUserRoles(User $user, array $roleIds): void
+    {
+        UserRole::query()->where('user_id', $user->id)->delete();
+
+        foreach ($roleIds as $role_id) {
+            UserRole::query()->create([
+                'user_id' => $user->id,
+                'role_id' => $role_id
+            ]);
+        }
+    }
+    private function saveImage(UserRequest $request): ?string
+    {
+        if ($request->hasFile('image')) {
+            return $request->file('image')->store('user', 'public');
+        }
+
+        return null;
+    }
+
+
+
+
+
+//    public function create(UserRequest $request): JsonResponse
+//    {
+//        DB::beginTransaction();
+//
+//        try {
+//            $imagePath = null;
+//
+//            if ($request->hasFile('image')) {
+//                $imagePath = $request->file('image')->store('user', 'public');
+//            }
+//            $user = new User();
+//            $user->name = $request->name;
+//            $user->phone = $request->phone;
+//            $user->pinfl = $request->pinfl;
+//            $user->password = Hash::make($request->phone);
+//            $user->login = $request->phone;
+//            $user->user_status_id = $request->user_status_id;
+//            $user->surname = $request->surname;
+//            $user->middle_name = $request->middle_name;
+//            $user->region_id = $request->region_id;
+//            $user->district_id = $request->district_id;
+//            $user->created_by = $request->created_by;
+//            $user->type = $request->type;
+//            $user->image = $imagePath;
+//            $user->save();
+//
+//            if ($request->filled('role_ids')) {
+//                foreach ($request->role_ids as $role_id) {
+//                    $role = UserRole::query()
+//                        ->where('user_id', $user->id)
+//                        ->where('role_id', $role_id)->first();
+//                    if (!$role) {
+//                        UserRole::query()->create([
+//                            'user_id' => $user->id,
+//                            'role_id' => $role_id
+//                        ]);
+//                    }
+//                }
+//            }
+//            DB::commit();
+//            return $this->sendSuccess(new UserResource($user), 'User Created Successfully');
+//        } catch (\Exception $exception) {
+//            DB::rollBack();
+//            return $this->sendError($exception->getMessage(), $exception->getLine());
+//        }
+//    }
 
     public function getInspector(): JsonResponse
     {
