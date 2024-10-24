@@ -97,8 +97,7 @@ class RegulationService
                         $query->where('region_id', $user->region_id);
                     })
                     ->where('regulation_status_id', RegulationStatusEnum::IN_LAWYER)
-                    ->where('role_id', UserRoleEnum::INSPECTOR->value)
-                    ->where('region_id');
+                    ->where('role_id', UserRoleEnum::INSPECTOR->value);
             default:
                return Regulation::query()->whereRaw('1 = 0');
         }
