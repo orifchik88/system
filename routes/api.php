@@ -186,10 +186,6 @@ Route::group([
         Route::post('send-to-director', [ClaimController::class, "sendToDirector"]);
     });
 
-    Route::group(['prefix' => 'mygov'], function () {
-        Route::get('tasks', [ClaimController::class, 'tasksList']);
-    });
-
 });
 
 Route::middleware('auth.custom_basic')->prefix('mygov')->group(function () {
