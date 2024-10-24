@@ -30,7 +30,7 @@ class MonitoringService
             case UserRoleEnum::HUDUDIY_KUZATUVCHI->value:
             case UserRoleEnum::QURILISH_MONTAJ->value:
                 return $this->getMonitoringByRegion($user->region_id);
-            case UserRoleEnum::RESKADR->value:
+            case UserRoleEnum::RESPUBLIKA_KUZATUVCHI->value:
                 return Monitoring::query();
             default:
                 return Monitoring::query()->whereRaw('1 = 0');
