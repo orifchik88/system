@@ -40,7 +40,6 @@ class RegulationDeadlineCommand extends Command
                         'regulation_status_id' => RegulationStatusEnum::IN_LAWYER,
                         'lawyer_status_id' => LawyerStatusEnum::NEW,
                         'deadline_rejected' => true,
-                        'deadline' => null,
                     ]);
                 }
             });
