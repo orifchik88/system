@@ -86,6 +86,7 @@ Route::group([
     Route::get('users-change-list', [UserController::class, 'userChangeList']);
     Route::post('accept-user-change', [UserController::class, 'acceptUserChange']);
     Route::post('reject-user-change', [UserController::class, 'rejectUserChange']);
+    Route::post('user-delete', [UserController::class, 'delete']);
 
 
     Route::get('registers', [RegisterController::class, 'registers']);
@@ -146,6 +147,7 @@ Route::group([
     Route::post('reject-answer', [RegulationController::class, 'rejectAnswer']);
     Route::post('create-fine', [RegulationController::class, 'fine']);
     Route::post('send-court', [RegulationController::class, 'sendCourt']);
+    Route::get('regulation-lawyer-count', [RegulationController::class, 'lawyerCount']);
     Route::get('regulation-count', [RegulationController::class, 'regulationCount']);
     Route::get('author-regulation', [RegulationController::class, 'getAuthorRegulations']);
     Route::post('send-answer-author-regulation', [RegulationController::class, 'sendAnswerAuthorRegulation']);

@@ -47,6 +47,15 @@ class UserController extends BaseController
         return $this->sendSuccess(new UserResourceCollection($users), 'All Users', pagination($users));
     }
 
+    public function delete(): JsonResponse
+    {
+        try {
+
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
     public function count(): JsonResponse
     {
         try {

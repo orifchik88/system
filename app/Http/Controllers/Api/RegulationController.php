@@ -48,7 +48,7 @@ class RegulationController extends BaseController
     {
         try {
             $query = $this->regulationService->getRegulations($this->user, $this->roleId);
-            $filters = request()->only(['object_name', 'region_id', 'district_id', 'organization_name', 'funding_source', 'category', 'status']);
+            $filters = request()->only(['object_name', 'region_id', 'district_id', 'organization_name', 'funding_source', 'category', 'status', 'lawyer_status']);
 
             $regulations = $this->regulationService->searchRegulations($query, $filters)
                 ->orderBy('created_at', request('sort_by_date', 'DESC'))
@@ -61,6 +61,22 @@ class RegulationController extends BaseController
             );
 
         } catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function lawyerCount(): JsonResponse
+    {
+        try {
+            $query =  $this->regulationService->getRegulations($this->user, $this->roleId);
+            $data = [
+                'new' => $query->clone()->where('lawyer_status_id', LawyerStatusEnum::NEW)->count(),
+                'process' => $query->clone()->where('lawyer_status_id', LawyerStatusEnum::PROCESS)->count(),
+                'administrative' => $query->clone()->where('lawyer_status_id', LawyerStatusEnum::ADMINISTRATIVE)->count(),
+                'disassembly' => $query->clone()->where('lawyer_status_id', LawyerStatusEnum::DISASSEMBLY)->count(),
+            ];
+            return $this->sendSuccess($data, 'Lawyer Count');
+        }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
