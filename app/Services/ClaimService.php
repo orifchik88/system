@@ -530,17 +530,19 @@ class ClaimService
         }
 
         if ($request['type'] == 15) {
-            $dataArray['IssuanceExtractRejectGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
-                "gasn_name_reject" => Auth::user()->name . ' ' . Auth::user()->surname,
-                "gasn_match" => 2,
-                "gasn_cause_reject" => $request['comment'],
-                "gasn_territory_reject" => Auth::user()->region->name_uz
-            ];
+            if (env('MYGOV_MODE') == 'prod') {
+                $dataArray['IssuanceExtractRejectGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
+                    "gasn_name_reject" => Auth::user()->name . ' ' . Auth::user()->surname,
+                    "gasn_match" => 2,
+                    "gasn_cause_reject" => $request['comment'],
+                    "gasn_territory_reject" => Auth::user()->region->name_uz
+                ];
 
-            $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/issuance-extract-reject-gasn", $dataArray);
+                $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/issuance-extract-reject-gasn", $dataArray);
 
-            if ($response->status() != 200) {
-                return false;
+                if ($response->status() != 200) {
+                    return false;
+                }
             }
 
             $claimObject->update(
@@ -616,25 +618,27 @@ class ClaimService
                                 </tr>';
             $tableHtml = str_replace('{blocks}', $tableTr, $tableHtml);
             $tableHtml = str_replace('{footer}', $footer, $tableHtml);
-            $dataArray['ConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
-                "gasn_name" => Auth::user()->name . ' ' . Auth::user()->surname,
-                "gasn_match" => 1,
-                "gasn_cause" => $request['comment'],
-                "gasn_territory" => Auth::user()->region->name_uz,
-                "date_issue_act_gasn" => Carbon::now(),
-                "object_project_gasn" => [
-                    "target" => "file",
-                    "ext" => "jpg",
-                    "file" => "iVBORw0KGgoAAAANSUhEUgAAAPgAAADLCAMAAAB04a46AAAAKlBMVEX///8AAABMTEw/Pz+cnJz19fU6OjpDQ0NLS0tISEhycnIMDAyampqsrKz4G7DdAAABLUlEQVR4nO3UyRHCQAwAQbABL1f+6QIPKEfAPqYnAnVJpcNBtZ7bGEur6+0DPx17jSp8+cLXUNt9B5/3YSa07uDn2cP8sws4eCNw8Ejg4JHAwSOBg0cCB48EDh4JHDwSOHgkcPBI4OCRwMEjgYNHAgePBA4eCRw8Ejh4JHDwSODgkcDBI4GDRwIHjwQOHgkcPBI4eCRw8Ejg4JHAwSOBg0cCB48EDh4JHDwSOHgkcPBI4OCRwMEjgYNHAgePBA4eCRw8Ejh4JHDwSODgkcDBI4GDRwIHjwQOHgkcPBI4eCRw8Ejg4JHAwSOBg0cCB48EDh4JHDwSOHgkcPBI4OCRwMEjgYNHAgePBF6FP97w2bP8tXW38TXUdt/Ba/1Ovdb4wJ/bMpZW19u8D6NZvQAHUx5B5LstjAAAAABJRU5ErkJggg=="
-                ],
-                "address_object_gasn" => $claimObject->object->region->name_uz . ', ' . $claimObject->object->district->name_uz . ', ' . $claimObject->object->location_building,
-                "buildings_title_documents_gasn" => $tableHtml
-            ];
+            if (env('MYGOV_MODE') == 'prod') {
+                $dataArray['ConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
+                    "gasn_name" => Auth::user()->name . ' ' . Auth::user()->surname,
+                    "gasn_match" => 1,
+                    "gasn_cause" => $request['comment'],
+                    "gasn_territory" => Auth::user()->region->name_uz,
+                    "date_issue_act_gasn" => Carbon::now(),
+                    "object_project_gasn" => [
+                        "target" => "file",
+                        "ext" => "jpg",
+                        "file" => "iVBORw0KGgoAAAANSUhEUgAAAPgAAADLCAMAAAB04a46AAAAKlBMVEX///8AAABMTEw/Pz+cnJz19fU6OjpDQ0NLS0tISEhycnIMDAyampqsrKz4G7DdAAABLUlEQVR4nO3UyRHCQAwAQbABL1f+6QIPKEfAPqYnAnVJpcNBtZ7bGEur6+0DPx17jSp8+cLXUNt9B5/3YSa07uDn2cP8sws4eCNw8Ejg4JHAwSOBg0cCB48EDh4JHDwSOHgkcPBI4OCRwMEjgYNHAgePBA4eCRw8Ejh4JHDwSODgkcDBI4GDRwIHjwQOHgkcPBI4eCRw8Ejg4JHAwSOBg0cCB48EDh4JHDwSOHgkcPBI4OCRwMEjgYNHAgePBA4eCRw8Ejh4JHDwSODgkcDBI4GDRwIHjwQOHgkcPBI4eCRw8Ejg4JHAwSOBg0cCB48EDh4JHDwSOHgkcPBI4OCRwMEjgYNHAgePBF6FP97w2bP8tXW38TXUdt/Ba/1Ovdb4wJ/bMpZW19u8D6NZvQAHUx5B5LstjAAAAABJRU5ErkJggg=="
+                    ],
+                    "address_object_gasn" => $claimObject->object->region->name_uz . ', ' . $claimObject->object->district->name_uz . ', ' . $claimObject->object->location_building,
+                    "buildings_title_documents_gasn" => $tableHtml
+                ];
 
-            $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/conclusion-gasn", $dataArray);
+                $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/conclusion-gasn", $dataArray);
 
-            if ($response->status() != 200) {
-                return false;
+                if ($response->status() != 200) {
+                    return false;
+                }
             }
 
             $claimObject->update(
