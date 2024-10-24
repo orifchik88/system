@@ -199,10 +199,12 @@ class ClaimService
         ];
 
         $claimObject = $this->getClaimByGUID(guid: $request['guid']);
-        $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/send-object-to-minstroy", $dataArray);
 
-        if ($response->status() != 200) {
-            return false;
+        if (env('MYGOV_MODE') == 'prod') {
+            $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/send-object-to-minstroy", $dataArray);
+            if ($response->status() != 200) {
+                return false;
+            }
         }
 
         $claimObject->update(
@@ -314,11 +316,13 @@ class ClaimService
         $this->claimRepository->updateConclusionOrganization(data: $requestData, id: $reviewObject->id, status: $statusReview);
 
         if ($reviewObject->organization_id != 18) {
-            $dataArray['Conclusion' . ucfirst($apiType) . 'V2FormCompletedBuildingsRegistrationCadastral'] = $requestData;
-            $response = $this->PostRequest($apiUrl, $dataArray);
+            if (env('MYGOV_MODE') == 'prod') {
+                $dataArray['Conclusion' . ucfirst($apiType) . 'V2FormCompletedBuildingsRegistrationCadastral'] = $requestData;
+                $response = $this->PostRequest($apiUrl, $dataArray);
 
-            if ($response->status() != 200) {
-                return false;
+                if ($response->status() != 200) {
+                    return false;
+                }
             }
         }
 
@@ -426,10 +430,12 @@ class ClaimService
         ];
 
         $claimObject = $this->getClaimByGUID(guid: $request['guid']);
-        $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/send-object-to-gasn", $dataArray);
 
-        if ($response->status() != 200) {
-            return false;
+        if (env('MYGOV_MODE') == 'prod') {
+            $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/send-object-to-gasn", $dataArray);
+            if ($response->status() != 200) {
+                return false;
+            }
         }
 
         $claimObject->update(
@@ -511,14 +517,16 @@ class ClaimService
         $histories = $this->historyService->getFilteredList(guId: $claimObject->gu_id, jsonColumn: 'role', needle: 3);
         $lastInspectorConclusion = json_decode($histories[0]->content, true);
 
-        $dataArray['SendToStepConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
-            'comment_gasn' => $lastInspectorConclusion['comment'],
-        ];
+        if (env('MYGOV_MODE') == 'prod') {
+            $dataArray['SendToStepConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
+                'comment_gasn' => $lastInspectorConclusion['comment'],
+            ];
 
-        $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/send-to-step-conclusion-gasn", $dataArray);
+            $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/send-to-step-conclusion-gasn", $dataArray);
 
-        if ($response->status() != 200) {
-            return false;
+            if ($response->status() != 200) {
+                return false;
+            }
         }
 
         if ($request['type'] == 15) {
