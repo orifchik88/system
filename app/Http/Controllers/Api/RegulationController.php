@@ -465,7 +465,7 @@ class RegulationController extends BaseController
             $inspector = User::query()->find($regulation->created_by_role_id);
             $role = Role::query()->find($roleId);
             $data = [
-                'screen' => '/confirm_regulations'
+                'screen' => 'confirm_regulations'
             ];
             $message = MessageTemplate::askDate($user->full_name, $regulation->object->task_id, $regulation->regulation_number, $role->name, now());
             $inspector->notify(new InspectorNotification(title: "Yozma ko'rsatmaga muddat uzaytirish so'raldi", message: $message, url: null, additionalInfo: $data));
