@@ -463,7 +463,7 @@ class RegulationController extends BaseController
         try {
             $inspector = User::query()->find($regulation->created_by_role_id);
             $role = Role::query()->find($roleId);
-            $message = MessageTemplate::askDate($user->full_name, $regulation->object->name, $regulation->regulation_number, $role->name, now());
+            $message = MessageTemplate::askDate($user->full_name, $regulation->object->task_id, $regulation->regulation_number, $role->name, now());
             $inspector->notify(new InspectorNotification(title: "Muddat so'raldi", message: $message, url: null, additionalInfo: null));
 
         } catch (\Exception $exception) {

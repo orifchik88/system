@@ -16,40 +16,40 @@ class MessageTemplate
 
     public static function attachRegulationInspector($username, $objectNumber, $blockName, $roleName, $date)
     {
-        return "$objectNumber raqamli obyekt, $blockName blokida ayrim ishlar yakunlandi, 3 kun ichida tanishib chiqishni unutmang!!! <br> <br> $username ($roleName) <br> $date";
+        return "$objectNumber raqamli obyekt, $blockName blokida ayrim ishlar yakunlandi, 3 kun ichida tanishib chiqishni unutmang!!! \n $username ($roleName) \n $date";
     }
 
     public static function confirmRegulationInspector($username, $objectNumber, $regulationNumber, $blockName, $roleName, $date)
     {
-        return "$objectNumber raqamli obyekt, $blockName blokida $regulationNumber raqamli yozma ko'rsatma tasdiqlash uchun keldi!<br> <br> $username ($roleName) <br> $date";
+        return "$objectNumber raqamli obyekt, $blockName blokida $regulationNumber raqamli yozma ko'rsatma tasdiqlash uchun keldi!\n $username ($roleName) \n $date";
     }
 
     public static function changeUserInObject($username,$changedRole, $objectNumber, $roleName, $date)
     {
-        return "$objectNumber raqamli obyekt, $changedRole xodimi o'zgartirilmoqda. Tanishib chiqishni unutmang!!! <br> <br> $username ($roleName) <br> $date";
+        return "$objectNumber raqamli obyekt, $changedRole xodimi o'zgartirilmoqda. Tanishib chiqishni unutmang!!! \n $username ($roleName) \n $date";
     }
     public static function askDate($username, $objectNumber, $regulationNumber,  $roleName, $date)
     {
-        return "$objectNumber raqamli obyekt, $regulationNumber raqamli yozma ko'rsatmaga muddat uzaytirish so'raldi <br> <br> $username ($roleName) <br> $date";
+        return "$objectNumber raqamli obyekt, $regulationNumber raqamli yozma ko'rsatmaga muddat uzaytirish so'raldi \n $username ($roleName) \n $date";
     }
     public static function attachObjectInspector($username, $objectNumber, $roleName, $date)
     {
-        return  "$objectNumber raqamli obyektni ro'yxatdan o'tkazish uchun ariza keldi! <br> <br> $username ($roleName) <br> $date";
+        return  "$objectNumber raqamli obyektni ro'yxatdan o'tkazish uchun ariza keldi! \n $username ($roleName) \n $date";
     }
 
     public static function createdObject($username, $objectNumber, $roleName, $date)
     {
-        return  "$objectNumber raqamli yangi obyekt sizga biriktirildi! <br> <br> $username ($roleName) <br> $date";
+        return  "$objectNumber raqamli yangi obyekt sizga biriktirildi! \n $username ($roleName) \n $date";
     }
 
     public static function createdClaim($username, $objectNumber, $roleName, $date)
     {
-        return  "$objectNumber raqamli obyektni foydalanishga topshirish uchun ariza keldi! <br> <br> $username ($roleName) <br> $date";
+        return  "$objectNumber raqamli obyektni foydalanishga topshirish uchun ariza keldi! \n $username ($roleName) \n $date";
     }
 
     public static function ratationInspector($inspectorName, $username, $roleName, $date)
     {
-        return  "$inspectorName bilan o'zgartirildingiz! <br> <br> $username ($roleName) <br> $date";
+        return  "$inspectorName bilan o'zgartirildingiz! \n $username ($roleName) \n $date";
     }
 
 
