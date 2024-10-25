@@ -203,7 +203,7 @@ class QuestionService
                     $this->createAuthorRegulation($data['negative'], $object, $roleId, $data['block_id']);
                 } else {
                     $allRoleViolations = $this->handleChecklists($data['negative'], $object, $data['block_id'], $roleId, false, null);
-                    $this->createRegulations($allRoleViolations, $object, $monitoring->id, $roleId, $data['block_id']);
+                    $this->createRegulations($allRoleViolations, $object, $monitoring->id, $roleId);
                 }
 
             }
@@ -487,7 +487,7 @@ class QuestionService
         }
     }
 
-    private function createRegulations($allRoleViolations, $object, $monitoringID, $createdByRole, $blockId)
+    private function createRegulations($allRoleViolations, $object, $monitoringID, $createdByRole)
     {
         foreach ($allRoleViolations as $roles) {
             foreach ($roles as $roleId => $role) {
