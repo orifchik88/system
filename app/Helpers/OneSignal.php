@@ -42,14 +42,18 @@ class OneSignal
 
     private function saveNotification($data, $notifiable)
     {
-        NotificationLog::query()->create([
-            'type' => NotificationTypeEnum::DEVICE,
-            'user_id' => $notifiable->id,
-            'title' => $data['title'],
-            'message' => $data['message'],
-            'image_url' => $data['url'],
-            'additional_info' => json_encode($data['additionalInfo']),
-            'sent_at' => now(),
-        ]);
+        try {
+            NotificationLog::query()->create([
+                'type' => NotificationTypeEnum::DEVICE,
+                'user_id' => $notifiable->id,
+                'title' => $data['title'],
+                'message' => $data['message'],
+                'image_url' => $data['url'],
+                'additional_info' => json_encode($data['additionalInfo']),
+                'sent_at' => now(),
+            ]);
+        }catch (\Exception $exception){
+            return response($exception->getMessage(), 500);
+        }
     }
 }
