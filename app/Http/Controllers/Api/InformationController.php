@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Resources\BasisResource;
 use App\Http\Resources\NormativeDocumentResource;
+use App\Http\Resources\NotificationResource;
 use App\Http\Resources\RoleResource;
 use App\Http\Resources\TopicResource;
 use App\Http\Resources\UserResource;
 use App\Models\Basis;
 use App\Models\NormativeDocument;
+use App\Models\NotificationLog;
 use App\Models\Topic;
 use App\Models\User;
 use App\Services\InformationService;
@@ -16,6 +18,7 @@ use GuzzleHttp\Client;
 use Hamcrest\Arrays\SeriesMatchingOnce;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Psy\Util\Json;
 
 class InformationController extends BaseController
@@ -259,6 +262,32 @@ class InformationController extends BaseController
                 ->where('parent_id', request('topic_id'))
                 ->paginate(request('per_page', 10));
             return $this->sendSuccess(BasisResource::collection($topics), 'Basis', pagination($topics));
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function notifications()
+    {
+        try {
+            $user = Auth::user();
+
+            $notifications = $user->notifications()->where('read', request('read'))->paginate(request('per_page', 10));
+            return $this->sendSuccess(NotificationResource::collection($notifications), 'Notifications', pagination($notifications));
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function notificationCount()
+    {
+        try {
+            $user = Auth::user();
+            $data =  [
+                'read' => $user->notifications()->where('read', true)->count(),
+                'notRead' => $user->notifications()->where('read', false)->count(),
+            ];
+            return $this->sendSuccess($data, 'Notifications');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }

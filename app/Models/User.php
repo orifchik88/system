@@ -93,6 +93,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsTo(UserStatus::class, 'user_status_id', 'id');
     }
 
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(NotificationLog::class, 'user_id');
+    }
+
 
 
 

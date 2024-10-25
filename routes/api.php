@@ -61,6 +61,8 @@ Route::group([
     Route::get('normative-documents', [InformationController::class, 'normativeDocs']);
     Route::get('topics', [InformationController::class, 'topics']);
     Route::get('basis', [InformationController::class, 'basis']);
+    Route::get('notifications', [InformationController::class, 'notifications']);
+    Route::get('notification-count', [InformationController::class, 'notificationCount']);
 
 
     Route::get('sphere', [SphereController::class, 'spheres']);
