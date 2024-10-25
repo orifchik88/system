@@ -25,7 +25,7 @@ class OneSignal
                 'app_id' => $data['app_id'],
 //                'include_external_user_ids' => [$data['notification_app_id']],
                 'include_external_user_ids' => ['8ce3385a-cef8-42c7-9788-fa27719a43bd'],
-                'data' => json_encode($data['additionalInfo'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                'data' => $data['additionalInfo'],
                 'contents' => [
                     'en' => $data['message'],
                     'uz' => $data['message'],
@@ -51,7 +51,7 @@ class OneSignal
                 'title' => $data['title'],
                 'message' => $data['message'],
                 'image_url' => $data['url'],
-                'additional_data' => json_encode($data['additionalInfo']),
+                'additional_data' => json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
                 'send_at' => now(),
             ]);
         }catch (\Exception $exception){
