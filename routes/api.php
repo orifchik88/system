@@ -63,6 +63,7 @@ Route::group([
     Route::get('basis', [InformationController::class, 'basis']);
     Route::get('notifications', [InformationController::class, 'notifications']);
     Route::get('notification-count', [InformationController::class, 'notificationCount']);
+    Route::post('notification-read', [InformationController::class, 'notificationRead']);
 
 
     Route::get('sphere', [SphereController::class, 'spheres']);

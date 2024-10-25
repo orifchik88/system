@@ -293,4 +293,14 @@ class InformationController extends BaseController
         }
     }
 
+    public function notificationRead(): JsonResponse
+    {
+        try {
+             NotificationLog::query()->find(request('id'))->update(['read' => true]);
+             return $this->sendSuccess([],'Notification Read');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
 }
