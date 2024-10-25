@@ -44,7 +44,7 @@ class ObjectController extends BaseController
     public function rotation(): JsonResponse
     {
         try {
-            $this->service->rotateUsers(request('user_id'), request('rotation_user_id'));
+            $this->service->rotateUsers($this->user, $this->roleId, request('user_id'), request('rotation_user_id'));
 
             return $this->sendSuccess([], 'Rotation completed successfully.');
 

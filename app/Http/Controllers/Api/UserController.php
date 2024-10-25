@@ -15,13 +15,17 @@ use App\Http\Resources\UserHistoryResource;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\UserResourceCollection;
 use App\Http\Resources\UserStatusResource;
+use App\Models\Article;
 use App\Models\ArticleUser;
 use App\Models\Regulation;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\UserHistory;
 use App\Models\UserRole;
 use App\Models\UserStatus;
+use App\Notifications\InspectorNotification;
 use App\Services\HistoryService;
+use App\Services\MessageTemplate;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -113,6 +117,7 @@ class UserController extends BaseController
                         'created_by_role_id' => $data['new_role_id'],
                     ]);
 
+                $this->sendNotification($this->user, $data['new_user_id'], $this->roleId, $data['object_id']);
 
             } else {
                 $meta['inspector_id'] = $data['inspector_id'] ?? null;
@@ -124,6 +129,8 @@ class UserController extends BaseController
                     comment: $item['comment'] ?? "",
                     additionalInfo: $meta
                 );
+
+                $this->sendNotificationAuthor($this->user, $this->roleId, $data['new_role_id'], $data['object_id']);
             }
 
             return $this->sendSuccess([], 'Send Successfully');
@@ -321,54 +328,6 @@ class UserController extends BaseController
 
 
 
-
-//    public function create(UserRequest $request): JsonResponse
-//    {
-//        DB::beginTransaction();
-//
-//        try {
-//            $imagePath = null;
-//
-//            if ($request->hasFile('image')) {
-//                $imagePath = $request->file('image')->store('user', 'public');
-//            }
-//            $user = new User();
-//            $user->name = $request->name;
-//            $user->phone = $request->phone;
-//            $user->pinfl = $request->pinfl;
-//            $user->password = Hash::make($request->phone);
-//            $user->login = $request->phone;
-//            $user->user_status_id = $request->user_status_id;
-//            $user->surname = $request->surname;
-//            $user->middle_name = $request->middle_name;
-//            $user->region_id = $request->region_id;
-//            $user->district_id = $request->district_id;
-//            $user->created_by = $request->created_by;
-//            $user->type = $request->type;
-//            $user->image = $imagePath;
-//            $user->save();
-//
-//            if ($request->filled('role_ids')) {
-//                foreach ($request->role_ids as $role_id) {
-//                    $role = UserRole::query()
-//                        ->where('user_id', $user->id)
-//                        ->where('role_id', $role_id)->first();
-//                    if (!$role) {
-//                        UserRole::query()->create([
-//                            'user_id' => $user->id,
-//                            'role_id' => $role_id
-//                        ]);
-//                    }
-//                }
-//            }
-//            DB::commit();
-//            return $this->sendSuccess(new UserResource($user), 'User Created Successfully');
-//        } catch (\Exception $exception) {
-//            DB::rollBack();
-//            return $this->sendError($exception->getMessage(), $exception->getLine());
-//        }
-//    }
-
     public function getInspector(): JsonResponse
     {
         try {
@@ -421,6 +380,37 @@ class UserController extends BaseController
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
+
+    private function sendNotification($user, $inspectorId, $roleId, $objectId)
+    {
+        try {
+            $role = Role::query()->find($roleId);
+            $inspector = User::query()->find($inspectorId);
+            $object = Article::query()->find($objectId);
+            $message = MessageTemplate::createdObject($user->full_name, $object->task_id, $role->name, now());
+            $inspector->notify(new InspectorNotification(title: "Yangi obyekt biriktirildi", message: $message, url: null, additionalInfo: null));
+
+        } catch (\Exception $exception) {
+
+        }
+
+    }
+    private function sendNotificationAuthor($user, $roleId, $newRoleId, $objectId)
+    {
+        try {
+            $role = Role::query()->find($roleId);
+            $newRole = Role::query()->find($newRoleId);
+            $object = Article::query()->find($objectId);
+            $inspector = $object->users()->where('role_id', UserRoleEnum::INSPECTOR->value)->first();
+            $message = MessageTemplate::changeUserInObject($user->full_name, $newRole->name, $object->task_id, $role->name, now());
+            $inspector->notify(new InspectorNotification(title: "Xodim o'zgartirilmoqda", message: $message, url: null, additionalInfo: null));
+
+        } catch (\Exception $exception) {
+
+        }
+
+    }
+
 
     public function status(): JsonResponse
     {

@@ -22,7 +22,9 @@ use App\Models\Regulation;
 use App\Models\RegulationDemand;
 use App\Models\RegulationUser;
 use App\Models\RegulationViolation;
+use App\Models\Role;
 use App\Models\User;
+use App\Models\UserRole;
 use App\Models\Violation;
 use App\Models\WorkType;
 use App\Notifications\InspectorNotification;
@@ -562,7 +564,11 @@ class QuestionService
             $regulation->update([
                 'regulation_status_id' => RegulationStatusEnum::CONFIRM_REMEDY,
             ]);
-            if ($regulation->created_by_role_id = )
+
+            if ($regulation->created_by_role_id = UserRoleEnum::INSPECTOR->value)
+            {
+                $this->sendNotificationRegulation($regulation);
+            }
 
             $actViolations = $regulation->actViolations()->where('act_violation_type_id', 1)->get();
 
@@ -681,17 +687,14 @@ class QuestionService
 
     }
 
-    private function sendNotificationRegulation($checklist, $object, $blockId)
+    private function sendNotificationRegulation($regulation)
     {
         try {
-            $block = Block::query()->find($blockId);
-
-            if ($checklist->status == CheckListStatusEnum::SECOND) {
-                $inspector = $object->users()->where('role_id', UserRoleEnum::INSPECTOR->value)->first();
-                $ichki = $object->users()->where('role_id', UserRoleEnum::ICHKI->value)->first();
-                $message = MessageTemplate::attachRegulationInspector($ichki->full_name, $object->task_id, $block->name, 'Ichki nazaorat', now());
-                $inspector->notify(new InspectorNotification(title: 'Ayrim ishlar yakunlandi', message: $message, url: null, additionalInfo: null));
-            }
+            $inspector = User::query()->find($regulation->created_by_user_id)->first();
+            $user = User::query()->find($regulation->user_id)->first();
+            $role = Role::query()->find($regulation->role_id);
+                $message = MessageTemplate::confirmRegulationInspector($user->full_name, $regulation->object->task_id, $regulation->regulation_number, $regulation->monitoring->block->name, $role->name, now());
+                $inspector->notify(new InspectorNotification(title: "Yozma ko'rsatmani tasdiqlash so'raldi", message: $message, url: null, additionalInfo: null));
 
         } catch (\Exception $exception) {
 

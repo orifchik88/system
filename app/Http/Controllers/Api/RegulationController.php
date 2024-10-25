@@ -2,38 +2,28 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\DTO\QuestionDto;
 use App\DTO\RegulationDto;
 use App\Enums\LawyerStatusEnum;
-use App\Http\Controllers\Controller;
+use App\Enums\UserRoleEnum;
 use App\Http\Requests\RegulationAcceptRequest;
 use App\Http\Requests\RegulationDemandRequest;
 use App\Http\Requests\RegulationFineRequest;
 use App\Http\Resources\AuthorRegulationResource;
-use App\Http\Resources\CheckListAnswerResource;
-use App\Http\Resources\ChecklistResource;
-use App\Http\Resources\MonitoringResource;
 use App\Http\Resources\RegulationResource;
-use App\Http\Resources\ViolationResource;
 use App\Models\ActViolation;
 use App\Models\Article;
 use App\Models\AuthorRegulation;
-use App\Models\CheckListAnswer;
-use App\Models\Monitoring;
 use App\Models\Regulation;
 use App\Models\RegulationDemand;
 use App\Models\RegulationFine;
-use App\Models\Violation;
+use App\Models\User;
 use App\Notifications\InspectorNotification;
+use App\Services\MessageTemplate;
 use App\Services\RegulationService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Queue\Jobs\SqsJob;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Js;
-use Spatie\Permission\Models\Role;
 
 class RegulationController extends BaseController
 {
@@ -120,6 +110,10 @@ class RegulationController extends BaseController
             $roleId = $user->getRoleFromToken();
 
             $regulation = Regulation::query()->findOrFaiL($request->post('regulation_id'));
+            if ($regulation->created_by_user_id == UserRoleEnum::INSPECTOR->value)
+            {
+                $this->sendNotification($regulation);
+            }
 
             if ($regulation->deadline_asked) return $this->sendError('Muddat oldin  soralgan');
 
@@ -458,6 +452,18 @@ class RegulationController extends BaseController
 
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    private function sendNotification($regulation)
+    {
+        try {
+            $inspector = User::query()->find($regulation->created_by_role_id);
+            $message = MessageTemplate::ratationInspector($inspector->full_name, $user->full_name, $role->name, now());
+            $inspector->notify(new InspectorNotification(title: "Rotatsiya", message: $message, url: null, additionalInfo: null));
+
+        } catch (\Exception $exception) {
+
         }
     }
 

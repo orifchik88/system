@@ -6,8 +6,11 @@ use App\Enums\UserRoleEnum;
 use App\Models\Article;
 use App\Models\ArticleUser;
 use App\Models\Regulation;
+use App\Models\Role;
 use App\Models\User;
+use App\Notifications\InspectorNotification;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
+use App\Services\MessageTemplate;
 use Illuminate\Support\Facades\DB;
 
 class ArticleRepository implements ArticleRepositoryInterface
@@ -51,37 +54,37 @@ class ArticleRepository implements ArticleRepositoryInterface
             ->when(isset($filters['status']), function ($query) use ($filters) {
                 $query->where('articles.object_status_id', $filters['status']);
             })
-            ->when(isset($filters['name']), function ($query) use($filters) {
+            ->when(isset($filters['name']), function ($query) use ($filters) {
                 $query->searchByName($filters['name']);
             })
-            ->when(isset($filters['customer']), function ($query) use($filters) {
+            ->when(isset($filters['customer']), function ($query) use ($filters) {
                 $query->searchByOrganization($filters['customer']);
             })
-            ->when(isset($filters['funding_source']), function ($query) use($filters) {
+            ->when(isset($filters['funding_source']), function ($query) use ($filters) {
                 $query->where('funding_source_id', $filters['funding_source']);
             })
-            ->when(isset($filters['object_type']), function ($query) use($filters) {
+            ->when(isset($filters['object_type']), function ($query) use ($filters) {
                 $query->where('object_type_id', $filters['object_type']);
             })
-            ->when(isset($filters['task_id']), function ($query) use($filters) {
+            ->when(isset($filters['task_id']), function ($query) use ($filters) {
                 $query->searchByTaskId($filters['task_id']);
             })
-            ->when(isset($filters['region_id']), function ($query) use($filters) {
+            ->when(isset($filters['region_id']), function ($query) use ($filters) {
                 $query->where('articles.region_id', $filters['region_id']);
             })
-            ->when(isset($filters['district_id']), function ($query) use($filters) {
+            ->when(isset($filters['district_id']), function ($query) use ($filters) {
                 $query->where('articles.district_id', $filters['district_id']);
             })
-            ->when(isset($filters['user_search']), function ($query) use($filters) {
+            ->when(isset($filters['user_search']), function ($query) use ($filters) {
                 $query->whereHas('users', function ($query) use ($filters) {
                     $query->searchByFullName($filters['user_search']);
                 });
             });
     }
 
-    public function rotateUsers($firstUserId, $secondUserId): void
+    public function rotateUsers($user, $roleId, $firstUserId, $secondUserId): void
     {
-        $firstUserArticles = ArticleUser::where('user_id',$firstUserId)
+        $firstUserArticles = ArticleUser::where('user_id', $firstUserId)
             ->where('role_id', UserRoleEnum::INSPECTOR->value)
             ->pluck('article_id');
 
@@ -114,6 +117,8 @@ class ArticleRepository implements ArticleRepositoryInterface
                 'created_by_user_id' => $firstUserId,
                 'created_by_role_id' => UserRoleEnum::INSPECTOR->value,
             ]);
+        $this->sendNotification($user, $firstUserId, $roleId);
+        $this->sendNotification($user, $secondUserId, $roleId);
     }
 
     public function findArticleByParams($params)
@@ -166,6 +171,20 @@ class ArticleRepository implements ArticleRepositoryInterface
 
         return $query;
 
+    }
+
+
+    private function sendNotification($user, $changeUserId, $roleId)
+    {
+        try {
+            $inspector = User::query()->find($changeUserId);
+            $role = Role::query()->find($roleId);
+            $message = MessageTemplate::ratationInspector($inspector->full_name, $user->full_name, $role->name, now());
+            $inspector->notify(new InspectorNotification(title: "Rotatsiya", message: $message, url: null, additionalInfo: null));
+
+        } catch (\Exception $exception) {
+
+        }
     }
 
 

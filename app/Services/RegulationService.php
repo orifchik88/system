@@ -10,8 +10,10 @@ use App\Models\ActViolationBlock;
 use App\Models\Article;
 use App\Models\Regulation;
 use App\Models\RegulationDemand;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\UserRole;
+use App\Notifications\InspectorNotification;
 use App\Repositories\Interfaces\RegulationRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -228,6 +230,10 @@ class RegulationService
             $regulation->update([
                 'regulation_status_id' => RegulationStatusEnum::CONFIRM_DEED,
             ]);
+            if ($regulation->created_by_role_id == UserRoleEnum::INSPECTOR->value)
+            {
+                $this->sendNotification($regulation);
+            }
             $actViolations = $regulation->actViolations()->whereActViolationTypeId(2)->get();
 
             if ($actViolations->isNotEmpty())
@@ -547,6 +553,21 @@ class RegulationService
             }
             (new SmsService($user->phone, $message))->sendSms();
         }catch (\Exception $exception) {
+
+        }
+
+    }
+
+    private function sendNotification($regulation)
+    {
+        try {
+            $inspector = User::query()->find($regulation->created_by_user_id)->first();
+            $user = User::query()->find($regulation->user_id)->first();
+            $role = Role::query()->find($regulation->role_id);
+            $message = MessageTemplate::confirmRegulationInspector($user->full_name, $regulation->object->task_id, $regulation->regulation_number, $regulation->monitoring->block->name, $role->name, now());
+            $inspector->notify(new InspectorNotification(title: "Yozma ko'rsatmani tasdiqlash so'raldi", message: $message, url: null, additionalInfo: null));
+
+        } catch (\Exception $exception) {
 
         }
 

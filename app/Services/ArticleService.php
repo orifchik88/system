@@ -96,9 +96,9 @@ class ArticleService
         return $this->articleRepository->searchObjects($query, $filters);
     }
 
-    public function rotateUsers($firstUserId, $secondUserId)
+    public function rotateUsers($user, $roleId, $firstUserId, $secondUserId)
     {
-        $this->articleRepository->rotateUsers($firstUserId, $secondUserId);
+        $this->articleRepository->rotateUsers($user, $roleId, $firstUserId, $secondUserId);
     }
 
     public function getAllFundingSources(): object
