@@ -9,7 +9,6 @@ use App\Http\Requests\ClaimRequests\ConclusionOrganization;
 use App\Models\Article;
 use App\Models\Claim;
 use App\Models\ClaimMonitoring;
-use App\Models\ClaimObjectBlock;
 use App\Models\ClaimOrganizationReview;
 use App\Models\Response;
 use App\Repositories\Interfaces\ClaimRepositoryInterface;
@@ -608,6 +607,20 @@ class ClaimRepository implements ClaimRepositoryInterface
                 'answered_at' => Carbon::now(),
                 'status' => $status,
                 'answer' => base64_encode(gzcompress(json_encode($data), 9))
+            ]
+        );
+    }
+
+    public function manualConfirmByDirector(int $object_id, string $comment, string $file)
+    {
+        DB::table('claim_manual_confirmed_objects')->insertGetId(
+            [
+                'object_id' => $object_id,
+                'comment' => $comment,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+                'file' => $file,
+                'user_id' => Auth::user()->id
             ]
         );
     }

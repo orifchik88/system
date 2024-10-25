@@ -60,4 +60,5 @@ interface ClaimRepositoryInterface
     public function createMonitoring(array $blocks, array $organizations, int $id, int $object_id);
 
     public function updateConclusionOrganization(array $data, int $id, bool $status);
+    public function manualConfirmByDirector(int $object_id, string $comment, string $file);
 }

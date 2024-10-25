@@ -30,6 +30,11 @@ class ArticleRepository implements ArticleRepositoryInterface
         return Article::with('objectType')->where('task_id', $taskId)->first();
     }
 
+    public function findById($id): ?Article
+    {
+        return Article::with('objectType')->where('id', $id)->first();
+    }
+
     public function getArticlesByUserRole($user, $roleId)
     {
         return $user->objects()->wherePivot('role_id', $roleId);
