@@ -464,8 +464,11 @@ class RegulationController extends BaseController
         try {
             $inspector = User::query()->find($regulation->created_by_role_id);
             $role = Role::query()->find($roleId);
+            $data = [
+                'screen' => '/confirm_regulations'
+            ];
             $message = MessageTemplate::askDate($user->full_name, $regulation->object->task_id, $regulation->regulation_number, $role->name, now());
-            $inspector->notify(new InspectorNotification(title: "Yozma ko'rsatmaga muddat uzaytirish so'raldi", message: $message, url: null, additionalInfo: null));
+            $inspector->notify(new InspectorNotification(title: "Yozma ko'rsatmaga muddat uzaytirish so'raldi", message: $message, url: null, additionalInfo: $data));
 
         } catch (\Exception $exception) {
 
@@ -483,9 +486,14 @@ class RegulationController extends BaseController
             ])->post('https://onesignal.com/api/v1/notifications', [
                 'app_id' => 'a09289fb-95f4-4e89-a860-b66bcd773242',
                 'include_external_user_ids' => ['8ce3385a-cef8-42c7-9788-fa27719a43bd'],
-                'contents' => [
-                    'en' => "147352716 raqamli obyekt, 200024 raqamli yozma ko'rsatmaga muddat uzaytirish so'raldi",
+                'data' => [
+                      'screen' => '/tutorial'
+                ],
 
+                'contents' => [
+                    'en' => "147352716 raqamli obyekt, 200024 raqamli yozma ko'rsatmaga muddat uzaytirish so'raldi
+                             RO‘ZIYEV SHAHZOD HAYITBOYEVICH (Mualliflik nazorati)
+                             2024-10-25 19:24:39",
                 ],
                 'headings' => [
                     'en' => "Nazorat",
