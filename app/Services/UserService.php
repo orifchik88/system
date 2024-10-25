@@ -30,7 +30,7 @@ class UserService
 
             case UserRoleEnum::RESKADR->value:
                 return User::query()->whereHas('roles', function ($query) {
-                    $query->whereNotIn('id', [
+                    $query->whereNotIn('role_id', [
                         UserRoleEnum::BUYURTMACHI->value,
                         UserRoleEnum::LOYIHA->value,
                         UserRoleEnum::QURILISH->value,

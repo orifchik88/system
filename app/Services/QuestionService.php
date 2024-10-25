@@ -25,6 +25,7 @@ use App\Models\RegulationViolation;
 use App\Models\User;
 use App\Models\Violation;
 use App\Models\WorkType;
+use App\Notifications\InspectorNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -95,8 +96,8 @@ class QuestionService
                             'inspector_answered' => $answer ? $answer->inspector_answered : null,
                             'technic_answered' => $answer ? $answer->technic_answered : null,
                             'author_answered' => $answer ? $answer->author_answered : null,
-                            'inspector_deadline' =>  $answer ? $answer->inspector_answered_at : null,
-                            'technic_author_deadline' => $answer ? $answer->technic_author_answered_at: null,
+                            'inspector_deadline' => $answer ? $answer->inspector_answered_at : null,
+                            'technic_author_deadline' => $answer ? $answer->technic_author_answered_at : null,
                             'logs' => $answer ? CheckListHistoryResource::collection($answer->logs) : null
                         ];
                     }
@@ -118,8 +119,8 @@ class QuestionService
                         'inspector_answered' => $answer ? $answer->inspector_answered : null,
                         'technic_answered' => $answer ? $answer->technic_answered : null,
                         'author_answered' => $answer ? $answer->author_answered : null,
-                        'inspector_deadline' =>  $answer ? $answer->inspector_answered_at : null,
-                        'technic_author_deadline' => $answer ? $answer->technic_author_answered_at: null,
+                        'inspector_deadline' => $answer ? $answer->inspector_answered_at : null,
+                        'technic_author_deadline' => $answer ? $answer->technic_author_answered_at : null,
                         'logs' => $answer ? CheckListHistoryResource::collection($answer->logs) : null
                     ];
                 }
@@ -198,7 +199,7 @@ class QuestionService
                     $this->createAuthorRegulation($data['negative'], $object, $roleId, $data['block_id']);
                 } else {
                     $allRoleViolations = $this->handleChecklists($data['negative'], $object, $data['block_id'], $roleId, false, null);
-                    $this->createRegulations($allRoleViolations, $object, $monitoring->id, $roleId);
+                    $this->createRegulations($allRoleViolations, $object, $monitoring->id, $roleId, $data['block_id']);
                 }
 
             }
@@ -214,7 +215,7 @@ class QuestionService
     {
         foreach ($checklists as $index => $checklistData) {
             $checklist = $this->getOrCreateChecklist($checklistData, $object, $blockId, null);
-            $this->updateChecklistStatus($checklist, $checklistData, $roleId, false);
+            $this->updateChecklistStatus($checklist, $checklistData, $roleId, false, $object);
             $this->saveAuthorRegulation($checklist, $checklistData, $object, $roleId, $blockId);
 
             $meta = ['user_answered' => $checklist->auhtor_answered];
@@ -296,7 +297,7 @@ class QuestionService
         foreach ($checklists as $index => $checklistData) {
             $checklist = $this->getOrCreateChecklist($checklistData, $object, $blockId, $monitoringID);
 
-            $this->updateChecklistStatus($checklist, $checklistData, $roleId, $isPositive);
+            $this->updateChecklistStatus($checklist, $checklistData, $roleId, $isPositive, $object);
             if ($isPositive) {
                 $answeredField = $this->getAnsweredFieldByRole($roleId);
                 $meta = ['user_answered' => $checklist->$answeredField];
@@ -333,6 +334,7 @@ class QuestionService
                         'technic_author_answered_at' => null,
                     ]);
                 }
+                $this->sendNotification($checklist, $object, $blockId);
             } else {
                 $allRoleViolations[$index] = $this->handleViolations($checklistData, $checklist, $roleId);
             }
@@ -356,7 +358,7 @@ class QuestionService
             ]);
     }
 
-    private function updateChecklistStatus($checklist, $checklistData, $roleId, $isPositive)
+    private function updateChecklistStatus($checklist, $checklistData, $roleId, $isPositive, $object)
     {
         $answeredField = $this->getAnsweredFieldByRole($roleId);
         $statusField = $isPositive
@@ -481,7 +483,7 @@ class QuestionService
         }
     }
 
-    private function createRegulations($allRoleViolations, $object, $monitoringID, $createdByRole)
+    private function createRegulations($allRoleViolations, $object, $monitoringID, $createdByRole, $blockId)
     {
         foreach ($allRoleViolations as $roles) {
             foreach ($roles as $roleId => $role) {
@@ -511,6 +513,8 @@ class QuestionService
         ]);
 
     }
+
+
 
     private function createRegulationUser($regulation)
     {
@@ -556,6 +560,8 @@ class QuestionService
             $regulation->update([
                 'regulation_status_id' => RegulationStatusEnum::CONFIRM_REMEDY,
             ]);
+            if ($regulation->created_by_role_id = )
+
             $actViolations = $regulation->actViolations()->where('act_violation_type_id', 1)->get();
 
             if ($actViolations->isNotEmpty()) {
@@ -653,6 +659,42 @@ class QuestionService
             DB::rollBack();
             throw $exception;
         }
+    }
+
+    private function sendNotification($checklist, $object, $blockId)
+    {
+        try {
+            $block = Block::query()->find($blockId);
+
+            if ($checklist->status == CheckListStatusEnum::SECOND) {
+                $inspector = $object->users()->where('role_id', UserRoleEnum::INSPECTOR->value)->first();
+                $ichki = $object->users()->where('role_id', UserRoleEnum::ICHKI->value)->first();
+                $message = MessageTemplate::attachRegulationInspector($ichki->full_name, $object->task_id, $block->name, 'Ichki nazaorat', now());
+                $inspector->notify(new InspectorNotification(title: 'Ayrim ishlar yakunlandi', message: $message, url: null, additionalInfo: null));
+            }
+
+        } catch (\Exception $exception) {
+
+        }
+
+    }
+
+    private function sendNotificationRegulation($checklist, $object, $blockId)
+    {
+        try {
+            $block = Block::query()->find($blockId);
+
+            if ($checklist->status == CheckListStatusEnum::SECOND) {
+                $inspector = $object->users()->where('role_id', UserRoleEnum::INSPECTOR->value)->first();
+                $ichki = $object->users()->where('role_id', UserRoleEnum::ICHKI->value)->first();
+                $message = MessageTemplate::attachRegulationInspector($ichki->full_name, $object->task_id, $block->name, 'Ichki nazaorat', now());
+                $inspector->notify(new InspectorNotification(title: 'Ayrim ishlar yakunlandi', message: $message, url: null, additionalInfo: null));
+            }
+
+        } catch (\Exception $exception) {
+
+        }
+
     }
 
 }

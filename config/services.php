@@ -38,4 +38,10 @@ return [
         'password' => env('SMS_PROVIDER_PASSWORD'),
     ],
 
+    'onesignal' => [
+        'app_id' => env('ONESIGNAL_APP_ID') ?? 'a09289fb-95f4-4e89-a860-b66bcd773242',
+        'url' => env('ONESIGNAL_URL') ?? 'https://onesignal.com/api/v1/notifications',
+        'token' => env('ONESIGNAL_TOKEN') ?? 'ODFjNmNkOTgtMzI4OS00ZjAxLWI3YmQtNmI2Nzc0M2VlMDVi',
+    ],
+
 ];

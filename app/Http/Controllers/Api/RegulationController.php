@@ -24,6 +24,7 @@ use App\Models\Regulation;
 use App\Models\RegulationDemand;
 use App\Models\RegulationFine;
 use App\Models\Violation;
+use App\Notifications\InspectorNotification;
 use App\Services\RegulationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Queue\Jobs\SqsJob;
@@ -464,22 +465,36 @@ class RegulationController extends BaseController
     public function test()
     {
         try {
-            if (env('APP_ENV') === 'development') {
-                $authUsername = config('app.mygov.login');
-                $authPassword = config('app.mygov.password');
+            $user = Auth::user();
+            $user->notify(new InspectorNotification(title: 'Nazorat', message: 'Test', url: null, additionalInfo: null));
 
-                $apiUrl = config('app.mygov.url') . '/update/id/' . request('task_id') . '/action/accept-consideration';
-                $formName = 'AcceptConsiderationV4FormNoticeBeginningConstructionWorks';
-
-                return Http::withBasicAuth($authUsername, $authPassword)
-                    ->post($apiUrl, [
-                        $formName => [
-                            "notice" => "Qabul qilindi"
-                        ]
-                    ]);
-            }
-        }catch (\Exception $exception){
-            Log::info($exception->getMessage());;
+//            $response = Http::withHeaders([
+//                'Content-Type' => 'application/json; charset=utf-8',
+//                'Authorization' => 'ODFjNmNkOTgtMzI4OS00ZjAxLWI3YmQtNmI2Nzc0M2VlMDVi', // OneSignal REST API key
+//            ])->post('https://onesignal.com/api/v1/notifications', [
+//                'app_id' => 'a09289fb-95f4-4e89-a860-b66bcd773242',
+//                'include_external_user_ids' => ['951663ea-6822-4c42-8b8d-904645187f8a'],
+//                'data' => [
+//                      'screen' => '/tutorial'
+//                ],
+//
+////                'included_segments' => ['All'], // Bu barcha subscribed foydalanuvchilarga yuboradi
+//                'contents' => [
+//                    'en' => "Ajara guju", // Xabar matni
+//                ],
+//                'big_picture' => 'https://pmtips.net/Portals/0/EasyDNNNews/2137/700600p546EDNmainimg-3-types-of-tools-for-project-task-management1.jpg',
+//                'headings' => [
+//                    'en' => "Nazorat",
+//                ]
+//            ]);
+//
+//            if ($response->successful()) {
+//                return $response->json();
+//            } else {
+//                return $response->body();  // Xatolik yuz bersa, ma'lumotni ko'rsatadi.
+//            }
+        } catch (\Exception $exception) {
+            Log::info($exception->getMessage());
         }
     }
 }
