@@ -51,7 +51,7 @@ class OneSignal
                 'title' => $data['title'],
                 'message' => $data['message'],
                 'image_url' => $data['url'],
-                'additional_data' => $data['additionalInfo'],
+                'additional_data' => $jsonData = json_encode($data['additionalInfo'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
                 'send_at' => now(),
             ]);
         }catch (\Exception $exception){
