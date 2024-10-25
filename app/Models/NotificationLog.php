@@ -15,7 +15,6 @@ class NotificationLog extends Model
 
     protected $casts = [
         'type' => NotificationTypeEnum::class,
-        'additional_data' => 'array'
     ];
 
     public function user(): BelongsTo
