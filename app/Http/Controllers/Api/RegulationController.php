@@ -16,6 +16,7 @@ use App\Models\AuthorRegulation;
 use App\Models\Regulation;
 use App\Models\RegulationDemand;
 use App\Models\RegulationFine;
+use App\Models\Role;
 use App\Models\User;
 use App\Notifications\InspectorNotification;
 use App\Services\MessageTemplate;
@@ -110,10 +111,7 @@ class RegulationController extends BaseController
             $roleId = $user->getRoleFromToken();
 
             $regulation = Regulation::query()->findOrFaiL($request->post('regulation_id'));
-            if ($regulation->created_by_user_id == UserRoleEnum::INSPECTOR->value)
-            {
-                $this->sendNotification($regulation);
-            }
+
 
             if ($regulation->deadline_asked) return $this->sendError('Muddat oldin  soralgan');
 
@@ -132,6 +130,11 @@ class RegulationController extends BaseController
                 'deadline_asked' => true,
                 'act_status_id' => 10
             ]);
+
+            if ($regulation->created_by_user_id == UserRoleEnum::INSPECTOR->value)
+            {
+                $this->sendNotification($this->user, $this->roleId, $regulation);
+            }
 
             DB::commit();
             return $this->sendSuccess([], 'Data saved successfully');
@@ -455,12 +458,13 @@ class RegulationController extends BaseController
         }
     }
 
-    private function sendNotification($regulation)
+    private function sendNotification($user, $roleId, $regulation)
     {
         try {
             $inspector = User::query()->find($regulation->created_by_role_id);
-            $message = MessageTemplate::ratationInspector($inspector->full_name, $user->full_name, $role->name, now());
-            $inspector->notify(new InspectorNotification(title: "Rotatsiya", message: $message, url: null, additionalInfo: null));
+            $role = Role::query()->find($roleId);
+            $message = MessageTemplate::askDate($user->full_name, $regulation->object->name, $regulation->regulation_number, $role->name, now());
+            $inspector->notify(new InspectorNotification(title: "Muddat so'raldi", message: $message, url: null, additionalInfo: null));
 
         } catch (\Exception $exception) {
 
