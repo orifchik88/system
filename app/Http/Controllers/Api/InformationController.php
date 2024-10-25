@@ -271,8 +271,11 @@ class InformationController extends BaseController
     {
         try {
             $user = Auth::user();
-
-            $notifications = $user->notifications()->where('read', request('read'))->paginate(request('per_page', 10));
+            $query = $user->notifications();
+            if (!is_null(request('read'))) {
+                $query->where('read', request('read'));
+            }
+            $notifications = $query->paginate(request('per_page', 10));
             return $this->sendSuccess(NotificationResource::collection($notifications), 'Notifications', pagination($notifications));
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
@@ -284,7 +287,7 @@ class InformationController extends BaseController
         try {
             $user = Auth::user();
             $data =  [
-                'read' => $user->notifications()->where('read', true)->count(),
+                'all' => $user->notifications()->count(),
                 'notRead' => $user->notifications()->where('read', false)->count(),
             ];
             return $this->sendSuccess($data, 'Notifications');
