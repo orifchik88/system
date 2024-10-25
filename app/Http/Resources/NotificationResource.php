@@ -21,7 +21,7 @@ class NotificationResource extends JsonResource
             'sent_at' => $this->send_at,
             'image' => $this->image_url,
             'read' => $this->read,
-            'additional_info' => $this->additional_data
+            'additional_info' => json_decode($this->additional_data)
         ];
     }
 }
