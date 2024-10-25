@@ -28,6 +28,7 @@ class OneSignal
                 'data' => $data['additionalInfo'],
                 'contents' => [
                     'en' => $data['message'],
+                    'uz' => $data['message'],
                 ],
                 'big_picture' => $data['url'],
                 'headings' => [

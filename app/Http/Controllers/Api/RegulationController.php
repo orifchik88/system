@@ -24,6 +24,7 @@ use App\Services\RegulationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class RegulationController extends BaseController
@@ -475,34 +476,27 @@ class RegulationController extends BaseController
     public function test()
     {
         try {
-            $user = Auth::user();
-            $user->notify(new InspectorNotification(title: 'Nazorat', message: 'Test', url: null, additionalInfo: null));
 
-//            $response = Http::withHeaders([
-//                'Content-Type' => 'application/json; charset=utf-8',
-//                'Authorization' => 'ODFjNmNkOTgtMzI4OS00ZjAxLWI3YmQtNmI2Nzc0M2VlMDVi', // OneSignal REST API key
-//            ])->post('https://onesignal.com/api/v1/notifications', [
-//                'app_id' => 'a09289fb-95f4-4e89-a860-b66bcd773242',
-//                'include_external_user_ids' => ['951663ea-6822-4c42-8b8d-904645187f8a'],
-//                'data' => [
-//                      'screen' => '/tutorial'
-//                ],
-//
-////                'included_segments' => ['All'], // Bu barcha subscribed foydalanuvchilarga yuboradi
-//                'contents' => [
-//                    'en' => "Ajara guju", // Xabar matni
-//                ],
-//                'big_picture' => 'https://pmtips.net/Portals/0/EasyDNNNews/2137/700600p546EDNmainimg-3-types-of-tools-for-project-task-management1.jpg',
-//                'headings' => [
-//                    'en' => "Nazorat",
-//                ]
-//            ]);
-//
-//            if ($response->successful()) {
-//                return $response->json();
-//            } else {
-//                return $response->body();  // Xatolik yuz bersa, ma'lumotni ko'rsatadi.
-//            }
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json; charset=utf-8',
+                'Authorization' => 'ODFjNmNkOTgtMzI4OS00ZjAxLWI3YmQtNmI2Nzc0M2VlMDVi', // OneSignal REST API key
+            ])->post('https://onesignal.com/api/v1/notifications', [
+                'app_id' => 'a09289fb-95f4-4e89-a860-b66bcd773242',
+                'include_external_user_ids' => ['8ce3385a-cef8-42c7-9788-fa27719a43bd'],
+                'contents' => [
+                    'en' => "147352716 raqamli obyekt, 200024 raqamli yozma ko'rsatmaga muddat uzaytirish so'raldi",
+
+                ],
+                'headings' => [
+                    'en' => "Nazorat",
+                ]
+            ]);
+
+            if ($response->successful()) {
+                return $response->json();
+            } else {
+                return $response->body();  // Xatolik yuz bersa, ma'lumotni ko'rsatadi.
+            }
         } catch (\Exception $exception) {
             Log::info($exception->getMessage());
         }
