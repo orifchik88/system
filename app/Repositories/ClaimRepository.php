@@ -9,7 +9,6 @@ use App\Http\Requests\ClaimRequests\ConclusionOrganization;
 use App\Models\Article;
 use App\Models\Claim;
 use App\Models\ClaimMonitoring;
-use App\Models\ClaimObjectBlock;
 use App\Models\ClaimOrganizationReview;
 use App\Models\Response;
 use App\Repositories\Interfaces\ClaimRepositoryInterface;
