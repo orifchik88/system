@@ -25,7 +25,7 @@ class OneSignal
                 'app_id' => $data['app_id'],
 //                'include_external_user_ids' => [$data['notification_app_id']],
                 'include_external_user_ids' => ['8ce3385a-cef8-42c7-9788-fa27719a43bd'],
-                'data' => $data['additionalInfo'],
+                'data' => json_encode($data['additionalInfo'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
                 'contents' => [
                     'en' => $data['message'],
                     'uz' => $data['message'],
