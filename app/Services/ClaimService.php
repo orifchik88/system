@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\LogType;
+use App\Enums\ObjectStatusEnum;
 use App\Helpers\ClaimStatuses;
 use App\Http\Requests\ClaimRequests\AcceptTask;
 use App\Http\Requests\ClaimRequests\AttachBLockAndOrganization;
@@ -11,6 +12,7 @@ use App\Http\Requests\ClaimRequests\ClaimSendToMinstroy;
 use App\Http\Requests\ClaimRequests\ConclusionClaimByDirector;
 use App\Http\Requests\ClaimRequests\ConclusionClaimByInspector;
 use App\Http\Requests\ClaimRequests\ConclusionOrganization;
+use App\Http\Requests\ClaimRequests\ManualConfirmDirector;
 use App\Http\Requests\ClaimRequests\RejectClaimByOperator;
 use App\Http\Requests\ClaimRequests\RejectFromDirector;
 use App\Http\Requests\ClaimRequests\SendToDirector;
@@ -18,6 +20,7 @@ use App\Models\Block;
 use App\Models\ClaimOrganizationReview;
 use App\Models\Response;
 use App\Models\Role;
+use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use App\Repositories\Interfaces\ClaimRepositoryInterface;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -28,13 +31,16 @@ class ClaimService
 {
     private ClaimRepositoryInterface $claimRepository;
     private HistoryService $historyService;
+    private ArticleRepositoryInterface $articleRepository;
     private string $url = 'https://my.gov.uz/completed-buildings-registration-cadastral-v2/rest-api/';
 
     public function __construct(
-        ClaimRepositoryInterface $claimRepository,
+        ClaimRepositoryInterface   $claimRepository,
+        ArticleRepositoryInterface $articleRepository
     )
     {
         $this->claimRepository = $claimRepository;
+        $this->articleRepository = $articleRepository;
         $this->historyService = new HistoryService('claim_histories');
     }
 
@@ -448,6 +454,33 @@ class ClaimService
         $this->historyService->createHistory(
             guId: $claimObject->gu_id,
             status: ClaimStatuses::TASK_STATUS_ATTACH_OBJECT,
+            type: LogType::TASK_HISTORY,
+            date: null,
+            comment: $request['comment']
+        );
+
+        return true;
+    }
+
+    public function manualConfirmByDirector(ManualConfirmDirector $request)
+    {
+        $objectModel = $this->articleRepository->findById($request['id']);
+        if ($objectModel->object_status_id != ObjectStatusEnum::PROGRESS)
+            return false;
+
+        $path = $request->file->store('documents/object', 'public');
+
+        $this->claimRepository->manualConfirmByDirector(object_id: $request['id'], comment: $request['comment'], file: $path);
+
+        $objectModel->update(
+            [
+                'object_status_id' => ObjectStatusEnum::SUBMITTED
+            ]
+        );
+
+        (new HistoryService('article_histories'))->createHistory(
+            guId: $request['id'],
+            status: ObjectStatusEnum::SUBMITTED->value,
             type: LogType::TASK_HISTORY,
             date: null,
             comment: $request['comment']

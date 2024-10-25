@@ -611,4 +611,18 @@ class ClaimRepository implements ClaimRepositoryInterface
             ]
         );
     }
+
+    public function manualConfirmByDirector(int $object_id, string $comment, string $file)
+    {
+        DB::table('claim_manual_confirmed_objects')->insertGetId(
+            [
+                'object_id' => $object_id,
+                'comment' => $comment,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+                'file' => $file,
+                'user_id' => Auth::user()->id
+            ]
+        );
+    }
 }

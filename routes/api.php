@@ -184,6 +184,8 @@ Route::group([
         Route::post('conclusion-by-director', [ClaimController::class, "conclusionClaimByDirector"]);
         Route::post('reject-from-director', [ClaimController::class, "rejectFromDirector"]);
         Route::post('send-to-director', [ClaimController::class, "sendToDirector"]);
+
+        Route::post('manual-accept', [ClaimController::class, "manualAccept"]);
     });
 
 });

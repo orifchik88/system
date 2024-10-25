@@ -10,6 +10,7 @@ use App\Http\Requests\ClaimRequests\ClaimSendToMinstroy;
 use App\Http\Requests\ClaimRequests\ConclusionClaimByDirector;
 use App\Http\Requests\ClaimRequests\ConclusionClaimByInspector;
 use App\Http\Requests\ClaimRequests\ConclusionOrganization;
+use App\Http\Requests\ClaimRequests\ManualConfirmDirector;
 use App\Http\Requests\ClaimRequests\rejectClaimByInspector;
 use App\Http\Requests\ClaimRequests\RejectClaimByOperator;
 use App\Http\Requests\ClaimRequests\RejectFromDirector;
@@ -288,6 +289,21 @@ class ClaimController extends BaseController
             return $this->sendSuccess('Yuborildi!', 'Success');
         } else {
             return $this->sendError("API ERROR", "message");
+        }
+    }
+
+    public function manualAccept(ManualConfirmDirector $request)
+    {
+        $roleId = Auth::user()->getRoleFromToken() ?? null;
+        if ($roleId != UserRoleEnum::INSPEKSIYA->value)
+            return $this->sendError("Siz bu amalni bajara olmaysiz!", "message");
+
+        $response = $this->claimService->manualConfirmByDirector($request);
+
+        if ($response) {
+            return $this->sendSuccess('Yuborildi!', 'Success');
+        } else {
+            return $this->sendError("Obyekt statusi jarayonda emas!", "message");
         }
     }
 }
