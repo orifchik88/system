@@ -17,7 +17,7 @@ class OneSignal
                 ...$notification->toOneSignal($notifiable)
             ];
 
-            Http::withHeaders([
+            $response = Http::withHeaders([
                 'Content-Type' => 'application/json; charset=utf-8',
                 'Authorization' => config('services.onesignal.token'),
             ])->post(config('services.onesignal.url'), [
@@ -34,7 +34,9 @@ class OneSignal
                 ]
             ]);
 
-            $this->saveNotification($data, $notifiable);
+            if ($response->successful()) {
+                $this->saveNotification($data, $notifiable);
+            }
         }
     }
 
