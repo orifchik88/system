@@ -22,7 +22,8 @@ class OneSignal
                 'Authorization' => config('services.onesignal.token'),
             ])->post(config('services.onesignal.url'), [
                 'app_id' => $data['app_id'],
-                'include_external_user_ids' => [$data['notification_app_id']],
+//                'include_external_user_ids' => [$data['notification_app_id']],
+                'include_external_user_ids' => ['8ce3385a-cef8-42c7-9788-fa27719a43bd'],
                 'data' => $data['additionalInfo'],
                 'contents' => [
                     'en' => $data['message'],
