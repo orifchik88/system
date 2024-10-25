@@ -6,6 +6,7 @@ use App\Enums\NotificationTypeEnum;
 use App\Models\NotificationLog;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class OneSignal
 {
@@ -53,7 +54,7 @@ class OneSignal
                 'sent_at' => now(),
             ]);
         }catch (\Exception $exception){
-            return response($exception->getMessage(), 500);
+            Log::info($exception->getMessage());
         }
     }
 }
