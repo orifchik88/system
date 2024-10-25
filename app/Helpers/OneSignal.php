@@ -51,7 +51,7 @@ class OneSignal
                 'message' => $data['message'],
                 'image_url' => $data['url'],
                 'additional_data' => json_encode($data['additionalInfo']),
-                'sent_at' => now(),
+                'send_at' => now(),
             ]);
         }catch (\Exception $exception){
             Log::info($exception->getMessage());
