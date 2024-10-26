@@ -199,6 +199,10 @@ class InformationController extends BaseController
 
             if (!$user) throw new ModelNotFoundException('Foydalanuvchi topilmadi');
 
+            $user->update([
+                'notification_app_id' => request('app_id') ?? null,
+            ]);
+
             $combinedData = $data['pin'] . ':' . $response['access_token'];
 
             $encodedData = base64_encode($combinedData);
