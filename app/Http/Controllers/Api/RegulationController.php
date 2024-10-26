@@ -96,7 +96,7 @@ class RegulationController extends BaseController
     public function getRegulation($id): JsonResponse
     {
         try {
-            $regulation = $this->regulationService->getRegulationById($this->user, $this->roleId, $id);
+            $regulation = $this->regulationService->getRegulationById($id);
             return $this->sendSuccess(new RegulationResource($regulation), 'Regulation found');
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());

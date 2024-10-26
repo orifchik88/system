@@ -36,7 +36,8 @@ class RegulationService
                     });
                 });
             case UserRoleEnum::TEXNIK->value:
-                return Regulation::query()->where(function ($q) use ($user, $roleId) {
+                return Regulation::query()
+                    ->where(function ($q) use ($user, $roleId) {
                     $q->where('user_id', $user->id)
                         ->where('role_id', $roleId);
                 })->orWhere(function ($query) use ($user, $roleId) {
@@ -110,9 +111,9 @@ class RegulationService
         return $this->regulationRepository->searchRegulations($query, $filters);
     }
 
-    public function getRegulationById($user, $roleId, $id): Regulation
+    public function getRegulationById($id)
     {
-       return $this->getRegulations($user, $roleId)->whereId($id)->firstOrFail();
+       return Regulation::query()->where('id', $id)->firstOrFail();
     }
 
     public function regulationCountByStatus($user, $roleId): array
@@ -561,8 +562,8 @@ class RegulationService
     private function sendNotification($regulation)
     {
         try {
-            $inspector = User::query()->find($regulation->created_by_user_id)->first();
-            $user = User::query()->find($regulation->user_id)->first();
+            $inspector = User::query()->find($regulation->created_by_user_id);
+            $user = User::query()->find($regulation->user_id);
             $role = Role::query()->find($regulation->role_id);
             $data = [
                 'screen' => 'confirm_regulations'
