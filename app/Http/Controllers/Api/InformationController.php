@@ -279,7 +279,7 @@ class InformationController extends BaseController
             if (!is_null(request('read'))) {
                 $query->where('read', request('read'));
             }
-            $notifications = $query->paginate(request('per_page', 10));
+            $notifications = $query->orderBy('id', 'DESC')->paginate(request('per_page', 10));
             return $this->sendSuccess(NotificationResource::collection($notifications), 'Notifications', pagination($notifications));
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
