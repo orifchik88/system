@@ -488,6 +488,19 @@ class ClaimService
         if ($objectModel->object_status_id != ObjectStatusEnum::PROGRESS)
             return false;
 
+        $blocks = $objectModel->blocks()->get();
+        $blockError = 0;
+        foreach ($blocks as $val) {
+            $block = Block::find($val->id);
+
+            if($block->status) {
+                $blockError++;
+            }
+        }
+
+        if($blockError > 0)
+            return false;
+
         $path = $request->file->store('documents/object', 'public');
 
         $this->claimRepository->manualConfirmByDirector(object_id: $request['id'], comment: $request['comment'], file: $path);
@@ -498,6 +511,16 @@ class ClaimService
                 'closed_at' => Carbon::now()
             ]
         );
+
+        foreach ($blocks as $val) {
+            $block = Block::find($val->id);
+
+            $block->update(
+                [
+                    'accepted' => true
+                ]
+            );
+        }
 
         (new HistoryService('article_histories'))->createHistory(
             guId: $request['id'],

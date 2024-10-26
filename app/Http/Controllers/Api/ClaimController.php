@@ -305,7 +305,7 @@ class ClaimController extends BaseController
         if ($response) {
             return $this->sendSuccess('Yuborildi!', 'Success');
         } else {
-            return $this->sendError("Obyekt statusi jarayonda emas!", "message");
+            return $this->sendError("Bloklar yakunlanmagan", "message");
         }
     }
 }
