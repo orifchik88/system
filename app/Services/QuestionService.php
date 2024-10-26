@@ -693,8 +693,8 @@ class QuestionService
     private function sendNotificationRegulation($regulation)
     {
         try {
-            $inspector = User::query()->find($regulation->created_by_user_id)->first();
-            $user = User::query()->find($regulation->user_id)->first();
+            $inspector = User::query()->find($regulation->created_by_user_id);
+            $user = User::query()->find($regulation->user_id);
             $role = Role::query()->find($regulation->role_id);
             $data = [
                 'screen' => 'confirm_regulations'

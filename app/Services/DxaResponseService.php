@@ -89,7 +89,7 @@ class DxaResponseService
     private function sendNotification($inspectorId, $taskId)
     {
         try {
-            $inspector = User::query()->find($inspectorId)->first();
+            $inspector = User::query()->find($inspectorId);
             $user = Auth::user();
             $data = [
                 'screen' => 'register'
