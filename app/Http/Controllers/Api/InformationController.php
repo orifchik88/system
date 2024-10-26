@@ -198,6 +198,7 @@ class InformationController extends BaseController
             $user = User::query()->where('pinfl', $data['pin'])->first();
 
             if (!$user) throw new ModelNotFoundException('Foydalanuvchi topilmadi');
+            if ($user->active == 0) throw new ModelNotFoundException('Foydalanuvchi faol emas');
 
             $user->update([
                 'notification_app_id' => request('app_id') ?? null,

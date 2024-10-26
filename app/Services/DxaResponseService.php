@@ -8,7 +8,9 @@ use App\Models\Block;
 use App\Models\DxaResponse;
 use App\Models\MonitoringObject;
 use App\Models\Rekvizit;
+use App\Models\Role;
 use App\Models\User;
+use App\Notifications\InspectorNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -70,33 +72,38 @@ class DxaResponseService
                 $monitoring = $this->saveMonitoringObject($this->data['gnk_id']);
                 $response->monitoring_object_id = $monitoring->id;
             }
-            $response->save();
+            if ($response->save()){
+                $this->sendNotification($this->data['inspector_id'], $response->task_id);
+            }
             DB::commit();
             return $response;
         } catch (\Exception $exception) {
             DB::rollBack();
             throw $exception;
         }
+
+
     }
 
 
-    private function sendNotificationRegulation($regulation)
+    private function sendNotification($inspectorId, $taskId)
     {
         try {
-            $inspector = User::query()->find($regulation->created_by_user_id)->first();
-            $user = User::query()->find($regulation->user_id)->first();
-            $role = Role::query()->find($regulation->role_id);
+            $inspector = User::query()->find($inspectorId)->first();
+            $user = Auth::user();
             $data = [
-                'screen' => 'confirm_regulations'
+                'screen' => 'register'
             ];
-            $message = MessageTemplate::confirmRegulationInspector($user->full_name, $regulation->object->task_id, $regulation->regulation_number, $regulation->monitoring->block->name, $role->name, now());
-            $inspector->notify(new InspectorNotification(title: "Yozma ko'rsatmani tasdiqlash so'raldi", message: $message, url: null, additionalInfo: $data));
+            $message = MessageTemplate::attachObjectInspector($user->full_name, $taskId, 'Registrator', now());
+            $inspector->notify(new InspectorNotification(title: "Ro'yxatdan o'tkazish uchun ariza keldi", message: $message, url: null, additionalInfo: $data));
 
         } catch (\Exception $exception) {
 
         }
 
     }
+
+
 
 
     private function saveMonitoringObject($gnkId): MonitoringObject

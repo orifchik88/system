@@ -64,6 +64,7 @@ class UserController extends BaseController
             $user->update([
                 'active' => 0,
                 'user_status_id' => UserStatusEnum::RELEASED,
+                'deleted_at' => now(),
             ]);
             return $this->sendSuccess(null, 'User has been deleted');
         }catch (\Exception $exception){
