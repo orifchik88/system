@@ -211,9 +211,7 @@ class QuestionService
                 }
 
             }
-            DB::commit();
         } catch (\Exception $exception) {
-            DB::rollBack();
             throw $exception;
         }
 
@@ -357,7 +355,7 @@ class QuestionService
         $block = Block::query()->find($blockId);
         $count = 0;
         foreach ($workTypes as $workType) {
-           if ($workType['questions'][0]['work_type_status'] == 2) {
+           if ($workType['questions'][0]['work_type_status'] == WorkTypeStatusEnum::CONFIRMED) {
                $count += 1;
            }
         }
