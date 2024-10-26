@@ -45,6 +45,7 @@ interface ClaimRepositoryInterface
     public function getList(
         ?int    $regionId,
         ?int    $task_id,
+        ?int    $object_task_id,
         ?string $name,
         ?string $customer,
         ?string $sender,
