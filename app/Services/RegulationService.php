@@ -111,7 +111,7 @@ class RegulationService
         return $this->regulationRepository->searchRegulations($query, $filters);
     }
 
-    public function getRegulationById($user, $roleId, $id)
+    public function getRegulationById($id)
     {
        return Regulation::query()->where('id', $id)->firstOrFail();
     }
