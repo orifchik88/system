@@ -54,6 +54,8 @@ class QuestionService
 
         if ($block_type == null)
             $workTypes = WorkType::query()->where(['type' => 1])->orderBy('id', 'ASC')->get();
+        elseif ($block_type == 3)
+            $workTypes = WorkType::query()->where(['type' => 3])->orderBy('id', 'ASC')->get();
         else
             $workTypes = WorkType::query()->orderBy('id', 'ASC')->where('status', true)->get();
 

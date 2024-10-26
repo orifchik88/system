@@ -102,7 +102,7 @@ class MonitoringController extends BaseController
     public function getChecklistRegular(): JsonResponse
     {
         try {
-            return $this->sendSuccess($this->questionService->getQuestionList(null, QuestionTypeEnum::MULTIPLY), 'Checklist');
+            return $this->sendSuccess($this->questionService->getQuestionList(null, QuestionTypeEnum::MULTIPLY, 3), 'Checklist');
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getLine());
         }
