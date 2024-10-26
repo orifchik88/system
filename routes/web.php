@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SiteController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PermissionController;
@@ -20,6 +21,8 @@ use App\Http\Controllers\PermissionController;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/object-info/{id}', [SiteController::class, 'index'])->name('object-info');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
