@@ -343,11 +343,30 @@ class QuestionService
                     ]);
                 }
                 $this->sendNotification($checklist, $object, $blockId);
+                $this->changeBlockStatus($blockId);
             } else {
                 $allRoleViolations[$index] = $this->handleViolations($checklistData, $checklist, $roleId);
             }
         }
         return $allRoleViolations;
+    }
+
+    private function changeBlockStatus($blockId)
+    {
+        $workTypes = $this->getQuestionList($blockId);
+        $block = Block::query()->find($blockId);
+        $count = 0;
+        foreach ($workTypes as $workType) {
+           if ($workType['questions'][0]['work_type_status'] == 2) {
+               $count += 1;
+           }
+        }
+        if ($count == count($workTypes)) {
+            $block->update([
+               'status' => false
+            ]);
+        }
+
     }
 
     private function getOrCreateChecklist($checklistData, $object, $blockId, $monitoringID)
