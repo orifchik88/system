@@ -16,6 +16,7 @@ use App\Http\Requests\ClaimRequests\ManualConfirmDirector;
 use App\Http\Requests\ClaimRequests\RejectClaimByOperator;
 use App\Http\Requests\ClaimRequests\RejectFromDirector;
 use App\Http\Requests\ClaimRequests\SendToDirector;
+use App\Models\Article;
 use App\Models\Block;
 use App\Models\ClaimMonitoring;
 use App\Models\ClaimOrganizationReview;
@@ -270,12 +271,11 @@ class ClaimService
             ->first();
 
         $objectModel = $this->articleRepository->findById($claimObject->object_id);
-        if($oldMonitoring)
-        {
+        if ($oldMonitoring) {
             //dd($oldMonitoring);
         }
 
-        if($claimObject->monitoring != null)
+        if ($claimObject->monitoring != null)
             return true;
 
         if (!$claimObject)
@@ -493,12 +493,12 @@ class ClaimService
         foreach ($blocks as $val) {
             $block = Block::find($val->id);
 
-            if($block->status) {
+            if ($block->status) {
                 $blockError++;
             }
         }
 
-        if($blockError > 0)
+        if ($blockError > 0)
             return false;
 
         $path = $request->file->store('documents/object', 'public');
@@ -735,6 +735,31 @@ class ClaimService
                     ]
                 );
             }
+
+            $checkBLocks = Block::query()->where('article_id', $claimObject->object_id)->get();
+            $countBlocks = 0;
+            foreach ($checkBLocks as $checkBLock) {
+                if ($checkBLock->accepted)
+                    $countBlocks++;
+            }
+
+            if ($countBlocks == $checkBLocks->count()) {
+                $object = $this->articleRepository->findById($claimObject->object_id);
+                $object->update(
+                    [
+                        'object_status_id' => ObjectStatusEnum::SUBMITTED,
+                        'closed_at' => Carbon::now()
+                    ]
+                );
+            }
+
+            (new HistoryService('article_histories'))->createHistory(
+                guId: $claimObject->object_id,
+                status: ObjectStatusEnum::SUBMITTED->value,
+                type: LogType::TASK_HISTORY,
+                date: null,
+                comment: $request['comment']
+            );
 
             $this->historyService->createHistory(
                 guId: $claimObject->gu_id,
