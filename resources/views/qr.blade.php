@@ -102,7 +102,7 @@
           class="text-white font-inter fw-bold fs-20"
           style="letter-spacing: 2%;"
       >
-        ID: {{ $object->id }}
+        ID: {{ $object->task_id }}
       </span>
         <a
             href="#!"
@@ -193,7 +193,7 @@
             <div class="d-flex alifn-items-center justify-content-between">
                 <p class="mb-0 fs-14 fw-medium">{{ $object->location_building }}</p>
                 <a
-                    href="#!"
+                    href="http://maps.google.com/maps?q={{ $object->lat }},{{ $object->long }}"
                     target="_blank"
                     rel="noopener noreferrer"
                 >
@@ -205,17 +205,16 @@
                 </a>
             </div>
         </div>
-        <div class="bottom-border" style="padding: 12px 0;">
-            <a
-                href="#!"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="d-flex align-items-center text-decoration-none"
-            >
-                <img class="me-2" width="48" src="/images/qr/file.svg" alt="">
-                <p class="mb-0 fs-14 font-inter">{{ $object->location_building }}</p>
-            </a>
+        <div class="bottom-border py-2">
+            <span class="fs-14 text-light2 font-inter">Ekspertiza xulosasining reestr raqami:</span>
+            <p class="mb-0 fs-14 fw-medium">{{ $object->reestr_number }}</p>
         </div>
+        @if($object->object_type_id == 2)
+            <div class="bottom-border py-2">
+                <span class="fs-14 text-light2 font-inter">Arxitektura-shaxarsozlik kengashi xulosasi raqami::</span>
+                <p class="mb-0 fs-14 fw-medium">{{ $object->number_protocol }}</p>
+            </div>
+        @endif
         <div class="py-3">
             <p class="mb-2 fs-14 font-inter" style="color: #51627B;">&copy;{{ date('Y') }}. Barcha huquqlar
                 himoyalangan.</p>
