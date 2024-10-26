@@ -222,7 +222,7 @@ class QuestionService
             $this->updateChecklistStatus($checklist, $checklistData, $roleId, false, $object);
             $this->saveAuthorRegulation($checklist, $checklistData, $object, $roleId, $blockId);
 
-            $meta = ['user_answered' => $checklist->auhtor_answered];
+            $meta = ['user_answered' => 2];
 
             $this->historyService->createHistory(
                 guId: $checklist->id,
