@@ -677,7 +677,7 @@ class QuestionService
             if ($checklist->status == CheckListStatusEnum::SECOND) {
                 $inspector = $object->users()->where('role_id', UserRoleEnum::INSPECTOR->value)->first();
                 $ichki = $object->users()->where('role_id', UserRoleEnum::ICHKI->value)->first();
-                $message = MessageTemplate::attachRegulationInspector($ichki->full_name, $object->task_id, $block->name, 'Ichki nazaorat', now());
+                $message = MessageTemplate::attachRegulationInspector($ichki->full_name, $object->task_id, $block->name, 'Ichki nazorat', now());
                 $inspector->notify(new InspectorNotification(title: 'Ayrim ishlar yakunlandi', message: $message, url: null, additionalInfo: null));
             }
 

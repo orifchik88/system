@@ -47,9 +47,9 @@ class MessageTemplate
         return  "$objectNumber raqamli obyektni foydalanishga topshirish uchun ariza keldi! \n $username ($roleName) \n $date";
     }
 
-    public static function ratationInspector($inspectorName, $username, $roleName, $date)
+    public static function ratationInspector($inspectorName, $secondInspector,  $username, $roleName, $date)
     {
-        return  "$inspectorName bilan o'zgartirildingiz! \n $username ($roleName) \n $date";
+        return  "$inspectorName bilan $secondInspector rotatsiya qilindi! \n $username ($roleName) \n $date";
     }
 
 

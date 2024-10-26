@@ -2,9 +2,11 @@
 
 namespace App\Repositories;
 
+use App\Enums\DxaResponseStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Models\Article;
 use App\Models\ArticleUser;
+use App\Models\DxaResponse;
 use App\Models\Regulation;
 use App\Models\Role;
 use App\Models\User;
@@ -92,6 +94,16 @@ class ArticleRepository implements ArticleRepositoryInterface
             ->where('role_id', UserRoleEnum::INSPECTOR->value)
             ->pluck('article_id');
 
+        DxaResponse::query()
+            ->whereIn('dxa_response_status_id', [DxaResponseStatusEnum::IN_REGISTER, DxaResponseStatusEnum::SEND_INSPECTOR])
+            ->where('inspector_id', $firstUserId)
+            ->update(['inspector_id' => $secondUserId]);
+
+        DxaResponse::query()
+            ->whereIn('dxa_response_status_id', [DxaResponseStatusEnum::IN_REGISTER, DxaResponseStatusEnum::SEND_INSPECTOR])
+            ->where('inspector_id', $secondUserId)
+            ->update(['inspector_id' => $firstUserId]);
+
         ArticleUser::whereIn('article_id', $firstUserArticles)
             ->where('role_id', UserRoleEnum::INSPECTOR->value)
             ->update(['user_id' => $secondUserId]);
@@ -117,8 +129,8 @@ class ArticleRepository implements ArticleRepositoryInterface
                 'created_by_user_id' => $firstUserId,
                 'created_by_role_id' => UserRoleEnum::INSPECTOR->value,
             ]);
-        $this->sendNotification($user, $firstUserId, $roleId);
-        $this->sendNotification($user, $secondUserId, $roleId);
+        $this->sendNotification($user, $firstUserId, $secondUserId, $roleId);
+        $this->sendNotification($user, $secondUserId, $firstUserId, $roleId);
     }
 
     public function findArticleByParams($params)
@@ -174,13 +186,14 @@ class ArticleRepository implements ArticleRepositoryInterface
     }
 
 
-    private function sendNotification($user, $changeUserId, $roleId)
+    private function sendNotification($user, $firstUserId, $secondUserId, $roleId)
     {
         try {
-            $inspector = User::query()->find($changeUserId);
+            $firstUser = User::query()->find($firstUserId);
+            $secondUser = User::query()->find($secondUserId);
             $role = Role::query()->find($roleId);
-            $message = MessageTemplate::ratationInspector($inspector->full_name, $user->full_name, $role->name, now());
-            $inspector->notify(new InspectorNotification(title: "Rotatsiya", message: $message, url: null, additionalInfo: null));
+            $message = MessageTemplate::ratationInspector($firstUser->full_name, $secondUser->full_name,  $user->full_name, $role->name, now());
+            $firstUser->notify(new InspectorNotification(title: "Rotatsiya", message: $message, url: null, additionalInfo: null));
 
         } catch (\Exception $exception) {
 
