@@ -41,6 +41,7 @@ class ArticleResource extends JsonResource
             'date_protocol' => $this->date_protocol,
             'funding_source' => FundingSourceResource::make($this->fundingSource),
             'payment_deadline' => $this->payment_deadline,
+            'closed_at' => $this->closed_at,
             'object_sector' => ObjectSectorResource::make($this->objectSector),
             'deadline' => $this->deadline,
             'reestr_number' => $this->reestr_number,
