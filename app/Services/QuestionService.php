@@ -211,6 +211,7 @@ class QuestionService
                 }
 
             }
+            $this->changeBlockStatus($data['block_id']);
         } catch (\Exception $exception) {
             throw $exception;
         }
@@ -341,7 +342,6 @@ class QuestionService
                     ]);
                 }
                 $this->sendNotification($checklist, $object, $blockId);
-                $this->changeBlockStatus($blockId);
             } else {
                 $allRoleViolations[$index] = $this->handleViolations($checklistData, $checklist, $roleId);
             }
