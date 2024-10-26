@@ -388,7 +388,10 @@ class UserController extends BaseController
             $inspector = User::query()->find($inspectorId);
             $object = Article::query()->find($objectId);
             $message = MessageTemplate::createdObject($user->full_name, $object->task_id, $role->name, now());
-            $inspector->notify(new InspectorNotification(title: "Yangi obyekt biriktirildi", message: $message, url: null, additionalInfo: null));
+            $data = [
+                'screen' => 'objects'
+            ];
+            $inspector->notify(new InspectorNotification(title: "Yangi obyekt biriktirildi", message: $message, url: null, additionalInfo: $data));
 
         } catch (\Exception $exception) {
 
@@ -403,7 +406,10 @@ class UserController extends BaseController
             $object = Article::query()->find($objectId);
             $inspector = $object->users()->where('role_id', UserRoleEnum::INSPECTOR->value)->first();
             $message = MessageTemplate::changeUserInObject($user->full_name, $newRole->name, $object->task_id, $role->name, now());
-            $inspector->notify(new InspectorNotification(title: "Xodim o'zgartirilmoqda", message: $message, url: null, additionalInfo: null));
+            $data = [
+                'screen' => 'employee'
+            ];
+            $inspector->notify(new InspectorNotification(title: "Xodim o'zgartirilmoqda", message: $message, url: null, additionalInfo: $data));
 
         } catch (\Exception $exception) {
 

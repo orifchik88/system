@@ -564,8 +564,11 @@ class RegulationService
             $inspector = User::query()->find($regulation->created_by_user_id)->first();
             $user = User::query()->find($regulation->user_id)->first();
             $role = Role::query()->find($regulation->role_id);
+            $data = [
+                'screen' => 'confirm_regulations'
+            ];
             $message = MessageTemplate::confirmRegulationInspector($user->full_name, $regulation->object->task_id, $regulation->regulation_number, $regulation->monitoring->block->name, $role->name, now());
-            $inspector->notify(new InspectorNotification(title: "Yozma ko'rsatmani tasdiqlash so'raldi", message: $message, url: null, additionalInfo: null));
+            $inspector->notify(new InspectorNotification(title: "Yozma ko'rsatmani tasdiqlash so'raldi", message: $message, url: null, additionalInfo: $data));
 
         } catch (\Exception $exception) {
 

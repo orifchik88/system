@@ -8,6 +8,7 @@ use App\Models\Block;
 use App\Models\DxaResponse;
 use App\Models\MonitoringObject;
 use App\Models\Rekvizit;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -72,11 +73,31 @@ class DxaResponseService
             $response->save();
             DB::commit();
             return $response;
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             DB::rollBack();
             throw $exception;
         }
     }
+
+
+    private function sendNotificationRegulation($regulation)
+    {
+        try {
+            $inspector = User::query()->find($regulation->created_by_user_id)->first();
+            $user = User::query()->find($regulation->user_id)->first();
+            $role = Role::query()->find($regulation->role_id);
+            $data = [
+                'screen' => 'confirm_regulations'
+            ];
+            $message = MessageTemplate::confirmRegulationInspector($user->full_name, $regulation->object->task_id, $regulation->regulation_number, $regulation->monitoring->block->name, $role->name, now());
+            $inspector->notify(new InspectorNotification(title: "Yozma ko'rsatmani tasdiqlash so'raldi", message: $message, url: null, additionalInfo: $data));
+
+        } catch (\Exception $exception) {
+
+        }
+
+    }
+
 
     private function saveMonitoringObject($gnkId): MonitoringObject
     {
@@ -113,9 +134,9 @@ class DxaResponseService
             $this->saveRekvizit();
             DB::commit();
             return $response;
-        }catch (\Exception $exception) {
-           DB::rollBack();
-           throw $exception;
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            throw $exception;
         }
     }
 
@@ -161,10 +182,10 @@ class DxaResponseService
             $blockAttributes['block_number'] = $this->determineBlockNumber($blockData, $response);
             $articleBlock = Block::query()->where('block_number', $blockAttributes['block_number'])->first();
 
-            if ($articleBlock){
+            if ($articleBlock) {
                 $articleBlock->update($blockAttributes);
                 $block = $articleBlock;
-            }else{
+            } else {
                 $block = Block::create($blockAttributes);
             }
 
@@ -228,8 +249,7 @@ class DxaResponseService
     {
         $model = $this->findResponse();
 
-        if ($model->notification_type == 2)
-        {
+        if ($model->notification_type == 2) {
             $response = DxaResponse::getResponse($model->old_task_id);
             $images = $response->images;
             foreach ($images as $image) {

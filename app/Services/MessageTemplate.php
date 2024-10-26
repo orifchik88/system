@@ -34,7 +34,7 @@ class MessageTemplate
     }
     public static function attachObjectInspector($username, $objectNumber, $roleName, $date)
     {
-        return  "$objectNumber raqamli obyektni ro'yxatdan o'tkazish uchun ariza keldi! \n $username ($roleName) \n $date";
+        return  "$objectNumber raqamli arizani ro'yxatdan o'tkazish uchun ariza keldi! \n $username ($roleName) \n $date";
     }
 
     public static function createdObject($username, $objectNumber, $roleName, $date)

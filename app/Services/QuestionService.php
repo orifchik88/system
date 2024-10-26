@@ -678,7 +678,10 @@ class QuestionService
                 $inspector = $object->users()->where('role_id', UserRoleEnum::INSPECTOR->value)->first();
                 $ichki = $object->users()->where('role_id', UserRoleEnum::ICHKI->value)->first();
                 $message = MessageTemplate::attachRegulationInspector($ichki->full_name, $object->task_id, $block->name, 'Ichki nazorat', now());
-                $inspector->notify(new InspectorNotification(title: 'Ayrim ishlar yakunlandi', message: $message, url: null, additionalInfo: null));
+                $data = [
+                    'screen' => 'confirm_work'
+                ];
+                $inspector->notify(new InspectorNotification(title: 'Ayrim ishlar yakunlandi', message: $message, url: null, additionalInfo: $data));
             }
 
         } catch (\Exception $exception) {
@@ -693,8 +696,11 @@ class QuestionService
             $inspector = User::query()->find($regulation->created_by_user_id)->first();
             $user = User::query()->find($regulation->user_id)->first();
             $role = Role::query()->find($regulation->role_id);
+            $data = [
+                'screen' => 'confirm_regulations'
+            ];
                 $message = MessageTemplate::confirmRegulationInspector($user->full_name, $regulation->object->task_id, $regulation->regulation_number, $regulation->monitoring->block->name, $role->name, now());
-                $inspector->notify(new InspectorNotification(title: "Yozma ko'rsatmani tasdiqlash so'raldi", message: $message, url: null, additionalInfo: null));
+                $inspector->notify(new InspectorNotification(title: "Yozma ko'rsatmani tasdiqlash so'raldi", message: $message, url: null, additionalInfo: $data));
 
         } catch (\Exception $exception) {
 
