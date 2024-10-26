@@ -107,6 +107,7 @@ class QuestionService
                 }
             } else {
                 $workTypeStatus = $this->getStatusOfWorkType($this->filterAnswers($answers, $workType->id));
+
                 foreach ($questions as $question) {
                     $answerKey = $workType->id . '-' . $question->id . '-';
                     $answer = $answers->get($answerKey);
@@ -148,7 +149,7 @@ class QuestionService
 
         if ($answers->count() > 0) {
             foreach ($answers as $item) {
-                if ($item->status == 5)
+                if ($item->status == CheckListStatusEnum::CONFIRMED)
                     $countConfirmedQuestions++;
             }
             if ($countConfirmedQuestions == $answers->count())
@@ -163,6 +164,7 @@ class QuestionService
 
     private function filterAnswers($answers, $workTypeId, $floor = null, $questionId = null)
     {
+
         return $answers->filter(function ($value, $key) use ($workTypeId, $floor, $questionId) {
             $parts = explode('-', $key);
 
@@ -519,7 +521,6 @@ class QuestionService
     }
 
 
-
     private function createRegulationUser($regulation)
     {
         RegulationUser::create([
@@ -565,8 +566,7 @@ class QuestionService
                 'regulation_status_id' => RegulationStatusEnum::CONFIRM_REMEDY,
             ]);
 
-            if ($regulation->created_by_role_id = UserRoleEnum::INSPECTOR->value)
-            {
+            if ($regulation->created_by_role_id = UserRoleEnum::INSPECTOR->value) {
                 $this->sendNotificationRegulation($regulation);
             }
 
@@ -699,8 +699,8 @@ class QuestionService
             $data = [
                 'screen' => 'confirm_regulations'
             ];
-                $message = MessageTemplate::confirmRegulationInspector($user->full_name, $regulation->object->task_id, $regulation->regulation_number, $regulation->monitoring->block->name, $role->name, now());
-                $inspector->notify(new InspectorNotification(title: "Yozma ko'rsatmani tasdiqlash so'raldi", message: $message, url: null, additionalInfo: $data));
+            $message = MessageTemplate::confirmRegulationInspector($user->full_name, $regulation->object->task_id, $regulation->regulation_number, $regulation->monitoring->block->name, $role->name, now());
+            $inspector->notify(new InspectorNotification(title: "Yozma ko'rsatmani tasdiqlash so'raldi", message: $message, url: null, additionalInfo: $data));
 
         } catch (\Exception $exception) {
 
