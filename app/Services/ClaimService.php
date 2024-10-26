@@ -141,6 +141,7 @@ class ClaimService
     public function getTaskList(
         ?int    $regionId,
         ?int    $task_id,
+        ?int    $object_task_id,
         ?string $name,
         ?string $customer,
         ?string $sender,
@@ -154,6 +155,7 @@ class ClaimService
         return $this->claimRepository->getList(
             regionId: $regionId,
             task_id: $task_id,
+            object_task_id: $object_task_id,
             name: $name,
             customer: $customer,
             sender: $sender,

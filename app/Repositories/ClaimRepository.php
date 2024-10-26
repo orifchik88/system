@@ -193,9 +193,11 @@ class ClaimRepository implements ClaimRepositoryInterface
         if ($role_id == null)
             return $this->claim->query()
                 ->join('responses', 'responses.task_id', '=', 'claims.guid')
+                ->join('articles', 'articles.id', '=', 'claims.object_id')
                 ->select([
                     'claims.id as id',
                     'claims.guid as gu_id',
+                    'articles.task_id as object_task_id',
                     'responses.api as api_type',
                     'claims.district as district',
                     'claims.region as region',
@@ -232,10 +234,12 @@ class ClaimRepository implements ClaimRepositoryInterface
         else
             return $this->claim->query()
                 ->join('responses', 'responses.task_id', '=', 'claims.guid')
+                ->join('articles', 'articles.id', '=', 'claims.object_id')
                 ->join('claim_organization_reviews', 'claim_organization_reviews.claim_id', '=', 'claims.id')
                 ->select([
                     'claims.id as id',
                     'claims.guid as gu_id',
+                    'articles.task_id as object_task_id',
                     'responses.api as api_type',
                     'claims.district as district',
                     'claim_organization_reviews.id as review_id',
@@ -331,6 +335,7 @@ class ClaimRepository implements ClaimRepositoryInterface
     public function getList(
         ?int    $regionId,
         ?int    $task_id,
+        ?int    $object_task_id,
         ?string $name,
         ?string $customer,
         ?string $sender,
@@ -345,6 +350,7 @@ class ClaimRepository implements ClaimRepositoryInterface
             return $this->claim->query()
                 ->with(['object', 'region', 'district'])
                 ->join('regions', 'regions.soato', '=', 'claims.region')
+                ->join('articles', 'articles.id', '=', 'claims.object_id')
                 ->join('districts', 'districts.soato', '=', 'claims.district')
                 ->join('responses', 'responses.task_id', '=', 'claims.guid')
                 ->when($regionId, function ($q) use ($regionId) {
@@ -355,6 +361,9 @@ class ClaimRepository implements ClaimRepositoryInterface
                 })
                 ->when($task_id, function ($q) use ($task_id) {
                     $q->where('claims.guid', 'LIKE', '%' . $task_id . '%');
+                })
+                ->when($object_task_id, function ($q) use ($object_task_id) {
+                    $q->where('articles.task_id', 'LIKE', '%' . $object_task_id . '%');
                 })
                 ->when($name, function ($q) use ($name) {
                     $q->where('claims.building_name', 'iLIKE', '%' . $name . '%');
@@ -371,11 +380,12 @@ class ClaimRepository implements ClaimRepositoryInterface
                 ->when($expired, function ($q) use ($expired) {
                     $q->where('claims.expired', $expired);
                 })
-                ->groupBy('claims.id', 'responses.api')
+                ->groupBy('claims.id', 'responses.api', 'articles.task_id')
                 ->orderBy('claims.created_at', strtoupper($sortBy))
                 ->select([
                     'claims.id as id',
                     'claims.guid as gu_id',
+                    'articles.task_id as object_task_id',
                     'responses.api as api_type',
                     'claims.district as district',
                     'claims.region as region',
@@ -412,6 +422,7 @@ class ClaimRepository implements ClaimRepositoryInterface
             return $this->claim->query()
                 ->with(['object', 'region', 'district'])
                 ->join('regions', 'regions.soato', '=', 'claims.region')
+                ->join('articles', 'articles.id', '=', 'claims.object_id')
                 ->join('claim_organization_reviews', 'claim_organization_reviews.claim_id', '=', 'claims.id')
                 ->join('districts', 'districts.soato', '=', 'claims.district')
                 ->join('responses', 'responses.task_id', '=', 'claims.guid')
@@ -423,6 +434,9 @@ class ClaimRepository implements ClaimRepositoryInterface
                 })
                 ->when($task_id, function ($q) use ($task_id) {
                     $q->where('claims.guid', 'LIKE', '%' . $task_id . '%');
+                })
+                ->when($object_task_id, function ($q) use ($object_task_id) {
+                    $q->where('articles.task_id', 'LIKE', '%' . $object_task_id . '%');
                 })
                 ->when($name, function ($q) use ($name) {
                     $q->where('claims.building_name', 'iLIKE', '%' . $name . '%');
@@ -440,11 +454,12 @@ class ClaimRepository implements ClaimRepositoryInterface
                     $q->where('claims.expired', $expired);
                 })
                 ->where('claim_organization_reviews.organization_id', $role_id)
-                ->groupBy('claims.id', 'responses.api', 'claim_organization_reviews.id')
+                ->groupBy('claims.id', 'responses.api', 'claim_organization_reviews.id', 'articles.task_id')
                 ->orderBy('claims.created_at', strtoupper($sortBy))
                 ->select([
                     'claims.id as id',
                     'claims.guid as gu_id',
+                    'articles.task_id as object_task_id',
                     'responses.api as api_type',
                     'claim_organization_reviews.id as review_id',
                     'claims.district as district',

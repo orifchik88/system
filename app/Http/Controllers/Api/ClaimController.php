@@ -123,6 +123,7 @@ class ClaimController extends BaseController
     public function tasksList()
     {
         $task_id = request()->get('task_id', null);
+        $object_task_id = request()->get('object_task_id', null);
         $building_name = request()->get('name', null);
         $customer = request()->get('customer', null);
         $sender = request()->get('sender', null);
@@ -142,6 +143,7 @@ class ClaimController extends BaseController
         $data = $this->claimService->getTaskList(
             regionId: $regionId,
             task_id: $task_id,
+            object_task_id: $object_task_id,
             name: $building_name,
             customer: $customer,
             sender: $sender,
