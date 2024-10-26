@@ -308,7 +308,6 @@ class ArticleService
 
             if ($response->notification_type==2)
             {
-
                 $article->users()->detach();
             }
 

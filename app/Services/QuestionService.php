@@ -55,7 +55,7 @@ class QuestionService
         if ($block_type == null)
             $workTypes = WorkType::query()->where(['type' => 1])->orderBy('id', 'ASC')->get();
         else
-            $workTypes = WorkType::query()->orderBy('id', 'ASC')->get();
+            $workTypes = WorkType::query()->orderBy('id', 'ASC')->where('status', true)->get();
 
         $generatedQuestions = [];
 
