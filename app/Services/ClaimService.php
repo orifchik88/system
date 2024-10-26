@@ -17,6 +17,7 @@ use App\Http\Requests\ClaimRequests\RejectClaimByOperator;
 use App\Http\Requests\ClaimRequests\RejectFromDirector;
 use App\Http\Requests\ClaimRequests\SendToDirector;
 use App\Models\Block;
+use App\Models\ClaimMonitoring;
 use App\Models\ClaimOrganizationReview;
 use App\Models\Response;
 use App\Models\Role;
@@ -257,12 +258,29 @@ class ClaimService
     public function attachBlockAndOrganization(AttachBLockAndOrganization $request): bool
     {
         $claimObject = $this->getClaimById(id: $request['id'], role_id: null);
+        $blocks = $request['blocks'];
+        sort($blocks);
+        $blocksJson = json_encode($blocks);
+        $oldMonitoring = ClaimMonitoring::query()
+            ->where('object_id', $claimObject->object_id)
+            ->whereRaw("blocks::jsonb = '$blocksJson'")
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $objectModel = $this->articleRepository->findById($claimObject->object_id);
+        if($oldMonitoring)
+        {
+            //dd($oldMonitoring);
+        }
+
+        if($claimObject->monitoring != null)
+            return true;
 
         if (!$claimObject)
             return false;
 
         $monitoring = $this->claimRepository->createMonitoring(
-            blocks: $request['blocks'],
+            blocks: $blocks,
             organizations: $request['organizations'],
             id: $request['id'],
             object_id: $claimObject->object_id);
@@ -474,7 +492,8 @@ class ClaimService
 
         $objectModel->update(
             [
-                'object_status_id' => ObjectStatusEnum::SUBMITTED
+                'object_status_id' => ObjectStatusEnum::SUBMITTED,
+                'closed_at' => Carbon::now()
             ]
         );
 
