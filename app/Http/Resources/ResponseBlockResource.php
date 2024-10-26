@@ -26,6 +26,7 @@ class ResponseBlockResource extends JsonResource
             'height' => $this->height,
             'length' => $this->length,
             'status' => $this->status,
+            'accepted' => $this->accepted,
             'appearance_type' => AppearanceTypeResource::make($this->appearanceType)
         ];
     }
