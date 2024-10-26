@@ -5,12 +5,16 @@ namespace App\Http\Controllers\Api;
 use App\Http\Resources\BasisResource;
 use App\Http\Resources\NormativeDocumentResource;
 use App\Http\Resources\NotificationResource;
+use App\Http\Resources\ProgramResource;
 use App\Http\Resources\RoleResource;
+use App\Http\Resources\SphereResource;
 use App\Http\Resources\TopicResource;
 use App\Http\Resources\UserResource;
 use App\Models\Basis;
 use App\Models\NormativeDocument;
 use App\Models\NotificationLog;
+use App\Models\Program;
+use App\Models\Sphere;
 use App\Models\Topic;
 use App\Models\User;
 use App\Services\InformationService;
@@ -23,27 +27,38 @@ use Psy\Util\Json;
 
 class InformationController extends BaseController
 {
+//    public function __construct(protected InformationService $informationService)
+//    {
+//        $this->middleware('auth');
+//        parent::__construct();
+//    }
 
     public function monitoringObjects(): JsonResponse
     {
         $customerInn = request('customer_inn');
         $pudratInn = request('pudrat_inn');
+
+        $informationService = new InformationService();
         try {
             $data = getData(config('app.gasn.monitoring'), request('expertise_number'))['data']['result']['data'];
+
             if (!empty($data))
             {
                 if ($data[0]['end_term_work_days']){
-                    $meta[] = $this->informationService->customer($customerInn, $pudratInn);
+                    $meta[] = $informationService->customer($customerInn, $pudratInn);
                 }
+                $sphere = Sphere::query()->find($data[0]['object_types_id']);
+                $program = Program::query()->find($data[0]['project_type_id']);
                 $meta[] = [
                     'id' => $data[0]['id'],
                     'gnk_id' => $data[0]['gnk_id'],
-                    'project_type_id' => $data[0]['project_type_id'],
+                    'project_type' => ProgramResource::make($program),
                     'name' => $data[0]['name'],
                     'end_term_work_days' => $data[0]['end_term_work_days'],
+                    'sphere' => SphereResource::make($sphere),
                 ];
             }else{
-                $meta[] = $this->informationService->customer($customerInn, $pudratInn);
+                $meta[] = $informationService->customer($customerInn, $pudratInn);
             }
 
 
