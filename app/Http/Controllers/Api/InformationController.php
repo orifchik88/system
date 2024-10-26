@@ -27,23 +27,25 @@ use Psy\Util\Json;
 
 class InformationController extends BaseController
 {
-    public function __construct(protected InformationService $informationService)
-    {
-        $this->middleware('auth');
-        parent::__construct();
-    }
+//    public function __construct(protected InformationService $informationService)
+//    {
+//        $this->middleware('auth');
+//        parent::__construct();
+//    }
 
     public function monitoringObjects(): JsonResponse
     {
         $customerInn = request('customer_inn');
         $pudratInn = request('pudrat_inn');
+
+        $informationService = new InformationService();
         try {
             $data = getData(config('app.gasn.monitoring'), request('expertise_number'))['data']['result']['data'];
 
             if (!empty($data))
             {
                 if ($data[0]['end_term_work_days']){
-                    $meta[] = $this->informationService->customer($customerInn, $pudratInn);
+                    $meta[] = $informationService->customer($customerInn, $pudratInn);
                 }
                 $sphere = Sphere::query()->find($data[0]['object_types_id']);
                 $program = Program::query()->find($data[0]['project_type_id']);
@@ -56,7 +58,7 @@ class InformationController extends BaseController
                     'sphere' => SphereResource::make($sphere),
                 ];
             }else{
-                $meta[] = $this->informationService->customer($customerInn, $pudratInn);
+                $meta[] = $informationService->customer($customerInn, $pudratInn);
             }
 
 
