@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Article;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -14,9 +15,13 @@ class ArticleResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+
+        $dxaResponse = $this->response;
+        $oldTaskIds = $dxaResponse->getOldTaskIds($this->task_id);
         return [
             'id' => $this->id,
             'name' =>$this->name,
+            'task_ids' => $oldTaskIds,
             'region' => RegionResource::make($this->region),
             'district' => DistrictResource::make($this->district),
             'task_id' => $this->task_id,
