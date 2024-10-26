@@ -427,7 +427,7 @@ class ArticleService
     private function acceptResponse(DxaResponse $response)
     {
         try {
-            if (env('APP_ENV') === 'development') {
+            if (env('MYGOV_MODE') === 'prod') {
                 $authUsername = config('app.mygov.login');
                 $authPassword = config('app.mygov.password');
 
