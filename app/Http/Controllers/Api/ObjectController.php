@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\DTO\ObjectDto;
+use App\Enums\ObjectCheckEnum;
 use App\Enums\UserRoleEnum;
 use App\Http\Requests\ObjectRequest;
 use App\Http\Resources\ArticleResource;
@@ -189,21 +190,49 @@ class ObjectController extends BaseController
             $object = Article::findOrFail(request()->get('id'));
 
             $missingRoles = $this->checkUsers($object);
-            $blocks = $this->checkBlocks($object);
+//            $blocks = $this->checkBlocks($object);
 
             if (!empty($missingRoles)) {
                 return $this->sendError('Obyekt qatnashchilari yetarli emas ' . implode(', ', $missingRoles));
             }
 
-            if (!empty($blocks)) {
-                return $this->sendError('Obyekt blocklar foydalanishga topshirilgan ' . implode(', ', $blocks));
-            }
+//            if (!empty($blocks)) {
+//                return $this->sendError('Obyekt bloklar foydalanishga topshirilgan ' . implode(', ', $blocks));
+//            }
 
             return $this->sendSuccess(ArticleResource::make($object), 'Article retrieved successfully.');
 
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
+    }
+
+    private function checkUsers($object): array
+    {
+        $users = $object->users;
+        $missingRoles = [];
+        foreach (ObjectCheckEnum::cases() as $role) {
+            $method = $role->value;
+            $hasRole = $users->contains(function ($user) use ($method) {
+                return $user->{$method}();
+            });
+            if (!$hasRole) {
+                $missingRoles[] = $role->name;
+            }
+        }
+
+        return $missingRoles;
+    }
+
+    private function checkBlocks($object): array
+    {
+        $inactiveBlocks = [];
+        foreach ($object->blocks as $block) {
+            if (!$block->status){
+                $inactiveBlocks[] = $block->name;
+            }
+        }
+        return $inactiveBlocks;
     }
 
 
