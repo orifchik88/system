@@ -62,4 +62,9 @@ class ArticleResource extends JsonResource
             'rating' => json_decode($this->rating)
         ];
     }
+
+    private function countMonitorings()
+    {
+
+    }
 }

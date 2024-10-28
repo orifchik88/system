@@ -35,6 +35,7 @@ class UserResource extends JsonResource
             'login' => $this->login,
             'status' => UserStatusResource::make($this->status),
             'image' => $this->image ? Storage::disk('public')->url($this->image) : null,
+            'files' => $this->documents ? DocumentResource::collection($this->documents) : null,
             'user_objects' => collect($this->roles)->map(function ($role) {
                 return [
                     'role_name' => $role->name,
