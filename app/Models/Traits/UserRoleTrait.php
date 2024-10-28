@@ -79,7 +79,7 @@ trait UserRoleTrait
 
     public function employees(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'user_employees', 'parent_id');
+        return $this->belongsToMany(User::class, 'user_employees', 'parent_id')->where('active', 1);
     }
 
 //    public function scopeSearchByFullName($query, $searchTerm)

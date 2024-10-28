@@ -496,7 +496,6 @@ class QuestionService
             'description' => $violationData['comment'],
             'bases_id' => $violationData['basis_id'],
             'checklist_id' => $checklist->id,
-            'level_id' => 1
         ]);
     }
 
