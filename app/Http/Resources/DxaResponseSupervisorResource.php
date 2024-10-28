@@ -33,10 +33,10 @@ class DxaResponseSupervisorResource extends JsonResource
             'sertification_number' => $this->sertification_number,
             'phone_number' => $this->phone_number,
             'comment' => $this->comment,
-            'user_objects' => $user ? collect($user->roles)->map(function ($role) {
+            'user_objects' => $user ? collect($user->roles)->map(function ($role) use($user){
                 return [
                     'role_name' => $role->name,
-                    'object_count' => $this->objects()
+                    'object_count' => $user->objects()
                         ->whereIn('object_status_id', [
                             ObjectStatusEnum::PROGRESS,
                             ObjectStatusEnum::FROZEN,
