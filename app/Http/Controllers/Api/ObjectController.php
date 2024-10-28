@@ -7,6 +7,7 @@ use App\Enums\UserRoleEnum;
 use App\Http\Requests\ObjectRequest;
 use App\Http\Resources\ArticleResource;
 use App\Http\Resources\FundingSourceResource;
+use App\Models\Article;
 use App\Services\ArticleService;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -182,6 +183,29 @@ class ObjectController extends BaseController
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
+    public function checkObject()
+    {
+        try {
+            $object = Article::findOrFail(request()->get('id'));
+
+            $missingRoles = $this->checkUsers($object);
+            $blocks = $this->checkBlocks($object);
+
+            if (!empty($missingRoles)) {
+                return $this->sendError('Obyekt qatnashchilari yetarli emas ' . implode(', ', $missingRoles));
+            }
+
+            if (!empty($blocks)) {
+                return $this->sendError('Obyekt blocklar foydalanishga topshirilgan ' . implode(', ', $blocks));
+            }
+
+            return $this->sendSuccess(ArticleResource::make($object), 'Article retrieved successfully.');
+
+        } catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
 
     public function changeObjectStatus(): JsonResponse
     {
