@@ -309,7 +309,7 @@ class UserController extends BaseController
         $user->image = $this->saveImage($request);
 
         $user->save();
-        
+
         if ($this->roleId == UserRoleEnum::BUYURTMACHI->value || $this->roleId == UserRoleEnum::LOYIHA->value || $this->roleId == UserRoleEnum::QURILISH->value) {
             UserEmployee::query()->create([
                 'parent_id' => $this->user->id,
