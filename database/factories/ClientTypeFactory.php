@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\ClientType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

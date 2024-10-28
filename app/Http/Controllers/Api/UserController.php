@@ -20,6 +20,7 @@ use App\Models\ArticleUser;
 use App\Models\Regulation;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\UserEmployee;
 use App\Models\UserHistory;
 use App\Models\UserRole;
 use App\Models\UserStatus;
@@ -281,6 +282,12 @@ class UserController extends BaseController
         $user->image = $this->saveImage($request);
 
         $user->save();
+        if ($this->roleId == UserRoleEnum::BUYURTMACHI->value || $this->roleId == UserRoleEnum::LOYIHA->value || $this->roleId == UserRoleEnum::QURILISH->value) {
+            UserEmployee::query()->create([
+                'parent_id' => $this->user->id,
+                'user_id' => $user->id,
+            ]);
+        }
     }
 
     private function createNewUser(UserRequest $request): User
@@ -302,6 +309,14 @@ class UserController extends BaseController
         $user->image = $this->saveImage($request);
 
         $user->save();
+        
+        if ($this->roleId == UserRoleEnum::BUYURTMACHI->value || $this->roleId == UserRoleEnum::LOYIHA->value || $this->roleId == UserRoleEnum::QURILISH->value) {
+            UserEmployee::query()->create([
+                'parent_id' => $this->user->id,
+                'user_id' => $user->id,
+            ]);
+        }
+
 
         return $user;
     }
