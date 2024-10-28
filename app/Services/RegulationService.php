@@ -39,10 +39,11 @@ class RegulationService
                 return Regulation::query()
                     ->where(function ($q) use ($user, $roleId) {
                         $q->where('user_id', $user->id)
-                            ->where('role_id', $roleId);
-                    })->orWhere(function ($query) use ($user, $roleId) {
-                        $query->where('created_by_user_id', $user->id)
-                            ->where('created_by_role_id', $roleId);
+                            ->where('role_id', $roleId)
+                            ->orWhere(function ($query) use ($user, $roleId) {
+                                $query->where('created_by_user_id', $user->id)
+                                    ->where('created_by_role_id', $roleId);
+                            });
                     });
             case UserRoleEnum::MUALLIF->value:
             case UserRoleEnum::ICHKI->value:
