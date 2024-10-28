@@ -110,7 +110,7 @@ class ClaimController extends BaseController
 
         $data = $this->claimService->getClaimById(
             id: $id,
-            role_id: (in_array($roleId, [15, 16, 17, 18, 19])) ? $roleId : null
+            role_id: (in_array($roleId, [15, 16, 17, 18, 19, 3])) ? $roleId : null
         );
 
         if (!$data) {
@@ -151,7 +151,7 @@ class ClaimController extends BaseController
             sortBy: $sortBy,
             status: $status,
             expired: $expired,
-            role_id: (in_array($roleId, [15, 16, 17, 18, 19])) ? $roleId : null
+            role_id: (in_array($roleId, [15, 16, 17, 18, 19, 3])) ? $roleId : null
         );
 
 

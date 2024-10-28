@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Enums\LogType;
 use App\Enums\ObjectStatusEnum;
+use App\Enums\UserRoleEnum;
 use App\Helpers\ClaimStatuses;
 use App\Http\Requests\ClaimRequests\ConclusionOrganization;
 use App\Models\Article;
@@ -231,6 +232,50 @@ class ClaimRepository implements ClaimRepositoryInterface
                 ])
                 ->with(['region', 'district', 'object', 'reviews', 'monitoring'])
                 ->where('claims.id', $id)->first();
+        elseif($role_id == UserRoleEnum::INSPECTOR->value)
+            return $this->claim->query()
+                ->join('responses', 'responses.task_id', '=', 'claims.guid')
+                ->join('article_users', 'article_users.article_id', '=', 'claims.object_id')
+                ->join('articles', 'articles.id', '=', 'claims.object_id')
+                ->select([
+                    'claims.id as id',
+                    'claims.guid as gu_id',
+                    'articles.task_id as object_task_id',
+                    'responses.api as api_type',
+                    'claims.district as district',
+                    'claims.region as region',
+                    'claims.status as status',
+                    'claims.object_id as object_id',
+                    DB::raw("(CASE WHEN claims.user_type = 'J' THEN claims.legal_name ELSE claims.ind_name END) as customer"),
+                    DB::raw("(CASE WHEN claims.user_type = 'J' THEN claims.legal_tin ELSE claims.ind_pinfl END) as customer_inn"),
+                    DB::raw("(CASE WHEN claims.property_owner = '2' THEN claims.ind_name ELSE null END) as property_owner"),
+                    DB::raw("(CASE WHEN claims.property_owner = '2' THEN claims.ind_pinfl ELSE null END) as property_tin"),
+                    'claims.expiry_date as expiry_date',
+                    'claims.expired as expired',
+                    'claims.current_node as current_node',
+                    'claims.building_cadastral as building_cadastral',
+                    'claims.building_address as building_address',
+                    'claims.building_name as building_name',
+                    'claims.building_type as building_type',
+                    'claims.building_type_name as building_type_name',
+                    'claims.user_type as user_type',
+                    'claims.document_registration_based as document_registration_based',
+                    'claims.object_project_user as object_project_user',
+                    'claims.type_object_dic as type_object_dic',
+                    'claims.cadastral_passport_object_file as cadastral_passport_object_file',
+                    'claims.ownership_document as ownership_document',
+                    'claims.act_acceptance_customer_file as act_acceptance_customer_file',
+                    'claims.declaration_conformity_file as declaration_conformity_file',
+                    'claims.conclusion_approved_planning_file as conclusion_approved_planning_file',
+                    'claims.building_cadastral as building_cadastral',
+                    'claims.number_conclusion_project as number_conclusion_project',
+                    'claims.end_date as end_date',
+                    'claims.created_at as created_at'
+                ])
+                ->with(['region', 'district', 'object', 'reviews', 'monitoring'])
+                ->where('article_users.role_id', UserRoleEnum::INSPECTOR)
+                ->where('article_users.user_id', Auth::user()->id)
+                ->where('claims.id', $id)->first();
         else
             return $this->claim->query()
                 ->join('responses', 'responses.task_id', '=', 'claims.guid')
@@ -380,6 +425,81 @@ class ClaimRepository implements ClaimRepositoryInterface
                 ->when($expired, function ($q) use ($expired) {
                     $q->where('claims.expired', $expired);
                 })
+                ->groupBy('claims.id', 'responses.api', 'articles.task_id')
+                ->orderBy('claims.created_at', strtoupper($sortBy))
+                ->select([
+                    'claims.id as id',
+                    'claims.guid as gu_id',
+                    'articles.task_id as object_task_id',
+                    'responses.api as api_type',
+                    'claims.district as district',
+                    'claims.region as region',
+                    'claims.status as status',
+                    'claims.object_id as object_id',
+                    DB::raw("(CASE WHEN claims.user_type = 'J' THEN claims.legal_name ELSE claims.ind_name END) as customer"),
+                    DB::raw("(CASE WHEN claims.user_type = 'J' THEN claims.legal_tin ELSE claims.ind_pinfl END) as customer_inn"),
+                    DB::raw("(CASE WHEN claims.property_owner = '2' THEN claims.ind_name ELSE null END) as property_owner"),
+                    DB::raw("(CASE WHEN claims.property_owner = '2' THEN claims.ind_pinfl ELSE null END) as property_tin"),
+                    'claims.expiry_date as expiry_date',
+                    'claims.expired as expired',
+                    'claims.current_node as current_node',
+                    'claims.building_cadastral as building_cadastral',
+                    'claims.building_address as building_address',
+                    'claims.building_name as building_name',
+                    'claims.building_type as building_type',
+                    'claims.building_type_name as building_type_name',
+                    'claims.user_type as user_type',
+                    'claims.document_registration_based as document_registration_based',
+                    'claims.object_project_user as object_project_user',
+                    'claims.type_object_dic as type_object_dic',
+                    'claims.cadastral_passport_object_file as cadastral_passport_object_file',
+                    'claims.ownership_document as ownership_document',
+                    'claims.act_acceptance_customer_file as act_acceptance_customer_file',
+                    'claims.declaration_conformity_file as declaration_conformity_file',
+                    'claims.conclusion_approved_planning_file as conclusion_approved_planning_file',
+                    'claims.building_cadastral as building_cadastral',
+                    'claims.number_conclusion_project as number_conclusion_project',
+                    'claims.end_date as end_date',
+                    'claims.created_at as created_at'
+                ])
+                ->paginate(request()->get('per_page'));
+        elseif($role_id == UserRoleEnum::INSPECTOR->value)
+            return $this->claim->query()
+                ->with(['object', 'region', 'district'])
+                ->join('regions', 'regions.soato', '=', 'claims.region')
+                ->join('articles', 'articles.id', '=', 'claims.object_id')
+                ->join('article_users', 'article_users.article_id', '=', 'claims.object_id')
+                ->join('districts', 'districts.soato', '=', 'claims.district')
+                ->join('responses', 'responses.task_id', '=', 'claims.guid')
+                ->when($regionId, function ($q) use ($regionId) {
+                    $q->where('regions.id', $regionId);
+                })
+                ->when($districtId, function ($q) use ($districtId) {
+                    $q->where('districts.id', $districtId);
+                })
+                ->when($task_id, function ($q) use ($task_id) {
+                    $q->where('claims.guid', 'LIKE', '%' . $task_id . '%');
+                })
+                ->when($object_task_id, function ($q) use ($object_task_id) {
+                    $q->where('articles.task_id', 'LIKE', '%' . $object_task_id . '%');
+                })
+                ->when($name, function ($q) use ($name) {
+                    $q->where('claims.building_name', 'iLIKE', '%' . $name . '%');
+                })
+                ->when($customer, function ($q) use ($customer) {
+                    $q->where('claims.legal_name', 'iLIKE', '%' . $customer . '%')->orWhere('claims.ind_name', 'iLIKE', '%' . $customer . '%');
+                })
+                ->when($sender, function ($q) use ($sender) {
+                    $q->where('claims.legal_name', 'iLIKE', '%' . $sender . '%')->orWhere('claims.ind_name', 'iLIKE', '%' . $sender . '%');
+                })
+                ->when($status, function ($q) use ($status) {
+                    $q->where('claims.status', $status);
+                })
+                ->when($expired, function ($q) use ($expired) {
+                    $q->where('claims.expired', $expired);
+                })
+                ->where('article_users.role_id', UserRoleEnum::INSPECTOR)
+                ->where('article_users.user_id', Auth::user()->id)
                 ->groupBy('claims.id', 'responses.api', 'articles.task_id')
                 ->orderBy('claims.created_at', strtoupper($sortBy))
                 ->select([

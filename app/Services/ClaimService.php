@@ -26,6 +26,7 @@ use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use App\Repositories\Interfaces\ClaimRepositoryInterface;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 
@@ -270,44 +271,116 @@ class ClaimService
             ->orderBy('id', 'desc')
             ->first();
 
-        $objectModel = $this->articleRepository->findById($claimObject->object_id);
-        if ($oldMonitoring) {
-            //dd($oldMonitoring);
-        }
-
         if ($claimObject->monitoring != null)
             return true;
 
         if (!$claimObject)
             return false;
 
-        $monitoring = $this->claimRepository->createMonitoring(
-            blocks: $blocks,
-            organizations: $request['organizations'],
-            id: $request['id'],
-            object_id: $claimObject->object_id);
+        if ($oldMonitoring) {
+            $monitoring = $this->claimRepository->createMonitoring(
+                blocks: $blocks,
+                organizations: $request['organizations'],
+                id: $request['id'],
+                object_id: $claimObject->object_id);
 
-        foreach ($request['organizations'] as $organization) {
-            $this->claimRepository->createOrganizationReview(
-                claim_id: $request['id'],
-                monitoring_id: $monitoring->id,
-                organization_id: $organization,
-                expiry_date: $this->getExpirationDate(Carbon::now(), 3)
+            $reviews = ClaimOrganizationReview::query()->where('monitoring_id', $oldMonitoring->id)->get();
+            $countReviewAnswers = 0;
+            $addedOrganizations = [];
+            foreach ($reviews as $review) {
+                $addedOrganizations[] = $review->organization_id;
+                if ($review->status) {
+                    $jsonTable = DB::table('claim_organization_reviews')->where('id', $review->id)->first();
+                    $countReviewAnswers++;
+                    ClaimOrganizationReview::query()->create(
+                        [
+                            'claim_id' => $request['id'],
+                            'monitoring_id' => $monitoring->id,
+                            'organization_id' => $review->organization_id,
+                            'expiry_date' => $review->expiry_date,
+                            'expired' => $review->expired,
+                            'answer' => $jsonTable->answer,
+                            'status' => $review->status,
+                            'created_at' => $review->created_at,
+                            'updated_at' => $review->updated_at,
+                            'answered_at' => $review->answered_at
+                        ]
+                    );
+                } else {
+                    $this->claimRepository->createOrganizationReview(
+                        claim_id: $request['id'],
+                        monitoring_id: $monitoring->id,
+                        organization_id: $review->organization_id,
+                        expiry_date: $this->getExpirationDate(Carbon::now(), 3)
+                    );
+                }
+            }
+            if ($countReviewAnswers == count($request['organizations'])) {
+                $claimObject->update(
+                    [
+                        'status' => ClaimStatuses::TASK_STATUS_INSPECTOR
+                    ]
+                );
+
+                $this->historyService->createHistory(
+                    guId: $claimObject->gu_id,
+                    status: ClaimStatuses::TASK_STATUS_INSPECTOR,
+                    type: LogType::TASK_HISTORY,
+                    date: null
+                );
+            } else {
+                foreach ($request['organizations'] as $organization) {
+                    if (!in_array($organization, $addedOrganizations))
+                        $this->claimRepository->createOrganizationReview(
+                            claim_id: $request['id'],
+                            monitoring_id: $monitoring->id,
+                            organization_id: $organization,
+                            expiry_date: $this->getExpirationDate(Carbon::now(), 3)
+                        );
+                }
+
+                $claimObject->update(
+                    [
+                        'status' => ClaimStatuses::TASK_STATUS_SENT_ORGANIZATION
+                    ]
+                );
+
+                $this->historyService->createHistory(
+                    guId: $claimObject->gu_id,
+                    status: ClaimStatuses::TASK_STATUS_SENT_ORGANIZATION,
+                    type: LogType::TASK_HISTORY,
+                    date: null
+                );
+            }
+        } else {
+            $monitoring = $this->claimRepository->createMonitoring(
+                blocks: $blocks,
+                organizations: $request['organizations'],
+                id: $request['id'],
+                object_id: $claimObject->object_id);
+
+            foreach ($request['organizations'] as $organization) {
+                $this->claimRepository->createOrganizationReview(
+                    claim_id: $request['id'],
+                    monitoring_id: $monitoring->id,
+                    organization_id: $organization,
+                    expiry_date: $this->getExpirationDate(Carbon::now(), 3)
+                );
+            }
+
+            $claimObject->update(
+                [
+                    'status' => ClaimStatuses::TASK_STATUS_SENT_ORGANIZATION
+                ]
+            );
+
+            $this->historyService->createHistory(
+                guId: $claimObject->gu_id,
+                status: ClaimStatuses::TASK_STATUS_SENT_ORGANIZATION,
+                type: LogType::TASK_HISTORY,
+                date: null
             );
         }
-
-        $claimObject->update(
-            [
-                'status' => ClaimStatuses::TASK_STATUS_SENT_ORGANIZATION
-            ]
-        );
-
-        $this->historyService->createHistory(
-            guId: $claimObject->gu_id,
-            status: ClaimStatuses::TASK_STATUS_SENT_ORGANIZATION,
-            type: LogType::TASK_HISTORY,
-            date: null
-        );
 
         return true;
     }
