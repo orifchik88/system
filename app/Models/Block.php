@@ -25,9 +25,9 @@ class Block extends Model
         return $this->belongsTo(Article::class, 'article_id');
     }
 
-    public function responses(): BelongsToMany
+    public function responses(): BelongsTo
     {
-        return $this->belongsToMany(DxaResponse::class, 'dxa_response_blocks', 'block_id', 'dxa_response_id');
+        return $this->belongsTo(DxaResponse::class,  'dxa_response_id');
     }
 
     public function mode(): BelongsTo

@@ -114,7 +114,7 @@ class DxaResponseResource extends JsonResource
                 'name' =>  $inspector ? "{$inspector->surname} {$inspector->name} {$inspector->middle_name}" : null,
             ],
             'images' => ImageResource::collection($images) ?? null,
-            'blocks' => ResponseBlockResource::collection($blocks) ?? null,
+//            'blocks' => ResponseBlockResource::collection($blocks) ?? null,
             'inspector_comment' => $comment ?? null,
             'created_at' => $this->created_at,
             'rejected_at' => $this->rejected_at,

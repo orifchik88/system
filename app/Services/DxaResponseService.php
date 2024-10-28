@@ -175,6 +175,7 @@ class DxaResponseService
 
             $blockAttributes = [
                 'name' => $blockData['name'],
+                'dxa_response_id' => $response->id,
                 'floor' => $blockData['floor'] ?? null,
                 'construction_area' => $blockData['construction_area'],
                 'count_apartments' => $blockData['count_apartments'],
@@ -191,12 +192,9 @@ class DxaResponseService
 
             if ($articleBlock) {
                 $articleBlock->update($blockAttributes);
-                $block = $articleBlock;
             } else {
-                $block = Block::create($blockAttributes);
+                Block::create($blockAttributes);
             }
-
-            $response->blocks()->attach($block->id);
         }
     }
 
