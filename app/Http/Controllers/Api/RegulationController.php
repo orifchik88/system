@@ -353,34 +353,6 @@ class RegulationController extends BaseController
     }
 
 
-    public function regulationOwner(): JsonResponse
-    {
-        try {
-            if (request('id')) {
-                $regulation = Regulation::query()->findOrFaiL(request('id'));
-                return $this->sendSuccess(RegulationResource::make($regulation), 'Get data successfully');
-            }
-
-            if (request('object_id')) {
-                $object = Article::query()->findOrFaiL(request('object_id'));
-                $data = $object->regulations()->where('created_by_user_id', Auth::id())->paginate(request('per_page', 10));
-                return $this->sendSuccess(RegulationResource::collection($data), 'Get data successfully', pagination($data));
-            }
-
-            $regulations = Regulation::query()
-                ->where('created_by_user_id', Auth::id())
-                ->whereIn('act_status_id', [1, 4, 7])
-                ->paginate(request('per_page', 10));
-            return $this->sendSuccess(
-                RegulationResource::collection($regulations),
-                'Regulations',
-                pagination($regulations)
-            );
-        } catch (\Exception $exception) {
-            return $this->sendError($exception->getMessage(), $exception->getCode());
-        }
-    }
-
     public function fine(RegulationFineRequest $request): JsonResponse
     {
         try {

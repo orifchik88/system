@@ -22,6 +22,7 @@ class RegulationFineRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'regulation_id' => 'required|exists:regulations,id',
             'user_type' => 'required',
             'organization_name' => 'sometimes|string',
             'inn' => 'sometimes|integer',

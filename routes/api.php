@@ -105,6 +105,10 @@ Route::group([
     Route::post('send-inspector', [RegisterController::class, 'sendInspector']);
     Route::post('send-register', [RegisterController::class, 'sendRegister']);
     Route::post('reject-register', [RegisterController::class, 'rejectRegister']);
+    Route::post('send-court-register', [RegisterController::class, 'sendCourt']);
+    Route::post('create-fine-response', [RegisterController::class, 'fine']);
+
+
 
     Route::get('objects', [ObjectController::class, 'index']);
     Route::get('object/{id}', [ObjectController::class, 'getObject']);

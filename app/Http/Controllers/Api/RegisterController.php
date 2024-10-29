@@ -7,11 +7,13 @@ use App\Enums\LawyerStatusEnum;
 use App\Http\Requests\DxaResponseInspectorRequest;
 use App\Http\Requests\DxaResponseRegisterRequest;
 use App\Http\Requests\DxaResponseRejectRequest;
+use App\Http\Requests\ResponseFineRequest;
 use App\Http\Resources\DxaResponseResource;
 use App\Http\Resources\DxaStatusResource;
 use App\Models\Article;
 use App\Models\DxaResponse;
 use App\Models\DxaResponseStatus;
+use App\Models\ResponseFine;
 use App\Services\ArticleService;
 use App\Services\CheckListAnswerService;
 use App\Services\DxaResponseService;
@@ -76,7 +78,6 @@ class RegisterController extends BaseController
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage());
         }
-
     }
 
     public function getRegister($id): JsonResponse
@@ -89,6 +90,64 @@ class RegisterController extends BaseController
         }
     }
 
+    public function sendCourt(): JsonResponse
+    {
+        try {
+            $response = DxaResponse::query()->findOrFaiL(request('id'));
+
+            $response->update([
+                'lawyer_status_type' => request('type'),
+                'lawyer_status_id' => LawyerStatusEnum::PROCESS->value
+            ]);
+
+            return $this->sendSuccess([], 'Data saved successfully');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage());
+        }
+    }
+
+    public function fine(ResponseFineRequest $request): JsonResponse
+    {
+        try {
+            $response = DxaResponse::query()->findOrFaiL($request->id);
+            $fine = new ResponseFine();
+            $fine->dxa_response_id = $response->id;
+            $fine->organization_name = $request->organization_name;
+            $fine->user_type = $request->user_type;
+            $fine->inn = $request->inn;
+            $fine->full_name = $request->full_name;
+            $fine->pinfl = $request->pinfl;
+            $fine->position = $request->position;
+            $fine->decision_series = $request->decision_series;
+            $fine->decision_number = $request->decision_number;
+            $fine->substance = $request->substance;
+            $fine->substance_item = $request->substance_item;
+            $fine->amount = $request->amount;
+            $fine->date = $request->date;
+            $fine->save();
+
+            if ($request->hasFile('images')) {
+                foreach ($request->images as $image) {
+                    $path = $image->store('images/fines', 'public');
+                    $fine->images()->create(['url' => $path]);
+                }
+            }
+            if ($request->hasFile('files')) {
+                foreach ($request->files as $document) {
+                    $path = $document->store('document/fines', 'public');
+                    $fine->documents()->create(['url' => $path]);
+                }
+            }
+
+            $response->update([
+                'lawyer_status_id' => LawyerStatusEnum::ADMINISTRATIVE->value,
+            ]);
+
+            return $this->sendSuccess([], 'Data saved successfully');
+        } catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
 
     public function status(): JsonResponse
     {
