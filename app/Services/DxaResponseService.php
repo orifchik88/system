@@ -55,6 +55,19 @@ class DxaResponseService
         }
     }
 
+    public function searchRegisters($query, $filters)
+    {
+        return  $query
+            ->when(isset($filters['task_id']), fn($query) => $query->searchByTaskId($filters['task_id']))
+            ->when(isset($filters['customer']), fn($query) => $query->searchByCustomer($filters['customer']))
+            ->when(isset($filters['name']), fn($query) => $query->searchByName($filters['name']))
+            ->when(isset($filters['object_type']), fn($query) => $query->where('object_type_id', $filters['object_type']))
+            ->when(isset($filters['status']), fn($query) => $query->where('dxa_response_status_id', $filters['status']))
+            ->when(isset($filters['district_id']), fn($query) => $query->where('district_id', $filters['district_id']))
+            ->when(isset($filters['funding_source']), fn($query) => $query->where('funding_source_id', $filters['funding_source']))
+            ->when(isset($filters['sort_by_date']), fn($query) => $query->orderBy('created_at', $filters['sort_by_date']));
+    }
+
     public function sendInspector(): DxaResponse
     {
         DB::beginTransaction();
