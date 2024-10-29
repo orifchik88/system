@@ -222,15 +222,8 @@ class RegisterController extends BaseController
     {
 
         try {
-            $user = Auth::user();
-            $query = DxaResponse::query()
-                ->when($user->inspector(), function ($query) use ($user) {
-                    return $query->where('inspector_id', $user->id);
-                })
-                ->when($user->register(), function ($query) use ($user) {
-                    return $query->where('region_id', $user->region_id);
-                })
-                ->where('notification_type', 1);
+           $query = $this->service->getRegisters($this->user, $this->roleId, 1);
+
             $data = [
                 'all' => $query->clone()->count(),
                 'new' => $query->clone()->where('dxa_response_status_id', DxaResponseStatusEnum::NEW)->count(),
