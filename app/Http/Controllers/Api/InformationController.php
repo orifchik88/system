@@ -198,14 +198,16 @@ class InformationController extends BaseController
     {
         try {
             $client = new Client();
-            $url = 'https://sso.egov.uz/sso/oauth/Authorization.do?grant_type=one_authorization_code&client_id=ccnis_uz&client_secret=ZSSlVilzjEXH42GgxO878ost&code='.request('code').'&redirect_url=https://ccnis.devmc.uz/login/oneid';
+            //$url = 'https://sso.egov.uz/sso/oauth/Authorization.do?grant_type=one_authorization_code&client_id=ccnis_uz&client_secret=ZSSlVilzjEXH42GgxO878ost&code='.request('code').'&redirect_url=https://ccnis.devmc.uz/login/oneid';
+            $url = 'https://sso.egov.uz/sso/oauth/Authorization.do?grant_type=one_authorization_code&client_id=for_testing&client_secret=BSgm7sW2OJqIrjtaT4fXD9U&code='.request('code').'&redirect_url=https://ccnis.devmc.uz/login/oneid';
             $resClient = $client->post($url);
             $response = json_decode($resClient->getBody(), true);
 
 
 
             $client = new Client();
-            $url = 'https://sso.egov.uz/sso/oauth/Authorization.do?grant_type=one_access_token_identify&client_id=ccnis_uz&client_secret=ZSSlVilzjEXH42GgxO878ost&access_token='.$response['access_token'].'&scope='.$response['scope'];
+            //$url = 'https://sso.egov.uz/sso/oauth/Authorization.do?grant_type=one_access_token_identify&client_id=ccnis_uz&client_secret=ZSSlVilzjEXH42GgxO878ost&access_token='.$response['access_token'].'&scope='.$response['scope'];
+            $url = 'https://sso.egov.uz/sso/oauth/Authorization.do?grant_type=one_access_token_identify&client_id=for_testing&client_secret=BSgm7sW2OJqIrjtaT4fXD9U&access_token='.$response['access_token'].'&scope='.$response['scope'];
             $resClient = $client->post($url);
             $data = json_decode($resClient->getBody(), true);
 
