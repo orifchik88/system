@@ -20,6 +20,14 @@ class User extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable,SoftDeletes, UserRoleTrait;
 
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($user) {
+            $user->active = 1;
+        });
+    }
+
 
     public function getJWTIdentifier()
     {
