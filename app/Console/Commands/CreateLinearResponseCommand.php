@@ -54,7 +54,7 @@ class CreateLinearResponseCommand extends Command
                 ]);
                 echo $exception->getMessage() . ' ' . $exception->getLine();
             }
-            sleep(3);
+            sleep(5);
         }
     }
 }
