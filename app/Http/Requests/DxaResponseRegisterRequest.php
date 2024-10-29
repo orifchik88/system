@@ -33,7 +33,7 @@ class DxaResponseRegisterRequest extends FormRequest
             'images.*' => 'image|mimes:jpg,jpeg,png',
 //            'documents.*' => 'sometimes',
 //            'images.*' => 'required|image|mimes:jpg,jpeg,png',
-            'blocks.*' => 'required',
+            'blocks.*' => 'sometimes',
         ];
     }
 

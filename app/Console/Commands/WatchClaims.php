@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 
 
-class WatchClaims extends Command
+class  WatchClaims extends Command
 {
     private ClaimService $claimService;
     private HistoryService $historyService;
