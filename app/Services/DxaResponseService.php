@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\DxaResponseStatusEnum;
+use App\Enums\LawyerStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Models\Block;
 use App\Models\DxaResponse;
@@ -65,6 +66,7 @@ class DxaResponseService
             ->when(isset($filters['status']), fn($query) => $query->where('dxa_response_status_id', $filters['status']))
             ->when(isset($filters['district_id']), fn($query) => $query->where('district_id', $filters['district_id']))
             ->when(isset($filters['funding_source']), fn($query) => $query->where('funding_source_id', $filters['funding_source']))
+            ->when(isset($filters['lawyer_status']), fn($query) => $query->where('lawyer_status_id', $filters['lawyer_status']))
             ->when(isset($filters['sort_by_date']), fn($query) => $query->orderBy('created_at', $filters['sort_by_date']));
     }
 
@@ -230,6 +232,7 @@ class DxaResponseService
     {
         $response->dxa_response_status_id = DxaResponseStatusEnum::REJECTED;
         $response->rejection_comment = $comment;
+        $response->lawyer_status_id = LawyerStatusEnum::NEW->value;
         $response->rejected_at = now();
         $response->save();
 
