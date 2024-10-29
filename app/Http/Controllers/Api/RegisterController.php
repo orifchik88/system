@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\DxaResponseStatusEnum;
+use App\Enums\LawyerStatusEnum;
 use App\Http\Requests\DxaResponseInspectorRequest;
 use App\Http\Requests\DxaResponseRegisterRequest;
 use App\Http\Requests\DxaResponseRejectRequest;
@@ -214,6 +215,24 @@ class RegisterController extends BaseController
             ];
             return $this->sendSuccess($data, 'Response count retrieved successfully.');
         } catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function lawyerCount(): JsonResponse
+    {
+        try {
+            $query = $this->service->getRegisters($this->user, $this->roleId, 1);
+
+            $data = [
+                'all' => $query->clone()->count(),
+                'new' => $query->clone()->where('lawyer_status_id', LawyerStatusEnum::NEW->value)->count(),
+                'process' => $query->clone()->where('lawyer_status_id', LawyerStatusEnum::PROCESS->value)->count(),
+                'administrative' => $query->clone()->where('lawyer_status_id', LawyerStatusEnum::ADMINISTRATIVE->value)->count(),
+                'disassembly' => $query->clone()->where('lawyer_status_id', LawyerStatusEnum::DISASSEMBLY->value)->count(),
+            ];
+            return $this->sendSuccess($data, 'Response count retrieved successfully.');
+        }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }

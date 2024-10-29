@@ -100,6 +100,7 @@ Route::group([
     Route::get('register-status', [RegisterController::class, 'status']);
     Route::get('register-get-pdf', [RegisterController::class, 'getPDF']);
     Route::get('total-count', [RegisterController::class, 'totalCount']);
+    Route::get('register-lawyer-count', [RegisterController::class, 'lawyerCount']);
 
     Route::post('send-inspector', [RegisterController::class, 'sendInspector']);
     Route::post('send-register', [RegisterController::class, 'sendRegister']);
