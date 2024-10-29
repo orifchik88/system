@@ -44,4 +44,11 @@ return [
         'token' => env('ONESIGNAL_TOKEN') ?? 'ODFjNmNkOTgtMzI4OS00ZjAxLWI3YmQtNmI2Nzc0M2VlMDVi',
     ],
 
+    'oneId' => [
+        'id' => env('ONE_ID_CLIENT_ID'),
+        'secret' => env('ONE_ID_CLIENT_SECRET'),
+        'redirect' => env('ONE_ID_URL'),
+    ],
+
+
 ];
