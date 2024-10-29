@@ -169,31 +169,31 @@ class DxaResponseService
     private function saveBlocks()
     {
         $response = $this->findResponse();
+        if (isset($this->data['blocks']))
+        {
+            foreach ($this->data['blocks'] as $blockData) {
+                $blockAttributes = [
+                    'name' => $blockData['name'],
+                    'dxa_response_id' => $response->id,
+                    'floor' => $blockData['floor'] ?? null,
+                    'construction_area' => $blockData['construction_area'],
+                    'count_apartments' => $blockData['count_apartments'],
+                    'height' => $blockData['height'] ?? null,
+                    'length' => $blockData['length'] ?? null,
+                    'block_mode_id' => $blockData['block_mode_id'] ?? null,
+                    'block_type_id' => $blockData['block_type_id'] ?? null,
+                    'appearance_type' => $blockData['appearance_type'] ?? null,
+                    'created_by' => Auth::id(),
+                    'status' => true,
+                ];
+                $blockAttributes['block_number'] = $this->determineBlockNumber($blockData, $response);
+                $articleBlock = Block::query()->where('block_number', $blockAttributes['block_number'])->first();
 
-
-        foreach ($this->data['blocks'] as $blockData) {
-
-            $blockAttributes = [
-                'name' => $blockData['name'],
-                'dxa_response_id' => $response->id,
-                'floor' => $blockData['floor'] ?? null,
-                'construction_area' => $blockData['construction_area'],
-                'count_apartments' => $blockData['count_apartments'],
-                'height' => $blockData['height'] ?? null,
-                'length' => $blockData['length'] ?? null,
-                'block_mode_id' => $blockData['block_mode_id'] ?? null,
-                'block_type_id' => $blockData['block_type_id'] ?? null,
-                'appearance_type' => $blockData['appearance_type'] ?? null,
-                'created_by' => Auth::id(),
-                'status' => true,
-            ];
-            $blockAttributes['block_number'] = $this->determineBlockNumber($blockData, $response);
-            $articleBlock = Block::query()->where('block_number', $blockAttributes['block_number'])->first();
-
-            if ($articleBlock) {
-                $articleBlock->update($blockAttributes);
-            } else {
-                Block::create($blockAttributes);
+                if ($articleBlock) {
+                    $articleBlock->update($blockAttributes);
+                } else {
+                    Block::create($blockAttributes);
+                }
             }
         }
     }
