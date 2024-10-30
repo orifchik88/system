@@ -59,12 +59,18 @@ class ArticleResource extends JsonResource
             'blocks' => ResponseBlockResource::collection($this->blocks),
             'users' => ArticleUserResource::collection($this->users),
             'payment_logs' => ArticlePaymentLogResource::collection($this->paymentLogs),
-            'rating' => json_decode($this->rating)
+            'rating' => json_decode($this->rating),
+            'statistics' => $this->countMonitorings()
         ];
     }
 
-    private function countMonitorings()
+    private function countMonitorings(): array
     {
-
+        return [
+            'monitoring_count' => $this->monitorings()->count(),
+            'regulation_count' => $this->regulations()->count(),
+            'violation_count' => $this->violations()->count(),
+            'finished_violation_count' => $this->violations()->where('check_list_status', true)->count(),
+        ];
     }
 }
