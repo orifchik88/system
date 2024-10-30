@@ -65,7 +65,7 @@ class MigrateCommand extends Command
             $region = Region::query()->where('old_id', $userO->region_id)->first();
             $district = District::query()->where('old_id', $userO->district_id)->first();
             $role = Role::query()->where('old_id', $userO->role_id)->first();
-            $checkUser = User::query()->where('login', $userO->login)->first();
+            $checkUser = User::query()->where('old_id', $userO->id)->first();
 
             if ($checkUser != null)
                 continue;
