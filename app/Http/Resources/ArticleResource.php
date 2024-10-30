@@ -69,8 +69,8 @@ class ArticleResource extends JsonResource
         return [
             'monitoring_count' => $this->monitorings()->count(),
             'regulation_count' => $this->regulations()->count(),
-            'violation_count' => $this->regulations()->violations()->count(),
-            'finished_violation_count' => $this->regulations()->violations()->where('check_list_status', true)->count(),
+//            'violation_count' => $this->regulations()->violations()->count(),
+//            'finished_violation_count' => $this->regulations()->violations()->where('check_list_status', true)->count(),
         ];
     }
 }
