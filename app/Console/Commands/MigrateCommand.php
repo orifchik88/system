@@ -67,8 +67,17 @@ class MigrateCommand extends Command
             $role = Role::query()->where('old_id', $userO->role_id)->first();
             $checkUser = User::query()->where('old_id', $userO->id)->first();
 
-            if ($checkUser != null)
+            if ($checkUser != null) {
+                DB::connection('second_pgsql')->table('user')
+                    ->where('id', $userO->id)
+                    ->update(
+                        [
+                            'is_migrated' => true
+                        ]
+                    );
+
                 continue;
+            }
 
             if ($role == null && !isset($inspectorRoles[$userO->role_id]))
                 continue;
