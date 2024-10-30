@@ -66,11 +66,17 @@ class ArticleResource extends JsonResource
 
     private function countMonitorings(): array
     {
+        $regulations = $this->regulations;
+
         return [
             'monitoring_count' => $this->monitorings()->count(),
-            'regulation_count' => $this->regulations()->count(),
-//            'violation_count' => $this->regulations()->violations()->count(),
-//            'finished_violation_count' => $this->regulations()->violations()->where('check_list_status', true)->count(),
+            'regulation_count' => $regulations->count(),
+            'violation_count' => $regulations->reduce(function ($carry, $regulation) {
+                return $carry + $regulation->violations()->count();
+            }, 0),
+            'finished_violation_count' => $regulations->reduce(function ($carry, $regulation) {
+                return $carry + $regulation->violations()->where('check_list_status', true)->count();
+            }, 0),
         ];
     }
 }
