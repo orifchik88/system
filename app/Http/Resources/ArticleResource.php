@@ -71,12 +71,12 @@ class ArticleResource extends JsonResource
         return [
             'monitoring_count' => $this->monitorings()->count(),
             'regulation_count' => $regulations->count(),
-            'violation_count' => $regulations->reduce(function ($carry, $regulation) {
-                return $carry + $regulation->violations()->count();
-            }, 0),
-            'finished_violation_count' => $regulations->reduce(function ($carry, $regulation) {
-                return $carry + $regulation->violations()->where('check_list_status', true)->count();
-            }, 0),
+            'violation_count' => $this->regulations->flatMap(function ($regulation) {
+                return $regulation->violations;
+            })->unique('id')->count(),
+            'finished_violation_count' => $this->regulations->flatMap(function ($regulation) {
+                return $regulation->violations->where('check_list_status', true);
+            })->unique('id')->count(),
         ];
     }
 }
