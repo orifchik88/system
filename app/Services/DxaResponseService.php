@@ -33,19 +33,19 @@ class DxaResponseService
             case UserRoleEnum::INSPECTOR->value:
                 return $this->dxaResponse
                     ->where('inspector_id', $user->id)
-                    ->where('notification_type', $type)
-                    ->whereIn('dxa_response_status_id', [DxaResponseStatusEnum::NEW, DxaResponseStatusEnum::SEND_INSPECTOR, DxaResponseStatusEnum::IN_REGISTER]);
+                    ->where('notification_type', $type);
+//                    ->whereIn('dxa_response_status_id', [DxaResponseStatusEnum::NEW, DxaResponseStatusEnum::SEND_INSPECTOR, DxaResponseStatusEnum::IN_REGISTER]);
             case UserRoleEnum::INSPEKSIYA->value:
             case UserRoleEnum::HUDUDIY_KUZATUVCHI->value:
             case UserRoleEnum::REGISTRATOR->value:
                 return $this->dxaResponse
                     ->where('region_id', $user->region_id)
-                    ->where('notification_type', $type)
-                    ->whereIn('dxa_response_status_id', [DxaResponseStatusEnum::NEW, DxaResponseStatusEnum::SEND_INSPECTOR, DxaResponseStatusEnum::IN_REGISTER]);
+                    ->where('notification_type', $type);
+//                    ->whereIn('dxa_response_status_id', [DxaResponseStatusEnum::NEW, DxaResponseStatusEnum::SEND_INSPECTOR, DxaResponseStatusEnum::IN_REGISTER]);
             case UserRoleEnum::RESPUBLIKA_KUZATUVCHI->value:
                 return $this->dxaResponse
-                    ->where('notification_type', $type)
-                    ->whereIn('dxa_response_status_id', [DxaResponseStatusEnum::NEW, DxaResponseStatusEnum::SEND_INSPECTOR, DxaResponseStatusEnum::IN_REGISTER]);
+                    ->where('notification_type', $type);
+//                    ->whereIn('dxa_response_status_id', [DxaResponseStatusEnum::NEW, DxaResponseStatusEnum::SEND_INSPECTOR, DxaResponseStatusEnum::IN_REGISTER]);
             case UserRoleEnum::YURIST->value:
                 return $this->dxaResponse->where('region_id', $user->region_id)
                     ->where('administrative_status_id', 6)
