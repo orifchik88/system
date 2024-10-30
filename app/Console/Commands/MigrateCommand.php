@@ -43,7 +43,7 @@ class MigrateCommand extends Command
         $users = DB::connection('second_pgsql')->table('user')
             ->where('is_migrated', false)
             ->where('active', 1)
-            ->limit(20)->get();
+            ->limit(100)->get();
 
         $userStatuses = [
             '30165510-1d9d-4d6e-bcc5-6246af0cbc22' => UserStatusEnum::ACTIVE,
@@ -88,6 +88,7 @@ class MigrateCommand extends Command
             $user->login = $userO->login;
             $user->password = Hash::make($userO->phone);
             $user->user_status_id = $userStatus;
+            $user->old_id = $userO->id;
             $user->save();
 
 
