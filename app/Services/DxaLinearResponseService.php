@@ -48,6 +48,7 @@ class DxaLinearResponseService
         $email = '';
         $phone = '';
         $organizationName = '';
+        $status = null;
 
         if ($userType == 'Yuridik shaxs')
         {
@@ -59,7 +60,18 @@ class DxaLinearResponseService
         {
             $phone = $data['ind_phone']['real_value'];
             $organizationName = $data['ind_fullname']['real_value'];
+        }
 
+        if ($json['task']['current_node'] == 'inactive')
+        {
+            if ($json['task']['status'] == 'processed')
+            {
+                $status = DxaResponseStatusEnum::ACCEPTED;
+            }
+            if ($json['task']['status'] == 'rejected')
+            {
+                $status = DxaResponseStatusEnum::REJECTED;
+            }
         }
 
         $region = Region::where('soato', $data['region']['real_value'])->first();
@@ -72,7 +84,7 @@ class DxaLinearResponseService
         $dxa->old_task_id = $oldTaskId;
         $dxa->notification_type = $data['notification_type']['real_value'];
         $dxa->user_type = $userType;
-        $dxa->dxa_response_status_id = DxaResponseStatusEnum::NEW;
+        $dxa->dxa_response_status_id = $status ?? DxaResponseStatusEnum::NEW;
         $dxa->email = $email;
         $dxa->full_name = $data['ind_fullname']['real_value'];
         $dxa->name_expertise = $data['name_expertise']['real_value'];
