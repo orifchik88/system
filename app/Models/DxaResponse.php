@@ -39,6 +39,11 @@ class DxaResponse extends Model
         return $this->belongsTo(DxaResponseStatus::class, 'dxa_response_status_id');
     }
 
+    public function lawyerStatus(): BelongsTo
+    {
+        return $this->belongsTo(LawyerStatus::class, 'lawyer_status_id');
+    }
+
     public function administrativeStatus(): BelongsTo
     {
         return $this->belongsTo(AdministrativeStatus::class, 'administrative_status_id');

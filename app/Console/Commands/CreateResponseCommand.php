@@ -41,7 +41,6 @@ class CreateResponseCommand extends Command
                 $dxa = $this->service->saveDxaResponse($taskId, $data, $userType, $response->json());
                 $this->service->sendMyGov($dxa);
                 $this->service->saveExpertise($dxa);
-                
 
                 $item->update([
                     'status' => ClaimStatuses::RESPONSE_WATCHED
