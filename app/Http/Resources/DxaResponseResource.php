@@ -95,7 +95,6 @@ class DxaResponseResource extends JsonResource
             'date_protocol' => $this->date_protocol,
             'cost' => $this->cost,
             'lawyer_status' => LawyerStatusResource::make($this->lawyerStatus),
-            'lawyer_status_type' => $this->lawyer_status_type,
             'object_parallel_design_number' => $this->object_parallel_design_number,
             'object_parallel_design_date' => $this->object_parallel_design_date,
             'object_state_program_number' => $this->object_state_program_number,

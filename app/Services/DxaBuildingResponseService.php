@@ -63,9 +63,6 @@ class DxaBuildingResponseService
             $organizationName = $data['full_name']['real_value'];
         }
 
-        $json['task']['current_node'];
-        $dxa->dxa_status = $json['task']['status'];
-
         $region = Region::where('soato', $data['region_id']['real_value'])->first();
         $oldTaskId = !empty($data['task_number']['real_value']) ? $data['task_number']['real_value'] : null;
 

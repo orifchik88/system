@@ -232,7 +232,7 @@ class DxaResponseService
     {
         $response->dxa_response_status_id = DxaResponseStatusEnum::REJECTED;
         $response->rejection_comment = $comment;
-        $response->lawyer_status_id = LawyerStatusEnum::NEW->value;
+        $response->lawyer_status_id = 1;
         $response->rejected_at = now();
         $response->save();
 
