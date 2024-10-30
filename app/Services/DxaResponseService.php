@@ -230,12 +230,17 @@ class DxaResponseService
 
     public function sendReject($response, $comment): DxaResponse
     {
+
         $response->dxa_response_status_id = DxaResponseStatusEnum::REJECTED;
         $response->rejection_comment = $comment;
-        $response->lawyer_status_id = 1;
         $response->rejected_at = now();
         $response->save();
+        if ($response->administrative_status_id == 6) {
+            $response->update([
+                'lawyer_status_id' => 1,
+            ]);
 
+        }
         return $response;
     }
 
