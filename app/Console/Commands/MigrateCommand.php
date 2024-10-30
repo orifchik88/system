@@ -89,6 +89,7 @@ class MigrateCommand extends Command
             $user->password = Hash::make($userO->phone);
             $user->user_status_id = $userStatus;
             $user->organization_name = $userO->organization_name;
+            $user->identification_number = $userO->stir_org;
             $user->old_id = $userO->id;
             $user->save();
 
