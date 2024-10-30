@@ -82,7 +82,7 @@ class MigrateCommand extends Command
             $user->middle_name = $userO->middle_name;
             $user->region_id = ($region != null) ? $region->id : null;
             $user->district_id = ($district != null) ? $district->id : null;
-            $user->pinfl = ($userO->pinfl == null) ? $userO->pinfl : $userO->stir_org;
+            $user->pinfl = ($userO->pinfl != null) ? $userO->pinfl : $userO->stir_org;
             $user->password = Hash::make($userO->phone);
             $user->active = 1;
             $user->login = $userO->login;
