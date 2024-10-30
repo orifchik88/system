@@ -101,6 +101,7 @@ class RegulationService
                         $query->where('region_id', $user->region_id);
                     })
                     ->where('regulation_status_id', RegulationStatusEnum::IN_LAWYER)
+                    ->orWhereNotNull('lawyer_status_id')
                     ->where('created_by_role_id', UserRoleEnum::INSPECTOR->value);
             default:
                return Regulation::query()->whereRaw('1 = 0');
