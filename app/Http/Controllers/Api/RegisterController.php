@@ -96,7 +96,6 @@ class RegisterController extends BaseController
             $response = DxaResponse::query()->findOrFaiL(request('id'));
 
             $response->update([
-                'lawyer_status_type' => request('type'),
                 'lawyer_status_id' => LawyerStatusEnum::PROCESS->value
             ]);
 
