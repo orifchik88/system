@@ -28,7 +28,7 @@ class CreateLinearResponseCommand extends Command
     {
         $data = Response::query()
             ->where('status', ClaimStatuses::RESPONSE_NEW)
-            ->where('module', 3)
+            ->whereIn('module', [3, null])
             ->orderBy('id')
             ->take(10)
             ->get();
@@ -52,9 +52,13 @@ class CreateLinearResponseCommand extends Command
                     DB::commit();
                 } catch (\Exception $exception) {
                     DB::rollBack();
-                    $item->update([
-                        'status' => ClaimStatuses::RESPONSE_ERRORED
-                    ]);
+                    if ($item->module != null)
+                    {
+                        $item->update([
+                            'status' => ClaimStatuses::RESPONSE_ERRORED
+                        ]);
+                    }
+
                     echo $exception->getMessage() . ' ' . $exception->getLine();
                 }
                 sleep(8);
