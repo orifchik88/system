@@ -116,6 +116,7 @@ Route::group([
     Route::get('object-count', [ObjectController::class, 'objectCount']);
     Route::get('get-object', [ObjectController::class, 'objectByParams']);
     Route::get('user-objects', [ObjectController::class, 'userObjects']);
+    Route::get('object-create-manual', [ObjectController::class, 'manualCreate']);
     Route::get('funding-sources', [ObjectController::class, 'fundingSource']);
     Route::post('object-create', [ObjectController::class, 'create']);
     Route::post('check-object', [ObjectController::class, 'checkObject']);

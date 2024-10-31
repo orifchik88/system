@@ -17,7 +17,7 @@ class ArticleResource extends JsonResource
     {
 
         $dxaResponse = $this->response;
-        $oldTaskIds = $dxaResponse->getOldTaskIds($this->task_id);
+        $oldTaskIds = $dxaResponse ? $dxaResponse->getOldTaskIds($this->task_id) : null;
         return [
             'id' => $this->id,
             'name' =>$this->name,
@@ -74,8 +74,8 @@ class ArticleResource extends JsonResource
             'violation_count' => $this->regulations->flatMap(function ($regulation) {
                 return $regulation->violations;
             })->unique('id')->count(),
-            'finished_violation_count' => $this->regulations->flatMap(function ($regulation) {
-                return $regulation->violations->where('check_list_status', true);
+            'finished_regulation_count' => $this->regulations->flatMap(function ($regulation) {
+                return $regulation->where('');
             })->unique('id')->count(),
         ];
     }
