@@ -136,18 +136,19 @@ class DxaBuildingResponseService
         $dxa->created_at = $json['task']['created_date'];
         $dxa->save();
         $this->saveSupervisors($data, $dxa->id, $userType);
-        $this->updateObject($dxa);
+        $this->updateObject($dxa, $json);
         return $dxa;
 
     }
-    private function updateObject($dxa)
+    private function updateObject($dxa, $json)
     {
         $object = Article::query()->where('task_id', $dxa->task_id)->first();
         if ($object) {
             $object->update([
                 'object_type_id' => 2,
                 'cadastral_number' => $dxa->cadastral_number,
-                'reestr_number' => $dxa->reestr_number
+                'reestr_number' => $dxa->reestr_number,
+                'created_at' => $json['task']['last_update']
             ]);
         }
     }
