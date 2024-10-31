@@ -6,9 +6,9 @@ use App\Models\DxaResponse;
 
 trait DxaResponseTrait
 {
-    public static function getResponse($taskId): DxaResponse
+    public static function getResponse($taskId)
     {
-        return self::where('task_id', $taskId)->first();
+        return self::where('task_id', $taskId)->first() ?? null;
     }
 
     public function getOldTaskIds($taskId): ?array
