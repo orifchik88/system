@@ -43,8 +43,8 @@ class MigrateCommand extends Command
      */
     public function handle()
     {
-        //$this->migrateObjects();
-        $this->migrateUsers();
+        $this->migrateObjects();
+        //$this->migrateUsers();
     }
 
     private function migrateObjects()
@@ -126,7 +126,7 @@ class MigrateCommand extends Command
             $article->district_id = $district->id;
             $article->object_status_id = $objectStatus[$object->object_status_id];
             $article->object_type_id = ($object->object_type_id == null) ? null : $objectType[$object->object_type_id];
-            $article->organization_name = $customer->full_name;
+            $article->organization_name = ($customer != null) ? $customer->full_name : null;
             $article->location_building = $object->location_building;
             $article->address = $object->address;
             $article->cadastral_number = $object->cadastral_number;
@@ -153,7 +153,7 @@ class MigrateCommand extends Command
             $article->number_protocol = $object->number_protocol;
             $article->positive_opinion_number = $object->positive_opinion_number;
             $article->date_protocol = $object->date_protocol;
-            $article->funding_source_id = $fundingSource[$object->funding_source_id];
+            $article->funding_source_id = ($object->funding_source_id != null) ? $fundingSource[$object->funding_source_id] : null;
             $article->paid = 0;
             $article->payment_deadline = Carbon::now();
             $article->deadline = $object->deadline;
@@ -225,29 +225,32 @@ class MigrateCommand extends Command
             }
 
             $blockArr = json_decode($object->blocks, true);
-            foreach ($blockArr as $item) {
-                $block = DB::connection('third_pgsql')->table('blocks')
-                    ->where('id', $item)
-                    ->first();
-                $blockModel = new Block();
-                $blockModel->name = $block->name;
-                $blockModel->block_number = $block->number;
-                $blockModel->block_mode_id = null;
-                $blockModel->block_type_id = null;
-                $blockModel->article_id = $article->id;
-                $blockModel->floor = null;
-                $blockModel->construction_area = null;
-                $blockModel->count_apartments = null;
-                $blockModel->height = null;
-                $blockModel->length = null;
-                $blockModel->status = false;
-                $blockModel->appearance_type = null;
-                $blockModel->accepted = $block->is_send;
-                $blockModel->dxa_response_id = null;
-                $blockModel->created_at = $block->created_at;
-                $blockModel->deleted_at = $block->deleted_at;
-                $blockModel->save();
+            if (is_array($blockArr)) {
+                foreach ($blockArr as $item) {
+                    $block = DB::connection('third_pgsql')->table('blocks')
+                        ->where('id', $item)
+                        ->first();
+                    $blockModel = new Block();
+                    $blockModel->name = $block->name;
+                    $blockModel->block_number = $block->number;
+                    $blockModel->block_mode_id = null;
+                    $blockModel->block_type_id = null;
+                    $blockModel->article_id = $article->id;
+                    $blockModel->floor = null;
+                    $blockModel->construction_area = null;
+                    $blockModel->count_apartments = null;
+                    $blockModel->height = null;
+                    $blockModel->length = null;
+                    $blockModel->status = false;
+                    $blockModel->appearance_type = null;
+                    $blockModel->accepted = $block->is_send;
+                    $blockModel->dxa_response_id = null;
+                    $blockModel->created_at = $block->created_at;
+                    $blockModel->deleted_at = $block->deleted_at;
+                    $blockModel->save();
+                }
             }
+
 
             DB::connection('third_pgsql')->table('objects')
                 ->where('id', $object->id)
