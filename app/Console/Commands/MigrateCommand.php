@@ -182,6 +182,8 @@ class MigrateCommand extends Command
                     $organization = DB::connection('second_pgsql')->table('organizations')
                         ->where('id', $user->organization_id)
                         ->first();
+                    if ($organization == null)
+                        continue;
                     $checkUser = User::where('pinfl', $organization->stir)->first();
                     if ($checkUser) {
                         $userRole = new ArticleUser();
