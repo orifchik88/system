@@ -17,7 +17,7 @@ class ArticleResource extends JsonResource
     {
 
         $dxaResponse = $this->response;
-        $oldTaskIds = $dxaResponse->getOldTaskIds($this->task_id);
+        $oldTaskIds = $dxaResponse ? $dxaResponse->getOldTaskIds($this->task_id) : null;
         return [
             'id' => $this->id,
             'name' =>$this->name,
@@ -50,6 +50,7 @@ class ArticleResource extends JsonResource
             'object_sector' => ObjectSectorResource::make($this->objectSector),
             'deadline' => $this->deadline,
             'reestr_number' => $this->reestr_number,
+            'gnk_id' => $this->gnk_id,
             'created_at' => $this->created_at,
             'organization_projects' => $this->organization_projects,
             'specialists_certificates' => $this->specialists_certificates,
@@ -74,8 +75,8 @@ class ArticleResource extends JsonResource
             'violation_count' => $this->regulations->flatMap(function ($regulation) {
                 return $regulation->violations;
             })->unique('id')->count(),
-            'finished_violation_count' => $this->regulations->flatMap(function ($regulation) {
-                return $regulation->violations->where('check_list_status', true);
+            'finished_regulation_count' => $this->regulations->flatMap(function ($regulation) {
+                return $regulation->where('');
             })->unique('id')->count(),
         ];
     }

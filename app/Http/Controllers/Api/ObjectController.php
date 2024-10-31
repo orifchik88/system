@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Api;
 use App\DTO\ObjectDto;
 use App\Enums\ObjectCheckEnum;
 use App\Enums\UserRoleEnum;
+use App\Http\Requests\ObjectManualRequest;
 use App\Http\Requests\ObjectRequest;
 use App\Http\Resources\ArticleResource;
 use App\Http\Resources\FundingSourceResource;
 use App\Models\Article;
 use App\Services\ArticleService;
+use Hamcrest\Core\JavaForm;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -203,6 +205,15 @@ class ObjectController extends BaseController
             return $this->sendSuccess(true, 'Article retrieved successfully.');
 
         } catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function manualCreate(ObjectManualRequest $request): JsonResponse
+    {
+        try {
+
+        }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }

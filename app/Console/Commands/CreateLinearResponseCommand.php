@@ -3,6 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Helpers\ClaimStatuses;
+use App\Models\Article;
+use App\Models\DxaResponse;
 use App\Models\Response;
 use App\Services\DxaLinearResponseService;
 use Illuminate\Console\Command;
@@ -32,29 +34,32 @@ class CreateLinearResponseCommand extends Command
             ->get();
 
         foreach ($data as $item) {
-            DB::beginTransaction();
-            try {
-                $taskId = $item->task_id;
-                $response = $this->service->fetchTaskData($taskId);
-                $data = $this->service->parseResponse($response);
-                $userType = $this->service->determineUserType($data['user_type']['real_value']);
-                $dxa = $this->service->saveDxaResponse($taskId, $data, $userType, $response->json());
-                $this->service->sendMyGov($dxa);
-                $this->service->saveExpertise($dxa);
+            $responseExist = DxaResponse::query()->where('task_id', $item->task_id)->exists();
+            if (!$responseExist) {
+                DB::beginTransaction();
+                try {
+                    $taskId = $item->task_id;
+                    $response = $this->service->fetchTaskData($taskId);
+                    $data = $this->service->parseResponse($response);
+                    $userType = $this->service->determineUserType($data['user_type']['real_value']);
+                    $dxa = $this->service->saveDxaResponse($taskId, $data, $userType, $response->json());
+                    $this->service->sendMyGov($dxa);
+                    $this->service->saveExpertise($dxa);
+                    $item->update([
+                        'status' => ClaimStatuses::RESPONSE_WATCHED
+                    ]);
 
-                $item->update([
-                    'status' => ClaimStatuses::RESPONSE_WATCHED
-                ]);
-
-                DB::commit();
-            } catch (\Exception $exception) {
-                DB::rollBack();
-                $item->update([
-                    'status' => ClaimStatuses::RESPONSE_ERRORED
-                ]);
-                echo $exception->getMessage() . ' ' . $exception->getLine();
+                    DB::commit();
+                } catch (\Exception $exception) {
+                    DB::rollBack();
+                    $item->update([
+                        'status' => ClaimStatuses::RESPONSE_ERRORED
+                    ]);
+                    echo $exception->getMessage() . ' ' . $exception->getLine();
+                }
+                sleep(8);
             }
-            sleep(5);
+
         }
     }
 }
