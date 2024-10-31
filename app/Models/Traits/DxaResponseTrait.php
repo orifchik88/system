@@ -22,12 +22,12 @@ trait DxaResponseTrait
                 if ($task->old_task_id) {
                     $oldTask = DxaResponse::query()->where('task_id', $task->old_task_id)->first();
                     $oldTaskIds[] = [
-                        'id' => $oldTask->id,
-                        'task_id' => $oldTask->task_id,
-                        'created_at' => $oldTask->created_at,
+                        'id' => $oldTask->id ?? null,
+                        'task_id' => $oldTask->task_id ?? null,
+                        'created_at' => $oldTask->created_at ?? null,
                     ];
                 }
-                $taskId = $task->old_task_id;
+                $taskId = $task->old_task_id ?? null;
             } else {
                 break;
             }
