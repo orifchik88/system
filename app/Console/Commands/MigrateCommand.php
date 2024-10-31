@@ -52,7 +52,8 @@ class MigrateCommand extends Command
         $objects = DB::connection('third_pgsql')->table('objects')
             ->where('is_migrated', false)
             ->where('region_id', 'c053cdb4-94f6-450f-9da9-f0bf2c145587')
-            ->limit(50)->get();
+            ->get()
+            ->random(50);
 
         $objectType = [
             '79f40f51-0368-4b6c-8326-f83d0453a848' => ObjectTypeEnum::LINEAR,
@@ -156,7 +157,7 @@ class MigrateCommand extends Command
             $article->funding_source_id = ($object->funding_source_id != null) ? $fundingSource[$object->funding_source_id] : null;
             $article->paid = 0;
             $article->payment_deadline = Carbon::now();
-            $article->deadline = Carbon::parse($object->deadline)->format('Y-m-d');
+            $article->deadline = ($objectStatus[$object->object_status_id] == ObjectStatusEnum::SUBMITTED) ? null : Carbon::parse($object->deadline)->format('Y-m-d');
             $article->gnk_id = $object->gnk_id;
             $article->reestr_number = (int)$object->reestr_number;
             $article->old_id = $object->id;
@@ -181,6 +182,8 @@ class MigrateCommand extends Command
                     $organization = DB::connection('second_pgsql')->table('organizations')
                         ->where('id', $user->organization_id)
                         ->first();
+                    if ($organization == null)
+                        continue;
                     $checkUser = User::where('pinfl', $organization->stir)->first();
                     if ($checkUser) {
                         $userRole = new ArticleUser();
