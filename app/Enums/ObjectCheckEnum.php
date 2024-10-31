@@ -4,10 +4,14 @@ namespace App\Enums;
 
 enum ObjectCheckEnum: string
 {
-//    case INSPEKTOR = 'isInspector';
-//
-//    case TEXNIK = 'isTechnic';
-//    case LOYIHA = 'isDesigner';
-//    case AUTHOR = 'isAuthor';
-//    case AUTHOR = 'isAuthor';
+    case INSPEKTOR = 'inspector';
+
+    case TEXNIK_NAZORAT = 'texnik';
+
+    case MUALLIF = 'muallif';
+    case ICHKI_NAZORAT = 'ichki';
+    case BUYURTMACHI = 'buyurtmachi';
+    case LOYIHA_TASHKILOTI = 'loyiha';
+
+    case QURILISH_TASHKILOTI = 'qurilish';
 }
