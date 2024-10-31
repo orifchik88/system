@@ -200,7 +200,7 @@ class ObjectController extends BaseController
 //                return $this->sendError('Obyekt bloklar foydalanishga topshirilgan ' . implode(', ', $blocks));
 //            }
 
-            return $this->sendSuccess([], 'Article retrieved successfully.');
+            return $this->sendSuccess(true, 'Article retrieved successfully.');
 
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
