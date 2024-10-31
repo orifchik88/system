@@ -29,7 +29,7 @@ class CreateResponseCommand extends Command
     public function handle()
     {
         $data = Response::query()->where('status', ClaimStatuses::RESPONSE_NEW)
-            ->where('module', '=', 1)
+            ->whereIn('module', [1, null])
             ->orderBy('id', 'asc')
             ->take(10)
             ->get();
@@ -53,9 +53,12 @@ class CreateResponseCommand extends Command
                     DB::commit();
                 } catch (\Exception $exception) {
                     DB::rollBack();
-                    $item->update([
-                        'status' => ClaimStatuses::RESPONSE_ERRORED
-                    ]);
+                    if ($item->module != null)
+                    {
+                        $item->update([
+                            'status' => ClaimStatuses::RESPONSE_ERRORED
+                        ]);
+                    }
                     echo $exception->getMessage() . ' ' . $exception->getLine();
                 }
                 sleep(5);
