@@ -59,6 +59,10 @@ class CreateResponseCommand extends Command
                     echo $exception->getMessage() . ' ' . $exception->getLine();
                 }
                 sleep(5);
+            }else{
+                $item->update([
+                    'status' => ClaimStatuses::RESPONSE_WATCHED
+                ]);
             }
 
 
