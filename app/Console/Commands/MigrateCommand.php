@@ -43,7 +43,7 @@ class MigrateCommand extends Command
      */
     public function handle()
     {
-        //$this->migrateObjects();
+        $this->migrateObjects();
         $this->migrateUsers();
     }
 
@@ -52,7 +52,7 @@ class MigrateCommand extends Command
         $objects = DB::connection('third_pgsql')->table('objects')
             ->where('is_migrated', false)
             ->where('region_id', 'c053cdb4-94f6-450f-9da9-f0bf2c145587')
-            ->limit(10)->get();
+            ->limit(50)->get();
 
         $objectType = [
             '79f40f51-0368-4b6c-8326-f83d0453a848' => ObjectTypeEnum::LINEAR,
@@ -135,7 +135,7 @@ class MigrateCommand extends Command
             $article->construction_cost = $object->construction_cost;
             $article->sphere_id = null;
             $article->program_id = null;
-            $article->construction_works = $construction_type->type;
+            $article->construction_works = ($construction_type != null) ? $construction_type->type : null;
             $article->linear_type = null;
             $article->appearance_type_id = 1;
             $article->is_accepted = true;
