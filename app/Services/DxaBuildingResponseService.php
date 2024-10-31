@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\DxaResponseStatusEnum;
+use App\Models\Article;
 use App\Models\District;
 use App\Models\DxaResponse;
 use App\Models\DxaResponseSupervisor;
@@ -76,6 +77,7 @@ class DxaBuildingResponseService
             }
         }
 
+
         $region = Region::where('soato', $data['region_id']['real_value'])->first();
         $oldTaskId = !empty($data['task_number']['real_value']) ? $data['task_number']['real_value'] : null;
 
@@ -131,11 +133,25 @@ class DxaBuildingResponseService
         $dxa->contract_file = $data['contract_file']['real_value'];
         $dxa->organization_projects = $data['organization_projects']['real_value'];
         $dxa->file_energy_efficiency = $data['file_energy_efficiency']['real_value'];
+        $dxa->created_at = $json['task']['created_date'];
         $dxa->save();
         $this->saveSupervisors($data, $dxa->id, $userType);
+        $this->updateObject($dxa);
         return $dxa;
 
     }
+    private function updateObject($dxa)
+    {
+        $object = Article::query()->where('task_id', $dxa->task_id)->first();
+        if ($object) {
+            $object->update([
+                'object_type_id' => 2,
+                'cadastral_number' => $dxa->cadastral_number,
+
+            ]);
+        }
+    }
+
 
     private function saveSupervisors($data, $dxaId, $userType)
     {

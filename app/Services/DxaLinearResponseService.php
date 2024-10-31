@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\DxaResponseStatusEnum;
+use App\Models\Article;
 use App\Models\District;
 use App\Models\DxaResponse;
 use App\Models\DxaResponseSupervisor;
@@ -50,26 +51,21 @@ class DxaLinearResponseService
         $organizationName = '';
         $status = null;
 
-        if ($userType == 'Yuridik shaxs')
-        {
+        if ($userType == 'Yuridik shaxs') {
             $phone = $data['legal_phone']['real_value'];
             $organizationName = $data['legal_name']['real_value'];
         }
 
-        if ($userType == 'Jismoniy shaxs')
-        {
+        if ($userType == 'Jismoniy shaxs') {
             $phone = $data['ind_phone']['real_value'];
             $organizationName = $data['ind_fullname']['real_value'];
         }
 
-        if ($json['task']['current_node'] == 'inactive')
-        {
-            if ($json['task']['status'] == 'processed')
-            {
+        if ($json['task']['current_node'] == 'inactive') {
+            if ($json['task']['status'] == 'processed') {
                 $status = DxaResponseStatusEnum::ACCEPTED;
             }
-            if ($json['task']['status'] == 'rejected')
-            {
+            if ($json['task']['status'] == 'rejected') {
                 $status = DxaResponseStatusEnum::REJECTED;
             }
         }
@@ -125,10 +121,22 @@ class DxaLinearResponseService
         $dxa->specialists_certificates = $data['specialists_certificates']['real_value'];
         $dxa->contract_file = $data['contract_file']['real_value'];
         $dxa->organization_projects = $data['organization_projects']['real_value'];
+        $dxa->created_at = $json['task']['created_date'];
         $dxa->save();
         $this->saveSupervisors($data, $dxa->id, $userType);
-        $this->saveExpertise($dxa);
+        $this->updateObject($dxa);
         return $dxa;
+    }
+
+    private function updateObject($dxa)
+    {
+        $object = Article::query()->where('task_id', $dxa->task_id)->first();
+        if ($object) {
+            $object->update([
+                'object_type_id' => 1,
+                'linear_type' => $dxa->linear_type
+            ]);
+        }
     }
 
     public function saveExpertise($dxa)
@@ -144,7 +152,7 @@ class DxaLinearResponseService
                     'end_term_work' => $response->end_term_work,
                     'administrative_status_id' => $response->administrative_status_id,
                 ]);
-            }else{
+            } else {
                 $reestrNumber = $dxa->reestr_number;
             }
             $data = getData(config('app.gasn.tender'), $reestrNumber);
@@ -153,7 +161,7 @@ class DxaLinearResponseService
                 'program_id' => $data['data']['result']['data']['project_type_id'],
                 'sphere_id' => $data['data']['result']['data']['object_type_id'],
             ]);
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             Log::error('Expertise saqlashda xatolik: ' . $exception->getMessage());
         }
 
@@ -163,7 +171,7 @@ class DxaLinearResponseService
     {
 
         foreach ($data['info_supervisory']['value'] as $key => $item) {
-            if ($item['role']['real_value'] ==1) {
+            if ($item['role']['real_value'] == 1) {
                 $dxaResSupervisor = new DxaResponseSupervisor();
                 $dxaResSupervisor->dxa_response_id = $dxaId;
                 $dxaResSupervisor->type = $item['role']['real_value'];
@@ -183,8 +191,7 @@ class DxaLinearResponseService
                 $dxaResSupervisor->comment = $item['comment']['real_value'];
                 $dxaResSupervisor->save();
 
-                if ($userType == 'Jismoniy shaxs')
-                {
+                if ($userType == 'Jismoniy shaxs') {
                     $dxaResSupervisor = new DxaResponseSupervisor();
                     $dxaResSupervisor->dxa_response_id = $dxaId;
                     $dxaResSupervisor->type = $item['role']['real_value'];
@@ -198,7 +205,7 @@ class DxaLinearResponseService
                     $dxaResSupervisor->comment = $item['comment']['real_value'];
                     $dxaResSupervisor->save();
 
-                }else{
+                } else {
                     $dxaResSupervisor = new DxaResponseSupervisor();
                     $dxaResSupervisor->dxa_response_id = $dxaId;
                     $dxaResSupervisor->type = $item['role']['real_value'];
@@ -211,7 +218,7 @@ class DxaLinearResponseService
                     $dxaResSupervisor->save();
                 }
             }
-            if ($item['role']['real_value'] ==2) {
+            if ($item['role']['real_value'] == 2) {
                 $dxaResSupervisor = new DxaResponseSupervisor();
                 $dxaResSupervisor->dxa_response_id = $dxaId;
                 $dxaResSupervisor->type = $item['role']['real_value'];
@@ -244,7 +251,7 @@ class DxaLinearResponseService
 
 
             }
-            if ($item['role']['real_value'] ==3) {
+            if ($item['role']['real_value'] == 3) {
                 $dxaResSupervisor = new DxaResponseSupervisor();
                 $dxaResSupervisor->dxa_response_id = $dxaId;
                 $dxaResSupervisor->type = $item['role']['real_value'];
@@ -279,6 +286,7 @@ class DxaLinearResponseService
 
         }
     }
+
     public function sendMyGov($response)
     {
         try {
@@ -286,19 +294,19 @@ class DxaLinearResponseService
                 $authUsername = config('app.mygov.login');
                 $authPassword = config('app.mygov.password');
 
-                $apiUrl = config('app.mygov.linear').'/update/id/' . $response->task_id . '/action/accept-consideration';
+                $apiUrl = config('app.mygov.linear') . '/update/id/' . $response->task_id . '/action/accept-consideration';
                 $formName = 'AcceptConsiderationFormRegistrationStartLinearObject';
 
                 return Http::withBasicAuth($authUsername, $authPassword)
                     ->post($apiUrl, [
                         $formName => [
-                            "notice" =>  "Qabul qilindi"
+                            "notice" => "Qabul qilindi"
                         ]
                     ]);
-            }else{
+            } else {
                 return null;
             }
-        }catch (\Exception $exception) {
+        } catch (\Exception $exception) {
             Log::info($exception->getMessage());
         }
     }
