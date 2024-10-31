@@ -40,7 +40,7 @@ class DxaResponseResource extends JsonResource
         }else{
             $blocks = $this->blocks;
             $images = $this->images;
-            $comment = $this->inspector_commit;
+            $comment = $this->inspector_commit ?? null;
             $long = $this->long;
             $lat = $this->lat;
         }
