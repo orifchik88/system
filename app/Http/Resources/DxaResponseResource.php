@@ -35,8 +35,8 @@ class DxaResponseResource extends JsonResource
             $blocks = $this->blocks->isEmpty() ? ($dxa ? $dxa->blocks : null) : $this->blocks;
             $images = $this->images->isEmpty() ? ($dxa ? $dxa->blocks : null) : $this->images;
             $comment = $this->inspector_commit ?? ($dxa->inspector_commit ?? null);
-            $long = $this->long ?? $dxa->long;
-            $lat = $this->lat ?? $dxa->lat;
+            $long = $this->long ?? ($dxa->long ?? null);
+            $lat = $this->lat ?? ($dxa->lat ?? null);
         }else{
             $blocks = $this->blocks;
             $images = $this->images;
