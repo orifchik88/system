@@ -188,7 +188,7 @@ class MigrateCommand extends Command
             ->where('is_migrated', false)
             ->where('active', 1)
             ->get()
-            ->random(100);
+            ->random(200);
 
         $userStatuses = [
             '30165510-1d9d-4d6e-bcc5-6246af0cbc22' => UserStatusEnum::ACTIVE,
