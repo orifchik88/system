@@ -18,8 +18,8 @@ class DxaResponseResource extends JsonResource
     public function toArray(Request $request): array
     {
         $address = '';
-        $region = Region::query()->find($this->region_id)->first();
-        $district = District::query()->find($this->district_id)->first();
+//        $region = Region::query()->find($this->region_id)->first();
+//        $district = District::query()->find($this->district_id)->first();
         if ($this->user_type == 'Yuridik shaxs')
         {
             $address = $this->address;
@@ -46,7 +46,8 @@ class DxaResponseResource extends JsonResource
         }
 
 
-        $inspector = User::query()->where('id', $this->inspector_id)->first();
+//        $inspector = User::query()->where('id', $this->inspector_id)->first();
+        $inspector = null;
         $oldTaskIds = $this->getOldTaskIds($this->task_id);
 
 
