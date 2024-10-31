@@ -12,6 +12,7 @@ use App\Models\ArticleUser;
 use App\Models\Block;
 use App\Models\District;
 use App\Models\Region;
+use App\Models\Response;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\UserEmployee;
@@ -42,7 +43,8 @@ class MigrateCommand extends Command
      */
     public function handle()
     {
-        $this->migrateUsers();
+        $this->migrateObjects();
+        //$this->migrateUsers();
     }
 
     private function migrateObjects()
@@ -50,7 +52,7 @@ class MigrateCommand extends Command
         $objects = DB::connection('third_pgsql')->table('objects')
             ->where('is_migrated', false)
             ->where('region_id', 'c053cdb4-94f6-450f-9da9-f0bf2c145587')
-            ->limit(200)->get();
+            ->limit(10)->get();
 
         $objectType = [
             '79f40f51-0368-4b6c-8326-f83d0453a848' => ObjectTypeEnum::LINEAR,
@@ -59,7 +61,7 @@ class MigrateCommand extends Command
 
         $objectStatus = [
             'e4bdf226-dae8-46aa-a152-38c4d19889f5' => ObjectStatusEnum::PROGRESS,
-            '38a25938-d040-4ccf-9e64-23f483c53e3b' => ObjectStatusEnum::NEW,
+            '38a25938-d040-4ccf-9e64-23f483c53e3b' => ObjectStatusEnum::PROGRESS,
             'b50a4eaa-9f68-40ae-83ab-e1971c0ea114' => ObjectStatusEnum::FROZEN,
             'd2fd8089-d7e3-43cc-afe8-9080bf9c0107' => ObjectStatusEnum::SUSPENDED,
             'be3623e7-78f5-48f6-8135-edf3731a838c' => ObjectStatusEnum::SUBMITTED
@@ -72,9 +74,24 @@ class MigrateCommand extends Command
             '9b54fb13-a7d4-4b7c-8ca3-c876c2cedb1a' => 'III'
         ];
 
+        $orgRoles = [
+            'e7777bfa-7416-44e8-b609-99136ec5d3b0' => UserRoleEnum::LOYIHA,
+            '6126cbeb-b0b8-4059-9758-14ff3c35473f' => UserRoleEnum::BUYURTMACHI,
+            'b5392622-4180-4c89-9b4e-2976f05b9150' => UserRoleEnum::QURILISH
+        ];
+
+        $inspectorRoles = [
+            '80b740c4-79ef-4c45-a76a-926f90fa3780' => UserRoleEnum::INSPECTOR,
+            '2316d2ab-ae0b-497b-9175-642b414c1886' => UserRoleEnum::INSPECTOR,
+            'db60cbca-8d2f-4911-9fdc-6fc30102c669' => UserRoleEnum::INSPECTOR
+        ];
+
         foreach ($objects as $object) {
-            $organization = DB::connection('second_pgsql')->table('organizations')
-                ->where('id', $object->organization_id)
+            $customer = DB::connection('third_pgsql')->table('customers')
+                ->where('id', $object->customer_id)
+                ->first();
+            $construction_type = DB::connection('third_pgsql')->table('construction_types')
+                ->where('id', $object->construction_type_id)
                 ->first();
             $checkObject = Article::query()->where('old_id', $object->id)->first();
             if ($checkObject != null)
@@ -93,13 +110,23 @@ class MigrateCommand extends Command
                 ->where('object_id', $object->id)
                 ->get();
 
+            $canContinue = true;
+            foreach ($users as $user) {
+                $userDb = User::query()->where('old_id', $user->user_id)->first();
+                if ($userDb == null)
+                    $canContinue = false;
+            }
+
+            if (!$canContinue)
+                continue;
+
             $article = new Article();
             $article->name = $object->name;
             $article->region_id = $region->id;
             $article->district_id = $district->id;
             $article->object_status_id = $objectStatus[$object->object_status_id];
-            $article->object_type_id = $objectType[$object->object_type_id];
-            $article->organization_name = $organization->name;
+            $article->object_type_id = ($object->object_type_id == null) ? null : $objectType[$object->object_type_id];
+            $article->organization_name = $customer->full_name;
             $article->location_building = $object->location_building;
             $article->address = $object->address;
             $article->cadastral_number = $object->cadastral_number;
@@ -108,7 +135,7 @@ class MigrateCommand extends Command
             $article->construction_cost = $object->construction_cost;
             $article->sphere_id = null;
             $article->program_id = null;
-            $article->construction_works = $object->construction_works;
+            $article->construction_works = $construction_type->type;
             $article->linear_type = null;
             $article->appearance_type_id = 1;
             $article->is_accepted = true;
@@ -121,7 +148,7 @@ class MigrateCommand extends Command
             $article->lat = $object->lat;
             $article->long = $object->long;
             $article->dxa_response_id = null;
-            $article->price_supervision_service = price_supervision($object->cost);
+            $article->price_supervision_service = price_supervision($object->construction_cost);
             $article->task_id = $object->task_id;
             $article->number_protocol = $object->number_protocol;
             $article->positive_opinion_number = $object->positive_opinion_number;
@@ -135,15 +162,66 @@ class MigrateCommand extends Command
             $article->old_id = $object->id;
             $article->save();
 
+            Response::query()->updateOrCreate(['task_id' => $object->task_id], [
+                'module' => ($object->object_type_id == null) ? null : (($objectType[$object->object_type_id] == ObjectTypeEnum::BUILDING) ? 1 : 3),
+                'api' => 'my_gov_uz',
+                'status' => 0
+            ]);
+
             foreach ($users as $user) {
                 $role = Role::query()->where('old_id', $user->role_id)->first();
                 $userDb = User::query()->where('old_id', $user->user_id)->first();
                 $userRole = new ArticleUser();
-                $userRole->role_id = $role->id;
+                $userRole->role_id = (isset($inspectorRoles[$user->role_id])) ? $inspectorRoles[$user->role_id] : $role->id;
                 $userRole->article_id = $article->id;
                 $userRole->user_id = $userDb->id;
 
                 $userRole->save();
+                if (in_array($user->role_id, ['b5392622-4180-4c89-9b4e-2976f05b9150', '6126cbeb-b0b8-4059-9758-14ff3c35473f', 'e7777bfa-7416-44e8-b609-99136ec5d3b0'])) {
+                    $organization = DB::connection('second_pgsql')->table('organizations')
+                        ->where('id', $user->organization_id)
+                        ->first();
+                    $checkUser = User::where('pinfl', $organization->stir)->first();
+                    if ($checkUser) {
+                        $userRole = new ArticleUser();
+                        $userRole->role_id = $orgRoles[$user->role_id];
+                        $userRole->article_id = $article->id;
+                        $userRole->user_id = $checkUser->id;
+
+                        $userRole->save();
+
+                    } else {
+                        $insertUser = User::query()->create([
+                            'name' => null,
+                            'surname' => null,
+                            'middle_name' => null,
+                            'phone' => null,
+                            'active' => 1,
+                            'created_at' => Carbon::now(),
+                            'updated_at' => Carbon::now(),
+                            'login' => $organization->stir,
+                            'organization_name' => $organization->name,
+                            'password' => bcrypt($organization->stir),
+                            'user_status_id' => UserStatusEnum::ACTIVE,
+                            'pinfl' => $organization->stir,
+                            'identification_number' => $organization->stir,
+                        ]);
+
+                        UserRole::query()->create([
+                            'user_id' => $insertUser->id,
+                            'role_id' => $orgRoles[$user->role_id],
+                        ]);
+
+                        $userRole = new ArticleUser();
+                        $userRole->role_id = $orgRoles[$user->role_id];
+                        $userRole->article_id = $article->id;
+                        $userRole->user_id = $insertUser->id;
+
+                        $userRole->save();
+                    }
+
+                }
+
             }
 
             $blockArr = json_decode($object->blocks, true);
@@ -168,7 +246,7 @@ class MigrateCommand extends Command
                 $blockModel->dxa_response_id = null;
                 $blockModel->created_at = $block->created_at;
                 $blockModel->deleted_at = $block->deleted_at;
-                $block->save();
+                $blockModel->save();
             }
 
             DB::connection('third_pgsql')->table('objects')
