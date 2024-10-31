@@ -32,11 +32,9 @@ class DxaResponseResource extends JsonResource
         if ($this->notification_type == 2)
         {
             $dxa = $this->getResponse($this->old_task_id);
-            $blocks = $this->blocks->isEmpty()
-                ? ($dxa ? $dxa->blocks : null)
-                : $this->blocks;
+            $blocks = $this->blocks->isEmpty() ? ($dxa ? $dxa->blocks : null) : $this->blocks;
             $images = $this->images->isEmpty() ? ($dxa ? $dxa->blocks : null) : $this->images;
-            $comment = $this->inspector_commit ?? $dxa->inspector_commit;
+            $comment = $this->inspector_commit ?? ($dxa->inspector_commit ?? null);
             $long = $this->long ?? $dxa->long;
             $lat = $this->lat ?? $dxa->lat;
         }else{
@@ -89,7 +87,7 @@ class DxaResponseResource extends JsonResource
             'location_building' => $this->location_building,
             'region' => RegionResource::make($this->region),
             'district' => DistrictResource::make($this->district),
-            'inspector_sent_at' => $this->inspector_sent_at,
+            'inspector_sent_at' => $this->inspector_sent_at ?? null,
             'inspector_answered_at' => $this->inspector_answered_at,
             'category_object_dictionary' => $this->category_object_dictionary,
             'construction_works' => $this->construction_works,
