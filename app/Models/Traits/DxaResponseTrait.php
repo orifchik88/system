@@ -16,11 +16,11 @@ trait DxaResponseTrait
         $oldTaskIds = [];
 
         while ($taskId) {
-            $task = self::query()->where('task_id', $taskId)->first();
+            $task = self::query()->where('task_id', $taskId)->first() ?? null;
 
             if ($task) {
                 if ($task->old_task_id) {
-                    $oldTask = DxaResponse::query()->where('task_id', $task->old_task_id)->first();
+                    $oldTask = DxaResponse::query()->where('task_id', $task->old_task_id)->first() ?? null;
                     $oldTaskIds[] = [
                         'id' => $oldTask->id ?? null,
                         'task_id' => $oldTask->task_id ?? null,
