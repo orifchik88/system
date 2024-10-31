@@ -156,7 +156,7 @@ class MigrateCommand extends Command
             $article->funding_source_id = ($object->funding_source_id != null) ? $fundingSource[$object->funding_source_id] : null;
             $article->paid = 0;
             $article->payment_deadline = Carbon::now();
-            $article->deadline = Carbon::parse($object->deadline)->format('Y-m-d');
+            $article->deadline = ($objectStatus[$object->object_status_id] == ObjectStatusEnum::SUBMITTED) ? null : Carbon::parse($object->deadline)->format('Y-m-d');
             $article->gnk_id = $object->gnk_id;
             $article->reestr_number = (int)$object->reestr_number;
             $article->old_id = $object->id;
