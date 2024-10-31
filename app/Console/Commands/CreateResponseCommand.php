@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Helpers\ClaimStatuses;
 use App\Models\Article;
+use App\Models\DxaResponse;
 use App\Models\Response;
 use App\Services\DxaBuildingResponseService;
 use Carbon\Carbon;
@@ -33,8 +34,8 @@ class CreateResponseCommand extends Command
             ->take(10)
             ->get();
         foreach ($data as $item) {
-            $objectExist = Article::query()->where('task_id', $item->task_id)->exists();
-            if (!$objectExist) {
+            $responseExist = DxaResponse::query()->where('task_id', $item->task_id)->exists();
+            if (!$responseExist) {
                 DB::beginTransaction();
                 try {
                     $taskId = $item->task_id;

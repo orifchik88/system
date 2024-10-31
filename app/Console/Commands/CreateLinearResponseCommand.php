@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Helpers\ClaimStatuses;
 use App\Models\Article;
+use App\Models\DxaResponse;
 use App\Models\Response;
 use App\Services\DxaLinearResponseService;
 use Illuminate\Console\Command;
@@ -33,8 +34,8 @@ class CreateLinearResponseCommand extends Command
             ->get();
 
         foreach ($data as $item) {
-            $objectExist = Article::query()->where('task_id', $item->task_id)->exists();
-            if (!$objectExist) {
+            $responseExist = DxaResponse::query()->where('task_id', $item->task_id)->exists();
+            if (!$responseExist) {
                 DB::beginTransaction();
                 try {
                     $taskId = $item->task_id;
@@ -56,7 +57,7 @@ class CreateLinearResponseCommand extends Command
                     ]);
                     echo $exception->getMessage() . ' ' . $exception->getLine();
                 }
-                sleep(5);
+                sleep(8);
             }
 
         }
