@@ -43,8 +43,8 @@ class MigrateCommand extends Command
      */
     public function handle()
     {
-        $this->migrateObjects();
-        //$this->migrateUsers();
+        //$this->migrateObjects();
+        $this->migrateUsers();
     }
 
     private function migrateObjects()
