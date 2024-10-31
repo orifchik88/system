@@ -220,7 +220,6 @@ class ObjectController extends BaseController
                 $missingRoles[] = $role->name;
             }
         }
-
         return $missingRoles;
     }
 

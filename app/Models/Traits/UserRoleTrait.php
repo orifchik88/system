@@ -2,6 +2,7 @@
 
 namespace App\Models\Traits;
 
+use App\Enums\UserRoleEnum;
 use App\Models\User;
 use App\Models\UserEmployee;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -9,53 +10,53 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 trait UserRoleTrait
 {
-    public function isKadr(): bool
+    public function kadr(): bool
     {
-        return $this->roles()->where('role_id', 1)->exists();
+        return $this->roles()->where('role_id', UserRoleEnum::RESKADR->value)->exists();
     }
 
-    public function isRegionKadr(): bool
+    public function regionKadr(): bool
     {
-        return $this->roles()->where('role_id', 2)->exists();
+        return $this->roles()->where('role_id', UserRoleEnum::REGKADR->value)->exists();
     }
 
     public function inspector(): bool
     {
-        return $this->roles()->where('role_id', 3)->exists();
+        return $this->roles()->where('role_id', UserRoleEnum::INSPECTOR->value)->exists();
     }
     public function register(): bool
     {
-        return $this->roles()->where('role_id', 4)->exists();
+        return $this->roles()->where('role_id', UserRoleEnum::REGISTRATOR->value)->exists();
     }
 
-    public function internalControl(): bool
+    public function ichki(): bool
     {
-        return $this->roles()->where('role_id', 5)->exists();
+        return $this->roles()->where('role_id', UserRoleEnum::ICHKI->value)->exists();
     }
 
-    public function technicControl(): bool
+    public function texnik(): bool
     {
-        return $this->roles()->where('role_id', 6)->exists();
+        return $this->roles()->where('role_id', UserRoleEnum::TEXNIK->value)->exists();
     }
 
-    public function authorControl(): bool
+    public function muallif(): bool
     {
-        return $this->roles()->where('role_id', 7)->exists();
+        return $this->roles()->where('role_id', UserRoleEnum::MUALLIF->value)->exists();
     }
 
-    public function customer(): bool
+    public function buyurtmachi(): bool
     {
-        return  $this->roles()->where('role_id', 8)->exists();
+        return  $this->roles()->where('role_id', UserRoleEnum::BUYURTMACHI->value)->exists();
     }
 
-    public function designer(): bool
+    public function loyiha(): bool
     {
-        return $this->roles()->where('role_id', 9)->exists();
+        return $this->roles()->where('role_id', UserRoleEnum::LOYIHA->value)->exists();
     }
 
-    public function builder(): bool
+    public function qurilish(): bool
     {
-        return $this->roles()->where('role_id', 10)->exists();
+        return $this->roles()->where('role_id', UserRoleEnum::QURILISH->value)->exists();
     }
 
     public function operator(): bool
@@ -82,13 +83,6 @@ trait UserRoleTrait
         return $this->belongsToMany(User::class, 'user_employees', 'parent_id')->where('active', 1);
     }
 
-//    public function scopeSearchByFullName($query, $searchTerm)
-//    {
-//        $searchTerm = strtolower($searchTerm);
-//        return $query->whereRaw('LOWER(name) LIKE ?', ['%' . $searchTerm . '%'])
-//            ->orWhereRaw('LOWER(middle_name) LIKE ?', ['%' . $searchTerm . '%'])
-//            ->orWhereRaw('LOWER(surname) LIKE ?', ['%' . $searchTerm . '%']);
-//    }
 
     public function scopeSearchByFullName($query, $searchTerm)
     {
