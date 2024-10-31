@@ -8,6 +8,7 @@ use App\Models\District;
 use App\Models\DxaResponse;
 use App\Models\DxaResponseSupervisor;
 use App\Models\Region;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -92,7 +93,7 @@ class DxaLinearResponseService
         $dxa->legal_opf = $data['legal_kopf']['real_value'];
         $dxa->phone = $phone;
         $dxa->object_name = $data['object_name']['real_value'];
-        $dxa->deadline = $date->addDay();
+        $dxa->deadline = Carbon::now()->addDay();
         $dxa->administrative_status_id = 1;
         $dxa->object_type_id = 1;
         $dxa->region_id = $region->id;
