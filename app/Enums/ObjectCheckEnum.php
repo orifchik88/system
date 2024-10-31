@@ -10,8 +10,8 @@ enum ObjectCheckEnum: string
 
     case MUALLIF = 'muallif';
     case ICHKI_NAZORAT = 'ichki';
-    case BUYURTMACHI = 'buyurtmachi';
-    case LOYIHA_TASHKILOTI = 'loyiha';
-
-    case QURILISH_TASHKILOTI = 'qurilish';
+//    case BUYURTMACHI = 'buyurtmachi';
+//    case LOYIHA_TASHKILOTI = 'loyiha';
+//
+//    case QURILISH_TASHKILOTI = 'qurilish';
 }
