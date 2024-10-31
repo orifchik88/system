@@ -147,7 +147,7 @@ class DxaBuildingResponseService
             $object->update([
                 'object_type_id' => 2,
                 'cadastral_number' => $dxa->cadastral_number,
-
+                'reestr_number' => $dxa->reestr_number
             ]);
         }
     }

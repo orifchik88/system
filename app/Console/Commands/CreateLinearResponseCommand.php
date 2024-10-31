@@ -58,6 +58,10 @@ class CreateLinearResponseCommand extends Command
                     echo $exception->getMessage() . ' ' . $exception->getLine();
                 }
                 sleep(8);
+            }else{
+                $item->update([
+                    'status' => ClaimStatuses::RESPONSE_WATCHED
+                ]);
             }
 
         }
