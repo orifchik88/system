@@ -52,7 +52,8 @@ class MigrateCommand extends Command
         $objects = DB::connection('third_pgsql')->table('objects')
             ->where('is_migrated', false)
             ->where('region_id', 'c053cdb4-94f6-450f-9da9-f0bf2c145587')
-            ->limit(50)->get();
+            ->get()
+            ->random(50);
 
         $objectType = [
             '79f40f51-0368-4b6c-8326-f83d0453a848' => ObjectTypeEnum::LINEAR,
