@@ -9,6 +9,7 @@ use App\Models\Response;
 use App\Services\DxaLinearResponseService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CreateLinearResponseCommand extends Command
 {
@@ -60,7 +61,9 @@ class CreateLinearResponseCommand extends Command
                             'status' => ClaimStatuses::RESPONSE_ERRORED
                         ]);
                     }
-                    echo $exception->getMessage() . ' ' . $exception->getLine();
+
+                    Log::info('Xatolik: task_id= '.$item->task_id.'    '. $exception->getMessage());
+                    echo $exception->getMessage() . ' ' . $item->task_id;
                     continue;
                 }
 

@@ -10,6 +10,7 @@ use App\Services\DxaBuildingResponseService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CreateResponseCommand extends Command
 {
@@ -62,6 +63,8 @@ class CreateResponseCommand extends Command
                             'status' => ClaimStatuses::RESPONSE_ERRORED
                         ]);
                     }
+                    Log::info('Xatolik: task_id= '.$item->task_id.'    '. $exception->getMessage());
+
                     echo $exception->getMessage() . ' ' . $exception->getLine();
                     continue;
                 }
