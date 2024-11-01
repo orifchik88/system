@@ -29,7 +29,10 @@ class CreateResponseCommand extends Command
     public function handle()
     {
         $data = Response::query()->where('status', ClaimStatuses::RESPONSE_NEW)
-            ->whereIn('module', [1, null])
+            ->where(function ($query) {
+                $query->where('module', 1)
+                    ->orWhereNull('module');
+            })
             ->orderBy('id', 'asc')
             ->take(10)
             ->get();

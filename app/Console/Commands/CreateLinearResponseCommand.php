@@ -28,7 +28,10 @@ class CreateLinearResponseCommand extends Command
     {
         $data = Response::query()
             ->where('status', ClaimStatuses::RESPONSE_NEW)
-            ->whereIn('module', [3, null])
+            ->where(function ($query) {
+                $query->where('module', 3)
+                    ->orWhereNull('module');
+            })
             ->orderBy('id')
             ->take(10)
             ->get();
