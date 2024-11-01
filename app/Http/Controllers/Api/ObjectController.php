@@ -13,6 +13,7 @@ use App\Models\Article;
 use App\Services\ArticleService;
 use Hamcrest\Core\JavaForm;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Js;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ObjectController extends BaseController
@@ -232,6 +233,15 @@ class ObjectController extends BaseController
             }
         }
         return $missingRoles;
+    }
+
+    public function objectCreateUser(): JsonResponse
+    {
+        try {
+            $this->service->createUser();
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
     }
 
     private function checkBlocks($object): array

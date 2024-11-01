@@ -69,6 +69,16 @@ class InformationController extends BaseController
 
     }
 
+    public function statement(): JsonResponse
+    {
+        try {
+            $data = getData(config('app.gasn.bayonnoma'), \request('conc'));
+            return $this->sendSuccess($data['data']['conclusions'], 'Tender');
+        } catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
     public function tender(): JsonResponse
     {
         try {

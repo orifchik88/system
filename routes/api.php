@@ -64,6 +64,7 @@ Route::group([
     Route::get('notifications', [InformationController::class, 'notifications']);
     Route::get('notification-count', [InformationController::class, 'notificationCount']);
     Route::post('notification-read', [InformationController::class, 'notificationRead']);
+    Route::get('statement', [InformationController::class, 'statement']);
 
 
     Route::get('sphere', [SphereController::class, 'spheres']);
@@ -126,6 +127,7 @@ Route::group([
     Route::get('payment-statistics', [ObjectController::class, 'paymentStatistics']);
     Route::get('accountant-objects', [ObjectController::class, 'accountObjects']);
     Route::post('rotation', [ObjectController::class, 'rotation']);
+    Route::post('object-create-user', [ObjectController::class, 'objectCreateUser']);
 
     Route::get('blocks/{id}', [BlockController::class, 'index']);
     Route::get('block/{id}', [BlockController::class, 'getBlock']);
