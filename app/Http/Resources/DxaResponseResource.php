@@ -44,8 +44,7 @@ class DxaResponseResource extends JsonResource
         }
 
 
-//        $inspector = User::query()->where('id', $this->inspector_id)->first();
-        $inspector = null;
+        $inspector = User::query()->where('id', $this->inspector_id)->first() ?? null;
         $oldTaskIds = $this->getOldTaskIds($this->task_id);
 
 
@@ -114,12 +113,12 @@ class DxaResponseResource extends JsonResource
                 'name' =>  $inspector ? "{$inspector->surname} {$inspector->name} {$inspector->middle_name}" : null,
             ],
             'images' => ImageResource::collection($images) ?? null,
-            'blocks' => ResponseBlockResource::collection($blocks) ?? null,
+            'blocks' => $blocks ? ResponseBlockResource::collection($blocks) : null,
             'inspector_comment' => $comment ?? null,
             'created_at' => $this->created_at,
             'rejected_at' => $this->rejected_at,
             'confirmed_at' => $this->confirmed_at,
-            'supervisors' => DxaResponseSupervisorResource::collection($this->supervisors),
+            'supervisors' => $this->supervisors ? DxaResponseSupervisorResource::collection($this->supervisors) : null,
             'rekvizit' => RekvizitResource::make($this->rekvizit) ?? null,
         ];
     }

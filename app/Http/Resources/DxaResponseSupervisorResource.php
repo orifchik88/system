@@ -16,7 +16,7 @@ class DxaResponseSupervisorResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $user = User::query()->where('pinfl', $this->stir_or_pinfl)->first();
+        $user = User::query()->where('pinfl', $this->stir_or_pinfl)->first() ?? null;
 
         return [
             'id' => $this->id,
