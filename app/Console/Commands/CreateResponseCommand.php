@@ -63,6 +63,7 @@ class CreateResponseCommand extends Command
                         ]);
                     }
                     echo $exception->getMessage() . ' ' . $exception->getLine();
+                    continue;
                 }
                 sleep(5);
             }else{

@@ -51,7 +51,6 @@ class CreateLinearResponseCommand extends Command
                     $item->update([
                         'status' => ClaimStatuses::RESPONSE_WATCHED
                     ]);
-
                     DB::commit();
                 } catch (\Exception $exception) {
                     DB::rollBack();
@@ -61,9 +60,10 @@ class CreateLinearResponseCommand extends Command
                             'status' => ClaimStatuses::RESPONSE_ERRORED
                         ]);
                     }
-
                     echo $exception->getMessage() . ' ' . $exception->getLine();
+                    continue;
                 }
+
                 sleep(8);
             }else{
                 $item->update([

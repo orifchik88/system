@@ -120,6 +120,11 @@ class ArticleService
         return $this->articleRepository->getUserByInnAndRole($inn, $role);
     }
 
+    public function createUser($data)
+    {
+
+    }
+
     public function calculateTotalPayment($regionId)
     {
         $totalPaid = Article::with('paymentLogs')

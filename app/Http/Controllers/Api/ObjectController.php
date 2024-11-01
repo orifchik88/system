@@ -7,6 +7,7 @@ use App\Enums\ObjectCheckEnum;
 use App\Enums\UserRoleEnum;
 use App\Http\Requests\ObjectManualRequest;
 use App\Http\Requests\ObjectRequest;
+use App\Http\Requests\ObjectUserRequest;
 use App\Http\Resources\ArticleResource;
 use App\Http\Resources\FundingSourceResource;
 use App\Models\Article;
@@ -235,10 +236,10 @@ class ObjectController extends BaseController
         return $missingRoles;
     }
 
-    public function objectCreateUser(): JsonResponse
+    public function objectCreateUser(ObjectUserRequest $request): JsonResponse
     {
         try {
-            $this->service->createUser();
+            $this->service->createUser($request);
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
