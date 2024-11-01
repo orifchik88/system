@@ -34,7 +34,7 @@ class CreateResponseCommand extends Command
                     ->orWhereNull('module');
             })
             ->orderBy('id', 'asc')
-            ->take(10)
+            ->take(20)
             ->get();
         foreach ($data as $item) {
             $responseExist = DxaResponse::query()->where('task_id', $item->task_id)->exists();
