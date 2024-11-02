@@ -240,6 +240,7 @@ class ObjectController extends BaseController
     {
         try {
             $this->service->createUser($request);
+            return $this->sendSuccess([], 'Success');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }

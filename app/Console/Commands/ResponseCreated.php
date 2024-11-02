@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Enums\DxaResponseStatusEnum;
+use App\Models\Article;
 use App\Models\District;
 use App\Models\DxaResponse;
 use App\Models\DxaResponseSupervisor;
@@ -45,13 +46,10 @@ class ResponseCreated extends Command
         $json = $response->json();
         $data = $this->parseResponse($response);
         $userType = $this->determineUserType($data['user_type']['real_value']);
-        $date = Carbon::now();
 
         DB::beginTransaction();
         try {
-            $dxa = $this->saveDxaResponse($taskId, $data, $userType, $response->body(), $json, $date);
-            $this->sendMyGov($dxa);
-            $this->saveExpertise($dxa);
+            $dxa = $this->saveDxaResponse($taskId, $data, $userType, $json);
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
@@ -113,12 +111,13 @@ class ResponseCreated extends Command
         }
     }
 
-    private function saveDxaResponse($taskId, $data, $userType, $responseBody, $json, $date)
+    public function saveDxaResponse($taskId, $data, $userType, $json)
     {
 
         $email = '';
         $phone = '';
         $organizationName = '';
+        $status = null;
 
         if ($userType == 'Yuridik shaxs')
         {
@@ -132,20 +131,30 @@ class ResponseCreated extends Command
             $email = $data['email']['real_value'];
             $phone = $data['phone']['real_value'];
             $organizationName = $data['full_name']['real_value'];
-
         }
+
+        if ($json['task']['current_node'] == 'inactive')
+        {
+            if ($json['task']['status'] == 'processed')
+            {
+                $status = DxaResponseStatusEnum::ACCEPTED;
+            }
+            if ($json['task']['status'] == 'rejected')
+            {
+                $status = DxaResponseStatusEnum::REJECTED;
+            }
+        }
+
 
         $region = Region::where('soato', $data['region_id']['real_value'])->first();
         $oldTaskId = !empty($data['task_number']['real_value']) ? $data['task_number']['real_value'] : null;
-
-
 
         $district = District::where('soato', $data['district_id']['real_value'])->first();
         $dxa = new DxaResponse();
         $dxa->task_id = $taskId;
         $dxa->old_task_id = $oldTaskId;
         $dxa->user_type = $userType;
-        $dxa->dxa_response_status_id = DxaResponseStatusEnum::NEW;
+        $dxa->dxa_response_status_id = $status ?? DxaResponseStatusEnum::NEW;
         $dxa->email = $email;
         $dxa->full_name = $data['full_name']['real_value'];
         $dxa->name_expertise = $data['name_expertise']['real_value'];
@@ -158,7 +167,7 @@ class ResponseCreated extends Command
         $dxa->notification_type = $data['notification_type']['real_value'];
         $dxa->phone = $phone;
         $dxa->object_name = $data['name_building']['real_value'];
-        $dxa->deadline = $date->addDay();
+        $dxa->deadline = now()->addDay();
         $dxa->administrative_status_id = 1;
         $dxa->object_type_id = 2;
         $dxa->region_id = $region->id;
@@ -192,17 +201,28 @@ class ResponseCreated extends Command
         $dxa->contract_file = $data['contract_file']['real_value'];
         $dxa->organization_projects = $data['organization_projects']['real_value'];
         $dxa->file_energy_efficiency = $data['file_energy_efficiency']['real_value'];
+        $dxa->created_at = $json['task']['created_date'];
         $dxa->save();
         $this->saveSupervisors($data, $dxa->id, $userType);
+        $this->updateObject($dxa, $json);
         return $dxa;
 
+    }
+    private function updateObject($dxa, $json)
+    {
+        $object = Article::query()->where('task_id', $dxa->task_id)->first();
+        if ($object) {
+            $object->update([
+                'object_type_id' => 2,
+                'cadastral_number' => $dxa->cadastral_number,
+                'reestr_number' => $dxa->reestr_number,
+                'created_at' => $json['task']['last_update']
+            ]);
+        }
     }
 
     private function saveSupervisors($data, $dxaId, $userType)
     {
-
-
-
         foreach ($data['info_supervisory']['value'] as $key => $item) {
             if ($item['role']['real_value'] ==1) {
                 $dxaResSupervisor = new DxaResponseSupervisor();
@@ -316,11 +336,7 @@ class ResponseCreated extends Command
                 $dxaResSupervisor->stir_or_pinfl = (int)$item['tin_org']['real_value'];
                 $dxaResSupervisor->comment = $item['comment']['real_value'];
                 $dxaResSupervisor->save();
-
-
             }
-
-
         }
     }
 

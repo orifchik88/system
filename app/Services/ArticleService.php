@@ -10,6 +10,7 @@ use App\Enums\ObjectStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Enums\UserStatusEnum;
 use App\Exceptions\NotFoundException;
+use App\Http\Requests\UserRequest;
 use App\Models\Article;
 use App\Models\ArticlePaymentLog;
 use App\Models\DxaResponse;
@@ -122,7 +123,54 @@ class ArticleService
 
     public function createUser($data)
     {
+        $object = Article::query()->find($data->object_id);
+        dd($object);
+        $user = new User();
+        $user->name = $data->name;
+        $user->middle_name = $data->middle_name;
+        $user->surname = $data->surname;
+        $user->phone = $data->phone;
+        $user->pinfl = $data->pinfl;
+        $user->organization_name = $data->organization_name;
+        $user->region_id = $data->region_id;
+        $user->district_id = $data->district_id;
+        $user->identification_number = $data->inn;
+        $user->login = $data->pinfl;
+        $user->password = $data->pinfl;
+        $user->user_status_id = $data->user_status_id;
+        $user->image = $this->saveUserImage($data);
+        $user->save();
 
+        $this->saveUserFiles($user, $data);
+        UserRole::query()->create([
+            'user_id' => $user->id,
+            'role_id' => $data->role_id
+        ]);
+
+        $object->users()->attach($user->id, ['role_id' => $data->role_id]);
+
+
+
+    }
+
+    private function saveUserImage($data)
+    {
+        if ($data->hasFile('image')) {
+            return $data->file('image')->store('user', 'public');
+        }
+
+        return null;
+    }
+
+    private function saveUserFiles(User $user, $data)
+    {
+        if ($data->hasFile('files')) {
+            $user->documents()->delete();
+            foreach ($data->file('files') as $file) {
+                $path = $file->store('user/docs', 'public');
+                $user->documents()->create(['url' => $path]);
+            }
+        }
     }
 
     public function calculateTotalPayment($regionId)

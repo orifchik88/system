@@ -30,10 +30,7 @@ class CreateResponseCommand extends Command
     public function handle()
     {
         $data = Response::query()->where('status', ClaimStatuses::RESPONSE_NEW)
-            ->where(function ($query) {
-                $query->where('module', 1)
-                    ->orWhereNull('module');
-            })
+            ->where('module', 1)
             ->orderBy('id', 'asc')
             ->take(20)
             ->get();
@@ -47,8 +44,8 @@ class CreateResponseCommand extends Command
                     $data = $this->service->parseResponse($response);
                     $userType = $this->service->determineUserType($data['user_type']['real_value']);
                     $dxa = $this->service->saveDxaResponse($taskId, $data, $userType, $response->json());
-                    $this->service->sendMyGov($dxa);
-                    $this->service->saveExpertise($dxa);
+//                    $this->service->sendMyGov($dxa);
+//                    $this->service->saveExpertise($dxa);
 
                     $item->update([
                         'status' => ClaimStatuses::RESPONSE_WATCHED
@@ -57,18 +54,17 @@ class CreateResponseCommand extends Command
                     DB::commit();
                 } catch (\Exception $exception) {
                     DB::rollBack();
-                    if ($item->module != null)
-                    {
-                        $item->update([
-                            'status' => ClaimStatuses::RESPONSE_ERRORED
-                        ]);
-                    }
-                    Log::info('Xatolik: task_id= '.$item->task_id.'    '. $exception->getMessage());
+
+                    $item->update([
+                        'status' => ClaimStatuses::RESPONSE_ERRORED
+                    ]);
+
+                    Log::info('Xatolik binoda: task_id= '.$item->task_id.'    '. $exception->getMessage());
 
                     echo $exception->getMessage() . ' ' . $exception->getLine();
                     continue;
                 }
-                sleep(5);
+                sleep(3);
             }else{
                 $item->update([
                     'status' => ClaimStatuses::RESPONSE_WATCHED

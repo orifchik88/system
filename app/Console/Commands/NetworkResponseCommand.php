@@ -3,10 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Enums\DxaResponseStatusEnum;
+use App\Models\Article;
 use App\Models\District;
 use App\Models\DxaResponse;
 use App\Models\DxaResponseSupervisor;
 use App\Models\Region;
+use App\Models\Response;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -39,12 +41,15 @@ class NetworkResponseCommand extends Command
         $json = $response->json();
         $data = $this->parseResponse($response);
         $userType = $this->determineUserType($data['user_type']['real_value']);
-        $date = Carbon::now();
 
         DB::beginTransaction();
         try {
-            $dxa = $this->saveDxaResponse($taskId, $data, $userType, $response->body(), $json, $date);
-            $this->sendMyGov($dxa);
+            $dxa = $this->saveDxaResponse($taskId, $data, $userType,  $json);
+            $response = Response::query()->where('task_id', $taskId)->first();
+            $response->update([
+                'status' => 2,
+            ]);
+//            $this->sendMyGov($dxa);
 
             DB::commit();
         } catch (\Exception $exception) {
@@ -79,23 +84,30 @@ class NetworkResponseCommand extends Command
         }
     }
 
-    private function saveDxaResponse($taskId, $data, $userType, $responseBody, $json, $date)
+    public function saveDxaResponse($taskId, $data, $userType, $json)
     {
         $email = '';
         $phone = '';
         $organizationName = '';
+        $status = null;
 
-        if ($userType == 'Yuridik shaxs')
-        {
+        if ($userType == 'Yuridik shaxs') {
             $phone = $data['legal_phone']['real_value'];
             $organizationName = $data['legal_name']['real_value'];
         }
 
-        if ($userType == 'Jismoniy shaxs')
-        {
+        if ($userType == 'Jismoniy shaxs') {
             $phone = $data['ind_phone']['real_value'];
             $organizationName = $data['ind_fullname']['real_value'];
+        }
 
+        if ($json['task']['current_node'] == 'inactive') {
+            if ($json['task']['status'] == 'processed') {
+                $status = DxaResponseStatusEnum::ACCEPTED;
+            }
+            if ($json['task']['status'] == 'rejected') {
+                $status = DxaResponseStatusEnum::REJECTED;
+            }
         }
 
         $region = Region::where('soato', $data['region']['real_value'])->first();
@@ -108,7 +120,7 @@ class NetworkResponseCommand extends Command
         $dxa->old_task_id = $oldTaskId;
         $dxa->notification_type = $data['notification_type']['real_value'];
         $dxa->user_type = $userType;
-        $dxa->dxa_response_status_id = DxaResponseStatusEnum::NEW;
+        $dxa->dxa_response_status_id = $status ?? DxaResponseStatusEnum::NEW;
         $dxa->email = $email;
         $dxa->full_name = $data['ind_fullname']['real_value'];
         $dxa->name_expertise = $data['name_expertise']['real_value'];
@@ -120,15 +132,12 @@ class NetworkResponseCommand extends Command
         $dxa->legal_opf = $data['legal_kopf']['real_value'];
         $dxa->phone = $phone;
         $dxa->object_name = $data['object_name']['real_value'];
-        $dxa->deadline = $date->addDay();
+        $dxa->deadline = Carbon::now()->addDay();
         $dxa->administrative_status_id = 1;
         $dxa->object_type_id = 1;
         $dxa->region_id = $region->id;
         $dxa->district_id = $district->id;
-//        $dxa->cadastral_number = $data['cadastral_number']['real_value'];
         $dxa->reestr_number = $data['positive_opinion_number']['real_value'];
-//        $dxa->tip_object = $data['tip_object']['value'];
-//        $dxa->vid_object = $data['vid_object']['value'];
         $dxa->location_building = $data['location_building']['value'];
         $dxa->linear_type = $data['line_feature_type']['value'];
         $dxa->application_stir_pinfl = (int)$data['legal_tin']['real_value'];
@@ -136,8 +145,6 @@ class NetworkResponseCommand extends Command
         $dxa->current_note = $json['task']['current_node'];
         $dxa->dxa_status = $json['task']['status'];
         $dxa->cost = $data['cost']['real_value'];
-//        $dxa->number_protocol = $data['number_protocol']['real_value'];
-//        $dxa->date_protocol = $data['date_protocol']['real_value'];
         $dxa->category_object_dictionary = $data['object_category']['value'];
         $dxa->construction_works = $data['construction_works']['value'];
         $dxa->object_parallel_design_number = $data['object_parallel_design_number']['real_value'];
@@ -154,14 +161,27 @@ class NetworkResponseCommand extends Command
         $dxa->specialists_certificates = $data['specialists_certificates']['real_value'];
         $dxa->contract_file = $data['contract_file']['real_value'];
         $dxa->organization_projects = $data['organization_projects']['real_value'];
-//        $dxa->file_energy_efficiency = $data['file_energy_efficiency']['real_value'];
-
-
+        $dxa->created_at = $json['task']['created_date'];
         $dxa->save();
         $this->saveSupervisors($data, $dxa->id, $userType);
-        $this->saveExpertise($dxa);
+        $this->updateObject($dxa, $json);
         return $dxa;
     }
+
+    private function updateObject($dxa, $json)
+    {
+        $object = Article::query()->where('task_id', $dxa->task_id)->first();
+        if ($object) {
+            $object->update([
+                'object_type_id' => 1,
+                'linear_type' => $dxa->linear_type,
+                'reestr_number' => $dxa->reestr_number,
+                'created_at' => $json['task']['last_update']
+            ]);
+        }
+    }
+
+
 
     private function saveExpertise($dxa)
     {

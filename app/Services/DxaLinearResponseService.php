@@ -135,7 +135,7 @@ class DxaLinearResponseService
         if ($object) {
             $object->update([
                 'object_type_id' => 1,
-                'linear_type' => $dxa->linear_type,
+//                'linear_type' => $dxa->linear_type,
                 'reestr_number' => $dxa->reestr_number,
                 'created_at' => $json['task']['last_update']
             ]);

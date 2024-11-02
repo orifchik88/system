@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\UserStatusEnum;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class ObjectUserRequest extends FormRequest
 {
@@ -28,7 +30,23 @@ class ObjectUserRequest extends FormRequest
             'middle_name' => 'sometimes|string',
             'surname' => 'sometimes|string',
             'phone' => 'sometimes|string',
-            'pinfl' => 'required|string',
+            'pinfl' => 'required|string|unique:users,pinfl',
+            'organization_name' => 'sometimes|string',
+            'image' => 'sometimes|string',
+            'files' => "sometimes|array",
+            'inn' => 'sometimes|string',
+            'created_by' => "required|exists:users,id",
+            'region_id' => 'sometimes|integer|exists:regions,id',
+            'district_id' => 'sometimes|integer|exists:districts,id',
+            "user_status_id" => "required|exists:user_statuses,id",
         ];
+    }
+
+    public function prepareForValidation()
+    {
+        $this->merge([
+            'user_status_id' => UserStatusEnum::ACTIVE->value,
+            'created_by' => Auth::id(),
+        ]);
     }
 }

@@ -12,7 +12,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-         $schedule->command('checklist:answer-accept')->everyMinute();
+         $schedule->command('module:handle-response')->everyTenSeconds();
     }
 
     /**
