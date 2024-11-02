@@ -29,28 +29,24 @@ class DxaResponseService
 
     public function getRegisters($user, $roleId, $type)
     {
+        $response = $this->dxaResponse->with([
+            'status', 'fundingSource', 'monitoring', 'sphere', 'program', 'administrativeStatus', 'documents', 'objectType', 'region', 'district','lawyerStatus', 'supervisors', 'rekvizit'
+        ])->where('notification_type', $type);
         switch ($roleId) {
             case UserRoleEnum::INSPECTOR->value:
-                return $this->dxaResponse
-                    ->where('inspector_id', $user->id)
-                    ->where('notification_type', $type);
-//                    ->whereIn('dxa_response_status_id', [DxaResponseStatusEnum::NEW, DxaResponseStatusEnum::SEND_INSPECTOR, DxaResponseStatusEnum::IN_REGISTER]);
+                return $response
+                    ->where('inspector_id', $user->id);
             case UserRoleEnum::INSPEKSIYA->value:
             case UserRoleEnum::HUDUDIY_KUZATUVCHI->value:
             case UserRoleEnum::REGISTRATOR->value:
-                return $this->dxaResponse
-                    ->where('region_id', $user->region_id)
-                    ->where('notification_type', $type);
-//                    ->whereIn('dxa_response_status_id', [DxaResponseStatusEnum::NEW, DxaResponseStatusEnum::SEND_INSPECTOR, DxaResponseStatusEnum::IN_REGISTER]);
+                return $response
+                    ->where('region_id', $user->region_id);
             case UserRoleEnum::RESPUBLIKA_KUZATUVCHI->value:
-                return $this->dxaResponse
-                    ->where('notification_type', $type);
-//                    ->whereIn('dxa_response_status_id', [DxaResponseStatusEnum::NEW, DxaResponseStatusEnum::SEND_INSPECTOR, DxaResponseStatusEnum::IN_REGISTER]);
+                return $response;
             case UserRoleEnum::YURIST->value:
-                return $this->dxaResponse->where('region_id', $user->region_id)
+                return $response->where('region_id', $user->region_id)
                     ->where('administrative_status_id', 6)
-                    ->where('dxa_response_status_id', DxaResponseStatusEnum::REJECTED)
-                    ->where('notification_type', $type);
+                    ->where('dxa_response_status_id', DxaResponseStatusEnum::REJECTED);
             default:
                 return $this->dxaResponse->whereRaw('1 = 0');
         }

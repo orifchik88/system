@@ -17,41 +17,34 @@ class DxaResponseResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $address = '';
-        if ($this->user_type == 'Yuridik shaxs')
-        {
-            $address = $this->address;
-        }
+        $address = $this->user_type == 'Yuridik shaxs' ? $this->address : $this->permit_address;
+        $blocks = $this->notification_type == 2 && $this->blocks->isEmpty()
+            ? optional($this->getResponse($this->old_task_id))->blocks
+            : $this->blocks;
+        $images = $this->notification_type == 2 && $this->images->isEmpty()
+            ? optional($this->getResponse($this->old_task_id))->images
+            : $this->images;
 
-        if ($this->user_type == 'Jismoniy shaxs')
-        {
-            $address = $this->permit_address;
-        }
-        if ($this->notification_type == 2)
-        {
-            $dxa = $this->getResponse($this->old_task_id);
-            $blocks = $this->blocks->isEmpty() ? ($dxa ? $dxa->blocks : null) : $this->blocks;
-            $images = $this->images->isEmpty() ? ($dxa ? $dxa->images : null) : $this->images;
-            $comment = $this->inspector_commit ?? ($dxa->inspector_commit ?? null);
-            $long = $this->long ?? ($dxa->long ?? null);
-            $lat = $this->lat ?? ($dxa->lat ?? null);
-        }else{
-            $blocks = $this->blocks;
-            $images = $this->images;
-            $comment = $this->inspector_commit ?? null;
-            $long = $this->long;
-            $lat = $this->lat;
-        }
+        $comment = $this->notification_type == 2
+            ? ($this->inspector_commit ?? $this->getResponse($this->old_task_id)?->inspector_commit)
+            : ($this->inspector_commit ?? null);
+
+        $long = $this->notification_type == 2
+            ? ($this->long ?? $this->getResponse($this->old_task_id)?->long)
+            : $this->long;
+
+        $lat = $this->notification_type == 2
+            ? ($this->lat ?? $this->getResponse($this->old_task_id)?->lat)
+            : $this->lat;
 
 
         $inspector = User::query()->where('id', $this->inspector_id)->first() ?? null;
-        $oldTaskIds = $this->getOldTaskIds($this->task_id);
 
 
         return [
             'id' =>$this->id,
             'user_type' => $this->user_type,
-            'task_ids' => $oldTaskIds,
+            'task_ids' => $this->getOldTaskIds($this->task_id),
             'task_id' =>$this->task_id,
             'status' => DxaResponseStatusResource::make($this->status),
             'deadline' => $this->deadline,
