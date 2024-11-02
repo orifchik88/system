@@ -19,8 +19,8 @@ class HandleResponseCommand extends Command
     public function handle()
     {
         $data = Response::query()
-            ->where('status', ClaimStatuses::RESPONSE_NEW)
-            ->whereNull('module')
+            ->where('status', ClaimStatuses::RESPONSE_ERRORED)
+//            ->whereNull('module')
             ->take(10)
             ->get();
 
