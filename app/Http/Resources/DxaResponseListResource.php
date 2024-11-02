@@ -17,13 +17,15 @@ class DxaResponseListResource extends JsonResource
     {
 
         $this->loadMissing([
-            'status'
+            'status', 'region', 'district'
         ]);
 
         return [
             'id' =>$this->id,
             'task_ids' => $this->getOldTaskIds($this->task_id),
             'task_id' =>$this->task_id,
+            'region' => new RegionResource($this->region),
+            'district' => new DistrictResource($this->district),
             'status' => new DxaResponseStatusResource($this->status),
             'deadline' => $this->deadline,
             'end_term_work' => $this->end_term_work,
