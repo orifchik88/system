@@ -17,28 +17,16 @@ class DxaResponseResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+
+        $this->loadMissing([
+            'status', 'fundingSource', 'monitoring', 'sphere', 'program', 'administrativeStatus',
+            'documents', 'objectType', 'region', 'district', 'lawyerStatus', 'rekvizit',
+            'supervisors', 'blocks', 'images'
+        ]);
         $address = $this->user_type == 'Yuridik shaxs' ? $this->address : $this->permit_address;
-        $blocks = $this->notification_type == 2 && $this->blocks->isEmpty()
-            ? optional($this->getResponse($this->old_task_id))->blocks
-            : $this->blocks;
-        $images = $this->notification_type == 2 && $this->images->isEmpty()
-            ? optional($this->getResponse($this->old_task_id))->images
-            : $this->images;
-
-        $comment = $this->notification_type == 2
-            ? ($this->inspector_commit ?? $this->getResponse($this->old_task_id)?->inspector_commit)
-            : ($this->inspector_commit ?? null);
-
-        $long = $this->notification_type == 2
-            ? ($this->long ?? $this->getResponse($this->old_task_id)?->long)
-            : $this->long;
-
-        $lat = $this->notification_type == 2
-            ? ($this->lat ?? $this->getResponse($this->old_task_id)?->lat)
-            : $this->lat;
 
 
-        $inspector = User::query()->where('id', $this->inspector_id)->first() ?? null;
+        $inspector = User::find($this->inspector_id);
 
 
         return [
@@ -46,24 +34,28 @@ class DxaResponseResource extends JsonResource
             'user_type' => $this->user_type,
             'task_ids' => $this->getOldTaskIds($this->task_id),
             'task_id' =>$this->task_id,
-            'status' => DxaResponseStatusResource::make($this->status),
+            'status' => new DxaResponseStatusResource($this->status),
             'deadline' => $this->deadline,
-            'funding_source' => FundingSourceResource::make($this->fundingSource) ?? [],
-            'monitoring_object' => MonitoringObjectResource::make($this->monitoring),
+            'funding_source' => new FundingSourceResource($this->fundingSource),
+            'monitoring_object' => new MonitoringObjectResource($this->monitoring),
             'price_supervision_service' => $this->price_supervision_service,
             'end_term_work' => $this->end_term_work,
-            'sphere' => SphereResource::make($this->sphere),
-            'program' => ProgramResource::make($this->program) ?? null,
+            'sphere' => new SphereResource($this->sphere),
+            'program' => new ProgramResource($this->program),
             'organization_name' => $this->organization_name,
             'stir' => $this->application_stir_pinfl,
             'pinfl' => $this->pinfl,
-            'lat' => $lat,
-            'long' => $long,
+            'lat' => $this->notification_type === 2
+                ? ($this->lat ?? $this->getResponse($this->old_task_id)->lat ?? null)
+                : $this->lat,
+            'long' => $this->notification_type === 2
+                ? ($this->long ?? $this->getResponse($this->old_task_id)->long ?? null)
+                : $this->long,
             "full_name" => $this->full_name,
             'legal_opf' => $this->legal_opf,
             'linear_type' => $this->linear_type,
             'address' => $address,
-            'administrative_status' => AdministrativeStatusResource::make($this->administrativeStatus),
+            'administrative_status' => new AdministrativeStatusResource($this->administrativeStatus),
             'administrative_files' => DocumentResource::collection($this->documents),
             'passport' => $this->passport,
             'phone' => $this->phone,
@@ -72,12 +64,12 @@ class DxaResponseResource extends JsonResource
             'cadastre_number' => $this->cadastral_number,
             'reestr_number' => $this->reestr_number,
             'tip_object' => $this->tip_object,
-            'object_type' => ObjectTypeResource::make($this->objectType),
+            'object_type' => new ObjectTypeResource($this->objectType),
             'vid_object' => $this->vid_object,
             'is_accepted' => $this->is_accepted,
             'location_building' => $this->location_building,
-            'region' => RegionResource::make($this->region),
-            'district' => DistrictResource::make($this->district),
+            'region' => new RegionResource($this->region),
+            'district' => new DistrictResource($this->district),
             'inspector_sent_at' => $this->inspector_sent_at ?? null,
             'inspector_answered_at' => $this->inspector_answered_at,
             'category_object_dictionary' => $this->category_object_dictionary,
@@ -85,7 +77,7 @@ class DxaResponseResource extends JsonResource
             'number_protocol' => $this->number_protocol,
             'date_protocol' => $this->date_protocol,
             'cost' => $this->cost,
-            'lawyer_status' => LawyerStatusResource::make($this->lawyerStatus),
+            'lawyer_status' => new LawyerStatusResource($this->lawyerStatus),
             'object_parallel_design_number' => $this->object_parallel_design_number,
             'object_parallel_design_date' => $this->object_parallel_design_date,
             'object_state_program_number' => $this->object_state_program_number,
@@ -105,14 +97,24 @@ class DxaResponseResource extends JsonResource
                 'id' => $inspector ? $inspector->id : null,
                 'name' =>  $inspector ? "{$inspector->surname} {$inspector->name} {$inspector->middle_name}" : null,
             ],
-            'images' => $images ? ImageResource::collection($images) : null,
-            'blocks' => $blocks ? ResponseBlockResource::collection($blocks) : null,
-            'inspector_comment' => $comment ?? null,
+            'images' => ImageResource::collection(
+                $this->notification_type === 2 && $this->images->isEmpty()
+                    ? $this->getResponse($this->old_task_id)->images ?? []
+                    : $this->images
+            ),
+            'blocks' => ResponseBlockResource::collection(
+                $this->notification_type === 2 && $this->blocks->isEmpty()
+                    ? $this->getResponse($this->old_task_id)->blocks ?? []
+                    : $this->blocks
+            ),
+            'inspector_comment' => $this->notification_type === 2
+                ? ($this->inspector_commit ?? $this->getResponse($this->old_task_id)->inspector_commit ?? null)
+                : $this->inspector_commit,
             'created_at' => $this->created_at,
             'rejected_at' => $this->rejected_at,
             'confirmed_at' => $this->confirmed_at,
             'supervisors' => $this->supervisors ? DxaResponseSupervisorResource::collection($this->supervisors) : null,
-            'rekvizit' => RekvizitResource::make($this->rekvizit) ?? null,
+            'rekvizit' => new RekvizitResource($this->rekvizit) ?? null,
         ];
     }
 }
