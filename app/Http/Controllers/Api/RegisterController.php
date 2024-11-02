@@ -8,6 +8,7 @@ use App\Http\Requests\DxaResponseInspectorRequest;
 use App\Http\Requests\DxaResponseRegisterRequest;
 use App\Http\Requests\DxaResponseRejectRequest;
 use App\Http\Requests\ResponseFineRequest;
+use App\Http\Resources\DxaResponseListResource;
 use App\Http\Resources\DxaResponseResource;
 use App\Http\Resources\DxaStatusResource;
 use App\Models\Article;
@@ -46,7 +47,7 @@ class RegisterController extends BaseController
             ->orderBy('created_at', request('sort_by_date', 'DESC'))
             ->paginate(request('per_page', 10));
 
-        return $this->sendSuccess(DxaResponseResource::collection($registers), 'All registers  successfully.', pagination($registers));
+        return $this->sendSuccess(DxaResponseListResource::collection($registers), 'All registers  successfully.', pagination($registers));
     }
 
     public function reRegister(): JsonResponse
@@ -57,7 +58,7 @@ class RegisterController extends BaseController
             ->orderBy('created_at', request('sort_by_date', 'DESC'))
             ->paginate(request('per_page', 10));
 
-        return $this->sendSuccess(DxaResponseResource::collection($registers), 'All registers  successfully.', pagination($registers));
+        return $this->sendSuccess(DxaResponseListResource::collection($registers), 'All registers  successfully.', pagination($registers));
     }
 
 
