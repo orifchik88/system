@@ -20,7 +20,7 @@ class HandleResponseCommand extends Command
     {
         $data = Response::query()
             ->where('status', ClaimStatuses::RESPONSE_ERRORED)
-//            ->whereNull('module')
+            ->whereIn('module', [1,2])
             ->take(10)
             ->get();
 
