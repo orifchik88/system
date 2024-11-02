@@ -29,9 +29,9 @@ class DxaResponseService
 
     public function getRegisters($user, $roleId, $type)
     {
-        $response = $this->dxaResponse->with([
+        $response = $this->dxaResponse->with(
             'status', 'fundingSource', 'monitoring', 'sphere', 'program', 'administrativeStatus', 'documents', 'objectType', 'region', 'district','lawyerStatus', 'supervisors', 'rekvizit'
-        ])->where('notification_type', $type);
+        )->where('notification_type', $type);
         switch ($roleId) {
             case UserRoleEnum::INSPECTOR->value:
                 return $response
