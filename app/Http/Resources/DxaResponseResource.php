@@ -61,7 +61,7 @@ class DxaResponseResource extends JsonResource
             'phone' => $this->phone,
             'email' => $this->email,
             'object_name' => $this->object_name,
-            'cadastre_number' => $this->cadastral_number,
+            'cadastral_number' => $this->cadastral_number,
             'reestr_number' => $this->reestr_number,
             'tip_object' => $this->tip_object,
             'object_type' => new ObjectTypeResource($this->objectType),
