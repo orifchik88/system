@@ -21,6 +21,7 @@ class CreateBlockCommand extends Command
     public function handle()
     {
         Article::query()
+            ->whereDoesntHave('blocks')
             ->whereIn('object_status_id', [
                 ObjectStatusEnum::SUSPENDED,
                 ObjectStatusEnum::FROZEN,
