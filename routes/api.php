@@ -137,6 +137,7 @@ Route::group([
     Route::post('block-create', [BlockController::class, 'create']);
     Route::post('block-delete', [BlockController::class, 'delete']);
     Route::post('block-edit', [BlockController::class, 'edit']);
+    Route::post('block-add-mode', [BlockController::class, 'addModeToBlock']);
 
     Route::post('send-answer', [QuestionController::class, 'sendAnswer']);
     Route::get('levels', [QuestionController::class, 'levels']);

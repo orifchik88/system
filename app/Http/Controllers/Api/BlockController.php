@@ -90,6 +90,19 @@ class BlockController extends BaseController
         }
     }
 
+    public function addModeToBlock()
+    {
+        try {
+            Block::query()->findOrFail(request('id'))->update([
+                'block_mode_id' => request('mode'),
+                'block_type_id' => request('type'),
+            ]);
+            return $this->sendSuccess([], 'Success');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage());
+        }
+    }
+
     public function blockModes(): JsonResponse
     {
         try {
