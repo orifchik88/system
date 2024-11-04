@@ -44,7 +44,7 @@ class MigrateCommand extends Command
     public function handle()
     {
         $this->migrateObjects();
-        $this->migrateUsers();
+        //$this->migrateUsers();
     }
 
     private function migrateObjects()
@@ -52,8 +52,8 @@ class MigrateCommand extends Command
         $objects = DB::connection('third_pgsql')->table('objects')
             ->where('is_migrated', false)
             ->where('region_id', 'c053cdb4-94f6-450f-9da9-f0bf2c145587')
-            ->get()
-            ->random(50);
+            ->limit(20)
+            ->get();
 
         $objectType = [
             '79f40f51-0368-4b6c-8326-f83d0453a848' => ObjectTypeEnum::LINEAR,
@@ -95,8 +95,18 @@ class MigrateCommand extends Command
                 ->where('id', $object->construction_type_id)
                 ->first();
             $checkObject = Article::query()->where('old_id', $object->id)->first();
+            
             if ($checkObject != null)
+            {
+                DB::connection('third_pgsql')->table('objects')
+                    ->where('id', $object->id)
+                    ->update(
+                        [
+                            'is_migrated' => true
+                        ]
+                    );
                 continue;
+            }
 
             $region = Region::query()->where('old_id', $object->region_id)->first();
             $district = District::query()->where('old_id', $object->district_id)->first();
