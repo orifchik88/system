@@ -27,7 +27,8 @@ class ArticleBlockResource extends JsonResource
             'height' => $this->height,
             'length' => $this->length,
             'status' => $this->status,
-            'accepted' => $this->accepted
+            'accepted' => $this->accepted,
+            'selected_work_type' => $this->selected_work_type
         ];
     }
 }
