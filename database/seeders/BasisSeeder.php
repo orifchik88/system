@@ -6,6 +6,8 @@ use App\Models\Basis;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 
 class BasisSeeder extends Seeder
 {
@@ -14,11 +16,15 @@ class BasisSeeder extends Seeder
      */
     public function run(): void
     {
-        Basis::query()->truncate();
-        $file = storage_path() . "/sql/asos.sql";
+        $path = storage_path('excel/shnq');
 
-        $basis = file_get_contents($file);
+        $files = Storage::files('excel/shnq');
 
-        DB::unprepared($basis);
+        foreach ($files as $file) {
+            dd($file);
+            // Har bir faylni o'qib, import qilamiz
+//            Excel::import(new DataImport, $file);
+        }
+
     }
 }

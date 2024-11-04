@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Basis;
 use App\Models\NormativeDocument;
 use App\Models\Topic;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -14,6 +15,9 @@ class ShnqSeeder extends Seeder
      */
     public function run(): void
     {
+        NormativeDocument::query()->truncate();
+        Topic::query()->truncate();
+        Basis::query()->truncate();
         NormativeDocument::query()->create([
             'id' => 1,
             'name' => 'ШМҚ 3.01.03-19'
@@ -59,9 +63,20 @@ class ShnqSeeder extends Seeder
             'name' => 'ШНҚ 3.02.01 (ҚР 02.01)'
         ]);
 
+        NormativeDocument::query()->create([
+            'id' => 10,
+            'name' => 'ҚМҚ 2.01.03-19'
+        ]);
 
+        NormativeDocument::query()->create([
+            'id' => 11,
+            'name' => 'ҚМҚ 2.01.04-2018'
+        ]);
 
-
+        NormativeDocument::query()->create([
+            'id' => 12,
+            'name' => 'ҚМҚ 2.03.10-2019'
+        ]);
 
 
         Topic::query()->create([
@@ -762,6 +777,131 @@ class ShnqSeeder extends Seeder
             'parent_id' => 9,
         ]);
 
+        Topic::query()->create([
+            'id' => 117,
+            'name' => '1. АСОСИЙ ҚОИДАЛАР',
+            'parent_id' => 10,
+        ]);
+
+        Topic::query()->create([
+            'id' => 118,
+            'name' => '2. СЕЙСМИК ТАЪСИРЛАРГА ҲИСОБЛАШ',
+            'parent_id' => 10,
+        ]);
+
+        Topic::query()->create([
+            'id' => 119,
+            'name' => '3. ТУРАРЖОЙ, ЖАМОАТ, ИШЛАБ ЧИҚАРИШ БИНОЛАРИ ВА ИНШООТЛАРИ',
+            'parent_id' => 10,
+        ]);
+
+        Topic::query()->create([
+            'id' => 120,
+            'name' => '4. ЕР ОСТИ ИНШООТЛАРИ ВА МУҲАНДИСЛИК ТАРМОҚЛАРИ',
+            'parent_id' => 10,
+        ]);
+
+        Topic::query()->create([
+            'id' => 121,
+            'name' => '5. БИНОЛАРНИ ҚАЙТА ТИКЛАШ ВА КУЧАЙТИРИШ',
+            'parent_id' => 10,
+        ]);
+
+        Topic::query()->create([
+            'id' => 122,
+            'name' => '6. ИШЛАБ ЧИҚАРИШ ХУСУСИЯТЛАРИ ВА ҚУРИЛИШ ИШЛАРИНИНГ СИФАТИНИ ТЕКШИРИШ',
+            'parent_id' => 10,
+        ]);
+
+        Topic::query()->create([
+            'id' => 123,
+            'name' => '1. УМУМИЙ ҲОЛАТЛАР',
+            'parent_id' => 11,
+        ]);
+
+        Topic::query()->create([
+            'id' => 124,
+            'name' => '2. ТЎСУВЧИ КОНСТРУКЦИЯЛАРНИНГ ИССИҚЛИК УЗАТИЛИШИГА ҚАРШИЛИГИ',
+            'parent_id' => 11,
+        ]);
+
+        Topic::query()->create([
+            'id' => 125,
+            'name' => '3. ТЎСУВЧИ КОНСТРУКЦИЯЛАРНИНГ ИССИҚЛИККА ЧИДАМЛИЛИГИ',
+            'parent_id' => 11,
+        ]);
+
+        Topic::query()->create([
+            'id' => 126,
+            'name' => '4. ПОЛЛАР ЮЗАЛАРИНИНГ ИССИҚЛИК ЎЗЛАШТИРИШИ',
+            'parent_id' => 11,
+        ]);
+
+        Topic::query()->create([
+            'id' => 127,
+            'name' => '5. ТЎСУВЧИ КОНСТРУКЦИЯЛАРНИНГ ҲАВО ЎТИШИГА ҚАРШИЛИГИ',
+            'parent_id' => 11,
+        ]);
+
+        Topic::query()->create([
+            'id' => 128,
+            'name' => '6. ТЎСУВЧИ КОНСТРУКЦИЯЛАРНИНГ БУҒ ЎТИШИГА ҚАРШИЛИГИ',
+            'parent_id' => 11,
+        ]);
+
+        Topic::query()->create([
+            'id' => 129,
+            'name' => '1. УМУМИЙ ҲОЛАТЛАР',
+            'parent_id' => 12,
+        ]);
+
+        Topic::query()->create([
+            'id' => 130,
+            'name' => '2. ТОМЛАР',
+            'parent_id' => 12,
+        ]);
+
+        Topic::query()->create([
+            'id' => 131,
+            'name' => '3. ТОМ ҚОПЛАМАЛАР',
+            'parent_id' => 12,
+        ]);
+
+        Topic::query()->create([
+            'id' => 132,
+            'name' => '4. УЗЕЛЛАР ВА ТУТАШУВЛАР',
+            'parent_id' => 12,
+        ]);
+
+        Topic::query()->create([
+            'id' => 133,
+            'name' => '5. СУВ КЕТҚАЗУВЧИ (СУВ ҚОЧИРИШ) ҚУРИЛМАЛАР',
+            'parent_id' => 12,
+        ]);
+
+        Topic::query()->create([
+            'id' => 134,
+            'name' => '6. ТОМҚОПЛАМАЛАРНИНГ ИШОНЧЛИЛИГИНИ ТАЪМИНЛАШГА ОИД ЧОРА-ТАДБИРЛАР',
+            'parent_id' => 12,
+        ]);
+
+        Topic::query()->create([
+            'id' => 135,
+            'name' => '7. ЁНҒИНГА ҚАРШИ ТАЛАБЛАР',
+            'parent_id' => 12,
+        ]);
+
+        Topic::query()->create([
+            'id' => 136,
+            'name' => '8. ТОМЛАРНИНГ РЕКОНСТРУКЦИЯСИ',
+            'parent_id' => 12,
+        ]);
+
+        Topic::query()->create([
+            'id' => 137,
+            'name' => '9. ТОМҚОПЛАМАЛАРНИ ТАЪМИРЛАШ',
+            'parent_id' => 12,
+        ]);
 
 
     }
