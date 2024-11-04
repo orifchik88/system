@@ -33,14 +33,8 @@ class PermissionController extends BaseController
     public function roles(): JsonResponse
     {
         try {
-            if (request('id'))
-            {
-                $role = Role::findOrFail(request('id'));
-                $roles =  Role::query()->whereIn('id', $role->children)->paginate(request('per_page', 15));
-
-                return $this->sendSuccess(RoleResource::collection($roles), 'Roles', pagination($roles));
-            }
-            $roles = Role::query()->paginate(request('per_page', 15));
+            $role = Role::query()->find($this->roleId);
+            $roles =  Role::query()->whereIn('id', $role->children)->paginate(request('per_page', 10));
             return $this->sendSuccess(RoleResource::collection($roles), 'Roles', pagination($roles));
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage());
