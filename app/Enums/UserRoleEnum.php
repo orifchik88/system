@@ -32,4 +32,6 @@ enum UserRoleEnum: int
     case NOGIRONLAR_ASSOT_KADR = 25;
     case YURIST = 27;
     case BUXGALTER = 28;
+
+    case ADMIN = 29;
 }

@@ -80,6 +80,7 @@ class ArticleService
             case UserRoleEnum::YURIST->value:
                 return $this->getArticlesByRegion($user->region_id);
             case UserRoleEnum::RESPUBLIKA_KUZATUVCHI->value:
+            case UserRoleEnum::ADMIN->value:
                 return Article::query();
             default:
                 return Article::query()->whereRaw('1 = 0');
