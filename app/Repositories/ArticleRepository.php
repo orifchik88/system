@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Enums\DxaResponseStatusEnum;
+use App\Enums\ObjectStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Models\Article;
 use App\Models\ArticleUser;
@@ -86,13 +87,26 @@ class ArticleRepository implements ArticleRepositoryInterface
 
     public function rotateUsers($user, $roleId, $firstUserId, $secondUserId): void
     {
-        $firstUserArticles = ArticleUser::where('user_id', $firstUserId)
-            ->where('role_id', UserRoleEnum::INSPECTOR->value)
-            ->pluck('article_id');
+        $fistUser = User::query()->find($firstUserId);
+        $secondUser = User::query()->find($secondUserId);
 
-        $secondUserArticles = ArticleUser::where('user_id', $secondUserId)
-            ->where('role_id', UserRoleEnum::INSPECTOR->value)
-            ->pluck('article_id');
+//        $firstUserArticles = ArticleUser::where('user_id', $firstUserId)
+//            ->where('role_id', UserRoleEnum::INSPECTOR->value)
+//            ->pluck('article_id');
+//        $secondUserArticles = ArticleUser::where('user_id', $secondUserId)
+//            ->where('role_id', UserRoleEnum::INSPECTOR->value)
+//            ->pluck('article_id');
+
+        $secondUserArticles = $secondUser->objects()
+            ->wherePivot('role_id', UserRoleEnum::INSPECTOR->value)
+            ->whereIn('object_status_id', [ObjectStatusEnum::PROGRESS, ObjectStatusEnum::FROZEN, ObjectStatusEnum::SUSPENDED])
+            ->pluck('id');
+
+        $firstUserArticles = $fistUser->objects()
+            ->wherePivot('role_id', UserRoleEnum::INSPECTOR->value)
+            ->whereIn('object_status_id', [ObjectStatusEnum::PROGRESS, ObjectStatusEnum::FROZEN, ObjectStatusEnum::SUSPENDED])
+            ->pluck('id');
+
 
         DxaResponse::query()
             ->whereIn('dxa_response_status_id', [DxaResponseStatusEnum::IN_REGISTER, DxaResponseStatusEnum::SEND_INSPECTOR])
