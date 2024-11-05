@@ -15,7 +15,6 @@ class ResponseController extends BaseController
 
     public function __construct(ResponseService $responseService)
     {
-        $this->middleware('auth');
         parent::__construct();
         $this->responseService = $responseService;
     }
