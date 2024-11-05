@@ -45,10 +45,10 @@ class NetworkResponseCommand extends Command
         DB::beginTransaction();
         try {
             $dxa = $this->saveDxaResponse($taskId, $data, $userType,  $json);
-            $response = Response::query()->where('task_id', $taskId)->first();
-            $response->update([
-                'status' => 2,
-            ]);
+//            $response = Response::query()->where('task_id', $taskId)->first();
+//            $response->update([
+//                'status' => 2,
+//            ]);
 //            $this->sendMyGov($dxa);
 
             DB::commit();
