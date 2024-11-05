@@ -13,6 +13,7 @@ use App\Exceptions\NotFoundException;
 use App\Http\Requests\UserRequest;
 use App\Models\Article;
 use App\Models\ArticlePaymentLog;
+use App\Models\ArticleUser;
 use App\Models\DxaResponse;
 use App\Models\FundingSource;
 use App\Models\User;
@@ -281,64 +282,11 @@ class ArticleService
             if ($response->notification_type==2)
             {
                $article = $this->saveRepeat($response);
+               $this->saveRepeatUser($response, $article);
             }else{
                 $article = $this->saveResponse($response);
+                $this->saveResponseUser($response, $article);
             }
-
-            if ($response->notification_type==2)
-            {
-                $article->users()->detach();
-            }
-
-
-            foreach ($response->supervisors as $supervisor) {
-                $fish = $this->generateFish($supervisor->fish);
-                $user = User::where('pinfl', $supervisor->stir_or_pinfl)->first();
-                if ($user) {
-                    $user->update([
-                        'name' => $fish ? $fish[1] : null,
-                        'surname' => $fish ? $fish[0] : null,
-                        'middle_name' => $fish ? $fish[2] : null,
-                        'phone' => $supervisor->phone_number,
-                        'login' => $supervisor->passport_number,
-                        'organization_name' => $supervisor->organization_name,
-                        'password' => bcrypt($supervisor->stir_or_pinfl),
-                        'user_status_id' => UserStatusEnum::ACTIVE,
-                        'pinfl' => $supervisor->stir_or_pinfl,
-                        'identification_number' => $supervisor->identification_number,
-                    ]);
-
-
-                    $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
-                    if (!$user->roles()->where('role_id', $supervisor->role_id)->exists())
-                        UserRole::query()->create([
-                            'user_id' => $user->id,
-                            'role_id' => $supervisor->role_id,
-                        ]);
-                }
-                if (!$user) {
-                    $user = User::create([
-                        'name' => $fish ? $fish[1] : null,
-                        'surname' => $fish ? $fish[0] : null,
-                        'middle_name' => $fish ? $fish[2] : null,
-                        'phone' => $supervisor->phone_number,
-                        'login' => $supervisor->passport_number,
-                        'organization_name' => $supervisor->organization_name,
-                        'password' => bcrypt($supervisor->stir_or_pinfl),
-                        'user_status_id' => UserStatusEnum::ACTIVE,
-                        'pinfl' => $supervisor->stir_or_pinfl,
-                        'identification_number' => $supervisor->identification_number,
-                    ]);
-                    $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
-                    UserRole::query()->create([
-                        'user_id' => $user->id,
-                        'role_id' => $supervisor->role_id,
-                    ]);
-                }
-            }
-
-
-            $article->users()->attach($response->inspector_id, ['role_id' => 3]);
 
             $this->acceptResponse($response);
             $this->saveBlocks($response, $article);
@@ -439,6 +387,151 @@ class ArticleService
         $article->save();
 
         return $article;
+    }
+
+    private function saveRepeatUser($response, $article)
+    {
+        foreach ($response->supervisors as $supervisor) {
+            $fish = $this->generateFish($supervisor->fish);
+            $articleUser = $article->users()->wherePivot('role_id', $supervisor->role_id)->first();
+            $user = User::where('pinfl', $supervisor->stir_or_pinfl)->first();
+            if ($user) {
+                $user->update([
+                    'name' => $fish ? $fish[1] : null,
+                    'surname' => $fish ? $fish[0] : null,
+                    'middle_name' => $fish ? $fish[2] : null,
+                    'phone' => $supervisor->phone_number,
+                    'login' => $supervisor->passport_number,
+                    'organization_name' => $supervisor->organization_name,
+                    'password' => bcrypt($supervisor->stir_or_pinfl),
+                    'user_status_id' => UserStatusEnum::ACTIVE,
+                    'pinfl' => $supervisor->stir_or_pinfl,
+                    'identification_number' => $supervisor->identification_number,
+                ]);
+
+                if ($articleUser)
+                {
+                   if ($articleUser->pinfl != $user->pinfl)
+                   {
+                        ArticleUser::query()
+                            ->where('article_id', $article->id)
+                            ->where('role_id', $supervisor->role_id)
+                            ->where('user_id', $articleUser->id)
+                            ->delete();
+
+                       $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
+                   }
+                }else{
+                    $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
+                }
+
+                if (!$user->roles()->where('role_id', $supervisor->role_id)->exists())
+                    UserRole::query()->create([
+                        'user_id' => $user->id,
+                        'role_id' => $supervisor->role_id,
+                    ]);
+            }else{
+                $user = User::create([
+                    'name' => $fish ? $fish[1] : null,
+                    'surname' => $fish ? $fish[0] : null,
+                    'middle_name' => $fish ? $fish[2] : null,
+                    'phone' => $supervisor->phone_number,
+                    'login' => $supervisor->passport_number,
+                    'organization_name' => $supervisor->organization_name,
+                    'password' => bcrypt($supervisor->stir_or_pinfl),
+                    'user_status_id' => UserStatusEnum::ACTIVE,
+                    'pinfl' => $supervisor->stir_or_pinfl,
+                    'identification_number' => $supervisor->identification_number,
+                ]);
+                if ($articleUser)
+                {
+                    if ($articleUser->pinfl != $user->pinfl)
+                    {
+                        ArticleUser::query()
+                            ->where('article_id', $article->id)
+                            ->where('role_id', $supervisor->role_id)
+                            ->where('user_id', $articleUser->id)
+                            ->delete();
+
+                        $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
+                    }
+                }else{
+                    $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
+                }
+
+                UserRole::query()->create([
+                    'user_id' => $user->id,
+                    'role_id' => $supervisor->role_id,
+                ]);
+            }
+        }
+
+        $articleInspector = $article->users()->wherePivot('role_id', UserRoleEnum::INSPECTOR->value)->first();
+        $inspector = User::query()->find($response->inspector_id);
+        if ($articleInspector){
+            if ($articleInspector->pinfl != $inspector->pinfl)
+            {
+                ArticleUser::query()
+                    ->where('article_id', $article->id)
+                    ->where('role_id', UserRoleEnum::INSPECTOR->value)
+                    ->where('user_id', $articleInspector->id)
+                    ->delete();
+                $article->users()->attach($inspector->id, ['role_id' => UserRoleEnum::INSPECTOR->value]);
+            }
+        }else{
+            $article->users()->attach($inspector->id, ['role_id' => UserRoleEnum::INSPECTOR->value]);
+        }
+    }
+
+    private function saveResponseUser($response, $article)
+    {
+        foreach ($response->supervisors as $supervisor) {
+            $fish = $this->generateFish($supervisor->fish);
+            $user = User::where('pinfl', $supervisor->stir_or_pinfl)->first();
+            if ($user) {
+                $user->update([
+                    'name' => $fish ? $fish[1] : null,
+                    'surname' => $fish ? $fish[0] : null,
+                    'middle_name' => $fish ? $fish[2] : null,
+                    'phone' => $supervisor->phone_number,
+                    'login' => $supervisor->passport_number,
+                    'organization_name' => $supervisor->organization_name,
+                    'password' => bcrypt($supervisor->stir_or_pinfl),
+                    'user_status_id' => UserStatusEnum::ACTIVE,
+                    'pinfl' => $supervisor->stir_or_pinfl,
+                    'identification_number' => $supervisor->identification_number,
+                ]);
+
+
+                $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
+                if (!$user->roles()->where('role_id', $supervisor->role_id)->exists())
+                    UserRole::query()->create([
+                        'user_id' => $user->id,
+                        'role_id' => $supervisor->role_id,
+                    ]);
+            }
+            if (!$user) {
+                $user = User::create([
+                    'name' => $fish ? $fish[1] : null,
+                    'surname' => $fish ? $fish[0] : null,
+                    'middle_name' => $fish ? $fish[2] : null,
+                    'phone' => $supervisor->phone_number,
+                    'login' => $supervisor->passport_number,
+                    'organization_name' => $supervisor->organization_name,
+                    'password' => bcrypt($supervisor->stir_or_pinfl),
+                    'user_status_id' => UserStatusEnum::ACTIVE,
+                    'pinfl' => $supervisor->stir_or_pinfl,
+                    'identification_number' => $supervisor->identification_number,
+                ]);
+                $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
+                UserRole::query()->create([
+                    'user_id' => $user->id,
+                    'role_id' => $supervisor->role_id,
+                ]);
+            }
+        }
+
+        $article->users()->attach($response->inspector_id, ['role_id' => 3]);
     }
 
     private function generateFish(?string $fish): ?array
