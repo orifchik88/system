@@ -172,7 +172,7 @@ class MigrateCommand extends Command
             ->with('users')
             ->where('is_regulation_get', false)
             ->whereNotNull('old_id')
-            ->limit(100)
+            ->limit(50)
             //->whereIn('old_id', ['55934137-2947-42de-ab4f-401d6a4ead46','670aaba7-af23-42f8-aa2a-36044e829d65'])
             ->get();
 
@@ -235,7 +235,7 @@ class MigrateCommand extends Command
                     ->get();
                 if ($regulation->phase == null)
                     continue;
-                
+
                 $regulationStatus = $regulationStatuses[$regulation->phase];
                 if ($regulation->is_administrative && in_array($regulation->phase, [1, 2, 3, 4, 8]))
                     $regulationStatus = RegulationStatusEnum::IN_LAWYER;
