@@ -99,13 +99,13 @@ class ArticleRepository implements ArticleRepositoryInterface
 
         $secondUserArticles = $secondUser->objects()
             ->wherePivot('role_id', UserRoleEnum::INSPECTOR->value)
-            ->whereIn('object_status_id', [ObjectStatusEnum::PROGRESS, ObjectStatusEnum::FROZEN, ObjectStatusEnum::SUSPENDED])
-            ->pluck('id');
+            ->whereIn('articles.object_status_id', [ObjectStatusEnum::PROGRESS, ObjectStatusEnum::FROZEN, ObjectStatusEnum::SUSPENDED])
+            ->pluck('articles.id');
 
         $firstUserArticles = $fistUser->objects()
             ->wherePivot('role_id', UserRoleEnum::INSPECTOR->value)
-            ->whereIn('object_status_id', [ObjectStatusEnum::PROGRESS, ObjectStatusEnum::FROZEN, ObjectStatusEnum::SUSPENDED])
-            ->pluck('id');
+            ->whereIn('articles.object_status_id', [ObjectStatusEnum::PROGRESS, ObjectStatusEnum::FROZEN, ObjectStatusEnum::SUSPENDED])
+            ->pluck('articles.id');
 
 
         DxaResponse::query()
