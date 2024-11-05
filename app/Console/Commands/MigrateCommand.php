@@ -8,12 +8,14 @@ use App\Enums\ObjectTypeEnum;
 use App\Enums\RegulationStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Enums\UserStatusEnum;
+use App\Http\Requests\PinflRequest;
 use App\Models\ActStatus;
 use App\Models\ActViolation;
 use App\Models\Article;
 use App\Models\ArticleUser;
 use App\Models\Block;
 use App\Models\District;
+use App\Models\Monitoring;
 use App\Models\Region;
 use App\Models\Regulation;
 use App\Models\RegulationUser;
@@ -66,10 +68,105 @@ class MigrateCommand extends Command
                 $this->migrateObjects();
                 $this->migrateRegulations();
                 break;
+            case 5:
+                $this->migrateMonitoring();
+                break;
             default:
                 echo 'Fuck you!';
                 break;
         }
+    }
+
+    private function migrateMonitoring()
+    {
+        $objects = Article::query()
+            ->with('users')
+            ->where('is_monitoring_get', false)
+            ->whereNotNull('old_id')
+            ->limit(20)
+            ->get();
+
+        $monitoringTypes = [
+            '2c2c6813-bf0b-4ef0-ba70-aefe3001f2f5' => 1,
+            'ca41fedc-e165-4ba0-8d4c-bd2865b47799' => 2
+        ];
+
+        foreach ($objects as $object) {
+            $regulations = DB::connection('third_pgsql')->table('main_regulations')
+                ->where('object_id', $object->old_id)
+                ->where('is_migrated', false)
+                ->get();
+            foreach ($regulations as $regulation) {
+                $user = User::query()->where('old_id', $regulation->created_by)->first();
+                if ($user == null)
+                    continue;
+
+                $articleUserRole = ArticleUser::query()->where('article_id', $object->id)->where('user_id', $user->id)->first();
+                if ($articleUserRole == null)
+                    continue;
+
+                $regulationIds = ($regulation->regulation_ids != null) ? json_decode($regulation->regulation_ids, true) : null;
+                $block = null;
+                if($regulationIds != null)
+                {
+                    $violation = DB::connection('third_pgsql')->table('violations')
+                        ->where('regulation_id', $regulationIds[0])
+                        ->first();
+
+                    if ($violation != null) {
+                        $blocks = ($violation->blocks != null) ? json_decode($violation->blocks, true) : null;
+                        if ($blocks != null) {
+                            $objectBlock = DB::connection('third_pgsql')->table('blocks')
+                                ->where('id', $blocks[0])
+                                ->first();
+                            $block = Block::query()->where('article_id', $object->id)->where('name', $objectBlock->name)->first();
+                        }
+                    }
+                }
+
+                $monitoring = Monitoring::create([
+                    'object_id' => $object->id,
+                    'number' => $regulation->number,
+                    'regulation_type_id' => $monitoringTypes[$regulation->regulation_type],
+                    'created_at' => $regulation->created_at,
+                    'block_id' => ($block != null) ? $block->id : null,
+                    'created_by' => $user->id,
+                    'created_by_role' => $articleUserRole->id,
+                ]);
+
+                if($regulationIds != null)
+                {
+                    foreach ($regulationIds as $regulationId) {
+                        $reg = DB::connection('third_pgsql')->table('regulations')
+                            ->where('id', $regulationId)
+                            ->first();
+
+                        if($reg != null)
+                        {
+                            $regModel = Regulation::query()->where('object_id', $object->id)->where('regulation_number', $reg->regulation_number)->first();
+                            $regModel?->update(
+                                [
+                                    'monitoring_id' => $monitoring->id
+                                ]
+                            );
+                        }
+                    }
+                }
+
+                DB::connection('third_pgsql')->table('main_regulations')
+                    ->where('id', $regulation->id)
+                    ->update(
+                        [
+                            'is_migrated' => true
+                        ]
+                    );
+            }
+
+            $object->update([
+                'is_monitoring_get' => true
+            ]);
+        }
+
     }
 
     private function migrateRegulations()
@@ -78,7 +175,7 @@ class MigrateCommand extends Command
             ->with('users')
             ->where('is_regulation_get', false)
             ->whereNotNull('old_id')
-            ->limit(20)
+            ->limit(100)
             //->whereIn('old_id', ['55934137-2947-42de-ab4f-401d6a4ead46','670aaba7-af23-42f8-aa2a-36044e829d65'])
             ->get();
 
