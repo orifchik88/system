@@ -125,7 +125,6 @@ class ArticleService
     public function createUser($data)
     {
         $object = Article::query()->find($data->object_id);
-        dd($object);
         $user = new User();
         $user->name = $data->name;
         $user->middle_name = $data->middle_name;
@@ -281,40 +280,7 @@ class ArticleService
 
             if ($response->notification_type==2)
             {
-                $article = Article::query()->where('task_id', $response->old_task_id)->first();
-                $article->update([
-                    'name' => $response->object_name,
-                    'region_id' => $response->region_id,
-                    'district_id' => $response->district_id,
-                    'object_type_id' => $response->object_type_id,
-                    'organization_name' => $response->organization_name,
-                    'location_building' => $response->location_building,
-                    'address' => $response->address,
-                    'construction_works' =>$response->construction_works,
-                    'cadastral_number' => $response->cadastral_number,
-                    'name_expertise' => $response->name_expertise,
-                    'difficulty_category_id' => DifficultyCategoryEnum::fromString($response->category_object_dictionary),
-                    'construction_cost' => $response->cost,
-                    'organization_projects' => $response->organization_projects,
-                    'specialists_certificates' => $response->specialists_certificates,
-                    'contract_file' => $response->contract_file,
-                    'confirming_laboratory' => $response->confirming_laboratory,
-                    'file_energy_efficiency' => $response->file_energy_efficiency,
-                    'legal_opf' => $response->legal_opf,
-                    'sphere_id' => $response->sphere_id,
-                    'program_id' => $response->program_id,
-                    'linear_type' => $response->linear_type,
-                    'dxa_response_id' => $response->id,
-                    'price_supervision_service' => price_supervision($response->cost),
-                    'task_id' => $response->task_id,
-                    'number_protocol' => $response->number_protocol,
-                    'positive_opinion_number' => $response->positive_opinion_number,
-                    'date_protocol' =>$response->date_protocol,
-                    'funding_source_id' => $response->funding_source_id,
-                    'deadline' => $response->end_term_work,
-                    'gnk_id' => $response->gnk_id,
-                    'reestr_number' => (int)$response->reestr_number,
-                ]);
+               $article = $this->saveRepeat($response);
             }else{
                 $article = new Article();
                 $article->name = $response->object_name;
@@ -356,63 +322,10 @@ class ArticleService
                 $article->gnk_id = $response->gnk_id;
                 $article->reestr_number = (int)$response->reestr_number;
                 $article->save();
+
+
             }
-
-            if ($response->notification_type==2)
-            {
-                $article->users()->detach();
-            }
-
-
-            foreach ($response->supervisors as $supervisor) {
-                $fish = $this->generateFish($supervisor->fish);
-                $user = User::where('pinfl', $supervisor->stir_or_pinfl)->first();
-                if ($user) {
-                    $user->update([
-                        'name' => $fish ? $fish[1] : null,
-                        'surname' => $fish ? $fish[0] : null,
-                        'middle_name' => $fish ? $fish[2] : null,
-                        'phone' => $supervisor->phone_number,
-                        'login' => $supervisor->passport_number,
-                        'organization_name' => $supervisor->organization_name,
-                        'password' => bcrypt($supervisor->stir_or_pinfl),
-                        'user_status_id' => UserStatusEnum::ACTIVE,
-                        'pinfl' => $supervisor->stir_or_pinfl,
-                        'identification_number' => $supervisor->identification_number,
-                    ]);
-
-
-                    $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
-                    if (!$user->roles()->where('role_id', $supervisor->role_id)->exists())
-                        UserRole::query()->create([
-                            'user_id' => $user->id,
-                            'role_id' => $supervisor->role_id,
-                        ]);
-                }
-                if (!$user) {
-                    $user = User::create([
-                        'name' => $fish ? $fish[1] : null,
-                        'surname' => $fish ? $fish[0] : null,
-                        'middle_name' => $fish ? $fish[2] : null,
-                        'phone' => $supervisor->phone_number,
-                        'login' => $supervisor->passport_number,
-                        'organization_name' => $supervisor->organization_name,
-                        'password' => bcrypt($supervisor->stir_or_pinfl),
-                        'user_status_id' => UserStatusEnum::ACTIVE,
-                        'pinfl' => $supervisor->stir_or_pinfl,
-                        'identification_number' => $supervisor->identification_number,
-                    ]);
-                    $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
-                    UserRole::query()->create([
-                        'user_id' => $user->id,
-                        'role_id' => $supervisor->role_id,
-                    ]);
-                }
-            }
-
-
-            $article->users()->attach($response->inspector_id, ['role_id' => 3]);
-
+            $this->saveUsers($response, $article);
             $this->acceptResponse($response);
             $this->saveBlocks($response, $article);
             $this->saveEmployee($article);
@@ -427,6 +340,103 @@ class ArticleService
             throw new NotFoundException($exception->getLine(), $exception->getCode(), );
         }
 
+    }
+
+    private function saveUsers($response, $article)
+    {
+        foreach ($response->supervisors as $supervisor) {
+            $fish = $this->generateFish($supervisor->fish);
+            $user = User::where('pinfl', $supervisor->stir_or_pinfl)->first();
+            if ($user) {
+                $user->update([
+                    'name' => $fish ? $fish[1] : null,
+                    'surname' => $fish ? $fish[0] : null,
+                    'middle_name' => $fish ? $fish[2] : null,
+                    'phone' => $supervisor->phone_number,
+                    'login' => $supervisor->passport_number,
+                    'organization_name' => $supervisor->organization_name,
+                    'password' => bcrypt($supervisor->stir_or_pinfl),
+                    'user_status_id' => UserStatusEnum::ACTIVE,
+                    'pinfl' => $supervisor->stir_or_pinfl,
+                    'identification_number' => $supervisor->identification_number,
+                ]);
+
+
+                $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
+                if (!$user->roles()->where('role_id', $supervisor->role_id)->exists())
+                    UserRole::query()->create([
+                        'user_id' => $user->id,
+                        'role_id' => $supervisor->role_id,
+                    ]);
+            }
+            if (!$user) {
+                $user = User::create([
+                    'name' => $fish ? $fish[1] : null,
+                    'surname' => $fish ? $fish[0] : null,
+                    'middle_name' => $fish ? $fish[2] : null,
+                    'phone' => $supervisor->phone_number,
+                    'login' => $supervisor->passport_number,
+                    'organization_name' => $supervisor->organization_name,
+                    'password' => bcrypt($supervisor->stir_or_pinfl),
+                    'user_status_id' => UserStatusEnum::ACTIVE,
+                    'pinfl' => $supervisor->stir_or_pinfl,
+                    'identification_number' => $supervisor->identification_number,
+                ]);
+                $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
+                UserRole::query()->create([
+                    'user_id' => $user->id,
+                    'role_id' => $supervisor->role_id,
+                ]);
+            }
+        }
+        $article->users()->attach($response->inspector_id, ['role_id' => 3]);
+
+    }
+
+
+    private function saveRepeat($response)
+    {
+        $article = Article::query()->where('task_id', $response->old_task_id)->first();
+        $article->update([
+            'name' => $response->object_name,
+            'region_id' => $response->region_id,
+            'district_id' => $response->district_id,
+            'object_type_id' => $response->object_type_id,
+            'organization_name' => $response->organization_name,
+            'location_building' => $response->location_building,
+            'address' => $response->address,
+            'construction_works' =>$response->construction_works,
+            'cadastral_number' => $response->cadastral_number,
+            'name_expertise' => $response->name_expertise,
+            'difficulty_category_id' => DifficultyCategoryEnum::fromString($response->category_object_dictionary),
+            'construction_cost' => $response->cost,
+            'organization_projects' => $response->organization_projects,
+            'specialists_certificates' => $response->specialists_certificates,
+            'contract_file' => $response->contract_file,
+            'confirming_laboratory' => $response->confirming_laboratory,
+            'file_energy_efficiency' => $response->file_energy_efficiency,
+            'legal_opf' => $response->legal_opf,
+            'sphere_id' => $response->sphere_id,
+            'program_id' => $response->program_id,
+            'linear_type' => $response->linear_type,
+            'dxa_response_id' => $response->id,
+            'price_supervision_service' => price_supervision($response->cost),
+            'task_id' => $response->task_id,
+            'number_protocol' => $response->number_protocol,
+            'positive_opinion_number' => $response->positive_opinion_number,
+            'date_protocol' =>$response->date_protocol,
+            'funding_source_id' => $response->funding_source_id,
+            'deadline' => $response->end_term_work,
+            'gnk_id' => $response->gnk_id,
+            'reestr_number' => (int)$response->reestr_number,
+        ]);
+
+        if ($response->notification_type==2)
+        {
+            $article->users()->detach();
+        }
+
+        return $article;
     }
 
 
