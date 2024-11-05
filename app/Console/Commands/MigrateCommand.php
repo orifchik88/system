@@ -150,6 +150,9 @@ class MigrateCommand extends Command
                 ];
                 $toUserRole = explode('/', $regulation->regulation_number)[1];
 
+                if(User::query()->where('old_id', $regulation->user_id)->first() == null)
+                    continue;
+
                 $newRegulation = Regulation::create([
                     'object_id' => $object->id,
                     'deadline' => $regulation->deadline,
