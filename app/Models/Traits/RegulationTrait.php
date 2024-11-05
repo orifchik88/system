@@ -17,10 +17,10 @@ trait RegulationTrait
     {
         parent::boot();
 
-        static::creating(function ($model) {
-            $lastRegulationNumber = self::max('regulation_number') ?? 199999;
-            $model->regulation_number = (int)$lastRegulationNumber + 1;
-        });
+//        static::creating(function ($model) {
+//            $lastRegulationNumber = self::max('regulation_number') ?? 199999;
+//            $model->regulation_number = (int)$lastRegulationNumber + 1;
+//        });
     }
 
 
