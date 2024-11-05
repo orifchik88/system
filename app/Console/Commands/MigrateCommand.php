@@ -133,6 +133,9 @@ class MigrateCommand extends Command
             foreach ($regulations as $regulation) {
                 $role = Role::query()->where('old_id', $regulation->created_by_role_id)->first();
                 $user = User::query()->where('old_id', $regulation->created_by)->first();
+                if ($user == null)
+                    continue;
+                
                 $violations = DB::connection('third_pgsql')->table('violations')
                     ->where('regulation_id', $regulation->id)
                     ->get();
@@ -150,7 +153,7 @@ class MigrateCommand extends Command
                 ];
                 $toUserRole = explode('/', $regulation->regulation_number)[1];
 
-                if(User::query()->where('old_id', $regulation->user_id)->first() == null)
+                if (User::query()->where('old_id', $regulation->user_id)->first() == null)
                     continue;
 
                 $newRegulation = Regulation::create([
@@ -198,17 +201,17 @@ class MigrateCommand extends Command
 
                     foreach ($actViolations as $actViolation) {
                         $actUser = User::query()->where('old_id', $actViolation->user_id)->first();
-                        if($actUser == null)
+                        if ($actUser == null)
                             continue;
 
                         $articleUserRole = ArticleUser::query()->where('article_id', $object->id)->where('user_id', $actUser->id)->first();
-                        if($articleUserRole == null)
+                        if ($articleUserRole == null)
                             continue;
 
                         $actViolationStatus = ActViolation::PROGRESS;
-                        if(in_array($newRegulation->act_status_id, [2, 5, 8, 11, 13]))
+                        if (in_array($newRegulation->act_status_id, [2, 5, 8, 11, 13]))
                             $actViolationStatus = ActViolation::ACCEPTED;
-                        if(in_array($newRegulation->act_status_id, [3, 6, 9, 12]))
+                        if (in_array($newRegulation->act_status_id, [3, 6, 9, 12]))
                             $actViolationStatus = ActViolation::REJECTED;
 
                         ActViolation::create([
