@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Imports\BasesImport;
 use App\Models\Basis;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -16,15 +17,8 @@ class BasisSeeder extends Seeder
      */
     public function run(): void
     {
-        $path = storage_path('excel/shnq');
-
-        $files = Storage::files('excel/shnq');
-
-        foreach ($files as $file) {
-            dd($file);
-            // Har bir faylni o'qib, import qilamiz
-//            Excel::import(new DataImport, $file);
-        }
+        $shnq = storage_path() . "/excel/shnq.xlsx";
+        Excel::import(new BasesImport(), $shnq);
 
     }
 }
