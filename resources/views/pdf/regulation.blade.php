@@ -162,20 +162,22 @@
     @forelse($regulation->violations  as $violation)
         <table style="margin-bottom: 30px; width:100%; border: 1px solid #BFBFBF; border-collapse:collapse">
             <tbody>
-            <tr>
-                <td style="border: 1px solid #BFBFBF; padding: 10px;">
-                    <div style="font-weight: 500; margin-bottom: 5px;">Ish turi:</div>
-                    <p style="margin-top: 0;">{{ $violation?->question?->name }}</p>
-                </td>
-            </tr>
-            <tr>
-                <td style="padding: 10px;">
-                    <div style="font-weight: 500; margin-bottom: 5px;">Asos:</div>
-                    <p style="margin-top: 0;line-height: 14px;">
-                        {{ $violation?->bases?->name }}
-                    </p>
-                </td>
-            </tr>
+            @if($violation->question)
+                <tr>
+                    <td style="border: 1px solid #BFBFBF; padding: 10px;">
+                        <div style="font-weight: 500; margin-bottom: 5px;">Ish turi:</div>
+                        <p style="margin-top: 0;">{{ $violation?->question?->name }}</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px;">
+                        <div style="font-weight: 500; margin-bottom: 5px;">Asos:</div>
+                        <p style="margin-top: 0;line-height: 14px;">
+                            {{ $violation?->bases?->name }}
+                        </p>
+                    </td>
+                </tr>
+            @endif
             <tr>
                 <td style="border: 1px solid #BFBFBF; padding: 10px;">
                     <div style="font-weight: 500; margin-bottom: 5px;">Berilgan ko'rsatmalar:</div>
