@@ -82,6 +82,7 @@ class MigrateCommand extends Command
         $objects = Article::query()
             ->with('users')
             ->where('is_monitoring_get', false)
+            ->where('is_regulation_get', true)
             ->whereNotNull('old_id')
             ->limit(20)
             ->get();
