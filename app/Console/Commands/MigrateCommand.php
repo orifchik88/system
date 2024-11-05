@@ -124,7 +124,7 @@ class MigrateCommand extends Command
                     }
                 }
 
-                Monitoring::create([
+                $monitoring = Monitoring::create([
                     'object_id' => $object->id,
                     'number' => $regulation->number,
                     'regulation_type_id' => $monitoringTypes[$regulation->regulation_type],
@@ -133,6 +133,25 @@ class MigrateCommand extends Command
                     'created_by' => $user->id,
                     'created_by_role' => $articleUserRole->id,
                 ]);
+
+                if($regulationIds != null)
+                {
+                    foreach ($regulationIds as $regulationId) {
+                        $reg = DB::connection('third_pgsql')->table('regulations')
+                            ->where('id', $regulationId)
+                            ->first();
+
+                        if($reg != null)
+                        {
+                            $regModel = Regulation::query()->where('object_id', $object->id)->where('regulation_number', $reg->regulation_number)->first();
+                            $regModel?->update(
+                                [
+                                    'monitoring_id' => $monitoring->id
+                                ]
+                            );
+                        }
+                    }
+                }
 
                 DB::connection('third_pgsql')->table('main_regulations')
                     ->where('id', $regulation->id)
@@ -156,7 +175,7 @@ class MigrateCommand extends Command
             ->with('users')
             ->where('is_regulation_get', false)
             ->whereNotNull('old_id')
-            ->limit(20)
+            ->limit(100)
             //->whereIn('old_id', ['55934137-2947-42de-ab4f-401d6a4ead46','670aaba7-af23-42f8-aa2a-36044e829d65'])
             ->get();
 
