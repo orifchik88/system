@@ -172,7 +172,7 @@ class MigrateCommand extends Command
             ->with('users')
             ->where('is_regulation_get', false)
             ->whereNotNull('old_id')
-            ->limit(50)
+            ->limit(30)
             //->whereIn('old_id', ['55934137-2947-42de-ab4f-401d6a4ead46','670aaba7-af23-42f8-aa2a-36044e829d65'])
             ->get();
 
@@ -227,6 +227,10 @@ class MigrateCommand extends Command
             foreach ($regulations as $regulation) {
                 $role = Role::query()->where('old_id', $regulation->created_by_role_id)->first();
                 $user = User::query()->where('old_id', $regulation->created_by)->first();
+
+                if(Regulation::query()->where('regulation_number', $regulation->regulation_number)->first() != null)
+                    continue;
+
                 if ($user == null)
                     continue;
 
