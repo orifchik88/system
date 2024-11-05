@@ -96,6 +96,7 @@ class BlockController extends BaseController
             Block::query()->findOrFail(request('id'))->update([
                 'block_mode_id' => request('mode'),
                 'block_type_id' => request('type'),
+                'selected_work_type' => true
             ]);
             return $this->sendSuccess([], 'Success');
         }catch (\Exception $exception){
