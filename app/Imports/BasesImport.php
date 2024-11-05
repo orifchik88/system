@@ -12,6 +12,6 @@ class BasesImport implements ToCollection
     */
     public function collection(Collection $collection)
     {
-        //
+
     }
 }
