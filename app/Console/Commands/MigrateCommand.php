@@ -107,8 +107,7 @@ class MigrateCommand extends Command
 
                 $regulationIds = ($regulation->regulation_ids != null) ? json_decode($regulation->regulation_ids, true) : null;
                 $block = null;
-                if($regulationIds != null)
-                {
+                if ($regulationIds != null) {
                     $violation = DB::connection('third_pgsql')->table('violations')
                         ->where('regulation_id', $regulationIds[0])
                         ->first();
@@ -134,15 +133,13 @@ class MigrateCommand extends Command
                     'created_by_role' => $articleUserRole->id,
                 ]);
 
-                if($regulationIds != null)
-                {
+                if ($regulationIds != null) {
                     foreach ($regulationIds as $regulationId) {
                         $reg = DB::connection('third_pgsql')->table('regulations')
                             ->where('id', $regulationId)
                             ->first();
 
-                        if($reg != null)
-                        {
+                        if ($reg != null) {
                             $regModel = Regulation::query()->where('object_id', $object->id)->where('regulation_number', $reg->regulation_number)->first();
                             $regModel?->update(
                                 [
@@ -236,7 +233,9 @@ class MigrateCommand extends Command
                 $violations = DB::connection('third_pgsql')->table('violations')
                     ->where('regulation_id', $regulation->id)
                     ->get();
-
+                if ($regulation->phase == null)
+                    continue;
+                
                 $regulationStatus = $regulationStatuses[$regulation->phase];
                 if ($regulation->is_administrative && in_array($regulation->phase, [1, 2, 3, 4, 8]))
                     $regulationStatus = RegulationStatusEnum::IN_LAWYER;
