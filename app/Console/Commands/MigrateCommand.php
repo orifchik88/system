@@ -135,7 +135,7 @@ class MigrateCommand extends Command
                 $user = User::query()->where('old_id', $regulation->created_by)->first();
                 if ($user == null)
                     continue;
-                
+
                 $violations = DB::connection('third_pgsql')->table('violations')
                     ->where('regulation_id', $regulation->id)
                     ->get();
