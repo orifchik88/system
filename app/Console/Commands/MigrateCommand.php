@@ -229,16 +229,16 @@ class MigrateCommand extends Command
                 $user = User::query()->where('old_id', $regulation->created_by)->first();
 
                 if(Regulation::query()->where('regulation_number', $regulation->regulation_number)->first() != null)
-                    continue;
+                    continue 2;
 
                 if ($user == null)
-                    continue;
+                    continue 2;
 
                 $violations = DB::connection('third_pgsql')->table('violations')
                     ->where('regulation_id', $regulation->id)
                     ->get();
                 if ($regulation->phase == null)
-                    continue;
+                    continue 2;
 
                 $regulationStatus = $regulationStatuses[$regulation->phase];
                 if ($regulation->is_administrative && in_array($regulation->phase, [1, 2, 3, 4, 8]))
@@ -254,7 +254,7 @@ class MigrateCommand extends Command
                 $toUserRole = explode('/', $regulation->regulation_number)[1];
 
                 if (User::query()->where('old_id', $regulation->user_id)->first() == null)
-                    continue;
+                    continue 2;
 
                 $newRegulation = Regulation::create([
                     'object_id' => $object->id,
@@ -302,11 +302,11 @@ class MigrateCommand extends Command
                     foreach ($actViolations as $actViolation) {
                         $actUser = User::query()->where('old_id', $actViolation->user_id)->first();
                         if ($actUser == null)
-                            continue;
+                            continue 3;
 
                         $articleUserRole = ArticleUser::query()->where('article_id', $object->id)->where('user_id', $actUser->id)->first();
                         if ($articleUserRole == null)
-                            continue;
+                            continue 3;
 
                         $actViolationStatus = ActViolation::PROGRESS;
                         if (in_array($newRegulation->act_status_id, [2, 5, 8, 11, 13]))
