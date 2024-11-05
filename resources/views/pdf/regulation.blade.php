@@ -165,14 +165,14 @@
             <tr>
                 <td style="border: 1px solid #BFBFBF; padding: 10px;">
                     <div style="font-weight: 500; margin-bottom: 5px;">Ish turi:</div>
-                    <p style="margin-top: 0;">{{ $violation?->question->name }}</p>
+                    <p style="margin-top: 0;">{{ $violation?->question?->name }}</p>
                 </td>
             </tr>
             <tr>
                 <td style="padding: 10px;">
                     <div style="font-weight: 500; margin-bottom: 5px;">Asos:</div>
                     <p style="margin-top: 0;line-height: 14px;">
-                        {{ $violation?->bases->name }}
+                        {{ $violation?->bases?->name }}
                     </p>
                 </td>
             </tr>
@@ -185,7 +185,7 @@
             <tr>
                 <td style="border: 1px solid #BFBFBF; padding: 10px;">
                     <div style="font-weight: 500; margin-bottom: 5px;">Blok nomi:</div>
-                    <p style="margin-top: 0;">{{ $regulation?->monitoring?->block->name }}</p>
+                    <p style="margin-top: 0;">{{ $regulation?->monitoring?->block?->name }}</p>
                 </td>
             </tr>
             </tbody>
@@ -218,8 +218,8 @@
         <tbody>
         <tr>
             <td style="padding: 10px 0px;">
-                <div style="font-weight: 600; margin-bottom: 5px;">{{ $createdByRole->name }}:</div>
-                <p style="margin-top: 0;">{{ $createdByUser->full_name }} </p>
+                <div style="font-weight: 600; margin-bottom: 5px;">{{ $createdByRole?->name }}:</div>
+                <p style="margin-top: 0;">{{ $createdByUser?->full_name }} </p>
             </td>
         </tr>
         </tbody>
@@ -230,7 +230,7 @@
         <tr>
             <td style="padding: 10px 0px;">
                 <div style="font-weight: 600; margin-bottom: 5px;">Ijrochi:</div>
-                <p style="margin-top: 0;">{{ $responsibleUser->full_name }} ({{ $responsibleRole->name }})</p>
+                <p style="margin-top: 0;">{{ $responsibleUser?->full_name }} ({{ $responsibleRole?->name }})</p>
             </td>
         </tr>
         </tbody>
