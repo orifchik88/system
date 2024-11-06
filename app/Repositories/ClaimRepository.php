@@ -211,6 +211,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                     'claims.expiry_date as expiry_date',
                     'claims.expired as expired',
                     'claims.current_node as current_node',
+                    'claims.type_object_dic as watcher_type',
                     'claims.building_cadastral as building_cadastral',
                     'claims.building_address as building_address',
                     'claims.building_name as building_name',
@@ -446,6 +447,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                     'claims.current_node as current_node',
                     'claims.building_cadastral as building_cadastral',
                     'claims.building_address as building_address',
+                    'claims.type_object_dic as watcher_type',
                     'claims.building_name as building_name',
                     'claims.building_type as building_type',
                     'claims.building_type_name as building_type_name',
@@ -678,7 +680,8 @@ class ClaimRepository implements ClaimRepositoryInterface
         $claimAdd->legal_email = $info->legal_email->real_value;
         $claimAdd->legal_address = $info->legal_address->real_value;
         $claimAdd->legal_phone = $info->legal_phone->real_value;
-        $claimAdd->building_name = $info->building_name->real_value;
+        $claimAdd->building_name = ($info->building_name->real_value != null) ? $info->building_name->real_value : $info->name_building_project->real_value;
+        $claimAdd->conclusion_approved_planning_file_autofill = $info->conclusion_approved_planning_file_autofill->real_value;
         $claimAdd->property_owner = $info->property_owner->real_value;
         $claimAdd->building_address = $info->building_address->real_value;
         $claimAdd->building_type = $info->building_type->real_value;
@@ -694,6 +697,7 @@ class ClaimRepository implements ClaimRepositoryInterface
         $claimAdd->type_object_dic = $info->type_object_dic->real_value;
 
         $claimAdd->cadastral_passport_object_file = $info->cadastral_passport_object_file->real_value;
+        $claimAdd->cadastral_passport_object = $info->cadastral_passport_object->real_value;
         $claimAdd->ownership_document = $info->ownership_document->real_value;
         $claimAdd->act_acceptance_customer_file = $info->act_acceptance_customer_file->real_value;
         $claimAdd->declaration_conformity_file = $info->declaration_conformity_file->real_value;
