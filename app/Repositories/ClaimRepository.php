@@ -146,7 +146,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                 COUNT(CASE WHEN claims.status = " . ClaimStatuses::TASK_STATUS_CONFIRMED . " THEN 1 ELSE null END) as confirmed,
                 COUNT(CASE WHEN claims.status = " . ClaimStatuses::TASK_STATUS_REJECTED . " THEN 1 ELSE null END) as rejected,
                 COUNT(CASE WHEN claims.status = " . ClaimStatuses::TASK_STATUS_CANCELLED . " THEN 1 ELSE null END) as cancelled,
-                COUNT(CASE WHEN claims.status <> " . ClaimStatuses::TASK_STATUS_UNAVAILABLE . " THEN 1 ELSE null END) as total,
+                COUNT(CASE WHEN claims.status <> " . ClaimStatuses::TASK_STATUS_ANOTHER . " THEN 1 ELSE null END) as total,
                 COUNT(CASE WHEN claims.expired = 1 THEN 1 ELSE null END) as total_expired
             "))
             ->when($dateFrom, function ($q) use ($dateFrom) {
