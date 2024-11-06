@@ -45,12 +45,12 @@ class NetworkResponseCommand extends Command
         DB::beginTransaction();
         try {
             $dxa = $this->saveDxaResponse($taskId, $data, $userType,  $json);
-//            $response = Response::query()->where('task_id', $taskId)->first();
-//            $response->update([
-//                'status' => 2,
-//            ]);
+            $response = Response::query()->where('task_id', $taskId)->first();
+            $response->update([
+                'status' => 2,
+            ]);
             $this->saveExpertise($dxa);
-//            $this->sendMyGov($dxa);
+            $this->sendMyGov($dxa);
 
             DB::commit();
         } catch (\Exception $exception) {
@@ -204,7 +204,7 @@ class NetworkResponseCommand extends Command
             $dxa->update([
                 'funding_source_id' => $data['data']['result']['data']['finance_source'],
                 'program_id' => $data['data']['result']['data']['project_type_id'],
-//                'sphere_id' => $data['data']['result']['data']['object_type_id'],
+                'sphere_id' => $data['data']['result']['data']['object_type_id'],
             ]);
         }catch (\Exception $exception){
             Log::error('Expertise saqlashda xatolik: ' . $exception->getMessage());
