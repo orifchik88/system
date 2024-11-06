@@ -35,6 +35,7 @@ class DxaResponseListResource extends JsonResource
             'linear_type' => $this->linear_type,
             'object_name' => $this->object_name,
             'location_building' => $this->location_building,
+            'created_at' => $this->created_at,
         ];
     }
 }
