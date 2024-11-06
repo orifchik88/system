@@ -267,6 +267,7 @@ class ArticleService
     {
         return $this->articleRepository->getAccountObjectsQuery($query, $status);
     }
+
     public function createObject()
     {
 
@@ -429,6 +430,15 @@ class ArticleService
             throw new NotFoundException($exception->getLine(), $exception->getCode(), );
         }
 
+    }
+
+    public function createOneTimeUser($taskId)
+    {
+        $response = DxaResponse::query()->where('task_id', $taskId)->first();
+        $article = Article::query()->where('task_id', $taskId)->first();
+        if ($response) {
+            $this->saveResponseUser($response, $article);
+        }
     }
 
     private function saveRepeat($response)

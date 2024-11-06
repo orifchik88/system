@@ -47,6 +47,12 @@ class ObjectController extends BaseController
 
     }
 
+    public function oneTimeUserCreate()
+    {
+        $this->service->createOneTimeUser(request('task_id'));
+        return $this->sendSuccess([], 'Object created successfully.');
+    }
+
     public function rotation(): JsonResponse
     {
         try {
