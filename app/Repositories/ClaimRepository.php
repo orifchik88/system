@@ -194,7 +194,7 @@ class ClaimRepository implements ClaimRepositoryInterface
         if ($role_id == null)
             return $this->claim->query()
                 ->join('responses', 'responses.task_id', '=', 'claims.guid')
-                ->join('articles', 'articles.id', '=', 'claims.object_id')
+                ->leftJoin('articles', 'articles.id', '=', 'claims.object_id')
                 ->select([
                     'claims.id as id',
                     'claims.guid as gu_id',
@@ -395,7 +395,7 @@ class ClaimRepository implements ClaimRepositoryInterface
             return $this->claim->query()
                 ->with(['object', 'region', 'district'])
                 ->join('regions', 'regions.soato', '=', 'claims.region')
-                ->join('articles', 'articles.id', '=', 'claims.object_id')
+                ->leftJoin('articles', 'articles.id', '=', 'claims.object_id')
                 ->join('districts', 'districts.soato', '=', 'claims.district')
                 ->join('responses', 'responses.task_id', '=', 'claims.guid')
                 ->when($regionId, function ($q) use ($regionId) {
