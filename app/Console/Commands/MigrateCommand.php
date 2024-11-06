@@ -74,9 +74,85 @@ class MigrateCommand extends Command
             case 6:
                 $this->syncObjects();
                 break;
+            case 7:
+                $this->manualMigrateRegulations('0124-0151794/2');
+                break;
             default:
                 echo 'Fuck you!';
                 break;
+        }
+    }
+
+    private function manualMigrateRegulations(string $number)
+    {
+        $regulation = Regulation::query()->where('regulation_number', $number)->first();
+        $oldRegulation = DB::connection('third_pgsql')->table('regulations')
+            ->where('regulation_number', $number)
+            ->first();
+        $violations = DB::connection('third_pgsql')->table('violations')
+            ->where('regulation_id', $oldRegulation->id)
+            ->where('is_migrated', false)
+            ->get();
+
+        $actViolationTypes = [
+            '41a6378c-b3f1-453b-bb4f-9538c2309348' => 1,
+            '53485e56-899c-4615-bc6e-4ec76a9bfaca' => 2,
+            'b8f8f00d-4c3d-48d6-800c-9fffd2394777' => 3,
+        ];
+
+        foreach ($violations as $violation) {
+            $actViolations = DB::connection('third_pgsql')->table('violation_act')
+                ->where('violation_id', $violation->id)
+                ->get();
+
+            $newViolation = Violation::create([
+                'question_id' => null,
+                'title' => $violation->title,
+                'description' => $violation->description,
+                'bases_id' => null,
+                'checklist_id' => null,
+                'created_at' => $violation->created_at,
+            ]);
+            RegulationViolation::create([
+                'regulation_id' => $regulation->id,
+                'violation_id' => $newViolation->id
+            ]);
+
+            foreach ($actViolations as $actViolation) {
+                $actUser = User::query()->where('old_id', $actViolation->user_id)->first();
+                if ($actUser == null)
+                    continue 2;
+
+                $articleUserRole = ArticleUser::query()->where('article_id', $regulation->object_id)->where('user_id', $actUser->id)->first();
+                if ($articleUserRole == null)
+                    continue 2;
+
+                $actViolationStatus = ActViolation::PROGRESS;
+                if (in_array($regulation->act_status_id, [2, 5, 8, 11, 13]))
+                    $actViolationStatus = ActViolation::ACCEPTED;
+                if (in_array($regulation->act_status_id, [3, 6, 9, 12]))
+                    $actViolationStatus = ActViolation::REJECTED;
+
+                ActViolation::create([
+                    'regulation_id' => $regulation->id,
+                    'regulation_violation_id' => $newViolation->id,
+                    'user_id' => $actUser->id,
+                    'act_status_id' => $regulation->act_status_id,
+                    'comment' => $actViolation->comment,
+                    'role_id' => $articleUserRole->role_id,
+                    'created_at' => $actViolation->created_at,
+                    'act_violation_type_id' => $actViolationTypes[$actViolation->type_id],
+                    'status' => $actViolationStatus,
+                ]);
+            }
+
+            DB::connection('third_pgsql')->table('violations')
+                ->where('id', $violation->id)
+                ->update(
+                    [
+                        'is_migrated' => true
+                    ]
+                );
         }
     }
 
@@ -320,7 +396,6 @@ class MigrateCommand extends Command
                 foreach ($violations as $violation) {
                     $actViolations = DB::connection('third_pgsql')->table('violation_act')
                         ->where('violation_id', $violation->id)
-                        ->where('is_migrated', false)
                         ->get();
 
                     $newViolation = Violation::create([
