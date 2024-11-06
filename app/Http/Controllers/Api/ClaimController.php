@@ -17,7 +17,6 @@ use App\Http\Requests\ClaimRequests\RejectFromDirector;
 use App\Http\Requests\ClaimRequests\SendToDirector;
 use App\Models\Block;
 use App\Models\ClaimOrganizationReview;
-use App\Models\Region;
 use App\Services\ClaimService;
 use App\Services\HistoryService;
 use Illuminate\Support\Facades\Auth;
@@ -136,11 +135,9 @@ class ClaimController extends BaseController
 
         $roleId = Auth::user()->getRoleFromToken() ?? null;
 
-        $region = Region::query()->find('soato', request('region'));
-
         $regionId = match ($roleId) {
             (string)UserRoleEnum::OPERATOR->value, (string)UserRoleEnum::INSPECTOR->value => Auth::user()->region_id ?? Auth::user()->region_id ?? null,
-            default => $region->id,
+            default => request()->get('region', null),
         };
 
         $data = $this->claimService->getTaskList(
