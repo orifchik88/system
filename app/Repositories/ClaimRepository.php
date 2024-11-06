@@ -425,6 +425,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                 ->when($expired, function ($q) use ($expired) {
                     $q->where('claims.expired', $expired);
                 })
+                ->where('claims.status', '<>', ClaimStatuses::TASK_STATUS_ANOTHER)
                 ->groupBy('claims.id', 'responses.api', 'articles.task_id')
                 ->orderBy('claims.created_at', strtoupper($sortBy))
                 ->select([
