@@ -98,12 +98,13 @@ class MigrateCommand extends Command
         foreach ($objects as $object) {
             $article = Article::query()->where('old_id', $object->id)->first();
 
-            if($objectStatus[$object->object_status_id] == $article->object_status_id)
+            if ($objectStatus[$object->object_status_id] == $article->object_status_id)
                 continue;
             else {
                 $article->update(
                     [
-                        'object_status_id' => $objectStatus[$object->object_status_id]
+                        'object_status_id' => $objectStatus[$object->object_status_id],
+                        'created_at' => $object->created_at
                     ]
                 );
             }
@@ -515,6 +516,7 @@ class MigrateCommand extends Command
             $article->gnk_id = $object->gnk_id;
             $article->reestr_number = (int)$object->reestr_number;
             $article->old_id = $object->id;
+            $article->created_at = $object->created_at;
             $article->save();
 
             Response::query()->updateOrCreate(['task_id' => $object->task_id], [
