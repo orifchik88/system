@@ -71,9 +71,42 @@ class MigrateCommand extends Command
             case 5:
                 $this->migrateMonitoring();
                 break;
+            case 6:
+                $this->syncObjects();
+                break;
             default:
                 echo 'Fuck you!';
                 break;
+        }
+    }
+
+    private function syncObjects()
+    {
+        $objects = DB::connection('third_pgsql')->table('objects')
+            ->where('is_migrated', true)
+            ->where('region_id', 'c053cdb4-94f6-450f-9da9-f0bf2c145587')
+            ->get();
+
+        $objectStatus = [
+            'e4bdf226-dae8-46aa-a152-38c4d19889f5' => ObjectStatusEnum::PROGRESS,
+            '38a25938-d040-4ccf-9e64-23f483c53e3b' => ObjectStatusEnum::PROGRESS,
+            'b50a4eaa-9f68-40ae-83ab-e1971c0ea114' => ObjectStatusEnum::FROZEN,
+            'd2fd8089-d7e3-43cc-afe8-9080bf9c0107' => ObjectStatusEnum::SUSPENDED,
+            'be3623e7-78f5-48f6-8135-edf3731a838c' => ObjectStatusEnum::SUBMITTED
+        ];
+
+        foreach ($objects as $object) {
+            $article = Article::query()->where('old_id', $object->id)->first();
+
+            if($objectStatus[$object->object_status_id] == $article->object_status_id)
+                continue;
+            else {
+                $article->update(
+                    [
+                        'object_status_id' => $objectStatus[$object->object_status_id]
+                    ]
+                );
+            }
         }
     }
 
@@ -220,6 +253,7 @@ class MigrateCommand extends Command
                 ->first();
             $regulations = DB::connection('third_pgsql')->table('regulations')
                 ->where('object_id', $oldObject->id)
+                ->where('is_migrated', false)
                 ->get();
 
             if (!$oldObject)
@@ -229,7 +263,7 @@ class MigrateCommand extends Command
                 $role = Role::query()->where('old_id', $regulation->created_by_role_id)->first();
                 $user = User::query()->where('old_id', $regulation->created_by)->first();
 
-                if(Regulation::query()->where('regulation_number', $regulation->regulation_number)->first() != null)
+                if (Regulation::query()->where('regulation_number', $regulation->regulation_number)->first() != null)
                     continue 2;
 
                 if ($user == null)
@@ -237,6 +271,7 @@ class MigrateCommand extends Command
 
                 $violations = DB::connection('third_pgsql')->table('violations')
                     ->where('regulation_id', $regulation->id)
+                    ->where('is_migrated', false)
                     ->get();
                 if ($regulation->phase == null)
                     continue 2;
@@ -285,6 +320,7 @@ class MigrateCommand extends Command
                 foreach ($violations as $violation) {
                     $actViolations = DB::connection('third_pgsql')->table('violation_act')
                         ->where('violation_id', $violation->id)
+                        ->where('is_migrated', false)
                         ->get();
 
                     $newViolation = Violation::create([
