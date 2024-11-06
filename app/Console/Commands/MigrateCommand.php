@@ -103,8 +103,7 @@ class MigrateCommand extends Command
             else {
                 $article->update(
                     [
-                        'object_status_id' => $objectStatus[$object->object_status_id],
-                        'created_at' => $object->created_at
+                        'object_status_id' => $objectStatus[$object->object_status_id]
                     ]
                 );
             }
