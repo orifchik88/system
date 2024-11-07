@@ -121,11 +121,11 @@ class MigrateCommand extends Command
             foreach ($actViolations as $actViolation) {
                 $actUser = User::query()->where('old_id', $actViolation->user_id)->first();
                 if ($actUser == null)
-                    continue 2;
+                    continue;
 
                 $articleUserRole = ArticleUser::query()->where('article_id', $regulation->object_id)->where('user_id', $actUser->id)->first();
                 if ($articleUserRole == null)
-                    continue 2;
+                    continue;
 
                 $actViolationStatus = ActViolation::PROGRESS;
                 if (in_array($regulation->act_status_id, [2, 5, 8, 11, 13]))
@@ -340,17 +340,17 @@ class MigrateCommand extends Command
                 $user = User::query()->where('old_id', $regulation->created_by)->first();
 
                 if (Regulation::query()->where('regulation_number', $regulation->regulation_number)->first() != null)
-                    continue 2;
+                    continue;
 
                 if ($user == null)
-                    continue 2;
+                    continue;
 
                 $violations = DB::connection('third_pgsql')->table('violations')
                     ->where('regulation_id', $regulation->id)
                     ->where('is_migrated', false)
                     ->get();
                 if ($regulation->phase == null)
-                    continue 2;
+                    continue;
 
                 $regulationStatus = $regulationStatuses[$regulation->phase];
                 if ($regulation->is_administrative && in_array($regulation->phase, [1, 2, 3, 4, 8]))
@@ -366,7 +366,7 @@ class MigrateCommand extends Command
                 $toUserRole = explode('/', $regulation->regulation_number)[1];
 
                 if (User::query()->where('old_id', $regulation->user_id)->first() == null)
-                    continue 2;
+                    continue;
 
                 $newRegulation = Regulation::create([
                     'object_id' => $object->id,
@@ -414,11 +414,11 @@ class MigrateCommand extends Command
                     foreach ($actViolations as $actViolation) {
                         $actUser = User::query()->where('old_id', $actViolation->user_id)->first();
                         if ($actUser == null)
-                            continue 3;
+                            continue;
 
                         $articleUserRole = ArticleUser::query()->where('article_id', $object->id)->where('user_id', $actUser->id)->first();
                         if ($articleUserRole == null)
-                            continue 3;
+                            continue;
 
                         $actViolationStatus = ActViolation::PROGRESS;
                         if (in_array($newRegulation->act_status_id, [2, 5, 8, 11, 13]))
