@@ -527,7 +527,7 @@ class QuestionService
             'checklist_id' => $role['checklist_id'],
             'question_id' => $role['question_id'],
             'regulation_status_id' => RegulationStatusEnum::PROVIDE_REMEDY,
-//            'level_id' => 1,
+            'regulation_number' => $this->determinateNumber(),
             'regulation_type_id' => 1,
             'created_by_role_id' => $createdByRole,
             'created_by_user_id' => Auth::id(),
@@ -536,6 +536,12 @@ class QuestionService
             'role_id' => $roleId,
         ]);
 
+    }
+
+    private function determinateNumber()
+    {
+        $lastRegulationNumber = Regulation::query()->max('regulation_number') ?? 199999;
+        return (int)$lastRegulationNumber + 1;
     }
 
 
