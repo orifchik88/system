@@ -357,6 +357,9 @@ class UserController extends BaseController
                 ->whereHas('roles', function ($query) {
                     $query->where('roles.id', UserRoleEnum::INSPECTOR->value);
                 })
+                ->when(request('name'), function ($query){
+                    $query->searchByFullName(request('name'));
+                })
                 ->paginate(request('per_page', 10));
             return $this->sendSuccess(UserResource::collection($inspectors), 'All inspectors', pagination($inspectors));
         } catch (\Exception $exception) {
