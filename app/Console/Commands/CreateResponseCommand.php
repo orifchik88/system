@@ -44,7 +44,7 @@ class CreateResponseCommand extends Command
                     $data = $this->service->parseResponse($response);
                     $userType = $this->service->determineUserType($data['user_type']['real_value']);
                     $dxa = $this->service->saveDxaResponse($taskId, $data, $userType, $response->json());
-//                    $this->service->sendMyGov($dxa);
+                    $this->service->sendMyGov($dxa);
                     $this->service->saveExpertise($dxa);
 
                     $item->update([

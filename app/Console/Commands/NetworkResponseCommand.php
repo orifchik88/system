@@ -50,7 +50,7 @@ class NetworkResponseCommand extends Command
 //                'status' => 2,
 //            ]);
             $this->saveExpertise($dxa);
-//            $this->sendMyGov($dxa);
+            $this->sendMyGov($dxa);
 
             DB::commit();
         } catch (\Exception $exception) {
