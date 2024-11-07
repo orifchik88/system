@@ -121,7 +121,7 @@ class MonitoringController extends BaseController
                 if (isset($item['status']))
                 {
                     $status = CheckListStatusEnum::SECOND;
-                    $inspectorAnswered = now()->addDays(3)->setTime(23, 59, 59);
+                    $inspectorAnswered = now()->addDays(5)->setTime(23, 59, 59);
                 }else{
                     $status = CheckListStatusEnum::FIRST;
                     $technicAnswered = now()->addDays(3)->setTime(23, 59, 59);
