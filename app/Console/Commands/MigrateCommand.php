@@ -70,7 +70,7 @@ class MigrateCommand extends Command
                 $this->syncObjects();
                 break;
             case 7:
-                $this->manualMigrateRegulations('0124-0151794/2');
+                $this->manualMigrateRegulations('0124-0151841/1');
                 break;
             case 8:
                 $this->deletePhaseRegulations();
@@ -727,11 +727,35 @@ class MigrateCommand extends Command
 
     private function migrateUsers()
     {
+        $roleIds = [
+            '2064b753-cfbe-4f44-be1e-4d7258110e12',
+            'aa84348b-5556-4f67-8cc9-206fb82f3a33',
+            'b5392622-4180-4c89-9b4e-2976f05b9150',
+            '6126cbeb-b0b8-4059-9758-14ff3c35473f',
+            'e7777bfa-7416-44e8-b609-99136ec5d3b0',
+            'ebda152a-80b6-4b70-8c72-e70885830276',
+            'fdd5d0a8-b2a2-41d1-986a-7748b3a3eefb',
+            'bba9a9dd-1d39-400f-8124-a37f24a8bf5c',
+            '120e365f-475f-4d4f-a3ce-17d038ee5967',
+            '9256f932-738c-4e2e-bcc5-77fe0041a801',
+            '853037a6-a4bf-4dd9-95cc-ff3073f01a8f',
+            'd16fb793-c015-4d6d-b0c5-a9d33a0f9f52',
+            '86ea8778-ce5b-49c6-9693-1f51f31cf80d',
+            'e4874137-b63e-40e7-970d-1f16bc6e6ade',
+            '2ef59cb1-2ac2-49ca-8f3d-402c714e143a',
+            '583806ee-a7c6-45c6-9870-b37542548866',
+            '14e463e5-d6cc-40a0-9752-3a1cd57546be',
+            '80b740c4-79ef-4c45-a76a-926f90fa3780',
+            '2316d2ab-ae0b-497b-9175-642b414c1886',
+            'db60cbca-8d2f-4911-9fdc-6fc30102c669'
+        ];
+
         $users = DB::connection('second_pgsql')->table('user')
             ->where('is_migrated', false)
-            ->where('active', 1)
-            ->get()
-            ->random(200);
+            //->where('active', 1)
+            ->whereIn('role_id', $roleIds)
+            ->limit(50)
+            ->get();
 
         $userStatuses = [
             '30165510-1d9d-4d6e-bcc5-6246af0cbc22' => UserStatusEnum::ACTIVE,
