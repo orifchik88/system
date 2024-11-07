@@ -16,6 +16,7 @@ use App\Models\ArticlePaymentLog;
 use App\Models\ArticleUser;
 use App\Models\DxaResponse;
 use App\Models\FundingSource;
+use App\Models\Regulation;
 use App\Models\User;
 use App\Models\UserEmployee;
 use App\Models\UserRole;
@@ -419,6 +420,7 @@ class ArticleService
                             ->delete();
 
                        $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
+                       $this->changeRegulations($article->id, $articleUser->id, $user->id, $supervisor->role_id);
                    }
                 }else{
                     $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
@@ -453,6 +455,7 @@ class ArticleService
                             ->delete();
 
                         $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
+                        $this->changeRegulations($article->id, $articleUser->id, $user->id, $supervisor->role_id);
                     }
                 }else{
                     $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
@@ -480,6 +483,28 @@ class ArticleService
         }else{
             $article->users()->attach($inspector->id, ['role_id' => UserRoleEnum::INSPECTOR->value]);
         }
+    }
+
+    private function changeRegulations($objectId, $oldUserId, $newUserId, $roleId)
+    {
+
+        Regulation::query()
+            ->where('object_id', $objectId)
+            ->where('user_id', $oldUserId)
+            ->where('role_id', $roleId)
+            ->update([
+                'user_id' => $newUserId,
+                'role_id' => $roleId,
+            ]);
+
+        Regulation::query()
+            ->where('object_id', $objectId)
+            ->where('created_by_user_id', $oldUserId)
+            ->where('created_by_role_id', $roleId)
+            ->update([
+                'created_by_user_id' => $newUserId,
+                'created_by_role_id' => $roleId,
+            ]);
     }
 
     private function saveResponseUser($response, $article)
