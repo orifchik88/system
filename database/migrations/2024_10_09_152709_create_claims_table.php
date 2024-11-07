@@ -47,6 +47,8 @@ return new class extends Migration
             $table->string('act_acceptance_customer_file')->nullable();
             $table->string('declaration_conformity_file')->nullable();
             $table->string('conclusion_approved_planning_file')->nullable();
+            $table->string('conclusion_approved_planning_file_autofill')->nullable();
+            $table->string('cadastral_passport_object')->nullable();
 
             $table->integer('status')->default(1)->nullable();
             $table->string('status_mygov')->nullable();

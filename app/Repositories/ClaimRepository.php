@@ -211,6 +211,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                     'claims.expiry_date as expiry_date',
                     'claims.expired as expired',
                     'claims.current_node as current_node',
+                    'claims.type_object_dic as watcher_type',
                     'claims.building_cadastral as building_cadastral',
                     'claims.building_address as building_address',
                     'claims.building_name as building_name',
@@ -221,10 +222,12 @@ class ClaimRepository implements ClaimRepositoryInterface
                     'claims.object_project_user as object_project_user',
                     'claims.type_object_dic as type_object_dic',
                     'claims.cadastral_passport_object_file as cadastral_passport_object_file',
+                    'claims.cadastral_passport_object as cadastral_passport_object',
                     'claims.ownership_document as ownership_document',
                     'claims.act_acceptance_customer_file as act_acceptance_customer_file',
                     'claims.declaration_conformity_file as declaration_conformity_file',
                     'claims.conclusion_approved_planning_file as conclusion_approved_planning_file',
+                    'claims.conclusion_approved_planning_file_autofill as conclusion_approved_planning_file_autofill',
                     'claims.building_cadastral as building_cadastral',
                     'claims.number_conclusion_project as number_conclusion_project',
                     'claims.end_date as end_date',
@@ -255,6 +258,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                     'claims.current_node as current_node',
                     'claims.building_cadastral as building_cadastral',
                     'claims.building_address as building_address',
+                    'claims.type_object_dic as watcher_type',
                     'claims.building_name as building_name',
                     'claims.building_type as building_type',
                     'claims.building_type_name as building_type_name',
@@ -267,6 +271,8 @@ class ClaimRepository implements ClaimRepositoryInterface
                     'claims.act_acceptance_customer_file as act_acceptance_customer_file',
                     'claims.declaration_conformity_file as declaration_conformity_file',
                     'claims.conclusion_approved_planning_file as conclusion_approved_planning_file',
+                    'claims.cadastral_passport_object as cadastral_passport_object',
+                    'claims.conclusion_approved_planning_file_autofill as conclusion_approved_planning_file_autofill',
                     'claims.building_cadastral as building_cadastral',
                     'claims.number_conclusion_project as number_conclusion_project',
                     'claims.end_date as end_date',
@@ -290,6 +296,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                     'claim_organization_reviews.id as review_id',
                     'claim_organization_reviews.answered_at as answered_at',
                     'claims.region as region',
+                    'claims.type_object_dic as watcher_type',
                     'claims.status as status',
                     'claims.object_id as object_id',
                     DB::raw("(CASE WHEN claims.user_type = 'J' THEN claims.legal_name ELSE claims.ind_name END) as customer"),
@@ -313,6 +320,8 @@ class ClaimRepository implements ClaimRepositoryInterface
                     'claims.act_acceptance_customer_file as act_acceptance_customer_file',
                     'claims.declaration_conformity_file as declaration_conformity_file',
                     'claims.conclusion_approved_planning_file as conclusion_approved_planning_file',
+                    'claims.cadastral_passport_object as cadastral_passport_object',
+                    'claims.conclusion_approved_planning_file_autofill as conclusion_approved_planning_file_autofill',
                     'claims.building_cadastral as building_cadastral',
                     'claims.number_conclusion_project as number_conclusion_project',
                     'claims.end_date as end_date',
@@ -425,6 +434,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                 ->when($expired, function ($q) use ($expired) {
                     $q->where('claims.expired', $expired);
                 })
+                ->where('claims.status', '<>', ClaimStatuses::TASK_STATUS_ANOTHER)
                 ->groupBy('claims.id', 'responses.api', 'articles.task_id')
                 ->orderBy('claims.created_at', strtoupper($sortBy))
                 ->select([
@@ -445,6 +455,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                     'claims.current_node as current_node',
                     'claims.building_cadastral as building_cadastral',
                     'claims.building_address as building_address',
+                    'claims.type_object_dic as watcher_type',
                     'claims.building_name as building_name',
                     'claims.building_type as building_type',
                     'claims.building_type_name as building_type_name',
@@ -453,6 +464,8 @@ class ClaimRepository implements ClaimRepositoryInterface
                     'claims.object_project_user as object_project_user',
                     'claims.type_object_dic as type_object_dic',
                     'claims.cadastral_passport_object_file as cadastral_passport_object_file',
+                    'claims.cadastral_passport_object as cadastral_passport_object',
+                    'claims.conclusion_approved_planning_file_autofill as conclusion_approved_planning_file_autofill',
                     'claims.ownership_document as ownership_document',
                     'claims.act_acceptance_customer_file as act_acceptance_customer_file',
                     'claims.declaration_conformity_file as declaration_conformity_file',
@@ -519,6 +532,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                     'claims.expired as expired',
                     'claims.current_node as current_node',
                     'claims.building_cadastral as building_cadastral',
+                    'claims.type_object_dic as watcher_type',
                     'claims.building_address as building_address',
                     'claims.building_name as building_name',
                     'claims.building_type as building_type',
@@ -528,6 +542,8 @@ class ClaimRepository implements ClaimRepositoryInterface
                     'claims.object_project_user as object_project_user',
                     'claims.type_object_dic as type_object_dic',
                     'claims.cadastral_passport_object_file as cadastral_passport_object_file',
+                    'claims.cadastral_passport_object as cadastral_passport_object',
+                    'claims.conclusion_approved_planning_file_autofill as conclusion_approved_planning_file_autofill',
                     'claims.ownership_document as ownership_document',
                     'claims.act_acceptance_customer_file as act_acceptance_customer_file',
                     'claims.declaration_conformity_file as declaration_conformity_file',
@@ -598,8 +614,11 @@ class ClaimRepository implements ClaimRepositoryInterface
                     'claims.building_name as building_name',
                     'claims.building_type as building_type',
                     'claims.building_type_name as building_type_name',
+                    'claims.type_object_dic as watcher_type',
                     'claims.user_type as user_type',
                     'claims.document_registration_based as document_registration_based',
+                    'claims.cadastral_passport_object as cadastral_passport_object',
+                    'claims.conclusion_approved_planning_file_autofill as conclusion_approved_planning_file_autofill',
                     'claims.object_project_user as object_project_user',
                     'claims.type_object_dic as type_object_dic',
                     'claims.cadastral_passport_object_file as cadastral_passport_object_file',
@@ -622,6 +641,8 @@ class ClaimRepository implements ClaimRepositoryInterface
         $status = ClaimStatuses::TASK_STATUS_ANOTHER;
         if ($claimGov->task->current_node == "direction-statement-object")
             $status = ClaimStatuses::TASK_STATUS_ACCEPTANCE;
+        if($claimGov->task->current_node == "conclusion-minstroy")
+            $status = ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG;
 
         if ($claimGov->task->current_node == "inactive" && $claimGov->task->status == "not_active")
             $status = ClaimStatuses::TASK_STATUS_CANCELLED;
@@ -677,7 +698,8 @@ class ClaimRepository implements ClaimRepositoryInterface
         $claimAdd->legal_email = $info->legal_email->real_value;
         $claimAdd->legal_address = $info->legal_address->real_value;
         $claimAdd->legal_phone = $info->legal_phone->real_value;
-        $claimAdd->building_name = $info->building_name->real_value;
+        $claimAdd->building_name = ($info->building_name->real_value != null) ? $info->building_name->real_value : $info->name_building_project->real_value;
+        $claimAdd->conclusion_approved_planning_file_autofill = $info->conclusion_approved_planning_file_autofill->real_value;
         $claimAdd->property_owner = $info->property_owner->real_value;
         $claimAdd->building_address = $info->building_address->real_value;
         $claimAdd->building_type = $info->building_type->real_value;
@@ -693,6 +715,7 @@ class ClaimRepository implements ClaimRepositoryInterface
         $claimAdd->type_object_dic = $info->type_object_dic->real_value;
 
         $claimAdd->cadastral_passport_object_file = $info->cadastral_passport_object_file->real_value;
+        $claimAdd->cadastral_passport_object = $info->cadastral_passport_object->real_value;
         $claimAdd->ownership_document = $info->ownership_document->real_value;
         $claimAdd->act_acceptance_customer_file = $info->act_acceptance_customer_file->real_value;
         $claimAdd->declaration_conformity_file = $info->declaration_conformity_file->real_value;
