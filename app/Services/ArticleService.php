@@ -268,7 +268,6 @@ class ArticleService
     {
         return $this->articleRepository->getAccountObjectsQuery($query, $status);
     }
-
     public function createObject()
     {
 
@@ -283,139 +282,12 @@ class ArticleService
 
             if ($response->notification_type==2)
             {
-                $article = Article::query()->where('task_id', $response->old_task_id)->first();
-                $article->update([
-                    'name' => $response->object_name,
-                    'region_id' => $response->region_id,
-                    'district_id' => $response->district_id,
-                    'object_type_id' => $response->object_type_id,
-                    'organization_name' => $response->organization_name,
-                    'location_building' => $response->location_building,
-                    'address' => $response->address,
-                    'construction_works' =>$response->construction_works,
-                    'cadastral_number' => $response->cadastral_number,
-                    'name_expertise' => $response->name_expertise,
-                    'difficulty_category_id' => DifficultyCategoryEnum::fromString($response->category_object_dictionary),
-                    'construction_cost' => $response->cost,
-                    'organization_projects' => $response->organization_projects,
-                    'specialists_certificates' => $response->specialists_certificates,
-                    'contract_file' => $response->contract_file,
-                    'confirming_laboratory' => $response->confirming_laboratory,
-                    'file_energy_efficiency' => $response->file_energy_efficiency,
-                    'legal_opf' => $response->legal_opf,
-                    'sphere_id' => $response->sphere_id,
-                    'program_id' => $response->program_id,
-                    'linear_type' => $response->linear_type,
-                    'dxa_response_id' => $response->id,
-                    'price_supervision_service' => price_supervision($response->cost),
-                    'task_id' => $response->task_id,
-                    'number_protocol' => $response->number_protocol,
-                    'positive_opinion_number' => $response->positive_opinion_number,
-                    'date_protocol' =>$response->date_protocol,
-                    'funding_source_id' => $response->funding_source_id,
-                    'deadline' => $response->end_term_work,
-                    'gnk_id' => $response->gnk_id,
-                    'reestr_number' => (int)$response->reestr_number,
-                ]);
+                $article = $this->saveRepeat($response);
+                $this->saveRepeatUser($response, $article);
             }else{
-                $article = new Article();
-                $article->name = $response->object_name;
-                $article->region_id = $response->region_id;
-                $article->district_id = $response->district_id;
-                $article->object_status_id = ObjectStatusEnum::PROGRESS;
-                $article->object_type_id = $response->object_type_id;
-                $article->organization_name = $response->organization_name;
-                $article->location_building = $response->location_building;
-                $article->address = $response->address;
-                $article->cadastral_number = $response->cadastral_number;
-                $article->name_expertise = $response->name_expertise;
-                $article->difficulty_category_id = DifficultyCategoryEnum::fromString($response->category_object_dictionary);
-                $article->construction_cost = $response->cost;
-                $article->sphere_id  = $response->sphere_id;
-                $article->program_id  = $response->program_id;
-                $article->construction_works  = $response->construction_works;
-                $article->linear_type  = $response->linear_type;
-                $article->appearance_type_id = 1;
-                $article->is_accepted = true;
-                $article->organization_projects = $response->organization_projects;
-                $article->specialists_certificates = $response->specialists_certificates;
-                $article->contract_file = $response->contract_file;
-                $article->confirming_laboratory = $response->confirming_laboratory;
-                $article->file_energy_efficiency = $response->file_energy_efficiency;
-                $article->legal_opf = $response->legal_opf;
-                $article->lat = $response->lat;
-                $article->long = $response->long;
-                $article->dxa_response_id = $response->id;
-                $article->price_supervision_service = price_supervision($response->cost);
-                $article->task_id = $response->task_id;
-                $article->number_protocol = $response->number_protocol;
-                $article->positive_opinion_number = $response->positive_opinion_number;
-                $article->date_protocol = $response->date_protocol;
-                $article->funding_source_id = $response->funding_source_id;
-                $article->paid = 0;
-                $article->payment_deadline = Carbon::now();
-                $article->deadline = $response->end_term_work;
-                $article->gnk_id = $response->gnk_id;
-                $article->reestr_number = (int)$response->reestr_number;
-                $article->save();
+                $article = $this->saveResponse($response);
+                $this->saveResponseUser($response, $article);
             }
-
-
-
-            if ($response->notification_type==2)
-            {
-                $article->users()->detach();
-            }
-
-
-            foreach ($response->supervisors as $supervisor) {
-                $fish = $this->generateFish($supervisor->fish);
-                $user = User::where('pinfl', $supervisor->stir_or_pinfl)->first();
-                if ($user) {
-                    $user->update([
-                        'name' => $fish ? $fish[1] : null,
-                        'surname' => $fish ? $fish[0] : null,
-                        'middle_name' => $fish ? $fish[2] : null,
-                        'phone' => $supervisor->phone_number,
-                        'login' => $supervisor->passport_number,
-                        'organization_name' => $supervisor->organization_name,
-                        'password' => bcrypt($supervisor->stir_or_pinfl),
-                        'user_status_id' => UserStatusEnum::ACTIVE,
-                        'pinfl' => $supervisor->stir_or_pinfl,
-                        'identification_number' => $supervisor->identification_number,
-                    ]);
-
-
-                    $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
-                    if (!$user->roles()->where('role_id', $supervisor->role_id)->exists())
-                        UserRole::query()->create([
-                            'user_id' => $user->id,
-                            'role_id' => $supervisor->role_id,
-                        ]);
-                }
-                if (!$user) {
-                    $user = User::create([
-                        'name' => $fish ? $fish[1] : null,
-                        'surname' => $fish ? $fish[0] : null,
-                        'middle_name' => $fish ? $fish[2] : null,
-                        'phone' => $supervisor->phone_number,
-                        'login' => $supervisor->passport_number,
-                        'organization_name' => $supervisor->organization_name,
-                        'password' => bcrypt($supervisor->stir_or_pinfl),
-                        'user_status_id' => UserStatusEnum::ACTIVE,
-                        'pinfl' => $supervisor->stir_or_pinfl,
-                        'identification_number' => $supervisor->identification_number,
-                    ]);
-                    $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
-                    UserRole::query()->create([
-                        'user_id' => $user->id,
-                        'role_id' => $supervisor->role_id,
-                    ]);
-                }
-            }
-
-
-            $article->users()->attach($response->inspector_id, ['role_id' => 3]);
 
             $this->acceptResponse($response);
             $this->saveBlocks($response, $article);
@@ -430,15 +302,6 @@ class ArticleService
             throw new NotFoundException($exception->getLine(), $exception->getCode(), );
         }
 
-    }
-
-    public function createOneTimeUser($taskId)
-    {
-        $response = DxaResponse::query()->where('task_id', $taskId)->first();
-        $article = Article::query()->where('task_id', $taskId)->first();
-        if ($response) {
-            $this->saveResponseUser($response, $article);
-        }
     }
 
     private function saveRepeat($response)
@@ -548,17 +411,17 @@ class ArticleService
 
                 if ($articleUser)
                 {
-                   if ($articleUser->pinfl != $user->pinfl)
-                   {
+                    if ($articleUser->pinfl != $user->pinfl)
+                    {
                         ArticleUser::query()
                             ->where('article_id', $article->id)
                             ->where('role_id', $supervisor->role_id)
                             ->where('user_id', $articleUser->id)
                             ->delete();
 
-                       $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
-                       $this->changeRegulations($article->id, $articleUser->id, $user->id, $supervisor->role_id);
-                   }
+                        $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
+                        $this->changeRegulations($article->id, $articleUser->id, $user->id, $supervisor->role_id);
+                    }
                 }else{
                     $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
                 }
@@ -703,7 +566,7 @@ class ArticleService
     private function saveBlocks(DxaResponse $response, Article $article): void
     {
         foreach ($response->blocks as $block) {
-           $this->blockRepository->updateBlockByArticle($block->id, $article);
+            $this->blockRepository->updateBlockByArticle($block->id, $article);
         }
     }
 
