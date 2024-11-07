@@ -292,7 +292,6 @@ class ArticleService
             $this->saveBlocks($response, $article);
             $this->saveEmployee($article);
 
-
             DB::commit();
 
             return $article;
