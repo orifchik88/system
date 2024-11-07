@@ -63,11 +63,6 @@ class MigrateCommand extends Command
             case 3:
                 $this->migrateRegulations();
                 break;
-            case 4:
-                $this->migrateUsers();
-                $this->migrateObjects();
-                $this->migrateRegulations();
-                break;
             case 5:
                 $this->migrateMonitoring();
                 break;
@@ -77,10 +72,38 @@ class MigrateCommand extends Command
             case 7:
                 $this->manualMigrateRegulations('0124-0151794/2');
                 break;
+            case 8:
+                $this->deletePhaseRegulations();
+                break;
             default:
                 echo 'Fuck you!';
                 break;
         }
+    }
+
+    private function deletePhaseRegulations()
+    {
+        $regulations = Regulation::all();
+        $count = 0;
+        foreach ($regulations as $regulation) {
+            $oldRegulation = DB::connection('third_pgsql')->table('regulations')
+                ->where('regulation_number', $regulation->regulation_number)
+                ->first();
+            if($oldRegulation->phase == '0')
+            {
+                $violations = RegulationViolation::query()->where('regulation_id', $regulation->id)->get();
+                foreach ($violations as $violation)
+                {
+                    Violation::query()->where('id', $violation->violation_id)->delete();
+                    $violation->delete();
+                }
+                ActViolation::query()->where('regulation_id', $regulation->id)->delete();
+                $regulation->delete();
+                $count++;
+            }
+        }
+
+        echo 'Deleted phase 0 regulations: ' . $count;
     }
 
     private function manualMigrateRegulations(string $number)
@@ -349,7 +372,7 @@ class MigrateCommand extends Command
                     ->where('regulation_id', $regulation->id)
                     ->where('is_migrated', false)
                     ->get();
-                if ($regulation->phase == null)
+                if ($regulation->phase == null && $regulation->phase == '0')
                     continue;
 
                 $regulationStatus = $regulationStatuses[$regulation->phase];
