@@ -129,6 +129,7 @@ Route::group([
     Route::post('rotation', [ObjectController::class, 'rotation']);
     Route::post('object-create-user', [ObjectController::class, 'objectCreateUser']);
 
+
     Route::get('blocks/{id}', [BlockController::class, 'index']);
     Route::get('block/{id}', [BlockController::class, 'getBlock']);
     Route::get('response-blocks/{id}', [BlockController::class, 'responseBlock']);

@@ -55,7 +55,7 @@ class ChecklistAnswerAcceptCommand extends Command
                             'status' => CheckListStatusEnum::SECOND,
                             'author_answered' => 1,
                             'technic_author_answered_at' => null,
-                            'inspector_answered_at' => now()->addDays(3)->setTime(23, 59, 59),
+                            'inspector_answered_at' => now()->addDays(5)->setTime(23, 59, 59),
                         ]);
 
                     }else{
@@ -81,7 +81,7 @@ class ChecklistAnswerAcceptCommand extends Command
                             'status' => CheckListStatusEnum::SECOND,
                             'technic_answered' => 1,
                             'technic_author_answered_at' => null,
-                            'inspector_answered_at' => now()->addDays(3)->setTime(23, 59, 59),
+                            'inspector_answered_at' => now()->addDays(5)->setTime(23, 59, 59),
                         ]);
 
                     }else{

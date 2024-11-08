@@ -320,7 +320,7 @@ class QuestionService
                 if ($roleId == UserRoleEnum::MUALLIF->value) {
                     if ($checklist->technic_answered == 1) {
                         $checklist->update([
-                            'inspector_answered_at' => now()->addDays(3)->setTime(23, 59, 59),
+                            'inspector_answered_at' => now()->addDays(5)->setTime(23, 59, 59),
                             'technic_author_answered_at' => null
                         ]);
                     }
@@ -329,7 +329,7 @@ class QuestionService
                 if ($roleId == UserRoleEnum::TEXNIK->value) {
                     if ($checklist->author_answered == 1) {
                         $checklist->update([
-                            'inspector_answered_at' => now()->addDays(3)->setTime(23, 59, 59),
+                            'inspector_answered_at' => now()->addDays(5)->setTime(23, 59, 59),
                             'technic_author_answered_at' => null
                         ]);
                     }

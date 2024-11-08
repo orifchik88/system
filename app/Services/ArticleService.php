@@ -151,7 +151,7 @@ class ArticleService
 
         $object->users()->attach($user->id, ['role_id' => $data->role_id]);
 
-
+        return $user;
 
     }
 
@@ -282,8 +282,8 @@ class ArticleService
 
             if ($response->notification_type==2)
             {
-               $article = $this->saveRepeat($response);
-               $this->saveRepeatUser($response, $article);
+                $article = $this->saveRepeat($response);
+                $this->saveRepeatUser($response, $article);
             }else{
                 $article = $this->saveResponse($response);
                 $this->saveResponseUser($response, $article);
@@ -411,17 +411,17 @@ class ArticleService
 
                 if ($articleUser)
                 {
-                   if ($articleUser->pinfl != $user->pinfl)
-                   {
+                    if ($articleUser->pinfl != $user->pinfl)
+                    {
                         ArticleUser::query()
                             ->where('article_id', $article->id)
                             ->where('role_id', $supervisor->role_id)
                             ->where('user_id', $articleUser->id)
                             ->delete();
 
-                       $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
-                       $this->changeRegulations($article->id, $articleUser->id, $user->id, $supervisor->role_id);
-                   }
+                        $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
+                        $this->changeRegulations($article->id, $articleUser->id, $user->id, $supervisor->role_id);
+                    }
                 }else{
                     $article->users()->attach($user->id, ['role_id' => $supervisor->role_id]);
                 }
@@ -566,7 +566,7 @@ class ArticleService
     private function saveBlocks(DxaResponse $response, Article $article): void
     {
         foreach ($response->blocks as $block) {
-           $this->blockRepository->updateBlockByArticle($block->id, $article);
+            $this->blockRepository->updateBlockByArticle($block->id, $article);
         }
     }
 

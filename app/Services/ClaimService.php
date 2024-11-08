@@ -907,6 +907,8 @@ class ClaimService
                     $status = ClaimStatuses::TASK_STATUS_ANOTHER;
                     if ($consolidationGov->task->current_node == "direction-statement-object")
                         $status = ClaimStatuses::TASK_STATUS_ACCEPTANCE;
+                    if ($consolidationGov->task->current_node == "conclusion-minstroy")
+                        $status = ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG;
                     if ($consolidationGov->task->current_node == "inactive" && $consolidationGov->task->status == "rejected")
                         $status = ClaimStatuses::TASK_STATUS_REJECTED;
                     if ($consolidationGov->task->current_node == "inactive" && $consolidationGov->task->status == "processed")

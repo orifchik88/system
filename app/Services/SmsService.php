@@ -10,12 +10,13 @@ class SmsService
 
     public function sendSms(): void
     {
+        $phone = str_replace('+', '', $this->phone);
         $data = [
             'login' => config('services.sms_provider.login'),
             'password' => config('services.sms_provider.password'),
 //            'nickname' => config('services.sms_provider.nickname'),
             'data' => json_encode([[
-                'phone' => $this->phone,
+                'phone' => $phone,
                 'text' => $this->message
             ]])
         ];
