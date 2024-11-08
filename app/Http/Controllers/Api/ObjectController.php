@@ -10,6 +10,7 @@ use App\Http\Requests\ObjectRequest;
 use App\Http\Requests\ObjectUserRequest;
 use App\Http\Resources\ArticleResource;
 use App\Http\Resources\FundingSourceResource;
+use App\Http\Resources\UserResource;
 use App\Models\Article;
 use App\Services\ArticleService;
 use Hamcrest\Core\JavaForm;
@@ -245,8 +246,8 @@ class ObjectController extends BaseController
     public function objectCreateUser(ObjectUserRequest $request): JsonResponse
     {
         try {
-            $this->service->createUser($request);
-            return $this->sendSuccess([], 'Success');
+            $user = $this->service->createUser($request);
+            return $this->sendSuccess(UserResource::make($user), 'Success');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }

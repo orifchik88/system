@@ -151,7 +151,7 @@ class ArticleService
 
         $object->users()->attach($user->id, ['role_id' => $data->role_id]);
 
-
+        return $user;
 
     }
 
