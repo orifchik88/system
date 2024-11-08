@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\DTO\ObjectDto;
+use App\Enums\LogType;
 use App\Enums\ObjectCheckEnum;
+use App\Enums\ObjectStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Http\Requests\ObjectManualRequest;
 use App\Http\Requests\ObjectRequest;
@@ -12,7 +14,9 @@ use App\Http\Resources\ArticleResource;
 use App\Http\Resources\FundingSourceResource;
 use App\Http\Resources\UserResource;
 use App\Models\Article;
+use App\Models\ArticleHistory;
 use App\Services\ArticleService;
+use App\Services\HistoryService;
 use Hamcrest\Core\JavaForm;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Js;
@@ -269,6 +273,27 @@ class ObjectController extends BaseController
     {
         try {
             $this->service->getObjectById($this->user, $this->roleId, request('object_id'))->update(['object_status_id' => request('status')]);
+
+            $tableId =(new HistoryService('article_histories'))->createHistory(
+                guId: request('object_id'),
+                status: request('status'),
+                type: LogType::ARTICLE_HISTORY,
+                date: null,
+                comment: request('comment'),
+                additionalInfo: [
+                    'user_id' => $this->user->id,
+                    'role_id' => $this->roleId,
+                ]
+            );
+
+            $history = ArticleHistory::query()->findOrFail($tableId);
+
+            if (request()->hasFile('file'))
+            {
+                $path = $history->store('object/files', 'public');
+                $history->documents()->create(['url' => $path]);
+            }
+
             return $this->sendSuccess(null, 'Object status updated');
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());

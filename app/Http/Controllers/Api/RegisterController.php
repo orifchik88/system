@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\DxaResponseStatusEnum;
 use App\Enums\LawyerStatusEnum;
+use App\Http\Requests\DxaResponseEditRequest;
 use App\Http\Requests\DxaResponseInspectorRequest;
 use App\Http\Requests\DxaResponseRegisterRequest;
 use App\Http\Requests\DxaResponseRejectRequest;
@@ -59,6 +60,16 @@ class RegisterController extends BaseController
             ->paginate(request('per_page', 10));
 
         return $this->sendSuccess(DxaResponseListResource::collection($registers), 'All registers  successfully.', pagination($registers));
+    }
+
+    public function edit(DxaResponseEditRequest $request): JsonResponse
+    {
+        try {
+            DxaResponse::query()->find($request->id)->update(['category_object_dictionary' => $request->category_object_dictionary]);
+            return $this->sendSuccess([], 'Success');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
     }
 
 
