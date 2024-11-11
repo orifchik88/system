@@ -7,6 +7,7 @@ use App\Enums\LogType;
 use App\Enums\ObjectCheckEnum;
 use App\Enums\ObjectStatusEnum;
 use App\Enums\UserRoleEnum;
+use App\Http\Requests\ArticleChangeStatusRequest;
 use App\Http\Requests\ObjectManualRequest;
 use App\Http\Requests\ObjectRequest;
 use App\Http\Requests\ObjectUserRequest;
@@ -270,31 +271,34 @@ class ObjectController extends BaseController
     }
 
 
-    public function changeObjectStatus(): JsonResponse
+    public function changeObjectStatus(ArticleChangeStatusRequest $request): JsonResponse
     {
         DB::beginTransaction();
         try {
-            $this->service->getObjectById($this->user, $this->roleId, request('object_id'))->update(['object_status_id' => request('status')]);
-            $tableId = (new HistoryService('article_histories'))->createHistory(
-                guId: request('object_id'),
-                status: request('status'),
+            $service = new HistoryService('article_histories');
+            $this->service->getObjectById($this->user, $this->roleId, $request->object_id)
+                ->update(['object_status_id' => $request->status]);
+
+
+            $tableId = $service->createHistory(
+                guId: $request->object_id,
+                status: $request->status,
                 type: LogType::ARTICLE_HISTORY,
                 date: null,
-                comment: request('comment'),
+                comment: $request->comment ?? '',
                 additionalInfo: [
                     'user_id' => $this->user->id,
                     'role_id' => $this->roleId,
                 ]
             );
 
+            $history = ArticleHistory::query()->findOrFail($tableId);
 
-//            $history = ArticleHistory::query()->findOrFail($tableId);
-//
-//            if (request()->hasFile('file'))
-//            {
-//                $path = $history->store('object/files', 'public');
-//                $history->documents()->create(['url' => $path]);
-//            }
+            if ($request->hasFile('file'))
+            {
+                $path = $request->file('file')->store('object/files', 'public');
+                $history->documents()->create(['url' => $path]);
+            }
 
             DB::commit();
             return $this->sendSuccess(null, 'Object status updated');

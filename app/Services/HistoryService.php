@@ -34,7 +34,7 @@ class HistoryService
     public function createHistory(int $guId, int $status, int $type, ?string $date, ?string $comment = "", mixed $additionalInfo = null): int
     {
         $content = match ($type) {
-            LogType::TASK_HISTORY, LogType::CLAIM_HISTORY => $this->shapeTaskContent(
+            LogType::TASK_HISTORY, LogType::ARTICLE_HISTORY, LogType::CLAIM_HISTORY => $this->shapeTaskContent(
                 status: $status,
                 comment: $comment,
                 date: $date,
