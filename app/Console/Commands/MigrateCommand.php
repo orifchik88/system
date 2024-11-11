@@ -70,14 +70,110 @@ class MigrateCommand extends Command
                 $this->syncObjects();
                 break;
             case 7:
-                $this->manualMigrateRegulations('0124-0151794/2');
+                $this->manualMigrateRegulations('0124-0151841/1');
                 break;
             case 8:
                 $this->deletePhaseRegulations();
                 break;
+            case 9:
+                $this->migrateObjectUsers(2908);
+                break;
             default:
                 echo 'Fuck you!';
                 break;
+        }
+    }
+
+    private function migrateObjectUsers($id)
+    {
+        $orgRoles = [
+            'e7777bfa-7416-44e8-b609-99136ec5d3b0' => UserRoleEnum::LOYIHA,
+            '6126cbeb-b0b8-4059-9758-14ff3c35473f' => UserRoleEnum::BUYURTMACHI,
+            'b5392622-4180-4c89-9b4e-2976f05b9150' => UserRoleEnum::QURILISH
+        ];
+
+        $inspectorRoles = [
+            '80b740c4-79ef-4c45-a76a-926f90fa3780' => UserRoleEnum::INSPECTOR,
+            '2316d2ab-ae0b-497b-9175-642b414c1886' => UserRoleEnum::INSPECTOR,
+            'db60cbca-8d2f-4911-9fdc-6fc30102c669' => UserRoleEnum::INSPECTOR
+        ];
+
+        $article = Article::query()->where('id', $id)->first();
+        $users = DB::connection('third_pgsql')->table('participants_construction')
+            ->where('object_id', $article->old_id)
+            ->where('status', true)
+            ->get();
+
+        $canContinue = true;
+        foreach ($users as $user) {
+            $userDb = User::query()->where('old_id', $user->user_id)->first();
+            $userCcnis = DB::connection('second_pgsql')->table('user')
+                ->where('id', $user->id)
+                ->first();
+
+            if ($userDb == null && $userCcnis != null)
+                $canContinue = false;
+        }
+
+        if ($canContinue) {
+            foreach ($users as $user) {
+                $role = Role::query()->where('old_id', $user->role_id)->first();
+                $userDb = User::query()->where('old_id', $user->user_id)->first();
+                if ($userDb == null)
+                    continue;
+
+                $userRole = new ArticleUser();
+                $userRole->role_id = (isset($inspectorRoles[$user->role_id])) ? $inspectorRoles[$user->role_id] : $role->id;
+                $userRole->article_id = $article->id;
+                $userRole->user_id = $userDb->id;
+
+                $userRole->save();
+                if (in_array($user->role_id, ['b5392622-4180-4c89-9b4e-2976f05b9150', '6126cbeb-b0b8-4059-9758-14ff3c35473f', 'e7777bfa-7416-44e8-b609-99136ec5d3b0'])) {
+                    $organization = DB::connection('second_pgsql')->table('organizations')
+                        ->where('id', $user->organization_id)
+                        ->first();
+                    if ($organization == null)
+                        continue;
+                    $checkUser = User::where('pinfl', $organization->stir)->first();
+                    if ($checkUser) {
+                        $userRole = new ArticleUser();
+                        $userRole->role_id = $orgRoles[$user->role_id];
+                        $userRole->article_id = $article->id;
+                        $userRole->user_id = $checkUser->id;
+
+                        $userRole->save();
+
+                    } else {
+                        $insertUser = User::query()->create([
+                            'name' => null,
+                            'surname' => null,
+                            'middle_name' => null,
+                            'phone' => null,
+                            'active' => 1,
+                            'created_at' => Carbon::now(),
+                            'updated_at' => Carbon::now(),
+                            'login' => $organization->stir,
+                            'organization_name' => $organization->name,
+                            'password' => bcrypt($organization->stir),
+                            'user_status_id' => UserStatusEnum::ACTIVE,
+                            'pinfl' => $organization->stir,
+                            'identification_number' => $organization->stir,
+                        ]);
+
+                        UserRole::query()->create([
+                            'user_id' => $insertUser->id,
+                            'role_id' => $orgRoles[$user->role_id],
+                        ]);
+
+                        $userRole = new ArticleUser();
+                        $userRole->role_id = $orgRoles[$user->role_id];
+                        $userRole->article_id = $article->id;
+                        $userRole->user_id = $insertUser->id;
+
+                        $userRole->save();
+                    }
+                }
+            }
         }
     }
 
@@ -89,11 +185,9 @@ class MigrateCommand extends Command
             $oldRegulation = DB::connection('third_pgsql')->table('regulations')
                 ->where('regulation_number', $regulation->regulation_number)
                 ->first();
-            if($oldRegulation->phase == '0')
-            {
+            if ($oldRegulation->phase == '0') {
                 $violations = RegulationViolation::query()->where('regulation_id', $regulation->id)->get();
-                foreach ($violations as $violation)
-                {
+                foreach ($violations as $violation) {
                     Violation::query()->where('id', $violation->violation_id)->delete();
                     $violation->delete();
                 }
@@ -555,8 +649,8 @@ class MigrateCommand extends Command
 
             ];
             $users = DB::connection('third_pgsql')->table('participants_construction')
-                ->where('status', true)
                 ->where('object_id', $object->id)
+                ->where('status', true)
                 ->get();
 
             $canContinue = true;
@@ -727,11 +821,35 @@ class MigrateCommand extends Command
 
     private function migrateUsers()
     {
+        $roleIds = [
+            '2064b753-cfbe-4f44-be1e-4d7258110e12',
+            'aa84348b-5556-4f67-8cc9-206fb82f3a33',
+            'b5392622-4180-4c89-9b4e-2976f05b9150',
+            '6126cbeb-b0b8-4059-9758-14ff3c35473f',
+            'e7777bfa-7416-44e8-b609-99136ec5d3b0',
+            'ebda152a-80b6-4b70-8c72-e70885830276',
+            'fdd5d0a8-b2a2-41d1-986a-7748b3a3eefb',
+            'bba9a9dd-1d39-400f-8124-a37f24a8bf5c',
+            '120e365f-475f-4d4f-a3ce-17d038ee5967',
+            '9256f932-738c-4e2e-bcc5-77fe0041a801',
+            '853037a6-a4bf-4dd9-95cc-ff3073f01a8f',
+            'd16fb793-c015-4d6d-b0c5-a9d33a0f9f52',
+            '86ea8778-ce5b-49c6-9693-1f51f31cf80d',
+            'e4874137-b63e-40e7-970d-1f16bc6e6ade',
+            '2ef59cb1-2ac2-49ca-8f3d-402c714e143a',
+            '583806ee-a7c6-45c6-9870-b37542548866',
+            '14e463e5-d6cc-40a0-9752-3a1cd57546be',
+            '80b740c4-79ef-4c45-a76a-926f90fa3780',
+            '2316d2ab-ae0b-497b-9175-642b414c1886',
+            'db60cbca-8d2f-4911-9fdc-6fc30102c669'
+        ];
+
         $users = DB::connection('second_pgsql')->table('user')
             ->where('is_migrated', false)
-            ->where('active', 1)
-            ->get()
-            ->random(200);
+            //->where('active', 1)
+            ->whereIn('role_id', $roleIds)
+            ->limit(50)
+            ->get();
 
         $userStatuses = [
             '30165510-1d9d-4d6e-bcc5-6246af0cbc22' => UserStatusEnum::ACTIVE,
