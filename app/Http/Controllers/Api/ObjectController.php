@@ -19,6 +19,7 @@ use App\Services\ArticleService;
 use App\Services\HistoryService;
 use Hamcrest\Core\JavaForm;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Js;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -271,10 +272,10 @@ class ObjectController extends BaseController
 
     public function changeObjectStatus(): JsonResponse
     {
+        DB::beginTransaction();
         try {
             $this->service->getObjectById($this->user, $this->roleId, request('object_id'))->update(['object_status_id' => request('status')]);
-
-            $tableId =(new HistoryService('article_histories'))->createHistory(
+            $tableId = (new HistoryService('article_histories'))->createHistory(
                 guId: request('object_id'),
                 status: request('status'),
                 type: LogType::ARTICLE_HISTORY,
@@ -286,16 +287,19 @@ class ObjectController extends BaseController
                 ]
             );
 
-            $history = ArticleHistory::query()->findOrFail($tableId);
 
-            if (request()->hasFile('file'))
-            {
-                $path = $history->store('object/files', 'public');
-                $history->documents()->create(['url' => $path]);
-            }
+//            $history = ArticleHistory::query()->findOrFail($tableId);
+//
+//            if (request()->hasFile('file'))
+//            {
+//                $path = $history->store('object/files', 'public');
+//                $history->documents()->create(['url' => $path]);
+//            }
 
+            DB::commit();
             return $this->sendSuccess(null, 'Object status updated');
         } catch (\Exception $exception) {
+            DB::rollBack();
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
