@@ -23,6 +23,7 @@ use Hamcrest\Arrays\SeriesMatchingOnce;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Psy\Util\Json;
 
 class InformationController extends BaseController
@@ -207,26 +208,20 @@ class InformationController extends BaseController
     public function checkUser(): JsonResponse
     {
         try {
-            $client = new Client();
             $url = 'https://sso.egov.uz/sso/oauth/Authorization.do?grant_type=one_authorization_code
             &client_id='.config('services.oneId.id').
             '&client_secret='.config('services.oneId.secret').
             '&code='.request('code').
             '&redirect_url='.config('services.oneId.redirect');
-//            $url = 'https://sso.egov.uz/sso/oauth/Authorization.do?grant_type=one_authorization_code&client_id=for_testing&client_secret=BSgm7sW2OJqIrjtaT4fXD9U&code='.request('code').'&redirect_url=https://ccnis.devmc.uz/login/oneid';
-            $resClient = $client->post($url);
+            $resClient = Http::post($url);
             $response = json_decode($resClient->getBody(), true);
-
-
-
-            $client = new Client();
+            
             $url = 'https://sso.egov.uz/sso/oauth/Authorization.do?grant_type=one_access_token_identify
             &client_id='.config('services.oneId.id').
             '&client_secret='.config('services.oneId.secret').
             '&access_token='.$response['access_token'].
             '&scope='.$response['scope'];
-//            $url = 'https://sso.egov.uz/sso/oauth/Authorization.do?grant_type=one_access_token_identify&client_id=for_testing&client_secret=BSgm7sW2OJqIrjtaT4fXD9U&access_token='.$response['access_token'].'&scope='.$response['scope'];
-            $resClient = $client->post($url);
+            $resClient = Http::post($url);
             $data = json_decode($resClient->getBody(), true);
 
 
