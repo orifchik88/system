@@ -58,9 +58,12 @@ class UserService
                 });
 
             case UserRoleEnum::SEOM_REG_KADR->value:
-                return User::query()->whereNot('user_status_id', UserStatusEnum::RELEASED)->whereHas('roles', function ($query) {
-                    $query->where('role_id', UserRoleEnum::SEOM->value);
-                });
+                return User::query()
+                    ->whereNot('user_status_id', UserStatusEnum::RELEASED)
+                    ->where('region_id', $user->region_id)
+                    ->whereHas('roles', function ($query) {
+                        $query->where('role_id', UserRoleEnum::SEOM->value);
+                    });
 
             case UserRoleEnum::FVV_RES_KADR->value:
                 return User::query()->whereNot('user_status_id', UserStatusEnum::RELEASED)->whereHas('roles', function ($query) {
