@@ -335,7 +335,6 @@ class NetworkResponseCommand extends Command
     private function sendMyGov($response)
     {
         try {
-            if (env('MYGOV_MODE') === 'prod') {
                 $authUsername = config('app.mygov.login');
                 $authPassword = config('app.mygov.password');
 
@@ -348,9 +347,7 @@ class NetworkResponseCommand extends Command
                             "notice" =>  "Qabul qilindi"
                         ]
                     ]);
-            }else{
-                return null;
-            }
+
         }catch (\Exception $exception) {
             Log::info($exception->getMessage());
         }

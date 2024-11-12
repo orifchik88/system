@@ -278,7 +278,6 @@ class DxaBuildingResponseService
     public function sendMyGov($response)
     {
         try {
-            if (env('MYGOV_MODE') === 'prod') {
                 $authUsername = config('app.mygov.login');
                 $authPassword = config('app.mygov.password');
 
@@ -291,7 +290,6 @@ class DxaBuildingResponseService
                             "notice" => "Qabul qilindi"
                         ]
                     ]);
-            }
         }catch (\Exception $exception){
             Log::info($exception->getMessage());;
         }

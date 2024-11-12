@@ -624,7 +624,6 @@ class ArticleService
     private function acceptResponse(DxaResponse $response)
     {
         try {
-            if (env('MYGOV_MODE') === 'prod') {
                 $authUsername = config('app.mygov.login');
                 $authPassword = config('app.mygov.password');
 
@@ -657,7 +656,6 @@ class ArticleService
                     ]);
 
                 if ($return->failed()) throw new NotFoundException($return->reason());
-            }
         }catch (\Exception $exception){
             throw new NotFoundException($exception->getMessage(), $exception->getCode());
         }
