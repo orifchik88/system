@@ -6,6 +6,7 @@ use App\Enums\CheckListStatusEnum;
 use App\Enums\LogType;
 use App\Enums\QuestionTypeEnum;
 use App\Enums\UserRoleEnum;
+use App\Enums\WorkTypeStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MonitoringRequest;
 use App\Http\Resources\CheckListAnswerFilesResource;
@@ -221,6 +222,20 @@ class MonitoringController extends BaseController
                         date: null,
                         comment: $item['comment'] ?? ""
                 );
+            }
+
+            $workTypes = $this->questionService->getQuestionList($data['block_id']);
+            $block = Block::query()->find($data['block_id']);
+            $count = 0;
+            foreach ($workTypes as $workType) {
+                if ($workType['questions'][0]['work_type_status'] == WorkTypeStatusEnum::CONFIRMED) {
+                    $count += 1;
+                }
+            }
+            if ($count == count($workTypes)) {
+                $block->update([
+                    'status' => false
+                ]);
             }
             DB::commit();
             return $this->sendSuccess([], 'Check accepted');
