@@ -650,8 +650,8 @@ class ArticleService
                             "loacation_rep" => $response->region->name_uz . ' ' . $response->district->name_uz . ' ' . $response->location_building,
                             "name_rep" => $response->organization_name,
                             "amount" => $response->price_supervision_service,
-//                            "qr_image" => $qrImage,
-//                            "qr_comment" => "Ushbu QR kod obyekt pasporti hisoblanadi. QR kodni obyektning ko‘rinarli joyiga o‘rnatib qo‘yishingiz talab etiladi"
+                            "qr_image" => $qrImage,
+                            "qr_comment" => "Ushbu QR kod obyekt pasporti hisoblanadi. QR kodni obyektning ko‘rinarli joyiga o‘rnatib qo‘yishingiz talab etiladi"
                         ]
                     ]);
 
