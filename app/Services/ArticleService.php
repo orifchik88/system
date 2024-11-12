@@ -635,12 +635,10 @@ class ArticleService
                     $apiUrl = config('app.mygov.linear') . '/update/id/' . $response->task_id . '/action/issue-amount';
                     $formName = 'IssueAmountFormRegistrationStartLinearObject';
                 }
-
-                $domain = 'https://api-ccnis.devmc.uz/object-info/'.$response->task_id;
+                
+                $domain = URL::to('/object-info').'/'.$response->task_id;
 
                 $qrImage = base64_encode(QrCode::format('png')->size(200)->generate($domain));
-
-
 
                 $return = Http::withBasicAuth($authUsername, $authPassword)
                     ->post($apiUrl, [
