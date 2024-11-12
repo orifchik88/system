@@ -905,8 +905,20 @@ class ClaimService
                     $this->claimRepository->createClaim($consolidationGov, $expiryDate);
                 elseif ($consolidationGov->task->current_node != $consolidationDb->current_node || $consolidationGov->task->status != $consolidationDb->status_mygov) {
                     $status = ClaimStatuses::TASK_STATUS_ANOTHER;
-                    if ($consolidationGov->task->current_node == "direction-statement-object")
+                    if ($consolidationGov->task->current_node == "direction-statement-object") {
                         $status = ClaimStatuses::TASK_STATUS_ACCEPTANCE;
+                        if ($consolidationDb->object_id != null)
+                            $status = ClaimStatuses::TASK_STATUS_ATTACH_OBJECT;
+                    }
+                    if ($consolidationGov->task->current_node == "answer-other-institutions") {
+                        $status = ClaimStatuses::TASK_STATUS_SENT_ORGANIZATION;
+                        $reviews = ClaimOrganizationReview::where('claim_id', $consolidationDb->id)->get();
+                        list($isFinished, $allSuccess) = $this->checkReviewCount($reviews);
+                        
+                        if ($allSuccess) {
+                            $status = ClaimStatuses::TASK_STATUS_INSPECTOR;
+                        }
+                    }
                     if ($consolidationGov->task->current_node == "conclusion-minstroy")
                         $status = ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG;
                     if ($consolidationGov->task->current_node == "inactive" && $consolidationGov->task->status == "rejected")
@@ -948,14 +960,16 @@ class ClaimService
         return null;
     }
 
-    private function GetRequest($url)
+    private
+    function GetRequest($url)
     {
         $response = Http::withBasicAuth(config('app.mygov.login'), config('app.mygov.password'))->get($this->url . $url);
 
         return $response;
     }
 
-    private function PostRequest($url, $data)
+    private
+    function PostRequest($url, $data)
     {
         $response = Http::withBasicAuth(config('app.mygov.login'), config('app.mygov.password'))->post($this->url . $url, $data);
 
