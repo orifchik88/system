@@ -637,7 +637,7 @@ class ArticleService
                 }
 
 
-                $domain = 'https://api-suvnazorat.mc.uz/object-info/'.$response->task_id;
+                $domain = 'https://api-ccnis.devmc.uz/object-info/'.$response->task_id;
 
                 $qrImage = base64_encode(QrCode::format('png')->size(200)->generate($domain));
 

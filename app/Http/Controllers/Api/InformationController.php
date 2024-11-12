@@ -347,7 +347,7 @@ class InformationController extends BaseController
         try {
             $article = Article::query()->find($id);
 
-            $url = 'https://api-suvnazorat.mc.uz/object-info/'.$article->task_id;
+            $url = 'https://api-ccnis.devmc.uz/object-info/'.$article->task_id;
 
             $qrImage = base64_encode(QrCode::format('png')->size(200)->generate($url));
 
