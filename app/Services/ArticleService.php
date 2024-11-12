@@ -585,15 +585,13 @@ class ArticleService
         $qurilish = $article->users()->where('role_id', UserRoleEnum::QURILISH->value)->first();
 
         $loyihaRating = getData(config('app.gasn.rating'), (int)$loyiha->identification_number);
-        if (!$loyihaRating) throw new NotFoundException('Loyiha tashkilotining reytinggini olishda muammo');
 
         $qurilishRating = getData(config('app.gasn.rating'), (int)$qurilish->identification_number);
 
-        if (!$qurilishRating) throw new NotFoundException('Qurilish tashkilotining reytinggini olishda muammo');
 
         $rating[] = [
-            'loyiha' => $loyihaRating['data']['data'],
-            'qurilish' => $qurilishRating['data']['data'],
+            'loyiha' => $loyihaRating['data']['data'] ?? null,
+            'qurilish' => $qurilishRating['data']['data'] ?? null,
         ];
 
         $article->update([
