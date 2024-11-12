@@ -65,7 +65,7 @@ Route::group([
     Route::get('notification-count', [InformationController::class, 'notificationCount']);
     Route::post('notification-read', [InformationController::class, 'notificationRead']);
     Route::get('statement', [InformationController::class, 'statement']);
-    Route::post('qr-image', [InformationController::class, 'qrImage']);
+    Route::get('qr-image/{id}', [InformationController::class, 'qrImage']);
 
 
 
