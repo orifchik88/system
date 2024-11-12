@@ -635,7 +635,7 @@ class ArticleService
                     $apiUrl = config('app.mygov.linear') . '/update/id/' . $response->task_id . '/action/issue-amount';
                     $formName = 'IssueAmountFormRegistrationStartLinearObject';
                 }
-                
+
                 $domain = URL::to('/object-info').'/'.$response->task_id;
 
                 $qrImage = base64_encode(QrCode::format('png')->size(200)->generate($domain));
@@ -647,7 +647,11 @@ class ArticleService
                             "loacation_rep" => $response->region->name_uz . ' ' . $response->district->name_uz . ' ' . $response->location_building,
                             "name_rep" => $response->organization_name,
                             "amount" => $response->price_supervision_service,
-                            "qr_image" => $qrImage,
+                            "qr_image" => [
+                                "target" => "file",
+                                "ext" => "png",
+                                "file" => $qrImage
+                            ],
                             "qr_comment" => "Ushbu QR kod obyekt pasporti hisoblanadi. QR kodni obyektning ko‘rinarli joyiga o‘rnatib qo‘yishingiz talab etiladi"
                         ]
                     ]);

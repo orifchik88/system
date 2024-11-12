@@ -50,8 +50,8 @@ class ResponseCreated extends Command
         DB::beginTransaction();
         try {
             $dxa = $this->saveDxaResponse($taskId, $data, $userType, $json);
-            $this->saveExpertise($dxa);
             $this->sendMyGov($dxa);
+            $this->saveExpertise($dxa);
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
