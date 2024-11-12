@@ -636,7 +636,6 @@ class ArticleService
                     $formName = 'IssueAmountFormRegistrationStartLinearObject';
                 }
 
-
                 $domain = 'https://api-ccnis.devmc.uz/object-info/'.$response->task_id;
 
                 $qrImage = base64_encode(QrCode::format('png')->size(200)->generate($domain));
