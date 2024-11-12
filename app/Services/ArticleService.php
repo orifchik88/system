@@ -26,7 +26,9 @@ use App\Repositories\Interfaces\UserRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\URL;
 use PHPUnit\Exception;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class ArticleService
 {
@@ -634,19 +636,27 @@ class ArticleService
                     $formName = 'IssueAmountFormRegistrationStartLinearObject';
                 }
 
+
+                $domain = 'https://api-suvnazorat.mc.uz/object-info/'.$response->task_id;
+
+                $qrImage = base64_encode(QrCode::format('png')->size(200)->generate($domain));
+
+
+
                 $return = Http::withBasicAuth($authUsername, $authPassword)
                     ->post($apiUrl, [
                         $formName => [
                             "requisites" => $response->rekvizit->name,
                             "loacation_rep" => $response->region->name_uz . ' ' . $response->district->name_uz . ' ' . $response->location_building,
                             "name_rep" => $response->organization_name,
-                            "amount" => $response->price_supervision_service
+                            "amount" => $response->price_supervision_service,
+//                            "qr_image" => $qrImage,
+//                            "qr_comment" => "Ushbu QR kod obyekt pasporti hisoblanadi. QR kodni obyektning ko‘rinarli joyiga o‘rnatib qo‘yishingiz talab etiladi"
                         ]
                     ]);
 
                 if ($return->failed()) throw new NotFoundException($return->reason());
             }
-
         }catch (\Exception $exception){
             throw new NotFoundException($exception->getMessage(), $exception->getCode());
         }

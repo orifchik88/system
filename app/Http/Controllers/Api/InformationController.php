@@ -9,7 +9,7 @@ use App\Http\Resources\ProgramResource;
 use App\Http\Resources\RoleResource;
 use App\Http\Resources\SphereResource;
 use App\Http\Resources\TopicResource;
-use App\Http\Resources\UserResource;
+use App\Models\Article;
 use App\Models\Basis;
 use App\Models\NormativeDocument;
 use App\Models\NotificationLog;
@@ -19,12 +19,11 @@ use App\Models\Topic;
 use App\Models\User;
 use App\Services\InformationService;
 use GuzzleHttp\Client;
-use Hamcrest\Arrays\SeriesMatchingOnce;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
-use Psy\Util\Json;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class InformationController extends BaseController
 {
@@ -338,6 +337,22 @@ class InformationController extends BaseController
         try {
              NotificationLog::query()->find(request('id'))->update(['read' => true]);
              return $this->sendSuccess([],'Notification Read');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function qrImage($id): JsonResponse
+    {
+        try {
+            $article = Article::query()->find($id);
+
+            $url = 'https://api-suvnazorat.mc.uz/object-info/'.$article->task_id;
+
+            $qrImage = base64_encode(QrCode::format('png')->size(200)->generate($url));
+
+            return $this->sendSuccess($qrImage, 'Qr Image');
+
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }

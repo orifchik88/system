@@ -7,6 +7,7 @@ use App\Models\Region;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class DxaResponseResource extends JsonResource
 {
@@ -24,7 +25,6 @@ class DxaResponseResource extends JsonResource
             'supervisors', 'blocks', 'images'
         ]);
         $address = $this->user_type == 'Yuridik shaxs' ? $this->address : $this->permit_address;
-
 
         $inspector = User::find($this->inspector_id);
 
