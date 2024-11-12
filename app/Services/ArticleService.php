@@ -273,6 +273,8 @@ class ArticleService
     public function createObject()
     {
 
+
+
         DB::beginTransaction();
         try {
             $response = $this->dxaResponse->find($this->objectDto->responseId);
@@ -301,7 +303,7 @@ class ArticleService
 
         } catch (Exception $exception) {
             DB::rollBack();
-            throw new NotFoundException($exception->getLine(), $exception->getCode(), );
+            throw new NotFoundException($exception->getLine(), $exception->getLine(), );
         }
 
     }
@@ -639,18 +641,16 @@ class ArticleService
 
                 $qrImage = base64_encode(QrCode::format('png')->size(200)->generate($domain));
 
+                $qrImageTag = '<img src="data:image/png;base64,' . $qrImage . '" alt="QR Image" />';
+                
                 $return = Http::withBasicAuth($authUsername, $authPassword)
                     ->post($apiUrl, [
                         $formName => [
-                            "requisites" => $response->rekvizit->name,
+                            "requisites" => $response->rekvizit->name ?? '',
                             "loacation_rep" => $response->region->name_uz . ' ' . $response->district->name_uz . ' ' . $response->location_building,
                             "name_rep" => $response->organization_name,
                             "amount" => $response->price_supervision_service,
-                            "qr_image" => [
-                                "target" => "file",
-                                "ext" => "png",
-                                "file" => $qrImage
-                            ],
+                            "qr_image" => $qrImageTag,
                             "qr_comment" => "Ushbu QR kod obyekt pasporti hisoblanadi. QR kodni obyektning ko‘rinarli joyiga o‘rnatib qo‘yishingiz talab etiladi"
                         ]
                     ]);
