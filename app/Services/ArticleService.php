@@ -293,7 +293,7 @@ class ArticleService
                 $this->saveResponseUser($response, $article);
             }
 
-//            $this->acceptResponse($response);
+            $this->acceptResponse($response);
             $this->saveBlocks($response, $article);
             $this->saveEmployee($article);
 
@@ -653,7 +653,7 @@ class ArticleService
                         ]
                     ]);
 
-                if ($return->failed()) throw new NotFoundException($return->reason());
+                if ($return->failed()) throw new NotFoundException("mygovda xatolik yuz berdi");
         }catch (\Exception $exception){
             throw new NotFoundException($exception->getMessage(), $exception->getCode());
         }
