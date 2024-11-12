@@ -293,7 +293,7 @@ class ArticleService
                 $this->saveResponseUser($response, $article);
             }
 
-            $this->acceptResponse($response);
+//            $this->acceptResponse($response);
             $this->saveBlocks($response, $article);
             $this->saveEmployee($article);
 
@@ -642,7 +642,7 @@ class ArticleService
                 $qrImage = base64_encode(QrCode::format('png')->size(200)->generate($domain));
 
                 $qrImageTag = '<img src="data:image/png;base64,' . $qrImage . '" alt="QR Image" />';
-                
+
                 $return = Http::withBasicAuth($authUsername, $authPassword)
                     ->post($apiUrl, [
                         $formName => [
