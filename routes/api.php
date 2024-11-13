@@ -66,7 +66,7 @@ Route::group([
     Route::post('notification-read', [InformationController::class, 'notificationRead']);
     Route::get('statement', [InformationController::class, 'statement']);
     Route::get('qr-image/{id}', [InformationController::class, 'qrImage']);
-    Route::get('register-excel/{id}', [InformationController::class, 'getRegisterExcel']);
+    Route::get('register-excel/{type}', [InformationController::class, 'getRegisterExcel']);
 
 
 

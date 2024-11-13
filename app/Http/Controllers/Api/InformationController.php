@@ -361,10 +361,10 @@ class InformationController extends BaseController
         }
     }
 
-    public function getRegisterExcel($id): JsonResponse
+    public function getRegisterExcel($type): JsonResponse
     {
         try {
-            $excelContent = Excel::raw(new DxaResponseExport($id), \Maatwebsite\Excel\Excel::XLSX);
+            $excelContent = Excel::raw(new DxaResponseExport($type), \Maatwebsite\Excel\Excel::XLSX);
 
             $base64File = base64_encode($excelContent);
 
