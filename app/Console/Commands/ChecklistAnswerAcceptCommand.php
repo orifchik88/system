@@ -34,12 +34,23 @@ class ChecklistAnswerAcceptCommand extends Command
             ->where('status', CheckListStatusEnum::SECOND)
             ->chunk(50, function ($checklists) {
                 foreach ($checklists as $checklist) {
-                    $checklist->update([
-                        'status' => CheckListStatusEnum::CONFIRMED,
-                        'inspector_answered' => 1,
-                        'technic_author_answered_at' => null,
-                        'inspector_answered_at' => null,
-                    ]);
+                    if ($checklist->auto_confirmed)
+                    {
+                        $checklist->update([
+                            'status' => CheckListStatusEnum::CONFIRMED,
+                            'inspector_answered' => 1,
+                            'technic_author_answered_at' => null,
+                            'inspector_answered_at' => null,
+                        ]);
+                    }else{
+                        $checklist->update([
+                            'status' => CheckListStatusEnum::AUTO_CONFIRMED,
+                            'inspector_answered' => 1,
+                            'technic_author_answered_at' => null,
+                            'inspector_answered_at' => now()->addDays(5)->setTime(23, 59, 59),
+                            'auto_confirmed' => true
+                        ]);
+                    }
 
                     $this->saveHistory(UserRoleEnum::INSPECTOR->value, $checklist);
                 }

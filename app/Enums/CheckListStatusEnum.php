@@ -9,4 +9,5 @@ enum CheckListStatusEnum: int
     case  SECOND = 3; // 2-Tasdiqlashdan
     case RAISED = 4; // ETIROZ
     case CONFIRMED = 5; //Tasdiqlangan
+    case AUTO_CONFIRMED = 6; // Avtomatik tasdiqlangan
 }
