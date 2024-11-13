@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\DxaResponseStatusEnum;
 use App\Enums\LawyerStatusEnum;
+use App\Exports\DxaResponseExport;
 use App\Http\Requests\DxaResponseEditRequest;
 use App\Http\Requests\DxaResponseInspectorRequest;
 use App\Http\Requests\DxaResponseRegisterRequest;
@@ -25,6 +26,7 @@ use GuzzleHttp\Client;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Maatwebsite\Excel\Facades\Excel;
 
 class RegisterController extends BaseController
 {
@@ -339,6 +341,24 @@ class RegisterController extends BaseController
             return $this->sendSuccess([], 'Register successfully.');
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function getRegisterExcel($type)
+    {
+        try {
+
+            $timestamp = time();
+            $fileName = 'ariza'.$timestamp . '.xlsx';
+
+            return Excel::download(new DxaResponseExport(service: $this->service,type: $type, user: $this->user, roleId: $this->roleId), $fileName);
+//            $excelContent = Excel::raw(new DxaResponseExport($type), \Maatwebsite\Excel\Excel::XLSX);
+
+//            $base64File = base64_encode($excelContent);
+//
+//            return $this->sendSuccess($base64File, 'Excel');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getLine());
         }
     }
 }

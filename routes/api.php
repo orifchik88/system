@@ -37,6 +37,8 @@ Route::get('organization-pdf/{id}/download', [PdfController::class, 'pdfOrganiza
 
 
 
+
+
 Route::group([
     'middleware' => 'auth:api'
 ], function() {
@@ -66,7 +68,6 @@ Route::group([
     Route::post('notification-read', [InformationController::class, 'notificationRead']);
     Route::get('statement', [InformationController::class, 'statement']);
     Route::get('qr-image/{id}', [InformationController::class, 'qrImage']);
-    Route::get('register-excel/{type}', [InformationController::class, 'getRegisterExcel']);
 
 
 
@@ -106,6 +107,8 @@ Route::group([
     Route::get('register-get-pdf', [RegisterController::class, 'getPDF']);
     Route::get('total-count', [RegisterController::class, 'totalCount']);
     Route::get('register-lawyer-count', [RegisterController::class, 'lawyerCount']);
+    Route::get('register-excel/{type}', [RegisterController::class, 'getRegisterExcel']);
+
 
     Route::post('send-inspector', [RegisterController::class, 'sendInspector']);
     Route::post('send-register', [RegisterController::class, 'sendRegister']);

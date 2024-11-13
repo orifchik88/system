@@ -4,26 +4,27 @@ namespace App\Exports;
 
 use App\Enums\UserRoleEnum;
 use App\Models\DxaResponse;
+use App\Models\User;
+use App\Services\DxaResponseService;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class DxaResponseExport implements FromCollection, WithHeadings
 {
 
-    public function __construct(protected ?int $type)
+    public function __construct(
+        protected DxaResponseService $service,
+        protected ?int $type,
+        protected  $user,
+        protected ?int$roleId
+    )
     {
+
     }
 
     public function collection()
     {
-        return Dxaresponse::with([
-            'supervisors',
-            'region',
-            'district',
-            'objectType',
-            'status'
-        ])
-            ->where('notification_type', $this->type)
+        return  $this->service->getRegisters($this->user, $this->roleId, $this->type)
             ->get()
             ->map(function ($dxaResponse) {
                 return [
