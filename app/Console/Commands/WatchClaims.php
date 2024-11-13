@@ -52,6 +52,8 @@ class  WatchClaims extends Command
                 $status = ClaimStatuses::TASK_STATUS_ANOTHER;
                 if($taskFormGov->task->current_node == "direction-statement-object")
                     $status = ClaimStatuses::TASK_STATUS_ACCEPTANCE;
+                if($taskFormGov->task->current_node == "answer-other-institutions")
+                    $status = ClaimStatuses::TASK_STATUS_SENT_ORGANIZATION;
                 if($taskFormGov->task->current_node == "conclusion-minstroy")
                     $status = ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG;
                 if($taskFormGov->task->current_node == "inactive" && $taskFormGov->task->status == "processed")

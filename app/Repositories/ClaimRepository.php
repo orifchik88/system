@@ -641,9 +641,10 @@ class ClaimRepository implements ClaimRepositoryInterface
         $status = ClaimStatuses::TASK_STATUS_ANOTHER;
         if ($claimGov->task->current_node == "direction-statement-object")
             $status = ClaimStatuses::TASK_STATUS_ACCEPTANCE;
+        if($claimGov->task->current_node == "answer-other-institutions")
+            $status = ClaimStatuses::TASK_STATUS_SENT_ORGANIZATION;
         if($claimGov->task->current_node == "conclusion-minstroy")
             $status = ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG;
-
         if ($claimGov->task->current_node == "inactive" && $claimGov->task->status == "not_active")
             $status = ClaimStatuses::TASK_STATUS_CANCELLED;
 
