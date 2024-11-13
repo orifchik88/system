@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\DxaResponseExport;
 use App\Http\Resources\BasisResource;
 use App\Http\Resources\NormativeDocumentResource;
 use App\Http\Resources\NotificationResource;
@@ -24,6 +25,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\URL;
+use Maatwebsite\Excel\Facades\Excel;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class InformationController extends BaseController
@@ -356,6 +358,19 @@ class InformationController extends BaseController
 
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function getRegisterExcel($id): JsonResponse
+    {
+        try {
+            $excelContent = Excel::raw(new DxaResponseExport($id), \Maatwebsite\Excel\Excel::XLSX);
+
+            $base64File = base64_encode($excelContent);
+
+            return $this->sendSuccess($base64File, 'Excel');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getLine());
         }
     }
 
