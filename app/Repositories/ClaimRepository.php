@@ -235,7 +235,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                 ])
                 ->with(['region', 'district', 'object', 'reviews', 'monitoring'])
                 ->where('claims.id', $id)->first();
-        elseif($role_id == UserRoleEnum::INSPECTOR->value)
+        elseif ($role_id == UserRoleEnum::INSPECTOR->value)
             return $this->claim->query()
                 ->join('responses', 'responses.task_id', '=', 'claims.guid')
                 ->join('article_users', 'article_users.article_id', '=', 'claims.object_id')
@@ -390,7 +390,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                 ->where('districts.soato', $claim->district);
         }
 
-        
+
         $query->select('articles.*');
         $query->when(isset($filters['name']), function ($query) use ($filters) {
             $query->where(function ($subQuery) use ($filters) {
@@ -422,6 +422,12 @@ class ClaimRepository implements ClaimRepositoryInterface
         ?int    $role_id
     ): LengthAwarePaginator
     {
+        $role = match ($role_id) {
+            21 => 16,
+            23 => 15,
+            default => $role_id,
+        };
+
         if ($role_id == null)
             return $this->claim->query()
                 ->with(['object', 'region', 'district'])
@@ -498,7 +504,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                     'claims.created_at as created_at'
                 ])
                 ->paginate(request()->get('per_page'));
-        elseif($role_id == UserRoleEnum::INSPECTOR->value)
+        elseif ($role_id == UserRoleEnum::INSPECTOR->value)
             return $this->claim->query()
                 ->with(['object', 'region', 'district'])
                 ->join('regions', 'regions.soato', '=', 'claims.region')
@@ -611,7 +617,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                 ->when($expired, function ($q) use ($expired) {
                     $q->where('claims.expired', $expired);
                 })
-                ->where('claim_organization_reviews.organization_id', $role_id)
+                ->where('claim_organization_reviews.organization_id', $role)
                 ->groupBy('claims.id', 'responses.api', 'claim_organization_reviews.id', 'articles.task_id')
                 ->orderBy('claims.created_at', strtoupper($sortBy))
                 ->select([
@@ -663,9 +669,9 @@ class ClaimRepository implements ClaimRepositoryInterface
         $status = ClaimStatuses::TASK_STATUS_ANOTHER;
         if ($claimGov->task->current_node == "direction-statement-object")
             $status = ClaimStatuses::TASK_STATUS_ACCEPTANCE;
-        if($claimGov->task->current_node == "answer-other-institutions")
+        if ($claimGov->task->current_node == "answer-other-institutions")
             $status = ClaimStatuses::TASK_STATUS_SENT_ORGANIZATION;
-        if($claimGov->task->current_node == "conclusion-minstroy")
+        if ($claimGov->task->current_node == "conclusion-minstroy")
             $status = ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG;
         if ($claimGov->task->current_node == "inactive" && $claimGov->task->status == "not_active")
             $status = ClaimStatuses::TASK_STATUS_CANCELLED;
