@@ -377,13 +377,23 @@ class ClaimRepository implements ClaimRepositoryInterface
     {
         $claim = $this->getClaimById(id: $id, role_id: null);
 
-        return Article::query()
+        $articles = Article::query()
             ->where('object_status_id', ObjectStatusEnum::PROGRESS->value)
             ->where(function ($query) use ($claim) {
                 $query->where('cadastral_number', $claim->building_cadastral)
                     ->orWhere('number_protocol', $claim->number_conclusion_project);
             })
             ->get();
+
+
+        if ($articles->isEmpty()) {
+            $articles = Article::query()
+                ->join('districts', 'articles.district_id', '=', 'districts.id')
+                ->where('districts.soato', $claim->district)
+                ->get();
+        }
+
+        return $articles;
     }
 
     public function getList(
