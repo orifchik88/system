@@ -397,14 +397,14 @@ class ClaimRepository implements ClaimRepositoryInterface
     public function searchObjects($query, $filters)
     {
         return $query
-            ->when(isset($filters['search']), function ($query) use ($filters) {
+            ->when(isset($filters['name']), function ($query) use ($filters) {
                 $query->where(function ($subQuery) use ($filters) {
-                    $subQuery->searchByName($filters['search'])
+                    $subQuery->searchByName($filters['name'])
                         ->orWhere(function ($subQuery) use ($filters) {
-                            $subQuery->searchByOrganization($filters['search']);
+                            $subQuery->searchByOrganization($filters['name']);
                         })
                         ->orWhere(function ($subQuery) use ($filters) {
-                            $subQuery->searchByTaskId($filters['search']);
+                            $subQuery->searchByTaskId($filters['name']);
                         });
                 });
             });
