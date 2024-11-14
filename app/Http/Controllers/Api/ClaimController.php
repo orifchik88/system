@@ -198,7 +198,7 @@ class ClaimController extends BaseController
             return $this->sendError("Tizimda xatolik", [], 422);
         }
 
-        return $this->sendSuccess(ArticleResource::collection($data), 'Success!');
+        return $this->sendSuccess($data, 'Success!');
     }
 
     public function attachObject(AttachObject $request)
