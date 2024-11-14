@@ -373,42 +373,39 @@ class ClaimRepository implements ClaimRepositoryInterface
             ->where(['claims.guid' => $guid])->first();
     }
 
-    public function getObjects(int $id)
+    public function getObjects(int $id, $filters)
     {
         $claim = $this->getClaimById(id: $id, role_id: null);
 
-        $articles = Article::query()
+        $query = Article::query()
             ->where('object_status_id', ObjectStatusEnum::PROGRESS)
             ->where(function ($query) use ($claim) {
                 $query->where('cadastral_number', $claim->building_cadastral)
                     ->orWhere('number_protocol', $claim->number_conclusion_project);
             });
 
-
-        if (!$articles->exists()) {
-            $articles = Article::query()
+        if (!$query->exists()) {
+            $query = Article::query()
                 ->join('districts', 'articles.district_id', '=', 'districts.id')
                 ->where('districts.soato', $claim->district);
         }
 
-        return $articles;
+        $query->when(isset($filters['name']), function ($query) use ($filters) {
+            $query->where(function ($subQuery) use ($filters) {
+                $subQuery->searchByName($filters['name'])
+                    ->orWhere(function ($subQuery) use ($filters) {
+                        $subQuery->searchByOrganization($filters['name']);
+                    })
+                    ->orWhere(function ($subQuery) use ($filters) {
+                        $subQuery->searchByTaskId($filters['name']);
+                    });
+            });
+        });
+
+
+        return $query->get();
     }
 
-    public function searchObjects($query, $filters)
-    {
-        return $query
-            ->when(isset($filters['name']), function ($query) use ($filters) {
-                $query->where(function ($subQuery) use ($filters) {
-                    $subQuery->searchByName($filters['name'])
-                        ->orWhere(function ($subQuery) use ($filters) {
-                            $subQuery->searchByOrganization($filters['name']);
-                        })
-                        ->orWhere(function ($subQuery) use ($filters) {
-                            $subQuery->searchByTaskId($filters['name']);
-                        });
-                });
-            });
-    }
 
     public function getList(
         ?int    $regionId,

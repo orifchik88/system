@@ -95,15 +95,11 @@ class ClaimService
         return $this->claimRepository->getClaimById(id: $id, role_id: $role_id);
     }
 
-    public function getObjects(int $id)
+    public function getObjects(int $id, $filters)
     {
-        return $this->claimRepository->getObjects(id: $id);
+        return $this->claimRepository->getObjects(id: $id, filters: $filters);
     }
 
-    public function searchObjects($query, $filters)
-    {
-        return $this->claimRepository->searchObjects($query, $filters);
-    }
 
     public function getClaimByGUID(int $guid)
     {
