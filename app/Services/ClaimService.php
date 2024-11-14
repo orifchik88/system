@@ -908,17 +908,21 @@ class ClaimService
                     $status = ClaimStatuses::TASK_STATUS_ANOTHER;
                     if ($consolidationGov->task->current_node == "direction-statement-object") {
                         $status = ClaimStatuses::TASK_STATUS_ACCEPTANCE;
-                        if ($consolidationDb->object_id != null)
-                            $status = ClaimStatuses::TASK_STATUS_ATTACH_OBJECT;
                     }
                     if ($consolidationGov->task->current_node == "answer-other-institutions") {
                         $status = ClaimStatuses::TASK_STATUS_SENT_ORGANIZATION;
                         $reviews = ClaimOrganizationReview::where('claim_id', $consolidationDb->id)->get();
-                        list($isFinished, $allSuccess) = $this->checkReviewCount($reviews);
+                        if ($reviews->count() > 0) {
+                            list($isFinished, $allSuccess) = $this->checkReviewCount($reviews);
 
-                        if ($allSuccess) {
-                            $status = ClaimStatuses::TASK_STATUS_INSPECTOR;
-                        }
+                            if ($allSuccess) {
+                                $status = ClaimStatuses::TASK_STATUS_INSPECTOR;
+                            }
+                        } else
+                            $status = ClaimStatuses::TASK_STATUS_ATTACH_OBJECT;
+
+                        if ($consolidationDb->object_id == null)
+                            $status = ClaimStatuses::TASK_STATUS_ATTACH_OBJECT;
                     }
                     if ($consolidationGov->task->current_node == "conclusion-minstroy")
                         $status = ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG;

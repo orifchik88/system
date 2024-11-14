@@ -152,7 +152,7 @@ class ClaimController extends BaseController
             sortBy: $sortBy,
             status: $status,
             expired: $expired,
-            role_id: (in_array($roleId, [15, 16, 17, 18, 19, 3])) ? $roleId : null
+            role_id: (in_array($roleId, [15, 16, 17, 18, 19, 3, 21, 23])) ? $roleId : null
         );
 
 
@@ -190,7 +190,7 @@ class ClaimController extends BaseController
         $filters = request()->only(['name']);
         $data = $this->claimService->getObjects(
             id: $id,
-            filters:$filters
+            filters: $filters
         );
 
 
