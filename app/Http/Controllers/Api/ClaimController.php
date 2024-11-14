@@ -15,6 +15,7 @@ use App\Http\Requests\ClaimRequests\rejectClaimByInspector;
 use App\Http\Requests\ClaimRequests\RejectClaimByOperator;
 use App\Http\Requests\ClaimRequests\RejectFromDirector;
 use App\Http\Requests\ClaimRequests\SendToDirector;
+use App\Http\Resources\ArticleResource;
 use App\Models\Block;
 use App\Models\ClaimOrganizationReview;
 use App\Services\ClaimService;
@@ -197,7 +198,7 @@ class ClaimController extends BaseController
             return $this->sendError("Tizimda xatolik", [], 422);
         }
 
-        return $this->sendSuccess($data, 'Success!');
+        return $this->sendSuccess(ArticleResource::collection($data), 'Success!');
     }
 
     public function attachObject(AttachObject $request)
