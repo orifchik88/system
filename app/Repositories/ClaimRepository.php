@@ -105,6 +105,12 @@ class ClaimRepository implements ClaimRepositoryInterface
 
     public function organizationStatistics(int $roleId, ?string $dateFrom, ?string $dateTo)
     {
+        $role = match ($roleId) {
+            21 => 16,
+            23 => 15,
+            default => $roleId,
+        };
+
         return $this->claim->query()
             ->join('claim_organization_reviews', 'claim_organization_reviews.claim_id', '=', 'claims.id')
             ->select(DB::raw("
@@ -119,7 +125,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                 $q->whereDate('claims.created_at', '<=', $dateTo);
             })
             ->when($roleId, function ($q) use ($roleId) {
-                $q->where('claim_organization_reviews.organization_id', $roleId);
+                $q->where('claim_organization_reviews.organization_id', $role);
             })
             ->first()
             ->setAppends([]);
