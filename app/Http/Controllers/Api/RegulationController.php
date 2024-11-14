@@ -183,7 +183,7 @@ class RegulationController extends BaseController
     public function rejectDate(RegulationDemandRequest $request): JsonResponse
     {
         DB::beginTransaction();
-        
+
         try {
             $regulation = Regulation::query()->findOrFaiL($request->post('regulation_id'));
             $user = Auth::user();
