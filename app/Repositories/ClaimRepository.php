@@ -382,18 +382,32 @@ class ClaimRepository implements ClaimRepositoryInterface
             ->where(function ($query) use ($claim) {
                 $query->where('cadastral_number', $claim->building_cadastral)
                     ->orWhere('number_protocol', $claim->number_conclusion_project);
-            })
-            ->get();
+            });
 
 
-        if ($articles->isEmpty()) {
+        if (!$articles->exists()) {
             $articles = Article::query()
                 ->join('districts', 'articles.district_id', '=', 'districts.id')
-                ->where('districts.soato', $claim->district)
-                ->get();
+                ->where('districts.soato', $claim->district);
         }
 
         return $articles;
+    }
+
+    public function searchObjects($query, $filters)
+    {
+        return $query
+            ->when(isset($filters['search']), function ($query) use ($filters) {
+                $query->where(function ($subQuery) use ($filters) {
+                    $subQuery->searchByName($filters['search'])
+                        ->orWhere(function ($subQuery) use ($filters) {
+                            $subQuery->searchByOrganization($filters['search']);
+                        })
+                        ->orWhere(function ($subQuery) use ($filters) {
+                            $subQuery->searchByTaskId($filters['search']);
+                        });
+                });
+            });
     }
 
     public function getList(

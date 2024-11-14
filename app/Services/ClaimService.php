@@ -100,6 +100,11 @@ class ClaimService
         return $this->claimRepository->getObjects(id: $id);
     }
 
+    public function searchObjects($query, $filters)
+    {
+        return $this->claimRepository->searchObjects($query, $filters);
+    }
+
     public function getClaimByGUID(int $guid)
     {
         return $this->claimRepository->getClaimByGUID(guid: $guid);
@@ -914,7 +919,7 @@ class ClaimService
                         $status = ClaimStatuses::TASK_STATUS_SENT_ORGANIZATION;
                         $reviews = ClaimOrganizationReview::where('claim_id', $consolidationDb->id)->get();
                         list($isFinished, $allSuccess) = $this->checkReviewCount($reviews);
-                        
+
                         if ($allSuccess) {
                             $status = ClaimStatuses::TASK_STATUS_INSPECTOR;
                         }

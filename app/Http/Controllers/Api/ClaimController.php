@@ -186,9 +186,12 @@ class ClaimController extends BaseController
 
     public function getObjects($id)
     {
-        $data = $this->claimService->getObjects(
+        $filters = request()->only(['search']);
+        $query = $this->claimService->getObjects(
             id: $id
         );
+
+        $data = $this->claimService->searchObjects($query, $filters)->get();
 
         if (!$data) {
             return $this->sendError("Tizimda xatolik", [], 422);

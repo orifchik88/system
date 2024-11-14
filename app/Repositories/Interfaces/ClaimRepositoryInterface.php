@@ -40,6 +40,8 @@ interface ClaimRepositoryInterface
 
     public function getObjects(int $id);
 
+    public function searchObjects($query, $filters);
+
     public function createClaim($consolidationGov, $expiryDate);
 
     public function getList(
