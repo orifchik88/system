@@ -106,8 +106,9 @@ class RegulationController extends BaseController
 
     public function askDate(RegulationDemandRequest $request): JsonResponse
     {
+        DB::beginTransaction();
+
         try {
-            DB::beginTransaction();
             $user = Auth::user();
             $roleId = $user->getRoleFromToken();
 
@@ -132,7 +133,7 @@ class RegulationController extends BaseController
                 'act_status_id' => 10
             ]);
 
-            if ($regulation->created_by_user_id == UserRoleEnum::INSPECTOR->value)
+            if ($regulation->created_by_role_id == UserRoleEnum::INSPECTOR->value)
             {
                 $this->sendNotification($this->user, $this->roleId, $regulation);
             }
@@ -149,8 +150,8 @@ class RegulationController extends BaseController
 
     public function acceptDate(RegulationAcceptRequest $request): JsonResponse
     {
+        DB::beginTransaction();
         try {
-            DB::beginTransaction();
             $user = Auth::user();
             $roleId = $user->getRoleFromToken();
 
@@ -181,8 +182,9 @@ class RegulationController extends BaseController
 
     public function rejectDate(RegulationDemandRequest $request): JsonResponse
     {
+        DB::beginTransaction();
+        
         try {
-            DB::beginTransaction();
             $regulation = Regulation::query()->findOrFaiL($request->post('regulation_id'));
             $user = Auth::user();
             $roleId = $user->getRoleFromToken();
