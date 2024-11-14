@@ -124,7 +124,7 @@ class ClaimRepository implements ClaimRepositoryInterface
             ->when($dateTo, function ($q) use ($dateTo) {
                 $q->whereDate('claims.created_at', '<=', $dateTo);
             })
-            ->when($roleId, function ($q) use ($roleId) {
+            ->when($role, function ($q) use ($role) {
                 $q->where('claim_organization_reviews.organization_id', $role);
             })
             ->first()
