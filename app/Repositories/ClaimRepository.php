@@ -106,8 +106,10 @@ class ClaimRepository implements ClaimRepositoryInterface
     public function organizationStatistics(int $roleId, ?string $dateFrom, ?string $dateTo)
     {
         $role = match ($roleId) {
-            21 => 16,
-            23 => 15,
+            21, 20 => 16,
+            23, 22 => 15,
+            24 => 17,
+            25 => 18,
             default => $roleId,
         };
 
@@ -429,8 +431,10 @@ class ClaimRepository implements ClaimRepositoryInterface
     ): LengthAwarePaginator
     {
         $role = match ($role_id) {
-            21 => 16,
-            23 => 15,
+            21, 20 => 16,
+            23, 22 => 15,
+            24 => 17,
+            25 => 18,
             default => $role_id,
         };
 
