@@ -23,6 +23,7 @@ class CheckListAnswerService
             case UserRoleEnum::LOYIHA->value:
                 return $this->getCheckListByRole($user, $roleId, $type)->whereStatus(CheckListStatusEnum::FIRST)->whereNotIn('work_type_id',  [1, 11])->whereNull('author_answered');
             case UserRoleEnum::INSPEKSIYA->value:
+                return $this->getCheckListByRegion($user, $type)->whereStatus(CheckListStatusEnum::AUTO_CONFIRMED)->where('inspector_answered', 1);
             case UserRoleEnum::HUDUDIY_KUZATUVCHI->value:
             case UserRoleEnum::QURILISH_MONTAJ->value:
                 return $this->getCheckListByRegion($user, $type)->whereStatus(CheckListStatusEnum::SECOND)->whereNull('inspector_answered');

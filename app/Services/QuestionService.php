@@ -523,7 +523,7 @@ class QuestionService
     {
         return Regulation::create([
             'object_id' => $object->id,
-            'deadline' => Carbon::now()->addDays($role['deadline']),
+            'deadline' => Carbon::now()->addDays($role['deadline'])->endOfDay(),
             'checklist_id' => $role['checklist_id'],
             'question_id' => $role['question_id'],
             'regulation_status_id' => RegulationStatusEnum::PROVIDE_REMEDY,

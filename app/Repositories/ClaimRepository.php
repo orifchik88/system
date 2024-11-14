@@ -390,7 +390,7 @@ class ClaimRepository implements ClaimRepositoryInterface
                 ->where('districts.soato', $claim->district);
         }
 
-        
+
         $query->select('articles.*');
         $query->when(isset($filters['name']), function ($query) use ($filters) {
             $query->where(function ($subQuery) use ($filters) {

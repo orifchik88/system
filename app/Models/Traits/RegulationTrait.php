@@ -2,9 +2,11 @@
 
 namespace App\Models\Traits;
 
+use App\Enums\RegulationStatusEnum;
 use App\Models\Article;
 use App\Models\User;
 use App\Models\Violation;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -17,10 +19,51 @@ trait RegulationTrait
     {
         parent::boot();
 
-//        static::creating(function ($model) {
-//            $lastRegulationNumber = self::max('regulation_number') ?? 199999;
-//            $model->regulation_number = (int)$lastRegulationNumber + 1;
-//        });
+        static::saved(function ($model) {
+            if ($model->regulation_status_id == RegulationStatusEnum::CONFIRM_REMEDY && $model->getOriginal('regulation_status_id') == RegulationStatusEnum::PROVIDE_REMEDY) {
+                $model->update([
+                    'paused_at' => Carbon::now(),
+                ]);
+            }
+
+            if (($model->regulation_status_id == RegulationStatusEnum::PROVIDE_REMEDY || $model->regulation_status_id == RegulationStatusEnum::ATTACH_DEED) && $model->getOriginal('regulation_status_id') == RegulationStatusEnum::CONFIRM_REMEDY) {
+                if ($model->paused_at) {
+                    $elapsedSeconds = Carbon::now()->diffInSeconds(Carbon::parse($model->paused_at));
+
+                    $newDeadline = Carbon::parse($model->previous_deadline)->addSeconds($elapsedSeconds)->toDateTimeString();
+
+                    $model->update([
+                        'deadline' => $newDeadline,
+                        'paused_at' => null,
+                    ]);
+                }
+            }
+
+            if ($model->regulation_status_id == RegulationStatusEnum::CONFIRM_DEED && $model->getOriginal('regulation_status_id') == RegulationStatusEnum::ATTACH_DEED) {
+                $model->update([
+                    'paused_at' => Carbon::now(),
+                ]);
+            }
+
+            if ($model->regulation_status_id == RegulationStatusEnum::ATTACH_DEED && $model->getOriginal('regulation_status_id') == RegulationStatusEnum::CONFIRM_DEED) {
+                if ($model->paused_at) {
+                    $elapsedSeconds = Carbon::now()->diffInSeconds(Carbon::parse($model->paused_at));
+
+                    $newDeadline = Carbon::parse($model->previous_deadline)->addSeconds($elapsedSeconds)->toDateTimeString();
+
+                    $model->update([
+                        'deadline' => $newDeadline,
+                        'paused_at' => null,
+                    ]);
+                }
+            }
+
+            if ($model->regulation_status_id == RegulationStatusEnum::CONFIRM_REMEDY && $model->getOriginal('regulation_status_id') != RegulationStatusEnum::CONFIRM_REMEDY) {
+                $model->update([
+                    'previous_deadline' => $model->deadline,
+                ]);
+            }
+        });
     }
 
 
