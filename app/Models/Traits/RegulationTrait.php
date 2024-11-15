@@ -14,57 +14,6 @@ use Spatie\Permission\Models\Role;
 
 trait RegulationTrait
 {
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::saved(function ($model) {
-            if ($model->isDirty('regulation_status_id')) {
-
-                if ($model->regulation_status_id == RegulationStatusEnum::CONFIRM_REMEDY &&
-                    $model->getOriginal('regulation_status_id') == RegulationStatusEnum::PROVIDE_REMEDY) {
-
-                    $model->paused_at = Carbon::now();
-                    $model->saveQuietly();
-                }
-
-                if (($model->regulation_status_id == RegulationStatusEnum::PROVIDE_REMEDY ||
-                        $model->regulation_status_id == RegulationStatusEnum::ATTACH_DEED) &&
-                    $model->getOriginal('regulation_status_id') == RegulationStatusEnum::CONFIRM_REMEDY) {
-
-                    if ($model->paused_at) {
-                        $elapsedSeconds = Carbon::now()->diffInSeconds(Carbon::parse($model->paused_at));
-                        $model->deadline = Carbon::parse($model->previous_deadline)->addSeconds($elapsedSeconds)->toDateTimeString();
-                        $model->paused_at = null;
-                        $model->saveQuietly();
-                    }
-                }
-
-                if ($model->regulation_status_id == RegulationStatusEnum::CONFIRM_DEED &&
-                    $model->getOriginal('regulation_status_id') == RegulationStatusEnum::ATTACH_DEED) {
-
-                    $model->paused_at = Carbon::now();
-                    $model->saveQuietly();
-                }
-
-                // Status ATTACH_DEED ga qaytganda deadline davom etadi
-                if ($model->regulation_status_id == RegulationStatusEnum::ATTACH_DEED &&
-                    $model->getOriginal('regulation_status_id') == RegulationStatusEnum::CONFIRM_DEED) {
-
-                    if ($model->paused_at) {
-                        $elapsedSeconds = Carbon::now()->diffInSeconds(Carbon::parse($model->paused_at));
-                        $model->deadline = Carbon::parse($model->previous_deadline)->addSeconds($elapsedSeconds)->toDateTimeString();
-                        $model->paused_at = null;
-                        $model->saveQuietly();
-                    }
-                }
-
-            }
-        });
-    }
-
-
     public function scopeWithInspectorRole(Builder $query): Builder
     {
         return $query->whereHas('role', function($query) {

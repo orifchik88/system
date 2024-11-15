@@ -149,9 +149,22 @@ class RegulationService
             if ($violations->isEmpty()){
                 throw new NotFoundException('Chora tadbir topilmadi');
             }
+
+            if ($regulation->paused_at) {
+                $pausedAt = Carbon::parse($regulation->paused_at);
+                $deadline = Carbon::parse($regulation->deadline);
+                $differenceInSeconds = $pausedAt->diffInSeconds(Carbon::now());
+                $newDeadline = $deadline->addSeconds($differenceInSeconds);
+            } else {
+                $newDeadline = $regulation->deadline;
+            }
+
             $regulation->update([
                 'regulation_status_id' => RegulationStatusEnum::PROVIDE_REMEDY,
+                'deadline' => $newDeadline,
+                'paused_at' => null,
             ]);
+
             $this->deadlineRejected($regulation);
 
             foreach ($violations as $violation) {
@@ -194,9 +207,19 @@ class RegulationService
             if ($actViolations->isEmpty()) {
                 throw new NotFoundException('Chora tadbir topilmadi');
             }
+            if ($regulation->paused_at) {
+                $pausedAt = Carbon::parse($regulation->paused_at);
+                $deadline = Carbon::parse($regulation->deadline);
+                $differenceInSeconds = $pausedAt->diffInSeconds(Carbon::now());
+                $newDeadline = $deadline->addSeconds($differenceInSeconds);
+            } else {
+                $newDeadline = $regulation->deadline;
+            }
 
             $regulation->update([
-                'regulation_status_id' => RegulationStatusEnum::ATTACH_DEED,
+                'regulation_status_id' => RegulationStatusEnum::PROVIDE_REMEDY,
+                'deadline' => $newDeadline,
+                'paused_at' => null,
             ]);
 
             foreach ($actViolations as $actViolation) {
@@ -234,6 +257,7 @@ class RegulationService
             $regulation = Regulation::query()->findOrFail($dto->regulationId);
             $regulation->update([
                 'regulation_status_id' => RegulationStatusEnum::CONFIRM_DEED,
+                'paused_at' => now()
             ]);
             if ($regulation->created_by_role_id == UserRoleEnum::INSPECTOR->value)
             {
@@ -354,12 +378,23 @@ class RegulationService
             if ($violations->isEmpty()){
                 throw new NotFoundException('Dalolatnoma topilmadi');
             }
+
+            if ($regulation->paused_at) {
+                $pausedAt = Carbon::parse($regulation->paused_at);
+                $deadline = Carbon::parse($regulation->deadline);
+                $differenceInSeconds = $pausedAt->diffInSeconds(Carbon::now());
+                $newDeadline = $deadline->addSeconds($differenceInSeconds);
+            } else {
+                $newDeadline = $regulation->deadline;
+            }
+
             $regulation->update([
-                'regulation_status_id' => RegulationStatusEnum::ATTACH_DEED,
+                'regulation_status_id' => RegulationStatusEnum::PROVIDE_REMEDY,
+                'deadline' => $newDeadline,
+                'paused_at' => null,
             ]);
 
             $this->deadlineRejected($regulation);
-
 
             foreach ($violations as $violation) {
                 RegulationDemand::create([

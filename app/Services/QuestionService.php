@@ -588,6 +588,7 @@ class QuestionService
             $regulation = Regulation::query()->findOrFail($dto->regulationId);
             $regulation->update([
                 'regulation_status_id' => RegulationStatusEnum::CONFIRM_REMEDY,
+                'paused_at' => now()
             ]);
 
             if ($regulation->created_by_role_id = UserRoleEnum::INSPECTOR->value) {
