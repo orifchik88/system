@@ -182,6 +182,7 @@ Route::group([
     Route::post('accept-work-type', [MonitoringController::class, 'acceptWorkType']);
 
     Route::get('check-list-answer', [CheckListAnswerController::class, 'index']);
+    Route::post('check-list-status-change', [CheckListAnswerController::class, 'checklistStatusChange']);
 
 
     Route::post('test', [RegulationController::class, 'test']);

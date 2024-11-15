@@ -11,20 +11,21 @@ use App\Repositories\HistoryRepository;
 use App\Repositories\Interfaces\HistoryRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class ChecklistAnswerAcceptCommand extends Command
+class ChecklistAutoAcceptForInspector extends Command
 {
-//    private HistoryRepositoryInterface $repository;
-//
-//
-//    public function __construct()
-//    {
-//        parent::__construct();
-//        $this->repository = new HistoryRepository('check_list_histories');
-//    }
-    protected $signature = 'checklist:answer-accept';
+
+    private HistoryRepositoryInterface $repository;
+
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->repository = new HistoryRepository('check_list_histories');
+    }
+
+    protected $signature = 'checklist:answer-accept-inspector';
 
     protected $description = 'Command description';
 
@@ -55,56 +56,7 @@ class ChecklistAnswerAcceptCommand extends Command
                     $this->saveHistory(UserRoleEnum::INSPECTOR->value, $checklist);
                 }
             });
-        CheckListAnswer::query()->where('technic_author_answered_at', '<=', Carbon::now())
-            ->where('status', CheckListStatusEnum::FIRST)
-            ->whereNull('author_answered')
-            ->chunk(50, function ($checklists) {
-                foreach ($checklists as $checklist) {
-                    if ($checklist->technic_answered)
-                    {
-                        $checklist->update([
-                            'status' => CheckListStatusEnum::SECOND,
-                            'author_answered' => 1,
-                            'technic_author_answered_at' => null,
-                            'inspector_answered_at' => now()->addDays(5)->setTime(23, 59, 59),
-                        ]);
 
-                    }else{
-                        $checklist->update([
-                            'author_answered' => 1,
-                        ]);
-                    }
-                    $this->saveHistory(UserRoleEnum::MUALLIF->value, $checklist);
-
-
-
-                }
-            });
-
-        CheckListAnswer::query()->where('technic_author_answered_at', '<=', Carbon::now())
-            ->where('status', CheckListStatusEnum::FIRST)
-            ->whereNull('technic_answered')
-            ->chunk(50, function ($checklists) {
-                foreach ($checklists as $checklist) {
-                    if ($checklist->author_answered)
-                    {
-                        $checklist->update([
-                            'status' => CheckListStatusEnum::SECOND,
-                            'technic_answered' => 1,
-                            'technic_author_answered_at' => null,
-                            'inspector_answered_at' => now()->addDays(5)->setTime(23, 59, 59),
-                        ]);
-
-                    }else{
-                        $checklist->update([
-                            'technic_answered' => 1,
-                        ]);
-                    }
-
-                    $this->saveHistory(UserRoleEnum::TEXNIK->value, $checklist);
-
-                }
-            });
     }
 
     private function saveHistory($roleId, $checklist)

@@ -2,17 +2,23 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\LogType;
 use App\Http\Resources\CheckListAnswerResource;
+use App\Models\CheckList;
 use App\Models\CheckListAnswer;
 use App\Services\CheckListAnswerService;
+use App\Services\HistoryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
 class ChecklistAnswerController extends BaseController
 {
 
+    private HistoryService $historyService;
     public function __construct(protected CheckListAnswerService $service)
     {
+        $this->historyService = new HistoryService('check_list_histories');
+
         $this->middleware('auth');
         parent::__construct();
     }
@@ -26,6 +32,31 @@ class ChecklistAnswerController extends BaseController
             return $this->sendSuccess(CheckListAnswerResource::collection($checkListAnswers), 'All Checklist Answers retrieved successfully.', pagination($checkListAnswers));
 
         } catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage());
+        }
+    }
+
+    public function checklistStatusChange(): JsonResponse
+    {
+        try {
+            $checklist = CheckListAnswer::findOrFail(request('checklist_id'));
+            $checklist->update([
+                'status' => request('status')
+            ]);
+
+            $meta = ['user_id' => $this->user->id, 'role_id' => $this->roleId];
+
+            $this->historyService->createHistory(
+                guId: $checklist->id,
+                status: $checklist->status->value,
+                type: LogType::TASK_HISTORY,
+                date: null,
+                comment: request('comment') ?? "",
+                additionalInfo: $meta
+            );
+
+            return $this->sendSuccess([], 'Checklist status updated successfully.');
+        }catch (\Exception $exception){
             return $this->sendError($exception->getMessage());
         }
     }
