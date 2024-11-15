@@ -20,18 +20,15 @@ trait RegulationTrait
         parent::boot();
 
         static::saved(function ($model) {
-            // Bir necha martalik update bo'lishining oldini olish uchun o'zgarganligini tekshirish
             if ($model->isDirty('regulation_status_id')) {
 
-                // Status CONFIRM_REMEDY ga o'zgarganda paused_at ni belgilash
                 if ($model->regulation_status_id == RegulationStatusEnum::CONFIRM_REMEDY &&
                     $model->getOriginal('regulation_status_id') == RegulationStatusEnum::PROVIDE_REMEDY) {
 
                     $model->paused_at = Carbon::now();
-                    $model->saveQuietly(); // saveQuietly qayta saved event ni chaqirmaydi
+                    $model->saveQuietly();
                 }
 
-                // Status PROVIDE_REMEDY yoki ATTACH_DEED ga qaytganda, deadline davom etadi
                 if (($model->regulation_status_id == RegulationStatusEnum::PROVIDE_REMEDY ||
                         $model->regulation_status_id == RegulationStatusEnum::ATTACH_DEED) &&
                     $model->getOriginal('regulation_status_id') == RegulationStatusEnum::CONFIRM_REMEDY) {
@@ -44,7 +41,6 @@ trait RegulationTrait
                     }
                 }
 
-                // Status CONFIRM_DEED ga o'zgarganda paused_at ni belgilash
                 if ($model->regulation_status_id == RegulationStatusEnum::CONFIRM_DEED &&
                     $model->getOriginal('regulation_status_id') == RegulationStatusEnum::ATTACH_DEED) {
 
@@ -64,13 +60,6 @@ trait RegulationTrait
                     }
                 }
 
-                // Status CONFIRM_REMEDY ga o'zgarganda previous_deadline saqlash
-                if ($model->regulation_status_id == RegulationStatusEnum::CONFIRM_REMEDY &&
-                    $model->getOriginal('regulation_status_id') != RegulationStatusEnum::CONFIRM_REMEDY) {
-
-                    $model->previous_deadline = $model->deadline;
-                    $model->saveQuietly();
-                }
             }
         });
     }
