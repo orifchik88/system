@@ -435,8 +435,19 @@ class RegulationService
             if ($violations->isEmpty()){
                 throw new NotFoundException('Dalolatnoma topilmadi');
             }
+
+            if ($regulation->paused_at) {
+                $pausedAt = Carbon::parse($regulation->paused_at);
+                $deadline = Carbon::parse($regulation->deadline);
+                $differenceInSeconds = $pausedAt->diffInSeconds(Carbon::now());
+                $newDeadline = $deadline->addSeconds($differenceInSeconds);
+            } else {
+                $newDeadline = $regulation->deadline;
+            }
             $regulation->update([
                 'regulation_status_id' => RegulationStatusEnum::ATTACH_DEED,
+                'deadline' => $newDeadline,
+                'paused_at' => null,
             ]);
 
             $this->deadlineRejected($regulation);
@@ -485,8 +496,19 @@ class RegulationService
             }
 
             if ($regulation->created_by_role_id  != 3){
+                if ($regulation->paused_at) {
+                    $pausedAt = Carbon::parse($regulation->paused_at);
+                    $deadline = Carbon::parse($regulation->deadline);
+                    $differenceInSeconds = $pausedAt->diffInSeconds(Carbon::now());
+                    $newDeadline = $deadline->addSeconds($differenceInSeconds);
+                } else {
+                    $newDeadline = $regulation->deadline;
+                }
+
                 $regulation->update([
                     'regulation_status_id' => RegulationStatusEnum::ELIMINATED,
+                    'deadline' => $newDeadline,
+                    'paused_at' => null,
                 ]);
                 $status = 13;
             }else{
@@ -537,8 +559,19 @@ class RegulationService
                 throw new NotFoundException('Dalolatnoma topilmadi');
             }
 
+            if ($regulation->paused_at) {
+                $pausedAt = Carbon::parse($regulation->paused_at);
+                $deadline = Carbon::parse($regulation->deadline);
+                $differenceInSeconds = $pausedAt->diffInSeconds(Carbon::now());
+                $newDeadline = $deadline->addSeconds($differenceInSeconds);
+            } else {
+                $newDeadline = $regulation->deadline;
+            }
+
             $regulation->update([
                 'regulation_status_id' => RegulationStatusEnum::ELIMINATED,
+                'deadline' => $newDeadline,
+                'paused_at' => null,
             ]);
 
             foreach ($actViolations as $actViolation) {
