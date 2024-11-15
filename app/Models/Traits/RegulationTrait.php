@@ -15,65 +15,65 @@ use Spatie\Permission\Models\Role;
 trait RegulationTrait
 {
 
-//    protected static function boot()
-//    {
-//        parent::boot();
-//
-//        static::saved(function ($model) {
-//            // Bir necha martalik update bo'lishining oldini olish uchun o'zgarganligini tekshirish
-//            if ($model->isDirty('regulation_status_id')) {
-//
-//                // Status CONFIRM_REMEDY ga o'zgarganda paused_at ni belgilash
-//                if ($model->regulation_status_id == RegulationStatusEnum::CONFIRM_REMEDY &&
-//                    $model->getOriginal('regulation_status_id') == RegulationStatusEnum::PROVIDE_REMEDY) {
-//
-//                    $model->paused_at = Carbon::now();
-//                    $model->saveQuietly(); // saveQuietly qayta saved event ni chaqirmaydi
-//                }
-//
-//                // Status PROVIDE_REMEDY yoki ATTACH_DEED ga qaytganda, deadline davom etadi
-//                if (($model->regulation_status_id == RegulationStatusEnum::PROVIDE_REMEDY ||
-//                        $model->regulation_status_id == RegulationStatusEnum::ATTACH_DEED) &&
-//                    $model->getOriginal('regulation_status_id') == RegulationStatusEnum::CONFIRM_REMEDY) {
-//
-//                    if ($model->paused_at) {
-//                        $elapsedSeconds = Carbon::now()->diffInSeconds(Carbon::parse($model->paused_at));
-//                        $model->deadline = Carbon::parse($model->previous_deadline)->addSeconds($elapsedSeconds)->toDateTimeString();
-//                        $model->paused_at = null;
-//                        $model->saveQuietly();
-//                    }
-//                }
-//
-//                // Status CONFIRM_DEED ga o'zgarganda paused_at ni belgilash
-//                if ($model->regulation_status_id == RegulationStatusEnum::CONFIRM_DEED &&
-//                    $model->getOriginal('regulation_status_id') == RegulationStatusEnum::ATTACH_DEED) {
-//
-//                    $model->paused_at = Carbon::now();
-//                    $model->saveQuietly();
-//                }
-//
-//                // Status ATTACH_DEED ga qaytganda deadline davom etadi
-//                if ($model->regulation_status_id == RegulationStatusEnum::ATTACH_DEED &&
-//                    $model->getOriginal('regulation_status_id') == RegulationStatusEnum::CONFIRM_DEED) {
-//
-//                    if ($model->paused_at) {
-//                        $elapsedSeconds = Carbon::now()->diffInSeconds(Carbon::parse($model->paused_at));
-//                        $model->deadline = Carbon::parse($model->previous_deadline)->addSeconds($elapsedSeconds)->toDateTimeString();
-//                        $model->paused_at = null;
-//                        $model->saveQuietly();
-//                    }
-//                }
-//
-//                // Status CONFIRM_REMEDY ga o'zgarganda previous_deadline saqlash
-//                if ($model->regulation_status_id == RegulationStatusEnum::CONFIRM_REMEDY &&
-//                    $model->getOriginal('regulation_status_id') != RegulationStatusEnum::CONFIRM_REMEDY) {
-//
-//                    $model->previous_deadline = $model->deadline;
-//                    $model->saveQuietly();
-//                }
-//            }
-//        });
-//    }
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saved(function ($model) {
+            // Bir necha martalik update bo'lishining oldini olish uchun o'zgarganligini tekshirish
+            if ($model->isDirty('regulation_status_id')) {
+
+                // Status CONFIRM_REMEDY ga o'zgarganda paused_at ni belgilash
+                if ($model->regulation_status_id == RegulationStatusEnum::CONFIRM_REMEDY &&
+                    $model->getOriginal('regulation_status_id') == RegulationStatusEnum::PROVIDE_REMEDY) {
+
+                    $model->paused_at = Carbon::now();
+                    $model->saveQuietly(); // saveQuietly qayta saved event ni chaqirmaydi
+                }
+
+                // Status PROVIDE_REMEDY yoki ATTACH_DEED ga qaytganda, deadline davom etadi
+                if (($model->regulation_status_id == RegulationStatusEnum::PROVIDE_REMEDY ||
+                        $model->regulation_status_id == RegulationStatusEnum::ATTACH_DEED) &&
+                    $model->getOriginal('regulation_status_id') == RegulationStatusEnum::CONFIRM_REMEDY) {
+
+                    if ($model->paused_at) {
+                        $elapsedSeconds = Carbon::now()->diffInSeconds(Carbon::parse($model->paused_at));
+                        $model->deadline = Carbon::parse($model->previous_deadline)->addSeconds($elapsedSeconds)->toDateTimeString();
+                        $model->paused_at = null;
+                        $model->saveQuietly();
+                    }
+                }
+
+                // Status CONFIRM_DEED ga o'zgarganda paused_at ni belgilash
+                if ($model->regulation_status_id == RegulationStatusEnum::CONFIRM_DEED &&
+                    $model->getOriginal('regulation_status_id') == RegulationStatusEnum::ATTACH_DEED) {
+
+                    $model->paused_at = Carbon::now();
+                    $model->saveQuietly();
+                }
+
+                // Status ATTACH_DEED ga qaytganda deadline davom etadi
+                if ($model->regulation_status_id == RegulationStatusEnum::ATTACH_DEED &&
+                    $model->getOriginal('regulation_status_id') == RegulationStatusEnum::CONFIRM_DEED) {
+
+                    if ($model->paused_at) {
+                        $elapsedSeconds = Carbon::now()->diffInSeconds(Carbon::parse($model->paused_at));
+                        $model->deadline = Carbon::parse($model->previous_deadline)->addSeconds($elapsedSeconds)->toDateTimeString();
+                        $model->paused_at = null;
+                        $model->saveQuietly();
+                    }
+                }
+
+                // Status CONFIRM_REMEDY ga o'zgarganda previous_deadline saqlash
+                if ($model->regulation_status_id == RegulationStatusEnum::CONFIRM_REMEDY &&
+                    $model->getOriginal('regulation_status_id') != RegulationStatusEnum::CONFIRM_REMEDY) {
+
+                    $model->previous_deadline = $model->deadline;
+                    $model->saveQuietly();
+                }
+            }
+        });
+    }
 
 
     public function scopeWithInspectorRole(Builder $query): Builder
