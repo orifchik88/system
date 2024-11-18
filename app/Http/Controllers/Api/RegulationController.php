@@ -41,7 +41,7 @@ class RegulationController extends BaseController
     {
         try {
             $query = $this->regulationService->getRegulations($this->user, $this->roleId);
-            $filters = request()->only(['object_name', 'created_by_role', 'region_id', 'district_id', 'organization_name', 'funding_source', 'category', 'status', 'lawyer_status', 'deadline_asked']);
+            $filters = request()->only(['object_name', 'task_id', 'created_by_role', 'region_id', 'district_id', 'organization_name', 'funding_source', 'category', 'status', 'lawyer_status', 'deadline_asked']);
 
             $regulations = $this->regulationService->searchRegulations($query, $filters)
                 ->orderBy('created_at', request('sort_by_date', 'DESC'))

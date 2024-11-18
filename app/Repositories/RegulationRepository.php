@@ -56,6 +56,11 @@ class RegulationRepository implements RegulationRepositoryInterface
                     $query->where('difficulty_category_id', $filters['category']);
                 });
             })
+            ->when(isset($filters['category']), function ($q) use ($filters) {
+                $q->whereHas('monitoring.article', function ($query) use ($filters) {
+                    $query->searchByTaskId($filters['task_id']);
+                });
+            })
             ->when(isset($filters['status']), function ($query) use ($filters) {
                 $query->where('regulation_status_id', $filters['status']);
             })
