@@ -31,7 +31,7 @@ class RegulationDeadlineCommand extends Command
     public function handle()
     {
         Regulation::query()
-            ->where('regulation_status_id', '!=', RegulationStatusEnum::ELIMINATED)
+            ->whereIn('regulation_status_id', [RegulationStatusEnum::PROVIDE_REMEDY, RegulationStatusEnum::ATTACH_DEED])
             ->where('deadline', '<=', Carbon::now())
             ->where('created_by_role_id', UserRoleEnum::INSPECTOR->value)
             ->chunk(50, function ($regulations) {
