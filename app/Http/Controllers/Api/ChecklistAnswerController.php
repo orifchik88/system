@@ -39,21 +39,24 @@ class ChecklistAnswerController extends BaseController
     public function checklistStatusChange(): JsonResponse
     {
         try {
-            $checklist = CheckListAnswer::findOrFail(request('checklist_id'));
-            $checklist->update([
-                'status' => request('status')
-            ]);
+            $data = request('regular_checklist');
+            foreach ($data as $item) {
+                $checklist = CheckListAnswer::findOrFail($item['checklist_id']);
+                $checklist->update([
+                    'status' => $item['status']
+                ]);
 
-            $meta = ['user_id' => $this->user->id, 'role_id' => $this->roleId];
+                $meta = ['user_id' => $this->user->id, 'role_id' => $this->roleId];
 
-            $this->historyService->createHistory(
-                guId: $checklist->id,
-                status: $checklist->status->value,
-                type: LogType::TASK_HISTORY,
-                date: null,
-                comment: request('comment') ?? "",
-                additionalInfo: $meta
-            );
+                $this->historyService->createHistory(
+                    guId: $checklist->id,
+                    status: $checklist->status->value,
+                    type: LogType::TASK_HISTORY,
+                    date: null,
+                    comment: $item['comment'] ?? "",
+                    additionalInfo: $meta
+                );
+            }
 
             return $this->sendSuccess([], 'Checklist status updated successfully.');
         }catch (\Exception $exception){

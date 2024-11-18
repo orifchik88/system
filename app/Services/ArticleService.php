@@ -340,7 +340,7 @@ class ArticleService
             'positive_opinion_number' => $response->positive_opinion_number,
             'date_protocol' =>$response->date_protocol,
             'funding_source_id' => $response->funding_source_id,
-            'deadline' => $response->end_term_work,
+            //'deadline' => $response->end_term_work,
             'gnk_id' => $response->gnk_id,
             'reestr_number' => (int)$response->reestr_number,
         ]);
