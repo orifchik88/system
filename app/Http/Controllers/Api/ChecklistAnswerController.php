@@ -46,7 +46,14 @@ class ChecklistAnswerController extends BaseController
                     'status' => $item['status']
                 ]);
 
-                $meta = ['user_id' => $this->user->id, 'role_id' => $this->roleId];
+                if ($item['status'] == 3)
+                {
+                    $status = 2;
+                }else{
+                    $status = 1;
+                }
+
+                $meta = ['user_answered' => $status, 'user_id' => $this->user->id, 'role_id' => $this->roleId];
 
                 $this->historyService->createHistory(
                     guId: $checklist->id,
