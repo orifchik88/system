@@ -288,10 +288,11 @@ class ArticleService
             }else{
                 $article = $this->saveResponse($response);
                 $this->saveResponseUser($response, $article);
+                $this->saveBlocks($response, $article);
+
             }
 
             $this->acceptResponse($response);
-            $this->saveBlocks($response, $article);
             $this->saveEmployee($article);
 
             DB::commit();

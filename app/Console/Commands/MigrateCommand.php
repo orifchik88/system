@@ -797,7 +797,7 @@ class MigrateCommand extends Command
                     $blockModel->count_apartments = null;
                     $blockModel->height = null;
                     $blockModel->length = null;
-                    $blockModel->status = false;
+                    $blockModel->status = true;
                     $blockModel->appearance_type = null;
                     $blockModel->accepted = $block->is_send;
                     $blockModel->dxa_response_id = null;
