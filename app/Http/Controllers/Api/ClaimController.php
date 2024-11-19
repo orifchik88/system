@@ -277,6 +277,17 @@ class ClaimController extends BaseController
         }
     }
 
+    public function rejectByOperator(RejectClaimByOperator $request)
+    {
+        $response = $this->claimService->rejectClaimByOperator($request);
+
+        if ($response) {
+            return $this->sendSuccess('Javob berildi!', 'Success');
+        } else {
+            return $this->sendError("API ERROR", "message");
+        }
+    }
+
     public function rejectFromDirector(RejectFromDirector $request)
     {
         $response = $this->claimService->rejectFromDirector($request);

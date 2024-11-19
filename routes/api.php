@@ -203,6 +203,7 @@ Route::group([
         Route::post('attach-blocks', [ClaimController::class, "attachBlockAndOrganization"]);
         Route::post('conclusion-organization', [ClaimController::class, "conclusionOrganization"]);
         Route::post('conclusion-by-inspector', [ClaimController::class, "conclusionClaimByInspector"]);
+        Route::post('reject-by-operator', [ClaimController::class, "rejectByOperator"]);
         Route::post('conclusion-by-director', [ClaimController::class, "conclusionClaimByDirector"]);
         Route::post('reject-from-director', [ClaimController::class, "rejectFromDirector"]);
         Route::post('send-to-director', [ClaimController::class, "sendToDirector"]);
