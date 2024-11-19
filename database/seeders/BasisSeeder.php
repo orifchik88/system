@@ -13,7 +13,7 @@ class BasisSeeder extends Seeder
      */
     public function run(): void
     {
-        $shnq = storage_path() . "/excel/shnq.xlsx";
+        $shnq = storage_path() . "/excel/bases.xlsx";
         Excel::import(new BasesImport(), $shnq);
 
     }
