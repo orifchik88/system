@@ -39,7 +39,7 @@ class ArticleUserResource extends JsonResource
                     ])
                     ->where('role_id', $role->id)
                     ->get();
-                $objectList = in_array($role->id, [1, 2, 3])
+                $objectList = in_array($role->id, [5,6,7])
                     ? $objects->map(function ($object) {
                         return [
                             'id' => $object->id,
