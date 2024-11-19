@@ -13,6 +13,7 @@ class TopicImport implements ToModel, WithHeadingRow
     public function model(array $row)
     {
         return new Topic([
+            'id' => $row['id'],
             'parent_id' => $row['parent_id'],
             'name' => $row['name'],
         ]);
