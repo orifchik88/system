@@ -369,29 +369,40 @@ class InformationController extends BaseController
             $user = User::query()->where('pinfl', $pinfl)->first();
 
             if (!$user) throw new NotFoundHttpException('Foydalanuvchi topilmadi');
+            $allowedRoleIds = [5, 6, 7, 8, 9, 10];
 
-            $data =  collect($user->roles)->map(function ($role) use ($user) {
-                $objects = $user->objects()
-                    ->whereIn('object_status_id', [
-                        ObjectStatusEnum::PROGRESS,
-                        ObjectStatusEnum::FROZEN,
-                        ObjectStatusEnum::SUSPENDED
-                    ])
-                    ->where('role_id', $role->id)
-                    ->get();
+            $userRoleIds = $user->roles->pluck('id')->toArray();
 
-                return [
-                    'role_name' => $role->name,
-                    'object_count' => $objects->count(),
-                    'object_list' => $objects->map(function ($object) {
-                        return [
-                            'id' => $object->id,
-                            'name' => $object->name,
-                            'status' => $object->status->name,
-                        ];
-                    })->toArray(),
-                ];
-            })->toArray();
+            if (count(array_intersect($userRoleIds, $allowedRoleIds)) === 0) {
+                throw new NotFoundHttpException('Foydalanuvchi topilmadi');
+            }
+
+            $data =  collect($user->roles)
+                ->filter(function ($role) use ($allowedRoleIds) {
+                    return in_array($role->id, $allowedRoleIds);
+                })
+                ->map(function ($role) use ($user) {
+                    $objects = $user->objects()
+                        ->whereIn('object_status_id', [
+                            ObjectStatusEnum::PROGRESS,
+                            ObjectStatusEnum::FROZEN,
+                            ObjectStatusEnum::SUSPENDED
+                        ])
+                        ->where('role_id', $role->id)
+                        ->get();
+
+
+                    return [
+                        'role_name' => $role->name,
+                        'object_count' => $objects->count(),
+                        'object_list' => $objects->map(function ($object) {
+                            return [
+                                'id' => $object->id,
+                                'name' => $object->name,
+                            ];
+                        })->toArray(),
+                    ];
+                })->toArray();
             return $this->sendSuccess($data, 'User Objects');
 
         } catch (\Exception $exception) {
