@@ -18,7 +18,7 @@ class ChangeStatusResponseCommand extends Command
     public function handle()
     {
         DxaResponse::query()
-            ->where('regulation_status', DxaResponseStatusEnum::NEW)
+            ->where('dxa_response_status_id', DxaResponseStatusEnum::NEW)
             ->chunk(10, function ($responses) {
                 foreach ($responses as $item) {
                     $response = $item->object_type_id == 2
