@@ -41,6 +41,11 @@ class ChangeStatusResponseCommand extends Command
 
                         if ($status !== null) {
                             $item->update(['dxa_response_status_id' => $status]);
+                        }else{
+                            if ($item->notification_type == 2)
+                            {
+                                $item->update(['dxa_response_status_id' => DxaResponseStatusEnum::IN_REGISTER]);
+                            }
                         }
                     }
                 }
