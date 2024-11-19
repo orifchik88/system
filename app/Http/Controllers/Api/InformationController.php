@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\ObjectStatusEnum;
 use App\Http\Resources\BasisResource;
 use App\Http\Resources\NormativeDocumentResource;
 use App\Http\Resources\NotificationResource;
@@ -24,7 +25,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Js;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class InformationController extends BaseController
 {
@@ -355,6 +358,43 @@ class InformationController extends BaseController
             return $this->sendSuccess($qrImage, 'Qr Image');
 
         }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function userObjects(): JsonResponse
+    {
+        try {
+            $pinfl = request('pinfl');
+            $user = User::query()->where('pinfl', $pinfl)->first();
+
+            if (!$user) throw new NotFoundHttpException('Foydalanuvchi topilmadi');
+
+            $data =  collect($user->roles)->map(function ($role) use ($user) {
+                $objects = $user->objects()
+                    ->whereIn('object_status_id', [
+                        ObjectStatusEnum::PROGRESS,
+                        ObjectStatusEnum::FROZEN,
+                        ObjectStatusEnum::SUSPENDED
+                    ])
+                    ->where('role_id', $role->id)
+                    ->get();
+
+                return [
+                    'role_name' => $role->name,
+                    'object_count' => $objects->count(),
+                    'object_list' => $objects->map(function ($object) {
+                        return [
+                            'id' => $object->id,
+                            'name' => $object->name,
+                            'status' => $object->status->name,
+                        ];
+                    })->toArray(),
+                ];
+            })->toArray();
+            return $this->sendSuccess($data, 'User Objects');
+
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }

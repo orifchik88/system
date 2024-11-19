@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\ProgramController;
 Route::post('login', [LoginController::class, 'login']);
 Route::post('auth', [LoginController::class, 'auth']);
 Route::post('check-user', [InformationController::class, 'checkUser']);
+Route::get('objects-by-pinfl', [InformationController::class, 'userObjects']);
 
 
 Route::get('{module}/{api}/responses', [ResponseController::class, 'receive']);

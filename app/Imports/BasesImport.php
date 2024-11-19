@@ -10,9 +10,7 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class BasesImport implements ToModel, WithHeadingRow
 {
-    /**
-    * @param Collection $collection
-    */
+
     public function model(array $row)
     {
         return new Basis([
