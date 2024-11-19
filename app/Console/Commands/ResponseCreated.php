@@ -145,6 +145,13 @@ class ResponseCreated extends Command
             {
                 $status = DxaResponseStatusEnum::REJECTED;
             }
+        }else{
+            if ($data['notification_type']['real_value'] == 1)
+            {
+                $status = DxaResponseStatusEnum::NEW;
+            }else{
+                $status = DxaResponseStatusEnum::IN_REGISTER;
+            }
         }
 
 
@@ -156,7 +163,7 @@ class ResponseCreated extends Command
         $dxa->task_id = $taskId;
         $dxa->old_task_id = $oldTaskId;
         $dxa->user_type = $userType;
-        $dxa->dxa_response_status_id = $status ?? DxaResponseStatusEnum::NEW;
+        $dxa->dxa_response_status_id = $status;
         $dxa->email = $email;
         $dxa->full_name = $data['full_name']['real_value'];
         $dxa->name_expertise = $data['name_expertise']['real_value'];
@@ -354,7 +361,7 @@ class ResponseCreated extends Command
             return Http::withBasicAuth($authUsername, $authPassword)
                 ->post($apiUrl, [
                     $formName => [
-                        "notice" => "Qabul qilindi"
+                        "notice" => " Ariza ko'rib chiqishga qabul qilindi. nazorat.mc.uz"
                     ]
                 ]);
         }catch (\Exception $exception){

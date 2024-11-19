@@ -45,6 +45,7 @@ class DxaResponseResource extends JsonResource
             'organization_name' => $this->organization_name,
             'stir' => $this->application_stir_pinfl,
             'pinfl' => $this->pinfl,
+            'notification_type' => $this->notification_type,
             'lat' => $this->notification_type === 2
                 ? ($this->lat ?? $this->getResponse($this->old_task_id)->lat ?? null)
                 : $this->lat,
