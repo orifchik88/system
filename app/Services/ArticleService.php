@@ -272,9 +272,6 @@ class ArticleService
     }
     public function createObject()
     {
-
-
-
         DB::beginTransaction();
         try {
             $response = $this->dxaResponse->find($this->objectDto->responseId);
@@ -472,21 +469,21 @@ class ArticleService
             }
         }
 
-        $articleInspector = $article->users()->wherePivot('role_id', UserRoleEnum::INSPECTOR->value)->first();
-        $inspector = User::query()->find($response->inspector_id);
-        if ($articleInspector){
-            if ($articleInspector->pinfl != $inspector->pinfl)
-            {
-                ArticleUser::query()
-                    ->where('article_id', $article->id)
-                    ->where('role_id', UserRoleEnum::INSPECTOR->value)
-                    ->where('user_id', $articleInspector->id)
-                    ->delete();
-                $article->users()->attach($inspector->id, ['role_id' => UserRoleEnum::INSPECTOR->value]);
-            }
-        }else{
-            $article->users()->attach($inspector->id, ['role_id' => UserRoleEnum::INSPECTOR->value]);
-        }
+//        $articleInspector = $article->users()->wherePivot('role_id', UserRoleEnum::INSPECTOR->value)->first();
+//        $inspector = User::query()->find($response->inspector_id);
+//        if ($articleInspector){
+//            if ($articleInspector->pinfl != $inspector->pinfl)
+//            {
+//                ArticleUser::query()
+//                    ->where('article_id', $article->id)
+//                    ->where('role_id', UserRoleEnum::INSPECTOR->value)
+//                    ->where('user_id', $articleInspector->id)
+//                    ->delete();
+//                $article->users()->attach($inspector->id, ['role_id' => UserRoleEnum::INSPECTOR->value]);
+//            }
+//        }else{
+//            $article->users()->attach($inspector->id, ['role_id' => UserRoleEnum::INSPECTOR->value]);
+//        }
     }
 
     private function changeRegulations($objectId, $oldUserId, $newUserId, $roleId)
