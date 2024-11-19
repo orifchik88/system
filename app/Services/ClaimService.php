@@ -658,6 +658,55 @@ class ClaimService
         return true;
     }
 
+    public function rejectClaimByOperator(RejectClaimByOperator $request)
+    {
+        $claimObject = $this->getClaimById(id: $request['id'], role_id: null);
+
+        if (env('MYGOV_MODE') == 'prod') {
+            $dataArray['SendToStepConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
+                'comment_gasn' => 'Keyingi qadam',
+            ];
+
+            $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/send-to-step-conclusion-gasn", $dataArray);
+
+            if ($response->status() != 200) {
+                return false;
+            }
+        }
+
+        if (env('MYGOV_MODE') == 'prod') {
+            $dataArray['IssuanceExtractRejectGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
+                "gasn_name_reject" => Auth::user()->name . ' ' . Auth::user()->surname,
+                "gasn_match" => 2,
+                "gasn_cause_reject" => $request['comment'],
+                "gasn_territory_reject" => Auth::user()->region->name_uz
+            ];
+
+            $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/issuance-extract-reject-gasn", $dataArray);
+
+            if ($response->status() != 200) {
+                return false;
+            }
+        }
+
+        $claimObject->update(
+            [
+                'status' => ClaimStatuses::TASK_STATUS_REJECTED,
+                'end_date' => Carbon::now()
+            ]
+        );
+
+        $this->historyService->createHistory(
+            guId: $claimObject->gu_id,
+            status: ClaimStatuses::TASK_STATUS_REJECTED,
+            type: LogType::TASK_HISTORY,
+            date: null,
+            comment: $request['comment']
+        );
+
+        return true;
+    }
+
     public function conclusionByDirector(ConclusionClaimByDirector $request)
     {
         $claimObject = $this->getClaimById(id: $request['id'], role_id: null);
