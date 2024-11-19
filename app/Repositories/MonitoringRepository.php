@@ -39,6 +39,11 @@ class MonitoringRepository implements MonitoringRepositoryInterface
                         $query->where('region_id', $filters['region_id']);
                     });
                 })
+                ->when(isset($filters['task_id']), function ($q) use($filters) {
+                    $q->whereHas('article', function ($query) use($filters) {
+                        $query->where('task_id', $filters['task_id']);
+                    });
+                })
                 ->when(isset($filters['district_id']), function ($q) use($filters) {
                     $q->whereHas('article', function ($query) use($filters) {
                         $query->where('district_id', $filters['district_id']);

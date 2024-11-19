@@ -49,7 +49,7 @@ class MonitoringController extends BaseController
     {
         try {
             $query = $this->monitoringService->getMonitorings($this->user, $this->roleId);
-            $filters = request()->only(['object_name', 'region_id', 'district_id', 'funding_source', 'category']);
+            $filters = request()->only(['object_name', 'task_id', 'region_id', 'district_id', 'funding_source', 'category']);
 
             $monitorings = $this->monitoringService->searchMonitoring($query, $filters)
                 ->orderBy('created_at', request('sort_by_date', 'DESC'))
