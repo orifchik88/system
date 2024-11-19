@@ -31,17 +31,30 @@ class ArticleUserResource extends JsonResource
                 return RoleResource::make($role);
             }),
             'user_objects' => collect($this->roles)->map(function ($role) {
+                $objects = $this->objects()
+                    ->whereIn('object_status_id', [
+                        ObjectStatusEnum::PROGRESS,
+                        ObjectStatusEnum::FROZEN,
+                        ObjectStatusEnum::SUSPENDED
+                    ])
+                    ->where('role_id', $role->id)
+                    ->get();
+                $objectList = in_array($role->id, [1, 2, 3])
+                    ? $objects->map(function ($object) {
+                        return [
+                            'id' => $object->id,
+                            'name' => $object->name,
+                            'task_id' => $object->task_id,
+                        ];
+                    })->toArray()
+                    : [];
+
                 return [
                     'role_name' => $role->name,
-                    'object_count' => $this->objects()
-                        ->whereIn('object_status_id', [
-                            ObjectStatusEnum::PROGRESS,
-                            ObjectStatusEnum::FROZEN,
-                            ObjectStatusEnum::SUSPENDED
-                        ])
-                        ->where('role_id', $role->id)->count(),
+                    'object_count' => $objects->count(),
+                    'object_list' => $objectList,
                 ];
-            })->toArray(),
+            })->toArray()
         ];
     }
 }

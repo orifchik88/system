@@ -11,6 +11,7 @@ use App\Http\Requests\ArticleChangeStatusRequest;
 use App\Http\Requests\ObjectManualRequest;
 use App\Http\Requests\ObjectRequest;
 use App\Http\Requests\ObjectUserRequest;
+use App\Http\Resources\ArticleListResource;
 use App\Http\Resources\ArticleResource;
 use App\Http\Resources\FundingSourceResource;
 use App\Http\Resources\UserResource;
@@ -47,7 +48,7 @@ class ObjectController extends BaseController
                 ->orderBy('created_at', request('sort_by_date', 'DESC'))
                 ->paginate(request('per_page', 10));
 
-            return $this->sendSuccess(ArticleResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
+            return $this->sendSuccess(ArticleListResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage());
         }
@@ -96,7 +97,7 @@ class ObjectController extends BaseController
 
             $objects = $user->objects()->paginate(request('per_page', 10));
 
-            return $this->sendSuccess(ArticleResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
+            return $this->sendSuccess(ArticleListResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
 
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
@@ -114,7 +115,7 @@ class ObjectController extends BaseController
         $objects = $query->orderBy('created_at', request('sort_by_date', 'DESC'))
                         ->paginate(\request('perPage', 10));
 
-        return $this->sendSuccess(ArticleResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
+        return $this->sendSuccess(ArticleListResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
     }
 
     public function totalPayment(): JsonResponse
