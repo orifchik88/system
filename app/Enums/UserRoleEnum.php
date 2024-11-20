@@ -23,6 +23,7 @@ enum UserRoleEnum: int
     case SEOM = 16;
     case NOGIRONLAR_JAM = 17;
     case NOGIRONLAR_ASSOT = 18;
+    case UY_JOY_INSPEKSIYA = 19;
     case QURILISH_MONTAJ = 26;
     case SEOM_RES_KADR = 20;
     case SEOM_REG_KADR = 21;
