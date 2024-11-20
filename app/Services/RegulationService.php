@@ -87,6 +87,7 @@ class RegulationService
             case UserRoleEnum::INSPEKSIYA->value:
             case UserRoleEnum::HUDUDIY_KUZATUVCHI->value:
             case UserRoleEnum::QURILISH_MONTAJ->value:
+            case UserRoleEnum::OPERATOR->value:
             return Regulation::query()
                 ->whereHas('object', function ($query) use ($user) {
                     $query->where('region_id', $user->region_id);
