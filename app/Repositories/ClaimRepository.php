@@ -103,7 +103,8 @@ class ClaimRepository implements ClaimRepositoryInterface
             ->get()->toArray();
     }
 
-    public function organizationStatistics(int $roleId, ?string $dateFrom, ?string $dateTo)
+    public function organizationStatistics(int  $roleId, ?int $regionId,
+                                           ?int $districtId, ?string $dateFrom, ?string $dateTo)
     {
         $role = match ($roleId) {
             21, 20 => 16,
@@ -115,6 +116,8 @@ class ClaimRepository implements ClaimRepositoryInterface
 
         return $this->claim->query()
             ->join('claim_organization_reviews', 'claim_organization_reviews.claim_id', '=', 'claims.id')
+            ->join('regions', 'regions.soato', '=', 'claims.region')
+            ->join('districts', 'districts.soato', '=', 'claims.district')
             ->select(DB::raw("
                 COUNT(CASE WHEN claim_organization_reviews.answered_at IS NOT NULL THEN 1 ELSE null END) as answered,
                 COUNT(CASE WHEN claim_organization_reviews.answered_at IS NULL THEN 1 ELSE null END) as not_answered,
@@ -125,6 +128,12 @@ class ClaimRepository implements ClaimRepositoryInterface
             })
             ->when($dateTo, function ($q) use ($dateTo) {
                 $q->whereDate('claims.created_at', '<=', $dateTo);
+            })
+            ->when($regionId, function ($q) use ($regionId) {
+                $q->whereDate('regions.id', '=', $regionId);
+            })
+            ->when($districtId, function ($q) use ($districtId) {
+                $q->whereDate('districts.id', '=', $districtId);
             })
             ->when($role, function ($q) use ($role) {
                 $q->where('claim_organization_reviews.organization_id', $role);

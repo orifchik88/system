@@ -30,6 +30,8 @@ interface ClaimRepositoryInterface
 
     public function organizationStatistics(
         int     $roleId,
+        ?int $regionId,
+        ?int $districtId,
         ?string $dateFrom,
         ?string $dateTo);
 
