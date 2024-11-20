@@ -130,10 +130,10 @@ class ClaimRepository implements ClaimRepositoryInterface
                 $q->whereDate('claims.created_at', '<=', $dateTo);
             })
             ->when($regionId, function ($q) use ($regionId) {
-                $q->whereDate('regions.id', '=', $regionId);
+                $q->where('regions.id', '=', $regionId);
             })
             ->when($districtId, function ($q) use ($districtId) {
-                $q->whereDate('districts.id', '=', $districtId);
+                $q->where('districts.id', '=', $districtId);
             })
             ->when($role, function ($q) use ($role) {
                 $q->where('claim_organization_reviews.organization_id', $role);
