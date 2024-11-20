@@ -22,6 +22,7 @@ interface ClaimRepositoryInterface
 
     public function getStatisticsCount(
         ?int    $regionId,
+        ?int    $districtId,
         ?int    $expired,
         ?string $dateFrom,
         ?string $dateTo
@@ -29,6 +30,8 @@ interface ClaimRepositoryInterface
 
     public function organizationStatistics(
         int     $roleId,
+        ?int $regionId,
+        ?int $districtId,
         ?string $dateFrom,
         ?string $dateTo);
 

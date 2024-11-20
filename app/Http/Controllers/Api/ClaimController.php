@@ -45,13 +45,21 @@ class ClaimController extends BaseController
         $roleId = Auth::user()->getRoleFromToken() ?? null;
 
         $regionId = match ($roleId) {
+            (string)UserRoleEnum::FVB_REG_KADR->value, (string)UserRoleEnum::SEOM_REG_KADR->value,
+            (string)UserRoleEnum::NOGIRONLAR_JAM->value, (string)UserRoleEnum::NOGIRONLAR_ASSOT->value, (string)UserRoleEnum::UY_JOY_INSPEKSIYA->value,
             (string)UserRoleEnum::OPERATOR->value, (string)UserRoleEnum::INSPECTOR->value => Auth::user()->region_id ?? Auth::user()->region_id ?? null,
             default => request()->get('region', null),
+        };
+
+        $districtId = match ($roleId) {
+            (string)UserRoleEnum::FVB->value, (string)UserRoleEnum::SEOM->value => Auth::user()->district_id ?? Auth::user()->district_id ?? null,
+            default => request()->get('district', null),
         };
 
 
         $data = $this->claimService->getStatisticsCount(
             regionId: $regionId,
+            districtId: $districtId,
             expired: null,
             dateFrom: $dateFrom,
             dateTo: $dateTo
@@ -67,9 +75,23 @@ class ClaimController extends BaseController
 
         $roleId = Auth::user()->getRoleFromToken() ?? null;
 
+        $regionId = match ($roleId) {
+            (string)UserRoleEnum::FVB_REG_KADR->value, (string)UserRoleEnum::SEOM_REG_KADR->value,
+            (string)UserRoleEnum::NOGIRONLAR_JAM->value, (string)UserRoleEnum::NOGIRONLAR_ASSOT->value, (string)UserRoleEnum::UY_JOY_INSPEKSIYA->value,
+            => Auth::user()->region_id ?? Auth::user()->region_id ?? null,
+            default => request()->get('region', null),
+        };
+
+        $districtId = match ($roleId) {
+            (string)UserRoleEnum::FVB->value, (string)UserRoleEnum::SEOM->value => Auth::user()->district_id ?? Auth::user()->district_id ?? null,
+            default => request()->get('district', null),
+        };
+
 
         $data = $this->claimService->getOrganizationStatistics(
             roleId: $roleId,
+            regionId: $regionId,
+            districtId: $districtId,
             dateFrom: $dateFrom,
             dateTo: $dateTo
         );
@@ -138,8 +160,14 @@ class ClaimController extends BaseController
 
         $regionId = match ($roleId) {
             (string)UserRoleEnum::FVB_REG_KADR->value, (string)UserRoleEnum::SEOM_REG_KADR->value,
+            (string)UserRoleEnum::NOGIRONLAR_JAM->value, (string)UserRoleEnum::NOGIRONLAR_ASSOT->value, (string)UserRoleEnum::UY_JOY_INSPEKSIYA->value,
             (string)UserRoleEnum::OPERATOR->value, (string)UserRoleEnum::INSPECTOR->value => Auth::user()->region_id ?? Auth::user()->region_id ?? null,
             default => request()->get('region', null),
+        };
+
+        $districtId = match ($roleId) {
+            (string)UserRoleEnum::FVB->value, (string)UserRoleEnum::SEOM->value => Auth::user()->district_id ?? Auth::user()->district_id ?? null,
+            default => request()->get('district', null),
         };
 
         $data = $this->claimService->getTaskList(

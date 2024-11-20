@@ -103,7 +103,8 @@ class ClaimRepository implements ClaimRepositoryInterface
             ->get()->toArray();
     }
 
-    public function organizationStatistics(int $roleId, ?string $dateFrom, ?string $dateTo)
+    public function organizationStatistics(int  $roleId, ?int $regionId,
+                                           ?int $districtId, ?string $dateFrom, ?string $dateTo)
     {
         $role = match ($roleId) {
             21, 20 => 16,
@@ -115,6 +116,8 @@ class ClaimRepository implements ClaimRepositoryInterface
 
         return $this->claim->query()
             ->join('claim_organization_reviews', 'claim_organization_reviews.claim_id', '=', 'claims.id')
+            ->join('regions', 'regions.soato', '=', 'claims.region')
+            ->join('districts', 'districts.soato', '=', 'claims.district')
             ->select(DB::raw("
                 COUNT(CASE WHEN claim_organization_reviews.answered_at IS NOT NULL THEN 1 ELSE null END) as answered,
                 COUNT(CASE WHEN claim_organization_reviews.answered_at IS NULL THEN 1 ELSE null END) as not_answered,
@@ -126,6 +129,12 @@ class ClaimRepository implements ClaimRepositoryInterface
             ->when($dateTo, function ($q) use ($dateTo) {
                 $q->whereDate('claims.created_at', '<=', $dateTo);
             })
+            ->when($regionId, function ($q) use ($regionId) {
+                $q->where('regions.id', '=', $regionId);
+            })
+            ->when($districtId, function ($q) use ($districtId) {
+                $q->where('districts.id', '=', $districtId);
+            })
             ->when($role, function ($q) use ($role) {
                 $q->where('claim_organization_reviews.organization_id', $role);
             })
@@ -135,6 +144,7 @@ class ClaimRepository implements ClaimRepositoryInterface
 
     public function getStatisticsCount(
         ?int    $regionId,
+        ?int    $districtId,
         ?int    $expired,
         ?string $dateFrom,
         ?string $dateTo
@@ -142,6 +152,7 @@ class ClaimRepository implements ClaimRepositoryInterface
     {
         return $this->claim->query()
             ->join('regions', 'regions.soato', '=', 'claims.region')
+            ->join('districts', 'districts.soato', '=', 'claims.district')
             ->select(DB::raw("
                 COUNT(CASE WHEN claims.status = " . ClaimStatuses::TASK_STATUS_ACCEPTANCE . " THEN 1 ELSE null END) as in_process,
                 COUNT(CASE WHEN claims.status = " . ClaimStatuses::TASK_STATUS_ATTACH_OBJECT . " THEN 1 ELSE null END) as attach_object,
@@ -165,6 +176,9 @@ class ClaimRepository implements ClaimRepositoryInterface
             })
             ->when($regionId, function ($q) use ($regionId) {
                 $q->where('regions.id', $regionId);
+            })
+            ->when($districtId, function ($q) use ($districtId) {
+                $q->where('districts.id', $districtId);
             })
             ->when($expired, function ($q) use ($expired) {
                 $q->where('expired', $expired);

@@ -119,6 +119,7 @@ class ClaimService
 
     public function getStatisticsCount(
         ?int    $regionId,
+        ?int    $districtId,
         ?int    $expired,
         ?string $dateFrom,
         ?string $dateTo,
@@ -126,16 +127,19 @@ class ClaimService
     {
         return $this->claimRepository->getStatisticsCount(
             regionId: $regionId,
+            districtId: $districtId,
             expired: $expired,
             dateFrom: $dateFrom,
             dateTo: $dateTo
         );
     }
 
-    public function getOrganizationStatistics(int $roleId, ?string $dateFrom, ?string $dateTo)
+    public function getOrganizationStatistics(int $roleId, ?int $regionId, ?int $districtId, ?string $dateFrom, ?string $dateTo)
     {
         return $this->claimRepository->organizationStatistics(
             roleId: $roleId,
+            regionId: $regionId,
+            districtId: $districtId,
             dateFrom: $dateFrom,
             dateTo: $dateTo
         );
