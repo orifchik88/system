@@ -119,6 +119,7 @@ class ClaimService
 
     public function getStatisticsCount(
         ?int    $regionId,
+        ?int    $districtId,
         ?int    $expired,
         ?string $dateFrom,
         ?string $dateTo,
@@ -126,6 +127,7 @@ class ClaimService
     {
         return $this->claimRepository->getStatisticsCount(
             regionId: $regionId,
+            districtId: $districtId,
             expired: $expired,
             dateFrom: $dateFrom,
             dateTo: $dateTo

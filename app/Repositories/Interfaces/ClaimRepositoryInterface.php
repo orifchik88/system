@@ -22,6 +22,7 @@ interface ClaimRepositoryInterface
 
     public function getStatisticsCount(
         ?int    $regionId,
+        ?int    $districtId,
         ?int    $expired,
         ?string $dateFrom,
         ?string $dateTo

@@ -135,6 +135,7 @@ class ClaimRepository implements ClaimRepositoryInterface
 
     public function getStatisticsCount(
         ?int    $regionId,
+        ?int    $districtId,
         ?int    $expired,
         ?string $dateFrom,
         ?string $dateTo
@@ -142,6 +143,7 @@ class ClaimRepository implements ClaimRepositoryInterface
     {
         return $this->claim->query()
             ->join('regions', 'regions.soato', '=', 'claims.region')
+            ->join('districts', 'districts.soato', '=', 'claims.district')
             ->select(DB::raw("
                 COUNT(CASE WHEN claims.status = " . ClaimStatuses::TASK_STATUS_ACCEPTANCE . " THEN 1 ELSE null END) as in_process,
                 COUNT(CASE WHEN claims.status = " . ClaimStatuses::TASK_STATUS_ATTACH_OBJECT . " THEN 1 ELSE null END) as attach_object,
@@ -165,6 +167,9 @@ class ClaimRepository implements ClaimRepositoryInterface
             })
             ->when($regionId, function ($q) use ($regionId) {
                 $q->where('regions.id', $regionId);
+            })
+            ->when($districtId, function ($q) use ($districtId) {
+                $q->where('districts.id', $districtId);
             })
             ->when($expired, function ($q) use ($expired) {
                 $q->where('expired', $expired);
