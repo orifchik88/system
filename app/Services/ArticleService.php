@@ -567,8 +567,9 @@ class ArticleService
 
     private function saveBlocks(DxaResponse $response, Article $article): void
     {
+        $isAccepted = !($response->administrative_status_id == 8 && $response->notification_type == 1);
         foreach ($response->blocks as $block) {
-            $this->blockRepository->updateBlockByArticle($block->id, $article);
+            $this->blockRepository->updateBlockByArticle($block->id, $article, $isAccepted);
         }
     }
 

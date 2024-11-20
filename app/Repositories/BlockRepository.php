@@ -18,9 +18,12 @@ class BlockRepository implements  BlockRepositoryInterface
 
     }
 
-    public function updateBlockByArticle($blockId, Article $article)
+    public function updateBlockByArticle($blockId, Article $article, $selected)
     {
-         Block::find($blockId)->update(['article_id' => $article->id]);
+         Block::find($blockId)->update([
+             'article_id' => $article->id,
+             'selected' => $selected
+         ]);
     }
 
     public function deleteBlock($blockId)

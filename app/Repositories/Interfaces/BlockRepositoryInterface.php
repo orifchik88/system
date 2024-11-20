@@ -11,7 +11,7 @@ interface BlockRepositoryInterface
 
     public function updateBlock($blockId, $data);
 
-    public function updateBlockByArticle($blockId, Article $article);
+    public function updateBlockByArticle($blockId, Article $article, $selected);
 
     public function deleteBlock($blockId);
 
