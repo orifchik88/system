@@ -8,6 +8,7 @@ use App\Models\District;
 use App\Models\DxaResponse;
 use App\Models\DxaResponseSupervisor;
 use App\Models\Region;
+use App\Models\Rekvizit;
 use App\Models\Response;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -173,6 +174,9 @@ class NetworkResponseCommand extends Command
         $dxa->save();
         $this->saveSupervisors($data, $dxa->id, $userType);
         $this->updateObject($dxa, $json);
+        if ($dxa->notification_type == 2) {
+            $this->saveRekvizit($dxa);
+        }
         return $dxa;
     }
 
@@ -187,6 +191,14 @@ class NetworkResponseCommand extends Command
                 'created_at' => $json['task']['last_update']
             ]);
         }
+    }
+
+    private function saveRekvizit($response)
+    {
+        $rekvizit = Rekvizit::query()->where('region_id', $response->region_id)->first();
+        $response->update([
+            'rekvizit_id' => $rekvizit->id,
+        ]);
     }
 
 
