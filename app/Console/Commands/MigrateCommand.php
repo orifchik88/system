@@ -70,7 +70,7 @@ class MigrateCommand extends Command
                 $this->syncObjects();
                 break;
             case 7:
-                $this->manualMigrateRegulations('0124-0151841/1');
+                $this->manualMigrateRegulations('0124-0144331/3');
                 break;
             case 8:
                 $this->deletePhaseRegulations();
@@ -466,7 +466,7 @@ class MigrateCommand extends Command
                     ->where('regulation_id', $regulation->id)
                     ->where('is_migrated', false)
                     ->get();
-                if ($regulation->phase == null && $regulation->phase == '0')
+                if ($regulation->phase == null || $regulation->phase == '0')
                     continue;
 
                 $regulationStatus = $regulationStatuses[$regulation->phase];
