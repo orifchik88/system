@@ -36,7 +36,8 @@ class CreateBlockCommand extends Command
                             : BlockModeEnum::BINO,
                         'article_id' => $object->id,
                         'status' => true,
-                        'accepted' => false
+                        'accepted' => false,
+                        'selected_work_type' => false
                     ]);
                 }
             });
