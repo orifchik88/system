@@ -20,6 +20,8 @@ class DxaResponseListResource extends JsonResource
             'status', 'region', 'district'
         ]);
 
+        $inspector = User::find($this->inspector_id);
+
         return [
             'id' =>$this->id,
             'task_ids' => $this->getOldTaskIds($this->task_id),
@@ -36,6 +38,11 @@ class DxaResponseListResource extends JsonResource
             'object_name' => $this->object_name,
             'location_building' => $this->location_building,
             'created_at' => $this->created_at,
+            'inspector' => [
+                'id' => $inspector ? $inspector->id : null,
+                'name' =>  $inspector ? "{$inspector->surname} {$inspector->name} {$inspector->middle_name}" : null,
+                'phone' =>  $inspector ? $inspector->phone : null,
+            ],
         ];
     }
 }
