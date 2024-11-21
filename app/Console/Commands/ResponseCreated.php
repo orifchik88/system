@@ -240,6 +240,7 @@ class ResponseCreated extends Command
         $rekvizit = Rekvizit::query()->where('region_id', $response->region_id)->first();
         $response->update([
             'rekvizit_id' => $rekvizit->id,
+            'price_supervision_service' => price_supervision((int)$response->cost)
         ]);
     }
 

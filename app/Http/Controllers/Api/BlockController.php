@@ -97,7 +97,6 @@ class BlockController extends BaseController
                 'block_mode_id' => request('mode'),
                 'block_type_id' => request('type'),
                 'floor' => request('floor') ?? null,
-                'selected_work_type' => true
             ]);
             return $this->sendSuccess([], 'Success');
         }catch (\Exception $exception){

@@ -202,6 +202,11 @@ class MonitoringController extends BaseController
         try {
             $data = request()->all();
             $object = Article::query()->findOrFail($data['object_id']);
+            $block = Block::query()->findOrFail($data['block_id']);
+
+           $block->update([
+                'selected_work_type' => true
+            ]);
             foreach ($data['regular_checklist'] as $item) {
                     $answer = new CheckListAnswer();
                     $answer->question_id = $item['question_id'];
