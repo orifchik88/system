@@ -26,7 +26,8 @@ class MonitoringResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'object_name' => $this->object->name,
+            'object_name' => $this?->object?->name,
+            'task_id' => $this?->object?->task_id,
             'regulation_type' => RegulationTypeResource::make($this->regulationType),
             'regulation_count' => $this->regulations()->count(),
             'active_regulation_count' => $this->regulations()->where('regulation_status_id', '!=', 6)->count(),
