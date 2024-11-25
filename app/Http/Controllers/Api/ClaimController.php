@@ -150,7 +150,7 @@ class ClaimController extends BaseController
         $building_name = request()->get('name', null);
         $customer = request()->get('customer', null);
         $sender = request()->get('sender', null);
-        $districtId = request()->get('district', null);
+        $districtId = request()->get('district_id', null);
         $sortBy = request()->get('sort_by_date', 'desc');
 
         $status = request()->get('status', null);
@@ -162,12 +162,12 @@ class ClaimController extends BaseController
             (string)UserRoleEnum::FVB_REG_KADR->value, (string)UserRoleEnum::SEOM_REG_KADR->value,
             (string)UserRoleEnum::NOGIRONLAR_JAM->value, (string)UserRoleEnum::NOGIRONLAR_ASSOT->value, (string)UserRoleEnum::UY_JOY_INSPEKSIYA->value,
             (string)UserRoleEnum::OPERATOR->value, (string)UserRoleEnum::INSPECTOR->value => Auth::user()->region_id ?? Auth::user()->region_id ?? null,
-            default => request()->get('region', null),
+            default => request()->get('region_id', null),
         };
 
         $districtId = match ($roleId) {
             (string)UserRoleEnum::FVB->value, (string)UserRoleEnum::SEOM->value => Auth::user()->district_id ?? Auth::user()->district_id ?? null,
-            default => request()->get('district', null),
+            default => request()->get('district_id', null),
         };
 
         $data = $this->claimService->getTaskList(
