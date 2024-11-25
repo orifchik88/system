@@ -22,7 +22,7 @@ class BlockRepository implements  BlockRepositoryInterface
     {
          Block::find($blockId)->update([
              'article_id' => $article->id,
-             'selected' => $selected
+             'selected_work_type' => $selected
          ]);
     }
 

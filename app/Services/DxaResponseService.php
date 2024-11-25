@@ -58,8 +58,8 @@ class DxaResponseService
             ->when(isset($filters['task_id']), function ($query) use ($filters) {
                 $query->searchByTaskId($filters['task_id']);
             })
-            ->when(isset($filters['customer']), function ($query) use ($filters) {
-                $query->searchByCustomer($filters['customer']);
+            ->when(isset($filters['customer_name']), function ($query) use ($filters) {
+                $query->searchByCustomerName($filters['customer_name']);
             })
             ->when(isset($filters['name']), function ($query) use ($filters) {
                 $query->searchByName($filters['name']);
@@ -69,6 +69,9 @@ class DxaResponseService
             })
             ->when(isset($filters['status']), function ($query) use ($filters) {
                 $query->where('dxa_response_status_id', $filters['status']);
+            })
+            ->when(isset($filters['sphere_id']), function ($query) use ($filters) {
+                $query->where('sphere_id', $filters['sphere_id']);
             })
             ->when(isset($filters['district_id']), function ($query) use ($filters) {
                 $query->searchByTaskId($filters['task_id']);

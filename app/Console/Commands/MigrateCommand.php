@@ -815,7 +815,6 @@ class MigrateCommand extends Command
                     }
 
                 }
-
             }
 
             $blockArr = json_decode($object->blocks, true);
