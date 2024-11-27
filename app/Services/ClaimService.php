@@ -964,13 +964,19 @@ class ClaimService
                     }
                     if ($consolidationGov->task->current_node == "answer-other-institutions") {
                         $status = ClaimStatuses::TASK_STATUS_SENT_ORGANIZATION;
-                        $reviews = ClaimOrganizationReview::where('claim_id', $consolidationDb->id)->get();
+                        $reviews = ClaimOrganizationReview::with('monitoring')->where('claim_id', $consolidationDb->id)->get();
+
                         if ($reviews->count() > 0) {
                             list($isFinished, $allSuccess) = $this->checkReviewCount($reviews);
 
-                            if ($allSuccess) {
-                                $status = ClaimStatuses::TASK_STATUS_INSPECTOR;
+                            if($isFinished){
+                                if ($allSuccess) {
+                                    $status = ClaimStatuses::TASK_STATUS_INSPECTOR;
+                                }else{
+                                    $this->autoRejectByOrganization($reviews[0]);
+                                }
                             }
+
                         } else
                             $status = ClaimStatuses::TASK_STATUS_ATTACH_OBJECT;
 
