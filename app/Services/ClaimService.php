@@ -494,7 +494,7 @@ class ClaimService
             "gasn_name_reject" => 'Shaffof qurilish milliy axborot tizimi',
             "gasn_match" => 2,
             "gasn_cause_reject" => 'Ariza tashkilotlar tomonidan ijobiy xulosa taqdim etilmaganligi sababli rad etildi.',
-            "gasn_territory_reject" => $reviewObject->monitoring->claim->region->name_uz
+            "gasn_territory_reject" => $reviewObject->monitoring->claim->region()->first()->name_uz
         ];
 
         $response = $this->PostRequest("update/id/" . $reviewObject->monitoring->claim->guid . "/action/issuance-extract-reject-gasn", $dataArray);
@@ -961,6 +961,13 @@ class ClaimService
                     $this->claimRepository->createClaim($consolidationGov, $expiryDate);
                 elseif ($consolidationGov->task->current_node != $consolidationDb->current_node || $consolidationGov->task->status != $consolidationDb->status_mygov) {
                     $status = ClaimStatuses::TASK_STATUS_ANOTHER;
+
+                    if ($consolidationGov->task->current_node == "inactive" && $consolidationGov->task->status == "rejected")
+                        $status = ClaimStatuses::TASK_STATUS_REJECTED;
+                    if ($consolidationGov->task->current_node == "inactive" && $consolidationGov->task->status == "processed")
+                        $status = ClaimStatuses::TASK_STATUS_CONFIRMED;
+                    if ($consolidationGov->task->current_node == "inactive" && $consolidationGov->task->status == "not_active")
+                        $status = ClaimStatuses::TASK_STATUS_CANCELLED;
                     if ($consolidationGov->task->current_node == "direction-statement-object") {
                         $status = ClaimStatuses::TASK_STATUS_ACCEPTANCE;
                     }
@@ -975,7 +982,7 @@ class ClaimService
                                 if ($allSuccess) {
                                     $status = ClaimStatuses::TASK_STATUS_INSPECTOR;
                                 } else {
-                                    $this->autoRejectByOrganization($reviews[0]);
+                                    $this->autoRejectByOrganization($reviews->first());
                                 }
                             }
 
@@ -994,7 +1001,9 @@ class ClaimService
 
                             if ($isFinished) {
                                 if (!$allSuccess) {
-                                    $this->autoRejectByOrganization($reviews[0]);
+                                    $data = $this->autoRejectByOrganization($reviews->first());
+                                    if ($data)
+                                        $status = ClaimStatuses::TASK_STATUS_ORGANIZATION_REJECTED;
                                 }
                             }
 
@@ -1002,12 +1011,6 @@ class ClaimService
                     }
                     if ($consolidationGov->task->current_node == "conclusion-minstroy")
                         $status = ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG;
-                    if ($consolidationGov->task->current_node == "inactive" && $consolidationGov->task->status == "rejected")
-                        $status = ClaimStatuses::TASK_STATUS_REJECTED;
-                    if ($consolidationGov->task->current_node == "inactive" && $consolidationGov->task->status == "processed")
-                        $status = ClaimStatuses::TASK_STATUS_CONFIRMED;
-                    if ($consolidationGov->task->current_node == "inactive" && $consolidationGov->task->status == "not_active")
-                        $status = ClaimStatuses::TASK_STATUS_CANCELLED;
 
                     $this->claimRepository->updateClaim(guId: $guId, data: [
                         'current_node' => $consolidationGov->task->current_node,
