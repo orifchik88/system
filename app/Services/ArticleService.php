@@ -438,7 +438,7 @@ class ArticleService
                     'name' => $fish ? $fish[1] : null,
                     'surname' => $fish ? $fish[0] : null,
                     'middle_name' => $fish ? $fish[2] : null,
-                    'phone' => $supervisor->phone_number ?? $user->phone,
+                    'phone' => $supervisor->phone_number,
                     'login' => $supervisor->passport_number ?? $supervisor->stir_or_pinfl,
                     'organization_name' => $supervisor->organization_name,
                     'password' => bcrypt($supervisor->stir_or_pinfl),

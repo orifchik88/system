@@ -76,11 +76,49 @@ class MigrateCommand extends Command
                 $this->deletePhaseRegulations();
                 break;
             case 9:
-                $this->migrateObjectUsers(2908);
+                $this->migrateObjectUsers(4389);
+                break;
+            case 10:
+                $this->migrateBlocks(696);
                 break;
             default:
                 echo 'Fuck you!';
                 break;
+        }
+    }
+
+    private function migrateBlocks($objectId)
+    {
+        $article = Article::query()->where('id', $objectId)->first();
+        $object = DB::connection('third_pgsql')->table('objects')
+            ->where('id', $article->old_id)
+            ->first();
+
+        $blockArr = json_decode($object->blocks, true);
+        if (is_array($blockArr)) {
+            foreach ($blockArr as $item) {
+                $block = DB::connection('third_pgsql')->table('blocks')
+                    ->where('id', $item)
+                    ->first();
+                $blockModel = new Block();
+                $blockModel->name = $block->name;
+                $blockModel->block_number = $block->number;
+                $blockModel->block_mode_id = null;
+                $blockModel->block_type_id = null;
+                $blockModel->article_id = $article->id;
+                $blockModel->floor = null;
+                $blockModel->construction_area = null;
+                $blockModel->count_apartments = null;
+                $blockModel->height = null;
+                $blockModel->length = null;
+                $blockModel->status = true;
+                $blockModel->appearance_type = null;
+                $blockModel->accepted = $block->is_send;
+                $blockModel->dxa_response_id = null;
+                $blockModel->created_at = $block->created_at;
+                $blockModel->deleted_at = $block->deleted_at;
+                $blockModel->save();
+            }
         }
     }
 
