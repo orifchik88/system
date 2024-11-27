@@ -478,14 +478,16 @@ class ClaimService
 
     private function autoRejectByOrganization($reviewObject): bool
     {
-        $dataArray['SendToStepConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
-            'comment_gasn' => 'Ariza tashkilotlar tomonidan ijobiy xulosa taqdim etilmaganligi sababli rad etildi.',
-        ];
+        if ($reviewObject->monitoring->claim->current_node == 'answer-other-institutions'){
+            $dataArray['SendToStepConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
+                'comment_gasn' => 'Ariza tashkilotlar tomonidan ijobiy xulosa taqdim etilmaganligi sababli rad etildi.',
+            ];
 
-        $response = $this->PostRequest("update/id/" . $reviewObject->monitoring->claim->guid . "/action/send-to-step-conclusion-gasn", $dataArray);
+            $response = $this->PostRequest("update/id/" . $reviewObject->monitoring->claim->guid . "/action/send-to-step-conclusion-gasn", $dataArray);
 
-        if ($response->status() != 200) {
-            return false;
+            if ($response->status() != 200) {
+                return false;
+            }
         }
 
         $dataArray['IssuanceExtractRejectGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
@@ -969,10 +971,10 @@ class ClaimService
                         if ($reviews->count() > 0) {
                             list($isFinished, $allSuccess) = $this->checkReviewCount($reviews);
 
-                            if($isFinished){
+                            if ($isFinished) {
                                 if ($allSuccess) {
                                     $status = ClaimStatuses::TASK_STATUS_INSPECTOR;
-                                }else{
+                                } else {
                                     $this->autoRejectByOrganization($reviews[0]);
                                 }
                             }
