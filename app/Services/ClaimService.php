@@ -478,7 +478,7 @@ class ClaimService
 
     private function autoRejectByOrganization($reviewObject): bool
     {
-        if ($reviewObject->monitoring->claim->current_node == 'answer-other-institutions'){
+        if ($reviewObject->monitoring->claim->current_node == 'answer-other-institutions') {
             $dataArray['SendToStepConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
                 'comment_gasn' => 'Ariza tashkilotlar tomonidan ijobiy xulosa taqdim etilmaganligi sababli rad etildi.',
             ];
@@ -984,6 +984,21 @@ class ClaimService
 
                         if ($consolidationDb->object_id == null)
                             $status = ClaimStatuses::TASK_STATUS_ATTACH_OBJECT;
+                    }
+                    if ($consolidationGov->task->current_node == "conclusion-gasn") {
+                        $status = ClaimStatuses::TASK_STATUS_DIRECTOR;
+                        $reviews = ClaimOrganizationReview::with('monitoring')->where('claim_id', $consolidationDb->id)->get();
+
+                        if ($reviews->count() > 0) {
+                            list($isFinished, $allSuccess) = $this->checkReviewCount($reviews);
+
+                            if ($isFinished) {
+                                if (!$allSuccess) {
+                                    $this->autoRejectByOrganization($reviews[0]);
+                                }
+                            }
+
+                        }
                     }
                     if ($consolidationGov->task->current_node == "conclusion-minstroy")
                         $status = ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG;
