@@ -96,8 +96,7 @@ class UserService
     public function searchByUser($query, $filters)
     {
          return $query->when(isset($filters['search']), function ($q) use($filters){
-             $q->searchByFullName($filters['search'])
-                    ->searchByPinfOrPhone($filters['search']);
+             $q->searchAll($filters['search']);
             })
             ->when(isset($filters['region_id']), function ($q) use($filters){
                 $q->where('region_id', $filters['region_id']);

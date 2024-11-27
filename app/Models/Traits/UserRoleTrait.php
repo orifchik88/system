@@ -101,6 +101,19 @@ trait UserRoleTrait
                 ->orWhere('phone', 'LIKE', '%' . $searchTerm . '%');
         });
     }
+
+    public function scopeSearchAll($query, $searchTerm)
+    {
+        $searchTerm = strtolower($searchTerm);
+
+        return $query->where(function ($query) use ($searchTerm) {
+            $query->whereRaw('LOWER(name) LIKE ?', ['%' . $searchTerm . '%'])
+                ->orWhereRaw('LOWER(middle_name) LIKE ?', ['%' . $searchTerm . '%'])
+                ->orWhereRaw('LOWER(surname) LIKE ?', ['%' . $searchTerm . '%'])
+                ->orWhere('pinfl', 'LIKE', '%' . $searchTerm . '%')
+                ->orWhere('phone', 'LIKE', '%' . $searchTerm . '%');
+        });
+    }
     public function getFullNameAttribute()
     {
         return  isset($this->name) ? ucwords("{$this->surname} {$this->name} {$this->middle_name}") : null;
