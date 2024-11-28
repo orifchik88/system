@@ -478,21 +478,23 @@ class ClaimService
 
     private function autoRejectByOrganization($reviewObject): bool
     {
-        $dataArray['SendToStepConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
-            'comment_gasn' => 'Ariza tashkilotlar tomonidan ijobiy xulosa taqdim etilmaganligi sababli rad etildi.',
-        ];
+        if ($reviewObject->monitoring->claim->current_node == 'answer-other-institutions') {
+            $dataArray['SendToStepConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
+                'comment_gasn' => 'Ariza tashkilotlar tomonidan ijobiy xulosa taqdim etilmaganligi sababli rad etildi.',
+            ];
 
-        $response = $this->PostRequest("update/id/" . $reviewObject->monitoring->claim->guid . "/action/send-to-step-conclusion-gasn", $dataArray);
+            $response = $this->PostRequest("update/id/" . $reviewObject->monitoring->claim->guid . "/action/send-to-step-conclusion-gasn", $dataArray);
 
-        if ($response->status() != 200) {
-            return false;
+            if ($response->status() != 200) {
+                return false;
+            }
         }
 
         $dataArray['IssuanceExtractRejectGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
             "gasn_name_reject" => 'Shaffof qurilish milliy axborot tizimi',
             "gasn_match" => 2,
             "gasn_cause_reject" => 'Ariza tashkilotlar tomonidan ijobiy xulosa taqdim etilmaganligi sababli rad etildi.',
-            "gasn_territory_reject" => $reviewObject->monitoring->claim->region->name_uz
+            "gasn_territory_reject" => $reviewObject->monitoring->claim->region()->first()->name_uz
         ];
 
         $response = $this->PostRequest("update/id/" . $reviewObject->monitoring->claim->guid . "/action/issuance-extract-reject-gasn", $dataArray);
@@ -959,32 +961,56 @@ class ClaimService
                     $this->claimRepository->createClaim($consolidationGov, $expiryDate);
                 elseif ($consolidationGov->task->current_node != $consolidationDb->current_node || $consolidationGov->task->status != $consolidationDb->status_mygov) {
                     $status = ClaimStatuses::TASK_STATUS_ANOTHER;
-                    if ($consolidationGov->task->current_node == "direction-statement-object") {
-                        $status = ClaimStatuses::TASK_STATUS_ACCEPTANCE;
-                    }
-                    if ($consolidationGov->task->current_node == "answer-other-institutions") {
-                        $status = ClaimStatuses::TASK_STATUS_SENT_ORGANIZATION;
-                        $reviews = ClaimOrganizationReview::where('claim_id', $consolidationDb->id)->get();
-                        if ($reviews->count() > 0) {
-                            list($isFinished, $allSuccess) = $this->checkReviewCount($reviews);
 
-                            if ($allSuccess) {
-                                $status = ClaimStatuses::TASK_STATUS_INSPECTOR;
-                            }
-                        } else
-                            $status = ClaimStatuses::TASK_STATUS_ATTACH_OBJECT;
-
-                        if ($consolidationDb->object_id == null)
-                            $status = ClaimStatuses::TASK_STATUS_ATTACH_OBJECT;
-                    }
-                    if ($consolidationGov->task->current_node == "conclusion-minstroy")
-                        $status = ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG;
                     if ($consolidationGov->task->current_node == "inactive" && $consolidationGov->task->status == "rejected")
                         $status = ClaimStatuses::TASK_STATUS_REJECTED;
                     if ($consolidationGov->task->current_node == "inactive" && $consolidationGov->task->status == "processed")
                         $status = ClaimStatuses::TASK_STATUS_CONFIRMED;
                     if ($consolidationGov->task->current_node == "inactive" && $consolidationGov->task->status == "not_active")
                         $status = ClaimStatuses::TASK_STATUS_CANCELLED;
+                    if ($consolidationGov->task->current_node == "direction-statement-object") {
+                        $status = ClaimStatuses::TASK_STATUS_ACCEPTANCE;
+                    }
+                    if ($consolidationGov->task->current_node == "answer-other-institutions") {
+                        $status = ClaimStatuses::TASK_STATUS_SENT_ORGANIZATION;
+                        $reviews = ClaimOrganizationReview::with('monitoring')->where('claim_id', $consolidationDb->id)->get();
+
+                        if ($reviews->count() > 0) {
+                            list($isFinished, $allSuccess) = $this->checkReviewCount($reviews);
+
+                            if ($isFinished) {
+                                if ($allSuccess) {
+                                    $status = ClaimStatuses::TASK_STATUS_INSPECTOR;
+                                } else {
+                                    $this->autoRejectByOrganization($reviews->first());
+                                }
+                            }
+
+                        } else
+                            $status = ClaimStatuses::TASK_STATUS_ATTACH_OBJECT;
+
+                        if ($consolidationDb->object_id == null)
+                            $status = ClaimStatuses::TASK_STATUS_ATTACH_OBJECT;
+                    }
+                    if ($consolidationGov->task->current_node == "conclusion-gasn") {
+                        $status = ClaimStatuses::TASK_STATUS_DIRECTOR;
+                        $reviews = ClaimOrganizationReview::with('monitoring')->where('claim_id', $consolidationDb->id)->get();
+
+                        if ($reviews->count() > 0) {
+                            list($isFinished, $allSuccess) = $this->checkReviewCount($reviews);
+
+                            if ($isFinished) {
+                                if (!$allSuccess) {
+                                    $data = $this->autoRejectByOrganization($reviews->first());
+                                    if ($data)
+                                        $status = ClaimStatuses::TASK_STATUS_ORGANIZATION_REJECTED;
+                                }
+                            }
+
+                        }
+                    }
+                    if ($consolidationGov->task->current_node == "conclusion-minstroy")
+                        $status = ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG;
 
                     $this->claimRepository->updateClaim(guId: $guId, data: [
                         'current_node' => $consolidationGov->task->current_node,

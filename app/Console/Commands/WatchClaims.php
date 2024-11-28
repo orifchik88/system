@@ -68,7 +68,7 @@ class  WatchClaims extends Command
                     status: ClaimStatuses::RESPONSE_WATCHED
                 );
 
-                if($status == ClaimStatuses::TASK_STATUS_ACCEPTANCE || $status == ClaimStatuses::TASK_STATUS_ANOTHER) {
+                if($status == ClaimStatuses::TASK_STATUS_ACCEPTANCE) {
                     $this->historyService->createHistory(
                         guId: $response->task_id,
                         status: $status,
