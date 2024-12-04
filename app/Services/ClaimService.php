@@ -966,6 +966,8 @@ class ClaimService
                         $status = ClaimStatuses::TASK_STATUS_REJECTED;
                     if ($consolidationGov->task->current_node == "inactive" && $consolidationGov->task->status == "processed")
                         $status = ClaimStatuses::TASK_STATUS_CONFIRMED;
+                    if($consolidationGov->task->current_node == "process" && $consolidationGov->task->status == "statement-formation")
+                        $status = ClaimStatuses::TASK_STATUS_CONFIRMED;
                     if ($consolidationGov->task->current_node == "inactive" && $consolidationGov->task->status == "not_active")
                         $status = ClaimStatuses::TASK_STATUS_CANCELLED;
                     if ($consolidationGov->task->current_node == "direction-statement-object") {

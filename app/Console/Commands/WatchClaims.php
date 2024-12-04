@@ -58,6 +58,8 @@ class  WatchClaims extends Command
                     $status = ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG;
                 if($taskFormGov->task->current_node == "inactive" && $taskFormGov->task->status == "processed")
                     $status = ClaimStatuses::TASK_STATUS_CONFIRMED;
+                if($taskFormGov->task->current_node == "process" && $taskFormGov->task->status == "statement-formation")
+                    $status = ClaimStatuses::TASK_STATUS_CONFIRMED;
                 if($taskFormGov->task->current_node == "inactive" && $taskFormGov->task->status == "rejected")
                     $status = ClaimStatuses::TASK_STATUS_REJECTED;
                 if($taskFormGov->task->current_node == "inactive" && $taskFormGov->task->status == "not_active")
