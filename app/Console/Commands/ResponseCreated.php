@@ -47,16 +47,18 @@ class ResponseCreated extends Command
         $json = $response->json();
         $data = $this->parseResponse($response);
         $userType = $this->determineUserType($data['user_type']['real_value']);
-
-        DB::beginTransaction();
-        try {
-            $dxa = $this->saveDxaResponse($taskId, $data, $userType, $json);
-            $this->sendMyGov($dxa);
-            $this->saveExpertise($dxa);
-            DB::commit();
-        } catch (\Exception $exception) {
-            DB::rollBack();
-            echo $exception->getMessage(). ' '. $exception->getLine();
+        $responseExist = DxaResponse::query()->where('task_id', $taskId)->exists();
+        if (!$responseExist) {
+            DB::beginTransaction();
+            try {
+                $dxa = $this->saveDxaResponse($taskId, $data, $userType, $json);
+                $this->sendMyGov($dxa);
+                $this->saveExpertise($dxa);
+                DB::commit();
+            } catch (\Exception $exception) {
+                DB::rollBack();
+                echo $exception->getMessage() . ' ' . $exception->getLine();
+            }
         }
 
     }

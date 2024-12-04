@@ -309,6 +309,7 @@ class ArticleService
     private function saveRepeat($response)
     {
         $article = Article::query()->where('task_id', $response->old_task_id)->first();
+        if (!$article) throw new NotFoundException('Obyekt topilmadi');
         $article->update([
             'name' => $response->object_name,
             'region_id' => $response->region_id,

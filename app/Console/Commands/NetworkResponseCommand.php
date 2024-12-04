@@ -42,21 +42,23 @@ class NetworkResponseCommand extends Command
         $json = $response->json();
         $data = $this->parseResponse($response);
         $userType = $this->determineUserType($data['user_type']['real_value']);
+        $responseExist = DxaResponse::query()->where('task_id', $taskId)->exists();
+        if (!$responseExist) {
+            DB::beginTransaction();
+            try {
+                $dxa = $this->saveDxaResponse($taskId, $data, $userType, $json);
+                $response = Response::query()->where('task_id', $taskId)->first();
+                $response->update([
+                    'status' => 2,
+                ]);
+                $this->saveExpertise($dxa);
+                $this->sendMyGov($dxa);
 
-        DB::beginTransaction();
-        try {
-            $dxa = $this->saveDxaResponse($taskId, $data, $userType,  $json);
-            $response = Response::query()->where('task_id', $taskId)->first();
-            $response->update([
-                'status' => 2,
-            ]);
-            $this->saveExpertise($dxa);
-            $this->sendMyGov($dxa);
-
-            DB::commit();
-        } catch (\Exception $exception) {
-            DB::rollBack();
-            echo $exception->getMessage();
+                DB::commit();
+            } catch (\Exception $exception) {
+                DB::rollBack();
+                echo $exception->getMessage();
+            }
         }
     }
 
