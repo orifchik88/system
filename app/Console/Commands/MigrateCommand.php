@@ -39,7 +39,7 @@ class MigrateCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:migration {--type=1}';
+    protected $signature = 'app:migration {--type=1} {--region=}';
 
     /**
      * The console command description.
@@ -58,7 +58,7 @@ class MigrateCommand extends Command
                 $this->migrateUsers();
                 break;
             case 2:
-                $this->migrateObjects();
+                $this->migrateObjects($this->option('region'));
                 break;
             case 3:
                 $this->migrateRegulations();
@@ -76,7 +76,7 @@ class MigrateCommand extends Command
                 $this->deletePhaseRegulations();
                 break;
             case 9:
-                $this->migrateObjectUsers(4389);
+                $this->migrateObjectUsers(4455);
                 break;
             case 10:
                 $this->migrateBlocks(2701);
@@ -162,12 +162,21 @@ class MigrateCommand extends Command
                 if ($userDb == null)
                     continue;
 
-                $userRole = new ArticleUser();
-                $userRole->role_id = (isset($inspectorRoles[$user->role_id])) ? $inspectorRoles[$user->role_id] : $role->id;
-                $userRole->article_id = $article->id;
-                $userRole->user_id = $userDb->id;
+                $checkArticleUser = ArticleUser::query()
+                    ->where('article_id', $article->id)
+                    ->where('user_id', $userDb->id)
+                    ->where('role_id', (isset($inspectorRoles[$user->role_id])) ? $inspectorRoles[$user->role_id] : $role->id)
+                    ->first();
 
-                $userRole->save();
+                if (!$checkArticleUser) {
+                    $userRole = new ArticleUser();
+                    $userRole->role_id = (isset($inspectorRoles[$user->role_id])) ? $inspectorRoles[$user->role_id] : $role->id;
+                    $userRole->article_id = $article->id;
+                    $userRole->user_id = $userDb->id;
+
+                    $userRole->save();
+                }
+
                 if (in_array($user->role_id, ['b5392622-4180-4c89-9b4e-2976f05b9150', '6126cbeb-b0b8-4059-9758-14ff3c35473f', 'e7777bfa-7416-44e8-b609-99136ec5d3b0'])) {
                     $organization = DB::connection('second_pgsql')->table('organizations')
                         ->where('id', $user->organization_id)
@@ -175,6 +184,7 @@ class MigrateCommand extends Command
                     if ($organization == null)
                         continue;
                     $checkUser = User::where('pinfl', $organization->stir)->first();
+
                     if ($checkUser) {
                         $userRole = new ArticleUser();
                         $userRole->role_id = $orgRoles[$user->role_id];
@@ -182,7 +192,6 @@ class MigrateCommand extends Command
                         $userRole->user_id = $checkUser->id;
 
                         $userRole->save();
-
                     } else {
                         $insertUser = User::query()->create([
                             'name' => null,
@@ -620,11 +629,14 @@ class MigrateCommand extends Command
         }
     }
 
-    private function migrateObjects()
+    private function migrateObjects($region_id)
     {
+        if ($region_id == null)
+            return error_log('Region must be entered!');
+
         $objects = DB::connection('third_pgsql')->table('objects')
             ->where('is_migrated', false)
-            ->where('region_id', 'c053cdb4-94f6-450f-9da9-f0bf2c145587')
+            ->where('region_id', $region_id)
             ->limit(20)
             ->get();
 
@@ -757,20 +769,27 @@ class MigrateCommand extends Command
             ]);
 
             foreach ($users as $user) {
-                $userCcnis = DB::connection('second_pgsql')->table('user')
-                    ->where('id', $user->id)
-                    ->first();
-                if ($userCcnis == null)
-                    continue;
-
                 $role = Role::query()->where('old_id', $user->role_id)->first();
                 $userDb = User::query()->where('old_id', $user->user_id)->first();
-                $userRole = new ArticleUser();
-                $userRole->role_id = (isset($inspectorRoles[$user->role_id])) ? $inspectorRoles[$user->role_id] : $role->id;
-                $userRole->article_id = $article->id;
-                $userRole->user_id = $userDb->id;
+
+                if ($userDb == null)
+                    continue;
+
+                $checkArticleUser = ArticleUser::query()
+                    ->where('article_id', $article->id)
+                    ->where('user_id', $userDb->id)
+                    ->where('role_id', (isset($inspectorRoles[$user->role_id])) ? $inspectorRoles[$user->role_id] : $role->id)
+                    ->first();
+
+                if (!$checkArticleUser) {
+                    $userRole = new ArticleUser();
+                    $userRole->role_id = (isset($inspectorRoles[$user->role_id])) ? $inspectorRoles[$user->role_id] : $role->id;
+                    $userRole->article_id = $article->id;
+                    $userRole->user_id = $userDb->id;
+                }
 
                 $userRole->save();
+
                 if (in_array($user->role_id, ['b5392622-4180-4c89-9b4e-2976f05b9150', '6126cbeb-b0b8-4059-9758-14ff3c35473f', 'e7777bfa-7416-44e8-b609-99136ec5d3b0'])) {
                     $organization = DB::connection('second_pgsql')->table('organizations')
                         ->where('id', $user->organization_id)
@@ -778,6 +797,7 @@ class MigrateCommand extends Command
                     if ($organization == null)
                         continue;
                     $checkUser = User::where('pinfl', $organization->stir)->first();
+
                     if ($checkUser) {
                         $userRole = new ArticleUser();
                         $userRole->role_id = $orgRoles[$user->role_id];
@@ -819,33 +839,31 @@ class MigrateCommand extends Command
                 }
             }
 
-            $blockArr = json_decode($object->blocks, true);
-            if (is_array($blockArr)) {
-                foreach ($blockArr as $item) {
-                    $block = DB::connection('third_pgsql')->table('blocks')
-                        ->where('id', $item)
-                        ->first();
-                    $blockModel = new Block();
-                    $blockModel->name = $block->name;
-                    $blockModel->block_number = $block->number;
-                    $blockModel->block_mode_id = null;
-                    $blockModel->block_type_id = null;
-                    $blockModel->article_id = $article->id;
-                    $blockModel->floor = null;
-                    $blockModel->construction_area = null;
-                    $blockModel->count_apartments = null;
-                    $blockModel->height = null;
-                    $blockModel->length = null;
-                    $blockModel->status = true;
-                    $blockModel->appearance_type = null;
-                    $blockModel->accepted = $block->is_send;
-                    $blockModel->dxa_response_id = null;
-                    $blockModel->created_at = $block->created_at;
-                    $blockModel->deleted_at = $block->deleted_at;
-                    $blockModel->save();
-                }
-            }
+            $blocks = DB::connection('third_pgsql')->table('blocks')
+                ->where('object_id', $object->id)
+                ->whereNull('deleted_at')
+                ->get();
 
+            foreach ($blocks as $block) {
+                $blockModel = new Block();
+                $blockModel->name = $block->name;
+                $blockModel->block_number = $block->number;
+                $blockModel->block_mode_id = null;
+                $blockModel->block_type_id = null;
+                $blockModel->article_id = $article->id;
+                $blockModel->floor = null;
+                $blockModel->construction_area = null;
+                $blockModel->count_apartments = null;
+                $blockModel->height = null;
+                $blockModel->length = null;
+                $blockModel->status = true;
+                $blockModel->appearance_type = null;
+                $blockModel->accepted = $block->is_send;
+                $blockModel->dxa_response_id = null;
+                $blockModel->created_at = $block->created_at;
+                $blockModel->deleted_at = $block->deleted_at;
+                $blockModel->save();
+            }
 
             DB::connection('third_pgsql')->table('objects')
                 ->where('id', $object->id)
