@@ -79,7 +79,7 @@ class MigrateCommand extends Command
                 $this->migrateObjectUsers(4389);
                 break;
             case 10:
-                $this->migrateBlocks(696);
+                $this->migrateBlocks(2701);
                 break;
             default:
                 echo 'Fuck you!';
@@ -94,12 +94,14 @@ class MigrateCommand extends Command
             ->where('id', $article->old_id)
             ->first();
 
-        $blockArr = json_decode($object->blocks, true);
-        if (is_array($blockArr)) {
-            foreach ($blockArr as $item) {
-                $block = DB::connection('third_pgsql')->table('blocks')
-                    ->where('id', $item)
-                    ->first();
+        $blocks = DB::connection('third_pgsql')->table('blocks')
+            ->where('object_id', $object->id)
+            ->whereNull('deleted_at')
+            ->get();
+
+        foreach ($blocks as $block) {
+            $currentBlock = Block::query()->where(['block_number' => $block->number, 'name' => $block->name, 'article_id' => $objectId])->first();
+            if (!$currentBlock) {
                 $blockModel = new Block();
                 $blockModel->name = $block->name;
                 $blockModel->block_number = $block->number;
