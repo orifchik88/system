@@ -1070,7 +1070,7 @@ class ClaimService
                         'status' => $status
                     ]);
 
-                    if ($status != ClaimStatuses::TASK_STATUS_ACCEPTANCE || $status != ClaimStatuses::TASK_STATUS_ANOTHER) {
+                    if (($status != ClaimStatuses::TASK_STATUS_ACCEPTANCE || $status != ClaimStatuses::TASK_STATUS_ANOTHER) && $status != $consolidationDb->status) {
                         $this->historyService->createHistory(
                             guId: $guId,
                             status: $status,
