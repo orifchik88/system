@@ -972,9 +972,9 @@ class ClaimService
                             ]);
 
                         $response = json_decode($resClient->getBody(), true);
-                        $conclusions =$response['result']['data']['conclusions'];
-                        
-                        if($response['result']['data']['success'] && count($conclusions) == 1){
+                        $conclusions = $response['result']['data']['conclusions'];
+
+                        if ($response['result']['data']['success'] && count($conclusions) == 1) {
                             if ($conclusions[0]['watcher_type'] == 1) {
                                 $dataArray['SendObjectToMinstroyV2FormCompletedBuildingsRegistrationCadastral'] = [
                                     'comment_to_send_minstroy' => 'Tuman (shahar) qurilish va uy-joy kommunal xo`jaligi bo‘limlari qurilish-montaj ishlari tugallangan ikki qavatdan yuqori bo‘lmagan (sokolni hisobga olmagan holda), balandligi yer

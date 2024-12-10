@@ -700,6 +700,15 @@ class ClaimRepository implements ClaimRepositoryInterface
         if ($claimGov->task->current_node == "inactive" && $claimGov->task->status == "not_active")
             $status = ClaimStatuses::TASK_STATUS_CANCELLED;
 
+        if ($status == ClaimStatuses::TASK_STATUS_ACCEPTANCE) {
+            (new HistoryService('claim_histories'))->createHistory(
+                guId: $claimGov->task->id,
+                status: $status,
+                type: LogType::TASK_HISTORY,
+                date: null
+            );
+        }
+
         if ($claimGov->task->current_node == "inactive" && $claimGov->task->status == "processed") {
             $status = ClaimStatuses::TASK_STATUS_CONFIRMED;
             (new HistoryService('claim_histories'))->createHistory(

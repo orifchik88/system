@@ -10,7 +10,6 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 
-
 class  WatchClaims extends Command
 {
     private ClaimService $claimService;
@@ -39,7 +38,7 @@ class  WatchClaims extends Command
 
             try {
                 $taskFormGov = $this->claimService->getClaimFromApi($response->task_id);
-                if(!$taskFormGov) {
+                if (!$taskFormGov) {
                     $this->claimService->updateResponseStatus(
                         guId: $response->task_id,
                         status: ClaimStatuses::RESPONSE_ERRORED
@@ -49,35 +48,10 @@ class  WatchClaims extends Command
                     continue;
                 }
 
-                $status = ClaimStatuses::TASK_STATUS_ANOTHER;
-                if($taskFormGov->task->current_node == "direction-statement-object")
-                    $status = ClaimStatuses::TASK_STATUS_ACCEPTANCE;
-                if($taskFormGov->task->current_node == "answer-other-institutions")
-                    $status = ClaimStatuses::TASK_STATUS_SENT_ORGANIZATION;
-                if($taskFormGov->task->current_node == "conclusion-minstroy")
-                    $status = ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG;
-                if($taskFormGov->task->current_node == "inactive" && $taskFormGov->task->status == "processed")
-                    $status = ClaimStatuses::TASK_STATUS_CONFIRMED;
-                if($taskFormGov->task->current_node == "process" && $taskFormGov->task->status == "statement-formation")
-                    $status = ClaimStatuses::TASK_STATUS_CONFIRMED;
-                if($taskFormGov->task->current_node == "inactive" && $taskFormGov->task->status == "rejected")
-                    $status = ClaimStatuses::TASK_STATUS_REJECTED;
-                if($taskFormGov->task->current_node == "inactive" && $taskFormGov->task->status == "not_active")
-                    $status = ClaimStatuses::TASK_STATUS_CANCELLED;
-
                 $this->claimService->updateResponseStatus(
                     guId: $response->task_id,
                     status: ClaimStatuses::RESPONSE_WATCHED
                 );
-
-                if($status == ClaimStatuses::TASK_STATUS_ACCEPTANCE) {
-                    $this->historyService->createHistory(
-                        guId: $response->task_id,
-                        status: $status,
-                        type: LogType::TASK_HISTORY,
-                        date: null
-                    );
-                }
 
                 DB::commit();
             } catch (\Exception $e) {
