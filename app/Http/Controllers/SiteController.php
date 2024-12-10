@@ -21,7 +21,7 @@ class SiteController extends Controller
     public function index($id)
     {
         $objectModel = $this->articleRepository->findByTaskId($id);
-        $ratingArr = json_decode($objectModel->rating, true);
+        $ratingArr = ($objectModel->rating != null) ? json_decode($objectModel->rating, true) : null;
 
         if (is_array($ratingArr) && isset($ratingArr[0])) {
             $ratingLoyiha = $ratingArr[0]['loyiha']['reyting_loyha'] ?? null;
