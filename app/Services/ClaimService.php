@@ -235,7 +235,8 @@ class ClaimService
             guId: $claimObject->gu_id,
             status: ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG,
             type: LogType::TASK_HISTORY,
-            date: null
+            date: null,
+            comment: $request['comment']
         );
 
         return true;
@@ -1002,7 +1003,8 @@ class ClaimService
                                     guId: $claimObject->gu_id,
                                     status: ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG,
                                     type: LogType::TASK_HISTORY,
-                                    date: null
+                                    date: null,
+                                    comment: $dataArray['SendObjectToMinstroyV2FormCompletedBuildingsRegistrationCadastral']['comment_to_send_minstroy']
                                 );
                             }
                         }
