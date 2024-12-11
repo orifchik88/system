@@ -48,9 +48,9 @@ class InformationController extends BaseController
 
             if (!empty($data))
             {
-                if ($data[0]['end_term_work_days']){
-                    $meta[] = $informationService->customer($customerInn, $pudratInn);
-                }
+//                if ($data[0]['end_term_work_days']){
+//                    $meta[] = $informationService->customer($customerInn, $pudratInn);
+//                }
                 $sphere = Sphere::query()->find($data[0]['object_types_id']);
                 $program = Program::query()->find($data[0]['project_type_id']);
                 $meta[] = [
