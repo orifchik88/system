@@ -32,11 +32,15 @@ class SiteController extends Controller
             $ratingUmumiy = null;
             $ratingMel = null;
         }
+        $data = getData(config('app.gasn.reestr'), $objectModel->reestr_number);
+        $conclusion_file = '';
+        if(isset($data['data']))
+            $conclusion_file = $data['data']['conclusion_file'];
 //        $objectModel = $this->articleRepository->findByTaskId($id);
 //        $ratingArr = json_decode($objectModel->rating, true)[0];
 //        $ratingLoyiha = $ratingArr['loyiha']['reyting_loyha'];
 //        $ratingUmumiy = (isset($ratingArr['qurilish']['reyting_umumiy'])) ? $ratingArr['qurilish']['reyting_umumiy'] : null;
 //        $ratingMel = (isset($ratingArr['qurilish']['reyting_mel'])) ? $ratingArr['qurilish']['reyting_mel'] : null;
-        return view('qr', ['object' => $objectModel, 'rating_loyiha' => $ratingLoyiha, 'rating_umumiy' => $ratingUmumiy, 'rating_mel' => $ratingMel]);
+        return view('qr', ['object' => $objectModel, 'rating_loyiha' => $ratingLoyiha, 'rating_umumiy' => $ratingUmumiy, 'rating_mel' => $ratingMel, 'reestr' => $conclusion_file]);
     }
 }
