@@ -1010,7 +1010,7 @@ class ClaimService
                                 }
                             }
                         }catch (\Exception $exception){
-                            
+
                         }
 
                     }
