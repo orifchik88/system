@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Exceptions\NotFoundException;
+use App\Http\Requests\BlockModeRequest;
 use App\Http\Requests\BlockRequest;
 use App\Http\Resources\ArticleBlockResource;
 use App\Http\Resources\BlockModeResource;
@@ -90,13 +91,14 @@ class BlockController extends BaseController
         }
     }
 
-    public function addModeToBlock()
+    public function addModeToBlock(BlockModeRequest $request): JsonResponse
     {
         try {
             Block::query()->findOrFail(request('id'))->update([
-                'block_mode_id' => request('mode'),
-                'block_type_id' => request('type'),
-                'floor' => request('floor') ?? null,
+                'block_mode_id' => $request->mode,
+                'block_type_id' => $request->type,
+                'floor' => $request->floor ?? null,
+                'count_apartments' => $request->count_apartments ?? null,
             ]);
             return $this->sendSuccess([], 'Success');
         }catch (\Exception $exception){
