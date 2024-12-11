@@ -748,7 +748,7 @@ class MigrateCommand extends Command
             $article->long = $object->long;
             $article->dxa_response_id = null;
             $article->price_supervision_service = price_supervision($object->construction_cost);
-            $article->task_id = $object->task_id;
+            $article->task_id = (int)str_replace(' ', '', $object->task_id);
             $article->number_protocol = $object->number_protocol;
             $article->positive_opinion_number = $object->positive_opinion_number;
             $article->date_protocol = $object->date_protocol;
@@ -762,7 +762,7 @@ class MigrateCommand extends Command
             $article->created_at = $object->created_at;
             $article->save();
 
-            Response::query()->updateOrCreate(['task_id' => $object->task_id], [
+            Response::query()->updateOrCreate(['task_id' => (int)str_replace(' ', '', $object->task_id)], [
                 'module' => ($object->object_type_id == null) ? null : (($objectType[$object->object_type_id] == ObjectTypeEnum::BUILDING) ? 1 : 3),
                 'api' => 'my_gov_uz',
                 'status' => 0
