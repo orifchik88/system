@@ -33,7 +33,7 @@ class CreateResponseCommand extends Command
         $data = Response::query()->where('status', ClaimStatuses::RESPONSE_NEW)
             ->where('module', 1)
             ->orderBy('id', 'asc')
-            ->take(50)
+            ->take(20)
             ->get();
         foreach ($data as $item) {
             $responseExist = DxaResponse::query()->where('task_id', $item->task_id)->exists();
