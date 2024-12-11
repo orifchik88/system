@@ -32,7 +32,7 @@ class SiteController extends Controller
             $ratingUmumiy = null;
             $ratingMel = null;
         }
-        $data = getData(config('app.gasn.reestr'), \request('reestr_number'));
+        $data = getData(config('app.gasn.reestr'), $objectModel->reestr_number);
         $conclusion_file = '';
         if(isset($data['success']) && $data['success'])
             $conclusion_file = $data['result']['data']['conclusion_file'];
