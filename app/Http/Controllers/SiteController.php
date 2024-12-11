@@ -34,8 +34,8 @@ class SiteController extends Controller
         }
         $data = getData(config('app.gasn.reestr'), $objectModel->reestr_number);
         $conclusion_file = '';
-        if(isset($data['success']) && $data['success'])
-            $conclusion_file = $data['result']['data']['conclusion_file'];
+        if(isset($data['data']))
+            $conclusion_file = $data['data']['conclusion_file'];
 //        $objectModel = $this->articleRepository->findByTaskId($id);
 //        $ratingArr = json_decode($objectModel->rating, true)[0];
 //        $ratingLoyiha = $ratingArr['loyiha']['reyting_loyha'];
