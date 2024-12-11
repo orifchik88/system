@@ -335,7 +335,7 @@ class DxaBuildingResponseService
             $dxa->update([
                 'funding_source_id' => $data['data']['result']['data']['finance_source'],
                 'program_id' => $data['data']['result']['data']['project_type_id'],
-                'sphere_id' => $data['data']['result']['data']['object_type_id'],
+//                'sphere_id' => $data['data']['result']['data']['object_type_id'],
             ]);
         }catch (\Exception $exception){
             Log::error('Expertise saqlashda xatolik: ' . $exception->getMessage());
