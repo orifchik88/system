@@ -963,51 +963,56 @@ class ClaimService
                     $insertedClaim = $this->claimRepository->createClaim($consolidationGov, $expiryDate);
 
                     if ($insertedClaim->number_conclusion_project != null) {
-                        $client = new Client();
-                        $apiCredentials = config('app.passport.login') . ':' . config('app.passport.password');
-                        $resClient = $client->post('https://api.shaffofqurilish.uz/api/v1/request/ccnis-dxa-watcher-type?conclusion=' . $insertedClaim->number_conclusion_project,
-                            [
-                                'headers' => [
-                                    'Authorization' => 'Basic ' . base64_encode($apiCredentials),
-                                ]
-                            ]);
+                        try{
+                            $client = new Client();
+                            $apiCredentials = config('app.passport.login') . ':' . config('app.passport.password');
+                            $resClient = $client->post('https://api.shaffofqurilish.uz/api/v1/request/ccnis-dxa-watcher-type?conclusion=' . $insertedClaim->number_conclusion_project,
+                                [
+                                    'headers' => [
+                                        'Authorization' => 'Basic ' . base64_encode($apiCredentials),
+                                    ]
+                                ]);
 
-                        $response = json_decode($resClient->getBody(), true);
-                        $conclusions = $response['result']['data']['conclusions'];
+                            $response = json_decode($resClient->getBody(), true);
+                            $conclusions = $response['result']['data']['conclusions'];
 
-                        if ($response['result']['data']['success'] && count($conclusions) == 1) {
-                            if ($conclusions[0]['watcher_type'] == 1) {
-                                $dataArray['SendObjectToMinstroyV2FormCompletedBuildingsRegistrationCadastral'] = [
-                                    'comment_to_send_minstroy' => 'Tuman (shahar) qurilish va uy-joy kommunal xo`jaligi bo‘limlari qurilish-montaj ishlari tugallangan ikki qavatdan yuqori bo‘lmagan (sokolni hisobga olmagan holda), balandligi yer
+                            if ($response['result']['data']['success'] && count($conclusions) == 1) {
+                                if ($conclusions[0]['watcher_type'] == 1) {
+                                    $dataArray['SendObjectToMinstroyV2FormCompletedBuildingsRegistrationCadastral'] = [
+                                        'comment_to_send_minstroy' => 'Tuman (shahar) qurilish va uy-joy kommunal xo`jaligi bo‘limlari qurilish-montaj ishlari tugallangan ikki qavatdan yuqori bo‘lmagan (sokolni hisobga olmagan holda), balandligi yer
                                 yuzasidan 12 metrdan va (yoki) umumiy maydoni 500 kvadrat metrdan ortiq bo‘lmagan yakka tartibdagi uy-joylar va 300 metr kubdan ortiq bo‘lmagan noturar bino va inshootlardan (keyingi o‘rinlarda — I toifa obyektlar)
                                 foydalanish uchun ruxsatnoma beradilar',
-                                ];
+                                    ];
 
-                                $claimObject = $this->getClaimByGUID(guid: $consolidationGov->task->id);
+                                    $claimObject = $this->getClaimByGUID(guid: $consolidationGov->task->id);
 
-                                if (env('MYGOV_MODE') == 'prod') {
-                                    $response = $this->PostRequest("update/id/" . $insertedClaim->guid . "/action/send-object-to-minstroy", $dataArray);
-                                    if ($response->status() != 200) {
-                                        return false;
+                                    if (env('MYGOV_MODE') == 'prod') {
+                                        $response = $this->PostRequest("update/id/" . $insertedClaim->guid . "/action/send-object-to-minstroy", $dataArray);
+                                        if ($response->status() != 200) {
+                                            return false;
+                                        }
                                     }
+
+                                    $claimObject->update(
+                                        [
+                                            'status' => ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG,
+                                            'end_date' => Carbon::now()
+                                        ]
+                                    );
+
+                                    $this->historyService->createHistory(
+                                        guId: $claimObject->gu_id,
+                                        status: ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG,
+                                        type: LogType::TASK_HISTORY,
+                                        date: null,
+                                        comment: $dataArray['SendObjectToMinstroyV2FormCompletedBuildingsRegistrationCadastral']['comment_to_send_minstroy']
+                                    );
                                 }
-
-                                $claimObject->update(
-                                    [
-                                        'status' => ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG,
-                                        'end_date' => Carbon::now()
-                                    ]
-                                );
-
-                                $this->historyService->createHistory(
-                                    guId: $claimObject->gu_id,
-                                    status: ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG,
-                                    type: LogType::TASK_HISTORY,
-                                    date: null,
-                                    comment: $dataArray['SendObjectToMinstroyV2FormCompletedBuildingsRegistrationCadastral']['comment_to_send_minstroy']
-                                );
                             }
+                        }catch (\Exception $exception){
+
                         }
+
                     }
                 } elseif ($consolidationGov->task->current_node != $consolidationDb->current_node || $consolidationGov->task->status != $consolidationDb->status_mygov) {
                     $status = ClaimStatuses::TASK_STATUS_ANOTHER;

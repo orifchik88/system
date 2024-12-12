@@ -215,11 +215,12 @@ class DxaResponseService
                 $blockAttributes['block_number'] = $this->determineBlockNumber($blockData, $response);
                 $articleBlock = Block::query()->where('block_number', $blockAttributes['block_number'])->first();
 
-                if ($articleBlock) {
-                    //$articleBlock->update($blockAttributes);
-                } else {
-                    Block::create($blockAttributes);
-                }
+                Block::create($blockAttributes);
+//                if ($articleBlock) {
+//                    //$articleBlock->update($blockAttributes);
+//                } else {
+//
+//                }
             }
         }
     }

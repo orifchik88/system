@@ -81,7 +81,7 @@ class ClaimRepository implements ClaimRepositoryInterface
             ])
             ->where('module', '=', 2)
             ->orderBy('id', 'asc')
-            ->take(20)
+            ->take(10)
             ->get();
     }
 
