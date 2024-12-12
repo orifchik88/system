@@ -317,7 +317,7 @@ class RegisterController extends BaseController
             $registers = $this->service->getRegisters($this->user, $this->roleId, 2);
             $filters = request()->only(['customer_name', 'sphere_id', 'status', 'object_type', 'task_id', 'district_id', 'region_id',  'lawyer_status']);
             $query = $this->service->searchRegisters($registers, $filters);
-            
+
             $data = [
                 'all' => $query->clone()->count(),
                 'new' => $query->clone()->where('dxa_response_status_id', DxaResponseStatusEnum::NEW)->count(),
