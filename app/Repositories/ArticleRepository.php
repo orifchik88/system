@@ -57,6 +57,12 @@ class ArticleRepository implements ArticleRepositoryInterface
             ->when(isset($filters['status']), function ($query) use ($filters) {
                 $query->where('articles.object_status_id', $filters['status']);
             })
+            ->when(isset($filters['inspector_id']), function ($query) use ($filters) {
+                $query->whereHas('users', function ($query) use ($filters) {
+                    $query->where('user_id', $filters['inspector_id'])
+                        ->where('role_id', UserRoleEnum::INSPECTOR->value);
+                });
+            })
             ->when(isset($filters['name']), function ($query) use ($filters) {
                 $query->searchByName($filters['name']);
             })
