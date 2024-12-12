@@ -76,6 +76,9 @@ class DxaResponseService
             ->when(isset($filters['district_id']), function ($query) use ($filters) {
                 $query->where('district_id', $filters['district_id']);
             })
+            ->when(isset($filters['region_id']), function ($query) use ($filters) {
+                $query->where('region_id', $filters['region_id']);
+            })
             ->when(isset($filters['lawyer_status']), function ($query) use ($filters) {
                 $query->where('lawyer_status_id', $filters['lawyer_status']);
             });
