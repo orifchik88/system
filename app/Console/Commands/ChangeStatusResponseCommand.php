@@ -39,6 +39,9 @@ class ChangeStatusResponseCommand extends Command
                             case 'rejected':
                                 $status = DxaResponseStatusEnum::REJECTED;
                                 break;
+                            case 'not_active':
+                                $status = DxaResponseStatusEnum::CANCELED;
+                                break;
                         }
 
                         if ($status !== null) {
