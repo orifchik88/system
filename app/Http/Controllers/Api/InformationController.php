@@ -417,7 +417,7 @@ class InformationController extends BaseController
         try {
 
             $timestamp = time();
-            $fileName = 'ariza'.$timestamp . '.xlsx';
+            $fileName = 'Toshkent.xlsx';
 
             return Excel::download(new RegulationExport(1), $fileName);
         }catch (\Exception $exception){
