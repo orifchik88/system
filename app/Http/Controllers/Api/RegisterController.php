@@ -56,7 +56,7 @@ class RegisterController extends BaseController
     public function reRegister(): JsonResponse
     {
         $query = $this->service->getRegisters($this->user, $this->roleId, 2);
-        $filters = request()->only(['customer_name', 'sphere_id', 'status', 'object_type', 'task_id', 'district_id', 'lawyer_status']);
+        $filters = request()->only(['customer_name', 'sphere_id', 'status', 'object_type', 'task_id', 'district_id', 'region_id',  'lawyer_status']);
         $registers = $this->service->searchRegisters($query, $filters)
             ->orderBy('created_at', request('sort_by_date', 'DESC'))
             ->paginate(request('per_page', 10));
@@ -274,8 +274,9 @@ class RegisterController extends BaseController
     {
 
         try {
-           $query = $this->service->getRegisters($this->user, $this->roleId, 1);
-
+            $registers = $this->service->getRegisters($this->user, $this->roleId, 1);
+            $filters = request()->only(['customer_name', 'sphere_id', 'status', 'object_type', 'task_id', 'district_id', 'region_id',  'lawyer_status']);
+            $query = $this->service->searchRegisters($registers, $filters);
             $data = [
                 'all' => $query->clone()->count(),
                 'new' => $query->clone()->where('dxa_response_status_id', DxaResponseStatusEnum::NEW)->count(),
@@ -313,7 +314,10 @@ class RegisterController extends BaseController
     {
 
         try {
-            $query = $this->service->getRegisters($this->user, $this->roleId, 2);
+            $registers = $this->service->getRegisters($this->user, $this->roleId, 2);
+            $filters = request()->only(['customer_name', 'sphere_id', 'status', 'object_type', 'task_id', 'district_id', 'region_id',  'lawyer_status']);
+            $query = $this->service->searchRegisters($registers, $filters);
+            
             $data = [
                 'all' => $query->clone()->count(),
                 'new' => $query->clone()->where('dxa_response_status_id', DxaResponseStatusEnum::NEW)->count(),
