@@ -24,7 +24,14 @@ class RegulationExport implements FromCollection, WithHeadings
     public function collection()
     {
 
-         return  Regulation::query()
+        $roles = Role::all()->keyBy('id');
+
+        return Regulation::query()
+            ->with([
+                'object',
+                'regulationUser',
+                'violations',
+            ])
             ->whereHas('object', function ($query) {
                 $query->where('region_id', $this->regionId);
             })
@@ -34,14 +41,14 @@ class RegulationExport implements FromCollection, WithHeadings
             })
             ->where('created_by_role_id', UserRoleEnum::INSPECTOR->value)
             ->get()
-            ->map(function ($regulation) {
+            ->map(function ($regulation) use ($roles) {
                 return [
                     $regulation->object->task_id ?? '',
                     $regulation->object->name ?? '',
                     $regulation->regulation_number ?? '',
-                    $regulation->regulationUser ?  Role::query()->find($regulation->regulationUser->from_role_id) : '',
-                    $regulation->regulationUser ? Role::query()->find($regulation->regulationUser->to_role_id)->name : '',
-                    $regulation->violations()->count(),
+                    $roles[$regulation->regulationUser->from_role_id]->name ?? '',
+                    $roles[$regulation->regulationUser->to_role_id]->name ?? '',
+                    $regulation->violations->count(),
                 ];
             });
     }
