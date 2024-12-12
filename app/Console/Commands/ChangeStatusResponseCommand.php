@@ -19,7 +19,7 @@ class ChangeStatusResponseCommand extends Command
     public function handle()
     {
         DxaResponse::query()
-            ->where('dxa_response_status_id', DxaResponseStatusEnum::NEW)
+            ->whereIn('dxa_response_status_id', [DxaResponseStatusEnum::SEND_INSPECTOR, DxaResponseStatusEnum::NEW, DxaResponseStatusEnum::IN_REGISTER])
             ->chunk(10, function ($responses) {
                 foreach ($responses as $item) {
                     $response = $item->object_type_id == 2
