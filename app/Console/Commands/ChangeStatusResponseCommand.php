@@ -20,7 +20,6 @@ class ChangeStatusResponseCommand extends Command
     {
         DxaResponse::query()
             ->where('dxa_response_status_id', DxaResponseStatusEnum::NEW)
-            ->where('region_id', 14)
             ->chunk(10, function ($responses) {
                 foreach ($responses as $item) {
                     $response = $item->object_type_id == 2
