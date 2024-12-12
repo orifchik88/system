@@ -76,7 +76,7 @@ class InformationService
         $response  = DxaResponse::where('task_id', $task_id)->first();
         if (!$response) throw new NotFoundException('Ariza topilmadi');
 
-        if ($response->notification_type == 2){
+        if ($response->object_type_id == 1){
             $url = config('app.mygov.linear');
         }else{
             $url = config('app.mygov.url');
