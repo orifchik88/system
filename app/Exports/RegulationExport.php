@@ -39,8 +39,9 @@ class RegulationExport implements FromCollection, WithHeadings
                     $regulation->object->task_id ?? '',
                     $regulation->object->name ?? '',
                     $regulation->regulation_number ?? '',
-                    $regulation->regulationUser ?  Role::query()->find($regulation->regulationUser->from_role_id)->name : '',
+                    $regulation->regulationUser ?  Role::query()->find($regulation->regulationUser->from_role_id) : '',
                     $regulation->regulationUser ? Role::query()->find($regulation->regulationUser->to_role_id)->name : '',
+                    $regulation->violations()->count(),
                 ];
             });
     }
@@ -48,12 +49,12 @@ class RegulationExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return [
-            'Ariza raqami',
-            'Buyurtmachi nomi',
-            'Buyurtmachi INN',
+            'Obyekt raqami',
             'Obyekt nomi',
-            'Viloyat',
-            'Tuman',
+            'Qoidabuzarlik raqami',
+            'Kimdan',
+            'Kimga',
+            'Qoidabuzarlik soni',
         ];
     }
 }
