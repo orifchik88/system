@@ -18,47 +18,48 @@ class ChangeStatusResponseCommand extends Command
 
     public function handle()
     {
-//        DxaResponse::query()
-//            ->where('dxa_response_status_id', DxaResponseStatusEnum::NEW)
-//            ->chunk(10, function ($responses) {
-//                foreach ($responses as $item) {
-//                    $response = $item->object_type_id == 2
-//                        ? $this->fetchTaskData($item->task_id)
-//                        : $this->fetchLinearTaskData($item->task_id);
-//
-//                    $json = $response->json();
-//
-//                    if (!empty($json['task']['status'])) {
-//                        $status = null;
-//
-//                        switch ($json['task']['status']) {
-//                            case 'processed':
-//                                $status = DxaResponseStatusEnum::ACCEPTED;
-//                                break;
-//                            case 'rejected':
-//                                $status = DxaResponseStatusEnum::REJECTED;
-//                                break;
-//                        }
-//
-//                        if ($status !== null) {
-//                            $item->update(['dxa_response_status_id' => $status]);
-//                        }else{
-//                            if ($item->notification_type == 2)
-//                            {
-//                                $item->update(['dxa_response_status_id' => DxaResponseStatusEnum::IN_REGISTER]);
-//                            }
-//                        }
-//                    }
-//                }
-//            });
-
         DxaResponse::query()
-            ->where('dxa_response_status_id', DxaResponseStatusEnum::IN_REGISTER)
-            ->chunk(100, function ($responses) {
-                foreach ($responses as $response) {
-                   $this->saveRekvizit($response);
+            ->where('dxa_response_status_id', DxaResponseStatusEnum::NEW)
+            ->where('region_id', 14)
+            ->chunk(10, function ($responses) {
+                foreach ($responses as $item) {
+                    $response = $item->object_type_id == 2
+                        ? $this->fetchTaskData($item->task_id)
+                        : $this->fetchLinearTaskData($item->task_id);
+
+                    $json = $response->json();
+
+                    if (!empty($json['task']['status'])) {
+                        $status = null;
+
+                        switch ($json['task']['status']) {
+                            case 'processed':
+                                $status = DxaResponseStatusEnum::ACCEPTED;
+                                break;
+                            case 'rejected':
+                                $status = DxaResponseStatusEnum::REJECTED;
+                                break;
+                        }
+
+                        if ($status !== null) {
+                            $item->update(['dxa_response_status_id' => $status]);
+                        }else{
+                            if ($item->notification_type == 2)
+                            {
+                                $item->update(['dxa_response_status_id' => DxaResponseStatusEnum::IN_REGISTER]);
+                            }
+                        }
+                    }
                 }
             });
+
+//        DxaResponse::query()
+//            ->where('dxa_response_status_id', DxaResponseStatusEnum::IN_REGISTER)
+//            ->chunk(100, function ($responses) {
+//                foreach ($responses as $response) {
+//                   $this->saveRekvizit($response);
+//                }
+//            });
     }
 
     private function saveRekvizit($response)
