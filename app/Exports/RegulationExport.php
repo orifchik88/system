@@ -2,20 +2,20 @@
 
 namespace App\Exports;
 
+use App\Enums\RegulationStatusEnum;
+use App\Enums\UserRoleEnum;
+use App\Models\Regulation;
+use App\Models\Role;
+use App\Models\User;
 use App\Services\RegulationService;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class RegulationExport implements FromCollection, WithHeadings
 {
-    /**
-    * @return \Illuminate\Support\Collection
-    */
+
     public function __construct(
-        protected RegulationService $service,
-        protected ?int $type,
-        protected  $user,
-        protected ?int$roleId
+        protected ?int $regionId
     )
     {
 
@@ -23,24 +23,24 @@ class RegulationExport implements FromCollection, WithHeadings
 
     public function collection()
     {
-        return  $this->service->getRegisters($this->user, $this->roleId, $this->type)
+
+         return  Regulation::query()
+            ->whereHas('object', function ($query) {
+                $query->where('region_id', $this->regionId);
+            })
+            ->where(function ($query) {
+                $query->where('regulation_status_id', RegulationStatusEnum::IN_LAWYER)
+                    ->orWhereNotNull('lawyer_status_id');
+            })
+            ->where('created_by_role_id', UserRoleEnum::INSPECTOR->value)
             ->get()
-            ->map(function ($dxaResponse) {
+            ->map(function ($regulation) {
                 return [
-                    $dxaResponse->task_id,
-                    $dxaResponse->organization_name,
-                    $dxaResponse->supervisors()->where('role_id', UserRoleEnum::BUYURTMACHI->value)->first()->identification_number ?? '',
-                    $dxaResponse->object_name,
-                    $dxaResponse->region->name_uz ?? '',
-                    $dxaResponse->district->name_uz ?? '',
-                    $dxaResponse->objectType->name ?? '',
-                    $dxaResponse->cadastral_number,
-                    $dxaResponse->category_object_dictionary,
-                    $dxaResponse->reestr_number,
-                    $dxaResponse->number_protocol,
-                    $dxaResponse->created_at,
-                    $dxaResponse->status->status ?? '',
-                    $dxaResponse->confirmed_at,
+                    $regulation->object->task_id ?? '',
+                    $regulation->object->name ?? '',
+                    $regulation->regulation_number ?? '',
+                    $regulation->regulationUser ?  Role::query()->find($regulation->regulationUser->from_role_id)->name : '',
+                    $regulation->regulationUser ? Role::query()->find($regulation->regulationUser->to_role_id)->name : '',
                 ];
             });
     }
@@ -54,14 +54,6 @@ class RegulationExport implements FromCollection, WithHeadings
             'Obyekt nomi',
             'Viloyat',
             'Tuman',
-            'Obyekt turi',
-            'Kadastr raqam',
-            'Murakkablik toifasi',
-            'Ekspertiza raqami',
-            'Kengash raqami',
-            'Ariza sanasi',
-            'Status',
-            'Javob berilgan sana',
         ];
     }
 }

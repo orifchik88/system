@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\ObjectStatusEnum;
+use App\Exports\RegulationExport;
 use App\Http\Resources\BasisResource;
 use App\Http\Resources\NormativeDocumentResource;
 use App\Http\Resources\NotificationResource;
@@ -26,6 +27,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Js;
+use Maatwebsite\Excel\Facades\Excel;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -407,6 +409,19 @@ class InformationController extends BaseController
 
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function regulationExcel()
+    {
+        try {
+
+            $timestamp = time();
+            $fileName = 'ariza'.$timestamp . '.xlsx';
+
+            return Excel::download(new RegulationExport(1), $fileName);
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getLine());
         }
     }
 
