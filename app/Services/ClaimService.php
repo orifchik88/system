@@ -963,8 +963,7 @@ class ClaimService
                     $insertedClaim = $this->claimRepository->createClaim($consolidationGov, $expiryDate);
 
                     if ((int)$consolidationGov->entities->CompletedBuildingsRegistrationCadastral->building_name_kartik->real_value != 1
-                        && $insertedClaim->number_conclusion_project >= 94904641)
-                    {
+                        && $insertedClaim->number_conclusion_project >= 94904641) {
                         try {
                             $client = new Client();
                             $apiCredentials = config('app.passport.login') . ':' . config('app.passport.password');
@@ -1019,10 +1018,18 @@ class ClaimService
                 } elseif ($consolidationGov->task->current_node != $consolidationDb->current_node || $consolidationGov->task->status != $consolidationDb->status_mygov) {
                     $status = ClaimStatuses::TASK_STATUS_ANOTHER;
 
-                    if ($consolidationGov->task->current_node == "inactive" && $consolidationGov->task->status == "rejected")
-                        $status = ClaimStatuses::TASK_STATUS_REJECTED;
-                    if ($consolidationGov->task->current_node == "inactive" && $consolidationGov->task->status == "processed")
-                        $status = ClaimStatuses::TASK_STATUS_CONFIRMED;
+                    if ($consolidationGov->task->current_node == "inactive" && $consolidationGov->task->status == "rejected") {
+                        if ($consolidationGov->entities->CompletedBuildingsRegistrationCadastral->minstroy_territory->real_value != null || $consolidationGov->entities->CompletedBuildingsRegistrationCadastral->minstroy_territory->real_value != "")
+                            $status = ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG;
+                        else
+                            $status = ClaimStatuses::TASK_STATUS_REJECTED;
+                    }
+                    if ($consolidationGov->task->current_node == "inactive" && $consolidationGov->task->status == "processed") {
+                        if ($consolidationGov->entities->CompletedBuildingsRegistrationCadastral->minstroy_territory->real_value != null || $consolidationGov->entities->CompletedBuildingsRegistrationCadastral->minstroy_territory->real_value != "")
+                            $status = ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG;
+                        else
+                            $status = ClaimStatuses::TASK_STATUS_CONFIRMED;
+                    }
                     if ($consolidationGov->task->current_node == "process" && $consolidationGov->task->status == "statement-formation")
                         $status = ClaimStatuses::TASK_STATUS_CONFIRMED;
                     if ($consolidationGov->task->current_node == "inactive" && $consolidationGov->task->status == "not_active")
