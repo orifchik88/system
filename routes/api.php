@@ -28,6 +28,8 @@ Route::post('login', [LoginController::class, 'login']);
 Route::post('auth', [LoginController::class, 'auth']);
 Route::post('check-user', [InformationController::class, 'checkUser']);
 Route::get('objects-by-pinfl', [InformationController::class, 'userObjects']);
+Route::get('regulation-excel', [InformationController::class, 'regulationExcel']);
+
 
 
 Route::get('{module}/{api}/responses', [ResponseController::class, 'receive']);
@@ -69,7 +71,6 @@ Route::group([
     Route::post('notification-read', [InformationController::class, 'notificationRead']);
     Route::get('statement', [InformationController::class, 'statement']);
     Route::get('qr-image/{id}', [InformationController::class, 'qrImage']);
-    Route::get('regulation-excel', [InformationController::class, 'regulationExcel']);
 
 
 
