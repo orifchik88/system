@@ -962,8 +962,10 @@ class ClaimService
                 if (!$consolidationDb) {
                     $insertedClaim = $this->claimRepository->createClaim($consolidationGov, $expiryDate);
 
-                    if ($insertedClaim->number_conclusion_project != null) {
-                        try{
+                    if ((int)$consolidationGov->entities->CompletedBuildingsRegistrationCadastral->building_name_kartik->real_value != 1
+                        && $insertedClaim->number_conclusion_project >= 94904641)
+                    {
+                        try {
                             $client = new Client();
                             $apiCredentials = config('app.passport.login') . ':' . config('app.passport.password');
                             $resClient = $client->post('https://api.shaffofqurilish.uz/api/v1/request/ccnis-dxa-watcher-type?conclusion=' . $insertedClaim->number_conclusion_project,
@@ -1009,7 +1011,7 @@ class ClaimService
                                     );
                                 }
                             }
-                        }catch (\Exception $exception){
+                        } catch (\Exception $exception) {
 
                         }
 
