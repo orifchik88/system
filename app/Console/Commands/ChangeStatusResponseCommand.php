@@ -72,6 +72,7 @@ class ChangeStatusResponseCommand extends Command
 
         Article::query()
             ->whereIn('object_status_id', [2,3,4])
+            ->whereNull('object_type_id')
             ->chunk(20, function ($articles) {
                 foreach ($articles as $article) {
                     $response = $this->fetchLinearTaskData($article->task_id);
