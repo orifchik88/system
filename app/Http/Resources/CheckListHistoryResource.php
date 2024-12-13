@@ -17,7 +17,7 @@ class CheckListHistoryResource extends JsonResource
     {
 //        $violations = null;
 //        $regulationNumbers = null;
-//        $additionalInfo = $this->content->additionalInfo ?? (object) [];
+        $additionalInfo = $this->content->additionalInfo ?? (object) [];
 //
 //        if (!empty($additionalInfo->violations)) {
 //            $violations = Violation::query()->whereIn('id', $additionalInfo->violations)->get();
