@@ -7,30 +7,24 @@ use App\Enums\LogType;
 use App\Enums\QuestionTypeEnum;
 use App\Enums\UserRoleEnum;
 use App\Enums\WorkTypeStatusEnum;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\MonitoringRequest;
 use App\Http\Resources\CheckListAnswerFilesResource;
-use App\Http\Resources\CheckListAnswerResource;
-use App\Http\Resources\LevelResource;
+use App\Http\Resources\CheckListHistoryFileResource;
+use App\Http\Resources\CheckListHistoryResource;
 use App\Http\Resources\MonitoringResource;
 use App\Models\Article;
 use App\Models\Block;
-use App\Models\CheckList;
 use App\Models\CheckListAnswer;
 use App\Models\CheckListHistory;
-use App\Models\Level;
 use App\Models\Monitoring;
-use App\Models\User;
 use App\Services\HistoryService;
 use App\Services\MessageTemplate;
 use App\Services\MonitoringService;
 use App\Services\QuestionService;
 use App\Services\SmsService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use function PHPUnit\Framework\isFalse;
 
 class MonitoringController extends BaseController
 {
@@ -96,6 +90,28 @@ class MonitoringController extends BaseController
             $blockId = request('block_id');
             return $this->sendSuccess($this->questionService->getQuestionList(blockId: $blockId, type: null, block_type: request('block_type')), 'Checklist');
         } catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function getChecklistLog(): JsonResponse
+    {
+        try {
+            $checklist = CheckListAnswer::query()->findOrFail(request('checklist_id'));
+            return $this->sendSuccess(CheckListHistoryResource::collection($checklist->logs), 'Checklist logs');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function getChecklistLogFile(): JsonResponse
+    {
+        try {
+            $history = CheckListHistory::query()->findOrFail(request('history_id'));
+
+            return $this->sendSuccess(CheckListHistoryFileResource::make($history), 'Files');
+
+        }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
