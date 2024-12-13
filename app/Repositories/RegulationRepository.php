@@ -64,6 +64,9 @@ class RegulationRepository implements RegulationRepositoryInterface
             ->when(isset($filters['status']), function ($query) use ($filters) {
                 $query->where('regulation_status_id', $filters['status']);
             })
+            ->when(isset($filters['regulation_number']), function ($query) use ($filters) {
+                $query->where('regulation_number', 'like', '%' . $filters['regulation_number'] . '%');
+            })
             ->when(isset($filters['created_by_role']), function ($query) use ($filters) {
                 $query->where('created_by_role_id', $filters['created_by_role']);
             })
