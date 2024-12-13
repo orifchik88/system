@@ -402,8 +402,8 @@ class ClaimRepository implements ClaimRepositoryInterface
         $query = Article::query()
             ->where('object_status_id', ObjectStatusEnum::PROGRESS)
             ->where(function ($query) use ($claim) {
-                $query->where('cadastral_number', $claim->building_cadastral)
-                    ->orWhere('number_protocol', $claim->number_conclusion_project);
+                $query->where('cadastral_number', $claim->building_cadastral);
+                //->orWhere('number_protocol', $claim->number_conclusion_project);
             });
 
         if (!$query->exists()) {
