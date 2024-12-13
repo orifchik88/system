@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Enums\DxaResponseStatusEnum;
+use App\Models\Article;
 use App\Models\DxaResponse;
 use App\Models\Rekvizit;
 use Illuminate\Console\Command;
@@ -18,47 +19,47 @@ class ChangeStatusResponseCommand extends Command
 
     public function handle()
     {
-        DxaResponse::query()
-            ->whereIn('dxa_response_status_id', [
-                DxaResponseStatusEnum::SEND_INSPECTOR,
-                DxaResponseStatusEnum::NEW,
-                DxaResponseStatusEnum::IN_REGISTER,
-                null
-            ])
-            ->chunk(10, function ($responses) {
-                foreach ($responses as $item) {
-                    $response = $item->object_type_id == 2
-                        ? $this->fetchTaskData($item->task_id)
-                        : $this->fetchLinearTaskData($item->task_id);
-
-                    $json = $response->json();
-
-                    if (!empty($json['task']['status'])) {
-                        $status = null;
-
-                        switch ($json['task']['status']) {
-                            case 'processed':
-                                $status = DxaResponseStatusEnum::ACCEPTED;
-                                break;
-                            case 'rejected':
-                                $status = DxaResponseStatusEnum::REJECTED;
-                                break;
-                            case 'not_active':
-                                $status = DxaResponseStatusEnum::CANCELED;
-                                break;
-                        }
-
-                        if ($status !== null) {
-                            $item->update(['dxa_response_status_id' => $status]);
-                        }else{
-                            if ($item->notification_type == 2)
-                            {
-                                $item->update(['dxa_response_status_id' => DxaResponseStatusEnum::IN_REGISTER]);
-                            }
-                        }
-                    }
-                }
-            });
+//        DxaResponse::query()
+//            ->whereIn('dxa_response_status_id', [
+//                DxaResponseStatusEnum::SEND_INSPECTOR,
+//                DxaResponseStatusEnum::NEW,
+//                DxaResponseStatusEnum::IN_REGISTER,
+//                null
+//            ])
+//            ->chunk(10, function ($responses) {
+//                foreach ($responses as $item) {
+//                    $response = $item->object_type_id == 2
+//                        ? $this->fetchTaskData($item->task_id)
+//                        : $this->fetchLinearTaskData($item->task_id);
+//
+//                    $json = $response->json();
+//
+//                    if (!empty($json['task']['status'])) {
+//                        $status = null;
+//
+//                        switch ($json['task']['status']) {
+//                            case 'processed':
+//                                $status = DxaResponseStatusEnum::ACCEPTED;
+//                                break;
+//                            case 'rejected':
+//                                $status = DxaResponseStatusEnum::REJECTED;
+//                                break;
+//                            case 'not_active':
+//                                $status = DxaResponseStatusEnum::CANCELED;
+//                                break;
+//                        }
+//
+//                        if ($status !== null) {
+//                            $item->update(['dxa_response_status_id' => $status]);
+//                        }else{
+//                            if ($item->notification_type == 2)
+//                            {
+//                                $item->update(['dxa_response_status_id' => DxaResponseStatusEnum::IN_REGISTER]);
+//                            }
+//                        }
+//                    }
+//                }
+//            });
 
 //        DxaResponse::query()
 //            ->where('dxa_response_status_id', DxaResponseStatusEnum::IN_REGISTER)
@@ -67,6 +68,22 @@ class ChangeStatusResponseCommand extends Command
 //                   $this->saveRekvizit($response);
 //                }
 //            });
+
+
+        Article::query()
+            ->whereIn('object_status_id', [2,3,4])
+            ->chunk(20, function ($articles) {
+                foreach ($articles as $article) {
+                    $response = $this->fetchLinearTaskData($article->task_id);
+                    $json = $response->json();
+                    if (isset($json['task'])) {
+                        $article->update(['object_type_id' => 1]);
+                    }else{
+                        $article->update(['object_type_id' => 2]);
+                    }
+                }
+            });
+
     }
 
     private function saveRekvizit($response)
