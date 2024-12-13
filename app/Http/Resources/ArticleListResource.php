@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\UserRoleEnum;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -10,13 +11,10 @@ class ArticleListResource extends JsonResource
 
     public function toArray(Request $request): array
     {
-
-//        $dxaResponse = $this->response;
-//        $oldTaskIds = $dxaResponse ? $dxaResponse->getOldTaskIds($this->task_id) : null;
+        $inspector = $this->users()->where('role_id', UserRoleEnum::INSPECTOR->value)->first();
         return [
             'id' => $this->id,
             'name' =>$this->name,
-//            'task_ids' => $oldTaskIds,
             'region' => RegionResource::make($this->region),
             'district' => DistrictResource::make($this->district),
             'task_id' => $this->task_id,
@@ -28,6 +26,11 @@ class ArticleListResource extends JsonResource
             'created_at' => $this->created_at,
             'paid' => $this->totalAmount(),
             'price_supervision_service' => $this->price_supervision_service,
+            'inspector' => [
+                'id' => $inspector ? $inspector->id : null,
+                'name' =>  $inspector ? "{$inspector->surname} {$inspector->name} {$inspector->middle_name}" : null,
+                'phone' =>  $inspector ? $inspector->phone : null,
+            ],
         ];
     }
 
