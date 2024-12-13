@@ -63,11 +63,11 @@ class ArticleRepository implements ArticleRepositoryInterface
                         ->where('role_id', UserRoleEnum::INSPECTOR->value);
                 });
             })
-            ->when(isset($filters['name']), function ($query) use ($filters) {
-                $query->searchByName($filters['name']);
-            })
-            ->when(isset($filters['customer']), function ($query) use ($filters) {
-                $query->searchByOrganization($filters['customer']);
+//            ->when(isset($filters['name']), function ($query) use ($filters) {
+//                $query->searchByName($filters['name']);
+//            })
+            ->when(isset($filters['customer_name']), function ($query) use ($filters) {
+                $query->searchByCustomerName($filters['customer_name']);
             })
             ->when(isset($filters['funding_source']), function ($query) use ($filters) {
                 $query->where('funding_source_id', $filters['funding_source']);

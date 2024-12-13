@@ -95,6 +95,17 @@ class Article extends Model
 
     }
 
+    public function scopeSearchByCustomerName($query, $searchTerm)
+    {
+        $searchTerm = strtolower($searchTerm);
+
+        return $query->whereRaw('LOWER(articles.organization_name) LIKE ?', ['%' . $searchTerm . '%'])
+                    ->orWhereRaw('LOWER(articles.name) LIKE ?', ['%' . $searchTerm . '%']);
+
+    }
+
+
+
 
     public function scopeSearchByTaskId($query, $searchTerm)
     {
