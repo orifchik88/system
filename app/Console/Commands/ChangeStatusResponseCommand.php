@@ -8,6 +8,7 @@ use App\Models\DxaResponse;
 use App\Models\Rekvizit;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ChangeStatusResponseCommand extends Command
 {
@@ -79,8 +80,11 @@ class ChangeStatusResponseCommand extends Command
                     $json = $response->json();
                     if (isset($json['task'])) {
                         $article->update(['object_type_id' => 1]);
+                        Log::info('Tarmoq: '. $article->task_id);
                     }else{
                         $article->update(['object_type_id' => 2]);
+                        Log::info('Bino: '. $article->task_id);
+
                     }
                 }
             });
