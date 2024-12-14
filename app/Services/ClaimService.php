@@ -987,11 +987,9 @@ class ClaimService
 
                                     $claimObject = $this->getClaimByGUID(guid: $consolidationGov->task->id);
 
-                                    if (env('MYGOV_MODE') == 'prod') {
-                                        $response = $this->PostRequest("update/id/" . $insertedClaim->guid . "/action/send-object-to-minstroy", $dataArray);
-                                        if ($response->status() != 200) {
-                                            return false;
-                                        }
+                                    $response = $this->PostRequest("update/id/" . $consolidationGov->task->id . "/action/send-object-to-minstroy", $dataArray);
+                                    if ($response->status() != 200) {
+                                        return false;
                                     }
 
                                     $claimObject->update(
