@@ -352,7 +352,7 @@
             </td>
             <td rowspan="2">
                 <div
-                    style="width: 150px; height: 150px; border: 1px solid #687196"
+                    style="width: 120px; height: 120px; border: 1px solid #687196"
                 >
                     <img src="data:image/png;base64, {{$qrImage}}" alt="" style="width: 120px; height: 120px">
                 </div>
