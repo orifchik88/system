@@ -11,6 +11,7 @@ use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class PdfController extends BaseController
@@ -24,7 +25,21 @@ class PdfController extends BaseController
             $object = $regulation->object;
             $responsibleUser = User::query()->findOrFail($regulation->user_id);
             $responsibleRole = Role::query()->findOrFail($regulation->role_id);
-            $pdf = Pdf::loadView('pdf.regulation', compact('regulation', 'object', 'responsibleUser', 'responsibleRole', 'createdByUser', 'createdByRole'));
+
+            $domain = URL::to('/regulation-info').'/'.$regulation->id;
+
+            $qrImage = base64_encode(QrCode::format('png')->size(200)->generate($domain));
+
+//            $qrImageTag = '<img src="data:image/png;base64,' . $qrImage . '" alt="QR Image" />';
+            $pdf = Pdf::loadView('pdf.reg', compact(
+                'regulation',
+                'object',
+                'responsibleUser',
+                'responsibleRole',
+                'createdByUser',
+                'createdByRole',
+                'qrImage'
+            ));
 
             $pdfOutput = $pdf->output();
             $pdfBase64 = base64_encode($pdfOutput);

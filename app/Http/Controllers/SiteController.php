@@ -10,6 +10,8 @@ use App\Repositories\Interfaces\ClaimRepositoryInterface;
 use App\Services\HistoryService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class SiteController extends Controller
 {
@@ -57,13 +59,18 @@ class SiteController extends Controller
             $object = $regulation->object;
             $responsibleUser = User::query()->findOrFail($regulation->user_id);
             $responsibleRole = Role::query()->findOrFail($regulation->role_id);
-            $pdf = Pdf::loadView('pdf.regulation', compact(
+            $domain = URL::to('/regulation-info').'/'.$regulation->id;
+
+            $qrImage = base64_encode(QrCode::format('png')->size(200)->generate($domain));
+
+            $pdf = Pdf::loadView('pdf.reg', compact(
                 'regulation',
                 'object',
                 'responsibleUser',
                 'responsibleRole',
                 'createdByUser',
-                'createdByRole'
+                'createdByRole',
+                'qrImage'
             ));
 
             return $pdf->download('regulation.pdf');
