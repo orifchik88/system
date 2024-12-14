@@ -25,8 +25,6 @@ class MonitoringResource extends JsonResource
         }
         $uniqueViolationCount = array_unique($violationCount);
 
-        $roles = Role::all()->keyBy('id');
-        $firstRegulation = $this->regulations()->first();
 
         return [
             'id' => $this->id,
@@ -38,7 +36,6 @@ class MonitoringResource extends JsonResource
             'violation_count' =>  count($uniqueViolationCount) ?? 0,
             'checklists' => ChecklistResource::collection($this->checklists),
             'created_at' => $this->created_at,
-            'role_name' => $firstRegulation ? $roles[$firstRegulation->created_by_role_id]->name : '',
         ];
     }
 }

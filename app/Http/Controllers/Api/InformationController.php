@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Enums\ObjectStatusEnum;
 use App\Exports\RegulationExport;
 use App\Http\Resources\BasisResource;
+use App\Http\Resources\DistrictResource;
 use App\Http\Resources\NormativeDocumentResource;
 use App\Http\Resources\NotificationResource;
 use App\Http\Resources\ProgramResource;
+use App\Http\Resources\RegionResource;
 use App\Http\Resources\RoleResource;
 use App\Http\Resources\SphereResource;
 use App\Http\Resources\TopicResource;
@@ -401,6 +403,8 @@ class InformationController extends BaseController
                             return [
                                 'id' => $object->id,
                                 'name' => $object->name,
+                                'task_id' => $object->task_id,
+                                'district' => DistrictResource::make($this->district),
                             ];
                         })->toArray(),
                     ];
