@@ -14,7 +14,7 @@
     </style>
     <style>
         * {
-            font-family: Inter, sans-serif !important;
+            font-family: "DejaVu Sans", sans-serif !important;
             font-size: 12px;
             color: #080b22;
         }
@@ -28,7 +28,7 @@
             size: A4 portrait;
         }
         body {
-            font-family: Inter, sans-serif;
+            font-family: "DejaVu Sans", sans-serif !important;
             color: #080b22;
         }
 
