@@ -219,7 +219,8 @@ class ClaimController extends BaseController
         $filters = request()->only(['name']);
         $data = $this->claimService->getObjects(
             id: $id,
-            filters: $filters
+            filters: $filters,
+            type: request()->get('type')
         );
 
 

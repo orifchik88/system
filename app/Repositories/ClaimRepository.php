@@ -395,23 +395,28 @@ class ClaimRepository implements ClaimRepositoryInterface
             ->where(['claims.guid' => $guid])->first();
     }
 
-    public function getObjects(int $id, $filters)
+    public function getObjects(int $id, $filters, ?string $type)
     {
         $claim = $this->getClaimById(id: $id, role_id: null);
 
-        $query = Article::query()
-            ->where('object_status_id', ObjectStatusEnum::PROGRESS)
-            ->where(function ($query) use ($claim) {
-                $query->where('cadastral_number', $claim->building_cadastral);
-                //->orWhere('number_protocol', $claim->number_conclusion_project);
-            });
-
-        if (!$query->exists()) {
+        if ($type == 'all') {
             $query = Article::query()
-                ->join('districts', 'articles.district_id', '=', 'districts.id')
-                ->where('districts.soato', $claim->district);
-        }
+                ->join('regions', 'articles.region_id', '=', 'regions.id')
+                ->where('regions.soato', $claim->region);
+        } else {
+            $query = Article::query()
+                ->where('object_status_id', ObjectStatusEnum::PROGRESS)
+                ->where(function ($query) use ($claim) {
+                    $query->where('cadastral_number', $claim->building_cadastral);
+                    //->orWhere('number_protocol', $claim->number_conclusion_project);
+                });
 
+            if (!$query->exists()) {
+                $query = Article::query()
+                    ->join('districts', 'articles.district_id', '=', 'districts.id')
+                    ->where('districts.soato', $claim->district);
+            }
+        }
 
         $query->select('articles.*');
         $query->when(isset($filters['name']), function ($query) use ($filters) {
