@@ -67,7 +67,7 @@
                 />
             </td>
             <td
-                style="width: 30%; text-align: center; text-transform: uppercase"
+                style="width: 38%; text-align: center; text-transform: uppercase"
             >
                 Территориальная контрольная <br />
                 инспекция в сфере строительства <br />
@@ -354,7 +354,7 @@
                 <div
                     style="width: 150px; height: 150px; border: 1px solid #687196"
                 >
-                    <img src="data:image/png;base64, {{$qrImage}}" alt="">
+                    <img src="data:image/png;base64, {{$qrImage}}" alt="" style="width: 120px; height: 120px">
                 </div>
             </td>
         </tr>
