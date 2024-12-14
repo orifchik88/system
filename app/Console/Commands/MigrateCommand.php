@@ -63,6 +63,9 @@ class MigrateCommand extends Command
             case 3:
                 $this->migrateRegulations();
                 break;
+            case 4:
+                $this->migrateLatLong();
+                break;
             case 5:
                 $this->migrateMonitoring();
                 break;
@@ -79,11 +82,32 @@ class MigrateCommand extends Command
                 $this->migrateObjectUsers(4455);
                 break;
             case 10:
-                $this->migrateBlocks(2701);
+                $this->migrateBlocks(14845);
                 break;
             default:
                 echo 'Fuck you!';
                 break;
+        }
+    }
+
+    private function migrateLatLong()
+    {
+        $articles = Article::query()->where('lat', '=', '')->whereNotNull('old_id')->get();
+
+        foreach ($articles as $article) {
+            $oldObject = DB::connection('third_pgsql')->table('objects')
+                ->where('id', $article->old_id)
+                ->first();
+
+            if(!$oldObject)
+                continue;
+
+            $article->update(
+                [
+                    'lat' => $oldObject->lat,
+                    'long' => $oldObject->long
+                ]
+            );
         }
     }
 
@@ -406,7 +430,7 @@ class MigrateCommand extends Command
                     'created_at' => $regulation->created_at,
                     'block_id' => ($block != null) ? $block->id : null,
                     'created_by' => $user->id,
-                    'created_by_role' => $articleUserRole->id,
+                    'created_by_role' => $articleUserRole->role_id,
                 ]);
 
                 if ($regulationIds != null) {
