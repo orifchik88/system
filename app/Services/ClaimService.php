@@ -96,9 +96,9 @@ class ClaimService
         return $this->claimRepository->getClaimById(id: $id, role_id: $role_id);
     }
 
-    public function getObjects(int $id, $filters)
+    public function getObjects(int $id, $filters, ?string $type)
     {
-        return $this->claimRepository->getObjects(id: $id, filters: $filters);
+        return $this->claimRepository->getObjects(id: $id, filters: $filters, type: $type);
     }
 
 
@@ -813,7 +813,7 @@ class ClaimService
                                 </tr>';
             $tableHtml = str_replace('{blocks}', $tableTr, $tableHtml);
             $tableHtml = str_replace('{footer}', $footer, $tableHtml);
-            
+
             $dataArray['ConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
                 "gasn_name" => Auth::user()->name . ' ' . Auth::user()->surname,
                 "gasn_match" => 1,

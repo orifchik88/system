@@ -41,7 +41,7 @@ interface ClaimRepositoryInterface
 
     public function getClaimByGUID(int $guid);
 
-    public function getObjects(int $id, ?array $filters);
+    public function getObjects(int $id, ?array $filters, ?string $type);
 
 
     public function createClaim($consolidationGov, $expiryDate);
