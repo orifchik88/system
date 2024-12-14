@@ -275,7 +275,7 @@ class RegisterController extends BaseController
 
         try {
             $registers = $this->service->getRegisters($this->user, $this->roleId, 1);
-            $filters = request()->only(['customer_name', 'sphere_id', 'status', 'object_type', 'task_id', 'district_id', 'region_id',  'lawyer_status']);
+            $filters = request()->only(['customer_name', 'sphere_id', 'object_type', 'task_id', 'district_id', 'region_id']);
             $query = $this->service->searchRegisters($registers, $filters);
             $data = [
                 'all' => $query->clone()->count(),

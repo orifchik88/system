@@ -169,7 +169,7 @@ class DxaResponseService
             $response->save();
 
             $this->saveImages();
-            $this->saveBlocks();
+            $this->saveBlocks($response);
             $this->saveRekvizit();
             DB::commit();
             return $response;
@@ -198,9 +198,8 @@ class DxaResponseService
         ]);
     }
 
-    private function saveBlocks()
+    private function saveBlocks($response)
     {
-        $response = $this->findResponse();
         if (isset($this->data['blocks']))
         {
             foreach ($this->data['blocks'] as $blockData) {
@@ -217,6 +216,7 @@ class DxaResponseService
                     'appearance_type' => $blockData['appearance_type'] ?? null,
                     'created_by' => Auth::id(),
                     'status' => true,
+                    'selected_work_type' => $response->administrative_status_id == 8 ? false : true,
                 ];
                 $blockAttributes['block_number'] = $this->determineBlockNumber($blockData, $response);
                 $articleBlock = Block::query()->where('block_number', $blockAttributes['block_number'])->first();
