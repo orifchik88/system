@@ -23,7 +23,7 @@ Route::get('/', function () {
 });
 
 Route::get('/object-info/{id}', [SiteController::class, 'index'])->name('object-info');
-Route::get('/regulation-info/{id}', [SiteController::class, 'regulation'])->name('object-info');
+Route::get('/regulation-info/{id}', [SiteController::class, 'regulation'])->name('regulation-info');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
