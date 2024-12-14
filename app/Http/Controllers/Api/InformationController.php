@@ -404,7 +404,7 @@ class InformationController extends BaseController
                                 'id' => $object->id,
                                 'name' => $object->name,
                                 'task_id' => $object->task_id,
-                                'district' => DistrictResource::make($this->district),
+                                'district' => DistrictResource::make($object->district),
                             ];
                         })->toArray(),
                     ];
