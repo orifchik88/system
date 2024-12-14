@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Enums\ObjectStatusEnum;
 use App\Enums\RoleTypeEnum;
 use App\Enums\UserRoleEnum;
+use App\Http\Resources\DistrictResource;
+use App\Http\Resources\RegionResource;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 
@@ -79,6 +81,30 @@ class MyGovService
                 $tmpArr['id'] = $object->id;
                 $tmpArr['name'] = $object->name;
                 $tmpArr['task_id'] = $object->task_id;
+                $objectsArr[] = $tmpArr;
+            }
+        }
+        return $objectsArr;
+    }
+
+    public function getObjectsByCadastralNumber($number)
+    {
+        $objects = $this->articleRepository->findByCadastralNumber($number);
+        if (!$objects)
+            return null;
+
+        $objectsArr = [];
+        foreach ($objects as $object) {
+            if ($object->object_status_id == ObjectStatusEnum::SUBMITTED) {
+                $tmpArr['name'] = $object->name;
+                $tmpArr['task_id'] = $object->task_id;
+                $tmpArr['region'] = RegionResource::make($object->region);
+                $tmpArr['district'] = DistrictResource::make($object->district);
+                $tmpArr['address'] = $object->address;
+                $tmpArr['buyurtmachi']['organization_name'] = $object->users()->where('role_id', UserRoleEnum::BUYURTMACHI->value)->first()?->organization_name ?? null;
+                $tmpArr['buyurtmachi']['inn'] = $object->users()->where('role_id', UserRoleEnum::BUYURTMACHI->value)->first()?->identification_number ?? null;
+                $tmpArr['ichki_nazorat']['fish'] = $object->users()->where('role_id', UserRoleEnum::ICHKI->value)->first()?->full_name ?? null;
+                $tmpArr['ichki_nazorat']['phone'] = $object->users()->where('role_id', UserRoleEnum::ICHKI->value)->first()?->phone ?? null;
                 $objectsArr[] = $tmpArr;
             }
         }

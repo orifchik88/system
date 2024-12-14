@@ -47,4 +47,15 @@ class MyGovController extends Controller
 
         return $data;
     }
+
+    public function getObjectsByCadastr()
+    {
+        $data = $this->myGovService->getObjectsByCadastralNumber(request('cadastr'));
+
+        if (!$data) {
+            return ['success' =>  false, 'message' => "Ma'lumot topilmadi"];
+        }
+
+        return $data;
+    }
 }

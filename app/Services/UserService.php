@@ -49,6 +49,7 @@ class UserService
                         UserRoleEnum::ICHKI->value,
                         UserRoleEnum::TEXNIK->value,
                         UserRoleEnum::MUALLIF->value,
+                        UserRoleEnum::RESPUBLIKA_KUZATUVCHI->value,
                     ]);
                 })->where('region_id', $user->region_id);
 

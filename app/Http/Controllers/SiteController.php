@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Regulation;
+use App\Models\Role;
+use App\Models\User;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use App\Repositories\Interfaces\ClaimRepositoryInterface;
 use App\Services\HistoryService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class SiteController extends Controller
@@ -42,5 +46,30 @@ class SiteController extends Controller
 //        $ratingUmumiy = (isset($ratingArr['qurilish']['reyting_umumiy'])) ? $ratingArr['qurilish']['reyting_umumiy'] : null;
 //        $ratingMel = (isset($ratingArr['qurilish']['reyting_mel'])) ? $ratingArr['qurilish']['reyting_mel'] : null;
         return view('qr', ['object' => $objectModel, 'rating_loyiha' => $ratingLoyiha, 'rating_umumiy' => $ratingUmumiy, 'rating_mel' => $ratingMel, 'reestr' => $conclusion_file]);
+    }
+
+    public function regulation($id)
+    {
+        try {
+            $regulation = Regulation::query()->findOrFail($id);
+            $createdByRole = Role::query()->findOrFail($regulation->created_by_role_id);
+            $createdByUser = User::query()->findOrFail($regulation->created_by_user_id);
+            $object = $regulation->object;
+            $responsibleUser = User::query()->findOrFail($regulation->user_id);
+            $responsibleRole = Role::query()->findOrFail($regulation->role_id);
+            $pdf = Pdf::loadView('pdf.regulation', compact(
+                'regulation',
+                'object',
+                'responsibleUser',
+                'responsibleRole',
+                'createdByUser',
+                'createdByRole'
+            ));
+
+            return $pdf->download('regulation.pdf');
+
+        } catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage(), $exception->getLine());
+        }
     }
 }

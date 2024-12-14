@@ -41,6 +41,11 @@ class ArticleRepository implements ArticleRepositoryInterface
         return Article::with('objectType')->where('id', $id)->first();
     }
 
+    public function findByCadastralNumber($number): ?Article
+    {
+        return Article::query()->where('cadastral_number', $number)->get();
+    }
+
     public function getArticlesByUserRole($user, $roleId)
     {
         return $user->objects()->wherePivot('role_id', $roleId);

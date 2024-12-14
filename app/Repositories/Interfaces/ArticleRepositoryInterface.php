@@ -10,4 +10,6 @@ interface ArticleRepositoryInterface
     public function update(Article $article, array $data): bool;
     public function findByTaskId($taskId): ?Article;
     public function findById($id): ?Article;
+
+    public function findByCadastralNumber($number): ?Article;
 }
