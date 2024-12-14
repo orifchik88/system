@@ -73,7 +73,7 @@ class SiteController extends Controller
                 'qrImage'
             ));
 
-            return $pdf->download('regulation.pdf');
+            return $pdf->download('yozma-korsatma'.time().'.pdf');
 
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getLine());
