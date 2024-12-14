@@ -11,5 +11,5 @@ interface ArticleRepositoryInterface
     public function findByTaskId($taskId): ?Article;
     public function findById($id): ?Article;
 
-    public function findByCadastralNumber($number): ?Article;
+    public function findByCadastralNumber($number);
 }

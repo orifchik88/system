@@ -41,7 +41,7 @@ class ArticleRepository implements ArticleRepositoryInterface
         return Article::with('objectType')->where('id', $id)->first();
     }
 
-    public function findByCadastralNumber($number): ?Article
+    public function findByCadastralNumber($number)
     {
         return Article::query()->where('cadastral_number', $number)->get();
     }
