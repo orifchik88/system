@@ -81,7 +81,7 @@ class RegisterController extends BaseController
             $data = [
                 'register' => $this->service->getRegisters($this->user, $this->roleId, 1)->count(),
                 're_register' => $this->service->getRegisters($this->user, $this->roleId, 2)->count(),
-                'petition' => 0,
+                'petition' => $this->service->getClaims($this->user, $this->roleId)->count(),
                 'checklist' => $this->checkListService->getChecklists($this->user, $this->roleId, 1)->count(),
                 'object' => $this->articleService->getObjects($this->user, $this->roleId)->count(),
                 'regulation' => $this->regulationService->getRegulations($this->user, $this->roleId)->count(),

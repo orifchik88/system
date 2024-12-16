@@ -5,7 +5,9 @@ namespace App\Services;
 use App\Enums\DxaResponseStatusEnum;
 use App\Enums\LawyerStatusEnum;
 use App\Enums\UserRoleEnum;
+use App\Helpers\ClaimStatuses;
 use App\Models\Block;
+use App\Models\Claim;
 use App\Models\DxaResponse;
 use App\Models\MonitoringObject;
 use App\Models\Rekvizit;
@@ -25,6 +27,17 @@ class DxaResponseService
         protected DxaResponse $dxaResponse
     )
     {
+    }
+
+    public function getClaims($user, $roleId)
+    {
+        $response = Claim::query()->where('status' , '<>', ClaimStatuses::TASK_STATUS_ANOTHER);
+
+        return match ($roleId) {
+            UserRoleEnum::INSPEKSIYA->value, UserRoleEnum::HUDUDIY_KUZATUVCHI->value, UserRoleEnum::OPERATOR->value, UserRoleEnum::REGISTRATOR->value => $response
+                ->where('region_id', $user->region_id),
+            default => $response,
+        };
     }
 
     public function getRegisters($user, $roleId, $type)
