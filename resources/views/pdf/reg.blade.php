@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="{{asset('dejavu/DejaVuSans.ttf')}}">
     <link rel="stylesheet" href="{{asset('dejavu/DejaVuSans-Bold.ttf')}}">
     <link rel="stylesheet" href="{{asset('dejavu/DejaVuSans-BoldOblique.ttf')}}">
-    <link rel="stylesheet" href="{{asset('DejaVuSans-Oblique.ttf')}}">
+    <link rel="stylesheet" href="{{asset('dejavu/DejaVuSans-Oblique.ttf')}}">
 
     <style>
 
@@ -21,6 +21,54 @@
             font-family: "DejaVu Sans", sans-serif !important;
             font-size: 12px;
             color: #080b22;
+        }
+
+        @font-face {
+            font-family: "DejaVu Sans";
+            src: url("{{ asset('dejavu/DejaVuSans.ttf') }}");
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "DejaVu Sans";
+            src: url("{{ asset('dejavu/DejaVuSans.ttf') }}");
+            font-weight: 500;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "DejaVu Sans";
+            src: url("{{ asset('dejavu/DejaVuSans.ttf') }}");
+            font-weight: 600;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "DejaVu Sans";
+            src: url("{{ asset('dejavu/DejaVuSans.ttf') }}");
+            font-weight: 700;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "DejaVu Sans";
+            src: url("{{ asset('dejavu/DejaVuSans.ttf') }}");
+            font-weight: 800;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "DejaVu Sans";
+            src: url("{{ asset('dejavu/DejaVuSans.ttf') }}");
+            font-weight: 900;
+            font-style: normal;
+            font-display: swap;
         }
 
         .clearfix {

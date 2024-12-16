@@ -79,4 +79,41 @@ class SiteController extends Controller
             return $this->sendError($exception->getMessage(), $exception->getLine());
         }
     }
+
+    public function regulationSimple($id)
+    {
+        try {
+            $regulation = Regulation::query()->findOrFail($id);
+            $createdByRole = Role::query()->findOrFail($regulation->created_by_role_id);
+            $createdByUser = User::query()->findOrFail($regulation->created_by_user_id);
+            $object = $regulation->object;
+            $responsibleUser = User::query()->findOrFail($regulation->user_id);
+            $responsibleRole = Role::query()->findOrFail($regulation->role_id);
+            $domain = URL::to('/regulation-info').'/'.$regulation->id;
+
+            $qrImage = base64_encode(QrCode::format('png')->size(200)->generate($domain));
+
+            $pdf = Pdf::loadView('pdf.reg', compact(
+                'regulation',
+                'object',
+                'responsibleUser',
+                'responsibleRole',
+                'createdByUser',
+                'createdByRole',
+                'qrImage'
+            ));
+
+            return view('pdf.reg', compact(
+                'regulation',
+                'object',
+                'responsibleUser',
+                'responsibleRole',
+                'createdByUser',
+                'createdByRole',
+                'qrImage'));
+
+        } catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage(), $exception->getLine());
+        }
+    }
 }
