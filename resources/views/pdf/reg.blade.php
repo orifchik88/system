@@ -8,10 +8,6 @@
     />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>PDF</title>
-    <link rel="stylesheet" href="{{asset('dejavu/DejaVuSans.ttf')}}">
-    <link rel="stylesheet" href="{{asset('dejavu/DejaVuSans-Bold.ttf')}}">
-    <link rel="stylesheet" href="{{asset('dejavu/DejaVuSans-BoldOblique.ttf')}}">
-    <link rel="stylesheet" href="{{asset('dejavu/DejaVuSans-Oblique.ttf')}}">
 
     <style>
 
