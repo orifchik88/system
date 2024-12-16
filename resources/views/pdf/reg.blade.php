@@ -8,9 +8,13 @@
     />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>PDF</title>
+    <link rel="stylesheet" href="{{asset('dejavu/DejaVuSans.ttf')}}">
+    <link rel="stylesheet" href="{{asset('dejavu/DejaVuSans-Bold.ttf')}}">
+    <link rel="stylesheet" href="{{asset('dejavu/DejaVuSans-BoldOblique.ttf')}}">
+    <link rel="stylesheet" href="{{asset('DejaVuSans-Oblique.ttf')}}">
 
     <style>
-        @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
     </style>
     <style>
         * {
@@ -175,7 +179,7 @@
         <tbody>
         <tr>
             <td colspan="2" style="border: 1px solid #bfbfbf; padding: 10px">
-                <div style="font-weight: 500; margin-bottom: 5px">Kimga:</div>
+                <div style="font-weight: 500;">Kimga:</div>
                 <p style="margin-top: 0">
                     {{ $object->organization_name }}
                 </p>
