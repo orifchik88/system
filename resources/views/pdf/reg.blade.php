@@ -8,7 +8,7 @@
     />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>PDF</title>
-    
+
     <style>
         * {
             font-family: "DejaVu Sans", sans-serif !important;
@@ -183,7 +183,7 @@
                 <div style="font-weight: 500; margin-bottom: 4px">
                     Qurilish obyektining nomi:
                 </div>
-                <p style="margin-top: 0; line-height: 18px">
+                <p style="margin: 0; line-height: 18px">
                     {{ $object->name }}
                 </p>
             </td>
@@ -203,7 +203,7 @@
                 <div style="font-weight: 500; margin-bottom: 4px">
                     Tekshirilgan kunda barajarilayotgan ishlar:
                 </div>
-                <p style="margin-top: 0">{{ $regulation?->checklist?->workType->name }}</p>
+                <p style="margin: 0">{{ $regulation?->checklist?->workType->name }}</p>
             </td>
         </tr>
         <tr>
@@ -262,7 +262,7 @@
         <tr>
             <td style="border: 1px solid #bfbfbf; padding: 10px">
                 <div style="font-weight: 500; margin-bottom: 4px">Ish turi:</div>
-                <p style="margin-top: 0">
+                <p style="margin: 0">
                     {{ $violation?->question?->name }}
                 </p>
             </td>
@@ -270,7 +270,7 @@
         <tr>
             <td style="padding: 10px">
                 <div style="font-weight: 500; margin-bottom: 4px">Asos:</div>
-                <p style="margin-top: 0; line-height: 18px">
+                <p style="margin: 0; line-height: 18px">
                     {{ $violation?->bases?->name }}
                 </p>
             </td>
@@ -289,7 +289,7 @@
         <tr>
             <td style="border: 1px solid #bfbfbf; padding: 10px">
                 <div style="font-weight: 500; margin-bottom: 4px">Blok nomi:</div>
-                <p style="margin-top: 0">{{ $regulation?->monitoring?->block?->name }}</p>
+                <p style="margin: 0">{{ $regulation?->monitoring?->block?->name }}</p>
             </td>
         </tr>
         </tbody>
