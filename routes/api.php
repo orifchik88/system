@@ -43,7 +43,7 @@ Route::get('organization-pdf/{id}/download', [PdfController::class, 'pdfOrganiza
 
 
 Route::group([
-    'middleware' => 'auth:api'
+    'middleware' => 'auth:api', 'refresh_token'
 ], function() {
     Route::get('profile', [ProfileController::class, 'profile']);
     Route::post('profile-edit', [ProfileController::class, 'edit']);

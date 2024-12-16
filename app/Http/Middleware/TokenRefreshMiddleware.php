@@ -19,7 +19,7 @@ class TokenRefreshMiddleware
             if ($roleId === 3) {
                 config(['jwt.ttl' => 10080]);
             } else {
-                config(['jwt.ttl' => 60]);
+                config(['jwt.ttl' => 120]);
             }
         }
         return $next($request);
