@@ -32,12 +32,14 @@ class DxaResponseService
     public function getClaims($user, $roleId)
     {
         $response = Claim::query()
-            ->join('regions', 'regions.soato', '=', 'claims.region')
-            ->where('status' , '<>', ClaimStatuses::TASK_STATUS_ANOTHER);
+            ->join('regions', 'regions.soato', '=', 'claims.region');
 
         return match ($roleId) {
             UserRoleEnum::INSPEKSIYA->value, UserRoleEnum::HUDUDIY_KUZATUVCHI->value, UserRoleEnum::OPERATOR->value, UserRoleEnum::REGISTRATOR->value => $response
-                ->where('regions.id', $user->region_id),
+                ->when($user, function ($q) use ($user) {
+                    $q->where('regions.id', $user->region_id)
+                        ->where('status', '<>', ClaimStatuses::TASK_STATUS_ANOTHER);
+                }),
             default => $response,
         };
     }
@@ -45,7 +47,7 @@ class DxaResponseService
     public function getRegisters($user, $roleId, $type)
     {
         $response = $this->dxaResponse->with(
-            'status', 'fundingSource', 'monitoring', 'sphere', 'program', 'administrativeStatus', 'documents', 'objectType', 'region', 'district','lawyerStatus', 'supervisors', 'rekvizit'
+            'status', 'fundingSource', 'monitoring', 'sphere', 'program', 'administrativeStatus', 'documents', 'objectType', 'region', 'district', 'lawyerStatus', 'supervisors', 'rekvizit'
         )->where('notification_type', $type);
         switch ($roleId) {
             case UserRoleEnum::INSPECTOR->value:
@@ -119,7 +121,7 @@ class DxaResponseService
                 $monitoring = $this->saveMonitoringObject($this->data['gnk_id']);
                 $response->monitoring_object_id = $monitoring->id;
             }
-            if ($response->save()){
+            if ($response->save()) {
                 $this->sendNotification($this->data['inspector_id'], $response->task_id);
             }
             DB::commit();
@@ -149,8 +151,6 @@ class DxaResponseService
         }
 
     }
-
-
 
 
     private function saveMonitoringObject($gnkId): MonitoringObject
@@ -215,8 +215,7 @@ class DxaResponseService
 
     private function saveBlocks($response)
     {
-        if (isset($this->data['blocks']))
-        {
+        if (isset($this->data['blocks'])) {
             foreach ($this->data['blocks'] as $blockData) {
                 $blockAttributes = [
                     'name' => $blockData['name'],
