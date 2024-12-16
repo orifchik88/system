@@ -35,7 +35,7 @@ class DxaResponseService
 
         return match ($roleId) {
             UserRoleEnum::INSPEKSIYA->value, UserRoleEnum::HUDUDIY_KUZATUVCHI->value, UserRoleEnum::OPERATOR->value, UserRoleEnum::REGISTRATOR->value => $response
-                ->where('region', $user->region->soato),
+                ->where('region', Auth::user()->region->soato),
             default => $response,
         };
     }
