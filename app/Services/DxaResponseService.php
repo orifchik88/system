@@ -35,7 +35,7 @@ class DxaResponseService
             ->join('regions', 'regions.soato', '=', 'claims.region');
 
         return match ($roleId) {
-            UserRoleEnum::INSPEKSIYA->value, UserRoleEnum::HUDUDIY_KUZATUVCHI->value, UserRoleEnum::OPERATOR->value, UserRoleEnum::REGISTRATOR->value => $response
+            (string)UserRoleEnum::INSPEKSIYA->value, (string)UserRoleEnum::HUDUDIY_KUZATUVCHI->value, (string)UserRoleEnum::OPERATOR->value, (string)UserRoleEnum::REGISTRATOR->value => $response
                 ->when($user, function ($q) use ($user) {
                     $q->where('regions.id', $user->region_id);
                 })->where('status', '<>', ClaimStatuses::TASK_STATUS_ANOTHER),
