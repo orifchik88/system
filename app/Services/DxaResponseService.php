@@ -39,7 +39,7 @@ class DxaResponseService
                 ->when($user, function ($q) use ($user) {
                     $q->where('regions.id', $user->region_id);
                 })->where('claims.status', '<>', ClaimStatuses::TASK_STATUS_ANOTHER),
-            default => $response,
+            default => $response->where('claims.status', '<>', ClaimStatuses::TASK_STATUS_ANOTHER),
         };
     }
 
