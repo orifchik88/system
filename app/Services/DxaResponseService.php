@@ -31,11 +31,13 @@ class DxaResponseService
 
     public function getClaims($user, $roleId)
     {
-        $response = Claim::query()->where('status' , '<>', ClaimStatuses::TASK_STATUS_ANOTHER);
+        $response = Claim::query()
+            ->join('regions', 'regions.soato', '=', 'claims.region')
+            ->where('status' , '<>', ClaimStatuses::TASK_STATUS_ANOTHER);
 
         return match ($roleId) {
             UserRoleEnum::INSPEKSIYA->value, UserRoleEnum::HUDUDIY_KUZATUVCHI->value, UserRoleEnum::OPERATOR->value, UserRoleEnum::REGISTRATOR->value => $response
-                ->where('region', Auth::user()->region->soato),
+                ->where('regions.id', $user->region_id),
             default => $response,
         };
     }
