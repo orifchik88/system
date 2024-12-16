@@ -1,144 +1,37 @@
 <!DOCTYPE html>
-<html lang="uz">
+<html lang="en">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Loyihalash Topshiriq</title>
+    <meta charset="UTF-8" />
+    <meta
+        name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, charset=utf-8"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>PDF</title>
+    
     <style>
-        @font-face {
-            font-family: "DejaVu Sans";
-            src: url("{{ asset('dejavu/DejaVuSans.ttf') }}");
-            font-weight: 100;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        @font-face {
-            font-family: "DejaVu Sans";
-            src: url("{{ asset('dejavu/DejaVuSans.ttf') }}");
-            font-weight: 200;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        @font-face {
-            font-family: "DejaVu Sans";
-            src: url("{{ asset('dejavu/DejaVuSans.ttf') }}");
-            font-weight: 300;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        @font-face {
-            font-family: "DejaVu Sans";
-            src: url("{{ asset('dejavu/DejaVuSans.ttf') }}");
-            font-weight: 400;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        @font-face {
-            font-family: "DejaVu Sans";
-            src: url("{{ asset('dejavu/DejaVuSans.ttf') }}");
-            font-weight: 500;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        @font-face {
-            font-family: "DejaVu Sans";
-            src: url("{{ asset('dejavu/DejaVuSans.ttf') }}");
-            font-weight: 600;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        @font-face {
-            font-family: "DejaVu Sans";
-            src: url("{{ asset('dejavu/DejaVuSans.ttf') }}");
-            font-weight: 700;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        @font-face {
-            font-family: "DejaVu Sans";
-            src: url("{{ asset('dejavu/DejaVuSans.ttf') }}");
-            font-weight: 800;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        @font-face {
-            font-family: "DejaVu Sans";
-            src: url("{{ asset('dejavu/DejaVuSans.ttf') }}");
-            font-weight: 900;
-            font-style: normal;
-            font-display: swap;
-        }
-
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-box-sizing: border-box;
-            text-decoration: none;
-            list-style-type: none;
-            font-family: "DejaVu Sans", sans-serif;
+            font-family: "DejaVu Sans", sans-serif !important;
+            font-size: 12px;
+            color: #080b22;
         }
 
-        /* Inter src*/
-
+        .clearfix {
+            content: "";
+            clear: both;
+            display: table;
+        }
         @page {
-            size: A4;
+            size: A4 portrait;
         }
-
         body {
-            font-family: "DejaVu Sans", sans-serif;
+            font-family: "DejaVu Sans", sans-serif !important;
+            color: #080b22;
         }
 
-        .page {
-            box-sizing: border-box !important;
-            position: relative;
-            margin: 35px 30px;
-            page-break-after: always;
-        }
-
-        .header-table, .header-table tr, .header-table td {
-            border: none;
-        }
-
-        .header-table td {
-            padding-bottom: 24px;
-        }
-
-        .seal {
-            border-radius: 8px;
-            border: 3px solid #18b192;
-            background-color: #e7f6f3;
-            padding: 10px;
-
-        }
-
-        .danger {
-            border-radius: 8px;
-            border: 3px solid #b11825;
-            background-color: #f6e7e7;
-            padding: 10px;
-
-        }
-
-        .qr {
-            text-align: center;
-            margin: 40px 0;
-        }
-
-
-        table,
-        th,
-        td {
-            border: 1px solid black;
-            border-collapse: collapse;
+        .custom-table * {
+            font-size: 8px;
+            color: #080b22;
         }
     </style>
 </head>
@@ -279,15 +172,15 @@
         <tbody>
         <tr>
             <td colspan="2" style="border: 1px solid #bfbfbf; padding: 10px">
-                <div style="font-weight: 500;">Kimga:</div>
-                <p style="margin-top: 0">
+                <div style="font-weight: 500; margin-bottom: 4px;">Kimga:</div>
+                <p style="margin: 0">
                     {{ $object->organization_name }}
                 </p>
             </td>
         </tr>
         <tr>
             <td colspan="2" style="padding: 10px">
-                <div style="font-weight: 500; margin-bottom: 5px">
+                <div style="font-weight: 500; margin-bottom: 4px">
                     Qurilish obyektining nomi:
                 </div>
                 <p style="margin-top: 0; line-height: 18px">
@@ -297,17 +190,17 @@
         </tr>
         <tr>
             <td colspan="2" style="border: 1px solid #bfbfbf; padding: 10px">
-                <div style="font-weight: 500; margin-bottom: 5px">
+                <div style="font-weight: 500; margin-bottom: 4px">
                     Obyektining manzili:
                 </div>
-                <p style="margin-top: 0">
+                <p style="margin: 0">
                     {{ $object->location_building }}
                 </p>
             </td>
         </tr>
         <tr>
             <td colspan="2" style="border: 1px solid #bfbfbf; padding: 10px">
-                <div style="font-weight: 500; margin-bottom: 5px">
+                <div style="font-weight: 500; margin-bottom: 4px">
                     Tekshirilgan kunda barajarilayotgan ishlar:
                 </div>
                 <p style="margin-top: 0">{{ $regulation?->checklist?->workType->name }}</p>
@@ -315,20 +208,20 @@
         </tr>
         <tr>
             <td style="border-bottom: 1px solid #bfbfbf; padding: 10px">
-                <div style="font-weight: 500; margin-bottom: 5px">
+                <div style="font-weight: 500; margin-bottom: 4px">
                     Bajarilish muddati:
                 </div>
             </td>
             <td style="border-bottom: 1px solid #bfbfbf; padding: 10px">
-                <div style="margin-bottom: 5px">{{ $regulation->deadline ? date('d.m.Y', strtotime($regulation->deadline)) : '' }}</div>
+                <div style="margin-bottom: 4px">{{ $regulation->deadline ? date('d.m.Y', strtotime($regulation->deadline)) : '' }}</div>
             </td>
         </tr>
         <tr>
             <td style="border-bottom: 1px solid #bfbfbf; padding: 10px">
-                <div style="font-weight: 500; margin-bottom: 5px">Holati:</div>
+                <div style="font-weight: 500; margin-bottom: 4px">Holati:</div>
             </td>
             <td style="border-bottom: 1px solid #bfbfbf; padding: 10px">
-                <div style="margin-bottom: 5px">{{ $regulation?->regulationStatus->status }}</div>
+                <div style="margin-bottom: 4px">{{ $regulation?->regulationStatus->status }}</div>
             </td>
         </tr>
         </tbody>
@@ -340,7 +233,7 @@
           text-transform: uppercase;
           font-weight: 600;
           text-align: center;
-          margin: 50px 0;
+          margin: 24px 0;
         "
     >
         Aniqlandi
@@ -368,7 +261,7 @@
         @if($violation->question)
         <tr>
             <td style="border: 1px solid #bfbfbf; padding: 10px">
-                <div style="font-weight: 500; margin-bottom: 5px">Ish turi:</div>
+                <div style="font-weight: 500; margin-bottom: 4px">Ish turi:</div>
                 <p style="margin-top: 0">
                     {{ $violation?->question?->name }}
                 </p>
@@ -376,7 +269,7 @@
         </tr>
         <tr>
             <td style="padding: 10px">
-                <div style="font-weight: 500; margin-bottom: 5px">Asos:</div>
+                <div style="font-weight: 500; margin-bottom: 4px">Asos:</div>
                 <p style="margin-top: 0; line-height: 18px">
                     {{ $violation?->bases?->name }}
                 </p>
@@ -385,17 +278,17 @@
         @endif
         <tr>
             <td style="border: 1px solid #bfbfbf; padding: 10px">
-                <div style="font-weight: 500; margin-bottom: 5px">
+                <div style="font-weight: 500; margin-bottom: 4px">
                     Berilgan ko'rsatmalar:
                 </div>
-                <p style="margin-top: 0">
+                <p style="margin: 0">
                     {{ $violation->description }}
                 </p>
             </td>
         </tr>
         <tr>
             <td style="border: 1px solid #bfbfbf; padding: 10px">
-                <div style="font-weight: 500; margin-bottom: 5px">Blok nomi:</div>
+                <div style="font-weight: 500; margin-bottom: 4px">Blok nomi:</div>
                 <p style="margin-top: 0">{{ $regulation?->monitoring?->block?->name }}</p>
             </td>
         </tr>
@@ -445,13 +338,11 @@
         <tbody>
         <tr>
             <td style="padding: 10px 0px">
-                <div style="font-weight: 600; margin-bottom: 5px">{{ $createdByRole?->name }}</div>
-                <p style="margin-top: 0">
+                <div style="font-weight: 600; margin-bottom: 4px">{{ $createdByRole?->name }}</div>
+                <p style="margin: 0">
                     {{ $createdByUser?->full_name }}
-                    <span style="font-style: italic"
-                    >(Nazorat o'rnatib, javobini olib, vaqtida o'rnatilgan
-                  tartibda yozma ko'rsatmani nazoratdan chiqaraman)</span
-                    >
+                    <div style="font-style: italic">(Nazorat o'rnatib, javobini olib, vaqtida o'rnatilgan
+                  tartibda yozma ko'rsatmani nazoratdan chiqaraman)</div>
                 </p>
             </td>
             <td rowspan="2">
@@ -464,8 +355,8 @@
         </tr>
         <tr>
             <td style="padding: 10px 0px">
-                <div style="font-weight: 600; margin-bottom: 5px">Ijrochi:</div>
-                <p style="margin-top: 0">
+                <div style="font-weight: 600; margin-bottom: 4px">Ijrochi:</div>
+                <p style="margin: 0">
                     {{ $responsibleUser?->full_name }} ({{ $responsibleRole?->name }})
                 </p>
             </td>
