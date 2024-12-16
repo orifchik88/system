@@ -1,22 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uz">
 <head>
-    <meta charset="UTF-8" />
-    <meta
-        name="viewport"
-        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, charset=utf-8"
-    />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>PDF</title>
-
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Loyihalash Topshiriq</title>
     <style>
+        @font-face {
+            font-family: "DejaVu Sans";
+            src: url("{{ asset('dejavu/DejaVuSans.ttf') }}");
+            font-weight: 100;
+            font-style: normal;
+            font-display: swap;
+        }
 
-    </style>
-    <style>
-        * {
-            font-family: "DejaVu Sans", sans-serif !important;
-            font-size: 12px;
-            color: #080b22;
+        @font-face {
+            font-family: "DejaVu Sans";
+            src: url("{{ asset('dejavu/DejaVuSans.ttf') }}");
+            font-weight: 200;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "DejaVu Sans";
+            src: url("{{ asset('dejavu/DejaVuSans.ttf') }}");
+            font-weight: 300;
+            font-style: normal;
+            font-display: swap;
         }
 
         @font-face {
@@ -67,22 +77,68 @@
             font-display: swap;
         }
 
-        .clearfix {
-            content: "";
-            clear: both;
-            display: table;
-        }
-        @page {
-            size: A4 portrait;
-        }
-        body {
-            font-family: "DejaVu Sans", sans-serif !important;
-            color: #080b22;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            text-decoration: none;
+            list-style-type: none;
+            font-family: "DejaVu Sans", sans-serif;
         }
 
-        .custom-table * {
-            font-size: 8px;
-            color: #080b22;
+        /* Inter src*/
+
+        @page {
+            size: A4;
+        }
+
+        body {
+            font-family: "DejaVu Sans", sans-serif;
+        }
+
+        .page {
+            box-sizing: border-box !important;
+            position: relative;
+            margin: 35px 30px;
+            page-break-after: always;
+        }
+
+        .header-table, .header-table tr, .header-table td {
+            border: none;
+        }
+
+        .header-table td {
+            padding-bottom: 24px;
+        }
+
+        .seal {
+            border-radius: 8px;
+            border: 3px solid #18b192;
+            background-color: #e7f6f3;
+            padding: 10px;
+
+        }
+
+        .danger {
+            border-radius: 8px;
+            border: 3px solid #b11825;
+            background-color: #f6e7e7;
+            padding: 10px;
+
+        }
+
+        .qr {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+
+        table,
+        th,
+        td {
+            border: 1px solid black;
+            border-collapse: collapse;
         }
     </style>
 </head>
