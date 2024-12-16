@@ -37,9 +37,8 @@ class DxaResponseService
         return match ($roleId) {
             (string)UserRoleEnum::INSPEKSIYA->value, (string)UserRoleEnum::HUDUDIY_KUZATUVCHI->value, (string)UserRoleEnum::OPERATOR->value, (string)UserRoleEnum::REGISTRATOR->value => $response
                 ->when($user, function ($q) use ($user) {
-                    $q->where('regions.id', $user->region_id)
-                        ->where('status', '<>', ClaimStatuses::TASK_STATUS_ANOTHER);
-                }),
+                    $q->where('regions.id', $user->region_id);
+                })->where('claims.status', '<>', ClaimStatuses::TASK_STATUS_ANOTHER),
             default => $response,
         };
     }
