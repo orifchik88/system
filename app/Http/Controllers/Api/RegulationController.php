@@ -21,6 +21,7 @@ use App\Models\User;
 use App\Notifications\InspectorNotification;
 use App\Services\MessageTemplate;
 use App\Services\RegulationService;
+use Firebase\JWT\JWT;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -454,31 +455,42 @@ class RegulationController extends BaseController
     {
         try {
 
-            $response = Http::withHeaders([
-                'Content-Type' => 'application/json; charset=utf-8',
-                'Authorization' => 'ODFjNmNkOTgtMzI4OS00ZjAxLWI3YmQtNmI2Nzc0M2VlMDVi', // OneSignal REST API key
-            ])->post('https://onesignal.com/api/v1/notifications', [
-                'app_id' => 'a09289fb-95f4-4e89-a860-b66bcd773242',
-                'include_external_user_ids' => ['8ce3385a-cef8-42c7-9788-fa27719a43bd'],
-                'data' => [
-                      'screen' => '/tutorial'
-                ],
+            $token = request('token');
+            $secret = config('jwt.secret');
+            $decoded = JWT::decode($token, $secret, ['HS256']);
+            $expiryTimestamp = $decoded->exp;
+            $expiryDate = date('Y-m-d H:i:s', $expiryTimestamp);
 
-                'contents' => [
-                    'en' => "147352716 raqamli obyekt, 200024 raqamli yozma ko'rsatmaga muddat uzaytirish so'raldi
-                             RO‘ZIYEV SHAHZOD HAYITBOYEVICH (Mualliflik nazorati)
-                             2024-10-25 19:24:39",
-                ],
-                'headings' => [
-                    'en' => "Nazorat",
-                ]
+            return response()->json([
+                'expiry_date' => $expiryDate,
+                'expiry_timestamp' => $expiryTimestamp,
             ]);
 
-            if ($response->successful()) {
-                return $response->json();
-            } else {
-                return $response->body();  // Xatolik yuz bersa, ma'lumotni ko'rsatadi.
-            }
+//            $response = Http::withHeaders([
+//                'Content-Type' => 'application/json; charset=utf-8',
+//                'Authorization' => 'ODFjNmNkOTgtMzI4OS00ZjAxLWI3YmQtNmI2Nzc0M2VlMDVi', // OneSignal REST API key
+//            ])->post('https://onesignal.com/api/v1/notifications', [
+//                'app_id' => 'a09289fb-95f4-4e89-a860-b66bcd773242',
+//                'include_external_user_ids' => ['8ce3385a-cef8-42c7-9788-fa27719a43bd'],
+//                'data' => [
+//                      'screen' => '/tutorial'
+//                ],
+//
+//                'contents' => [
+//                    'en' => "147352716 raqamli obyekt, 200024 raqamli yozma ko'rsatmaga muddat uzaytirish so'raldi
+//                             RO‘ZIYEV SHAHZOD HAYITBOYEVICH (Mualliflik nazorati)
+//                             2024-10-25 19:24:39",
+//                ],
+//                'headings' => [
+//                    'en' => "Nazorat",
+//                ]
+//            ]);
+
+//            if ($response->successful()) {
+//                return $response->json();
+//            } else {
+//                return $response->body();  // Xatolik yuz bersa, ma'lumotni ko'rsatadi.
+//            }
         } catch (\Exception $exception) {
             Log::info($exception->getMessage());
         }
