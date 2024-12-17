@@ -237,7 +237,7 @@ class InformationController extends BaseController
             $user = User::query()
                 ->where('pinfl', $data['pin'])
                 ->where('active', 1)
-                ->where('user_status_id', UserStatusEnum::ACTIVE)
+                ->where('user_status_id', UserStatusEnum::ACTIVE->value)
                 ->first();
 
             if (!$user) throw new ModelNotFoundException('Foydalanuvchi topilmadi');
