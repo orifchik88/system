@@ -454,7 +454,8 @@ class ClaimService
                     guId: $reviewObject->monitoring->claim->guid,
                     status: ClaimStatuses::TASK_STATUS_INSPECTOR,
                     type: LogType::TASK_HISTORY,
-                    date: null
+                    date: null,
+                    comment: 'Inspektorga Yuborildi!'
                 );
             } else {
                 $autoReject = $this->autoRejectByOrganization($reviewObject);
@@ -466,7 +467,8 @@ class ClaimService
                     guId: $reviewObject->monitoring->claim->guid,
                     status: ClaimStatuses::TASK_STATUS_ORGANIZATION_REJECTED,
                     type: LogType::TASK_HISTORY,
-                    date: null
+                    date: null,
+                    comment: 'Ariza tashkilotlar tomonidan ijobiy xulosa taqdim etilmaganligi sababli rad etildi.'
                 );
             }
         }
