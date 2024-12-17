@@ -454,7 +454,8 @@ class ClaimService
                     guId: $reviewObject->monitoring->claim->guid,
                     status: ClaimStatuses::TASK_STATUS_INSPECTOR,
                     type: LogType::TASK_HISTORY,
-                    date: null
+                    date: null,
+                    comment: 'Inspektorga Yuborildi!'
                 );
             } else {
                 $autoReject = $this->autoRejectByOrganization($reviewObject);
