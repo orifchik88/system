@@ -1014,8 +1014,13 @@ class ClaimService
                         else
                             $status = ClaimStatuses::TASK_STATUS_CONFIRMED;
                     }
-                    if ($consolidationGov->task->status == "process" && $consolidationGov->task->current_node == "statement-formation")
-                        $status = ClaimStatuses::TASK_STATUS_CONFIRMED;
+                    if ($consolidationGov->task->status == "process" && $consolidationGov->task->current_node == "statement-formation"){
+
+                        if ($consolidationGov->entities->CompletedBuildingsRegistrationCadastral->minstroy_territory->real_value != null || $consolidationGov->entities->CompletedBuildingsRegistrationCadastral->minstroy_territory->real_value != "")
+                            $status = ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG;
+                        else
+                            $status = ClaimStatuses::TASK_STATUS_CONFIRMED;
+                    }
                     if ($consolidationGov->task->current_node == "inactive" && $consolidationGov->task->status == "not_active")
                         $status = ClaimStatuses::TASK_STATUS_CANCELLED;
                     if ($consolidationGov->task->current_node == "direction-statement-object") {
