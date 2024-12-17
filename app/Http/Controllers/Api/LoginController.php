@@ -63,9 +63,12 @@ class LoginController extends BaseController
             $role = Role::query()->find($roleId);
             $token = JWTAuth::claims(['role_id' => $roleId])->fromUser($user);
 
-            $user->update([
-                'notification_app_id' => request('app_id') ?? null,
-            ]);
+            if (\request('app_id')){
+                $user->update([
+                    'notification_app_id' => request('app_id'),
+                ]);
+            }
+
 
             $success['token'] = $token;
             $success['full_name'] = $user->full_name;

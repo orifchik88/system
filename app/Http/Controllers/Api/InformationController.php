@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\ObjectStatusEnum;
+use App\Enums\UserStatusEnum;
 use App\Exports\RegulationExport;
 use App\Http\Resources\BasisResource;
 use App\Http\Resources\DistrictResource;
@@ -233,14 +234,21 @@ class InformationController extends BaseController
             $data = json_decode($resClient->getBody(), true);
 
 
-            $user = User::query()->where('pinfl', $data['pin'])->first();
+            $user = User::query()
+                ->where('pinfl', $data['pin'])
+                ->where('active', 1)
+                ->where('user_status_id', UserStatusEnum::ACTIVE)
+                ->first();
 
             if (!$user) throw new ModelNotFoundException('Foydalanuvchi topilmadi');
             if ($user->active == 0) throw new ModelNotFoundException('Foydalanuvchi faol emas');
 
-            $user->update([
-                'notification_app_id' => request('app_id') ?? null,
-            ]);
+           if (request('app_id'))
+           {
+               $user->update([
+                   'notification_app_id' => request('app_id'),
+               ]);
+           }
 
             $combinedData = $data['pin'] . ':' . $response['access_token'];
 
