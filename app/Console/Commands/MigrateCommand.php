@@ -82,7 +82,7 @@ class MigrateCommand extends Command
                 $this->migrateObjectUsers(4455);
                 break;
             case 10:
-                $this->migrateBlocks(18169);
+                $this->migrateBlocks(52187);
                 break;
             default:
                 echo 'Fuck you!';
@@ -140,6 +140,7 @@ class MigrateCommand extends Command
                 $blockModel->status = true;
                 $blockModel->appearance_type = null;
                 $blockModel->accepted = $block->is_send;
+                $blockModel->selected_work_type = false;
                 $blockModel->dxa_response_id = null;
                 $blockModel->created_at = $block->created_at;
                 $blockModel->deleted_at = $block->deleted_at;
@@ -883,6 +884,7 @@ class MigrateCommand extends Command
                 $blockModel->status = true;
                 $blockModel->appearance_type = null;
                 $blockModel->accepted = $block->is_send;
+                $blockModel->selected_work_type = false;
                 $blockModel->dxa_response_id = null;
                 $blockModel->created_at = $block->created_at;
                 $blockModel->deleted_at = $block->deleted_at;
