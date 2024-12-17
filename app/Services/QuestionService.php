@@ -10,6 +10,7 @@ use App\Enums\ObjectTypeEnum;
 use App\Enums\RegulationStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Enums\WorkTypeStatusEnum;
+use App\Http\Resources\CheckListHistoryListResource;
 use App\Http\Resources\CheckListHistoryResource;
 use App\Models\ActViolation;
 use App\Models\Article;
@@ -103,7 +104,9 @@ class QuestionService
                             'author_answered' => $answer ? $answer->author_answered : null,
                             'inspector_deadline' => $answer ? $answer->inspector_answered_at : null,
                             'technic_author_deadline' => $answer ? $answer->technic_author_answered_at : null,
-//                            'logs' => $answer ? CheckListHistoryResource::collection($answer->logs) : null
+                            'logs' => ($answer && $block_type == 2)
+                                ? CheckListHistoryListResource::collection($answer->logs)
+                                : null,
                         ];
                     }
                 }
@@ -128,7 +131,9 @@ class QuestionService
                         'author_answered' => $answer ? $answer->author_answered : null,
                         'inspector_deadline' => $answer ? $answer->inspector_answered_at : null,
                         'technic_author_deadline' => $answer ? $answer->technic_author_answered_at : null,
-//                        'logs' => $answer ? CheckListHistoryResource::collection($answer->logs) : null
+                        'logs' => ($answer && $block_type == 2)
+                            ? CheckListHistoryListResource::collection($answer->logs)
+                            : null,
                     ];
                 }
             }
