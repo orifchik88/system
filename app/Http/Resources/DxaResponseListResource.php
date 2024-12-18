@@ -38,6 +38,7 @@ class DxaResponseListResource extends JsonResource
             'object_name' => $this->object_name,
             'location_building' => $this->location_building,
             'created_at' => $this->created_at,
+            'confirmed_at' => $this->confirmed_at,
             'inspector' => [
                 'id' => $inspector ? $inspector->id : null,
                 'name' =>  $inspector ? "{$inspector->surname} {$inspector->name} {$inspector->middle_name}" : null,
