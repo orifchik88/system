@@ -57,7 +57,7 @@ class RegulationRepository implements RegulationRepositoryInterface
                 });
             })
             ->when(isset($filters['task_id']), function ($q) use ($filters) {
-                $q->whereHas('monitoring.article', function ($query) use ($filters) {
+                $q->whereHas('object', function ($query) use ($filters) {
                     $query->searchByTaskId($filters['task_id']);
                 });
             })
