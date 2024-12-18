@@ -47,7 +47,11 @@ class RegisterController extends BaseController
         $query = $this->service->getRegisters($this->user, $this->roleId, 1);
         $filters = request()->only(['customer_name', 'sphere_id', 'status', 'inspector_id', 'region_id',  'object_type', 'task_id', 'district_id', 'lawyer_status']);
         $registers = $this->service->searchRegisters($query, $filters)
-            ->orderBy('created_at', request('sort_by_date', 'DESC'))
+            ->when(isset($filters['status']) && $filters['status'] == 4, function ($query) {
+                $query->orderBy('confirmed_at', request('sort_by_confirmed', 'DESC'));
+            }, function ($query) {
+                $query->orderBy('created_at', request('sort_by_date', 'DESC'));
+            })
             ->paginate(request('per_page', 10));
 
         return $this->sendSuccess(DxaResponseListResource::collection($registers), 'All registers  successfully.', pagination($registers));
@@ -58,7 +62,11 @@ class RegisterController extends BaseController
         $query = $this->service->getRegisters($this->user, $this->roleId, 2);
         $filters = request()->only(['customer_name', 'sphere_id', 'inspector_id', 'status', 'object_type', 'task_id', 'district_id', 'region_id',  'lawyer_status']);
         $registers = $this->service->searchRegisters($query, $filters)
-            ->orderBy('created_at', request('sort_by_date', 'DESC'))
+            ->when(isset($filters['status']) && $filters['status'] == 4, function ($query) {
+                $query->orderBy('confirmed_at', request('sort_by_confirmed', 'DESC'));
+            }, function ($query) {
+                $query->orderBy('created_at', request('sort_by_date', 'DESC'));
+            })
             ->paginate(request('per_page', 10));
 
         return $this->sendSuccess(DxaResponseListResource::collection($registers), 'All registers  successfully.', pagination($registers));
