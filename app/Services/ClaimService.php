@@ -1007,8 +1007,12 @@ class ClaimService
                     if ($consolidationGov->task->current_node == "inactive" && $consolidationGov->task->status == "rejected") {
                         if ($consolidationGov->entities->CompletedBuildingsRegistrationCadastral->minstroy_territory->real_value != null || $consolidationGov->entities->CompletedBuildingsRegistrationCadastral->minstroy_territory->real_value != "")
                             $status = ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG;
-                        else
-                            $status = ClaimStatuses::TASK_STATUS_REJECTED;
+                        else {
+                            if ($consolidationGov->entities->CompletedBuildingsRegistrationCadastral->gasn_name_reject->real_value == 'Shaffof qurilish milliy axborot tizimi')
+                                $status = ClaimStatuses::TASK_STATUS_ORGANIZATION_REJECTED;
+                            else
+                                $status = ClaimStatuses::TASK_STATUS_REJECTED;
+                        }
                     }
                     if ($consolidationGov->task->current_node == "inactive" && $consolidationGov->task->status == "processed") {
                         if ($consolidationGov->entities->CompletedBuildingsRegistrationCadastral->minstroy_territory->real_value != null || $consolidationGov->entities->CompletedBuildingsRegistrationCadastral->minstroy_territory->real_value != "")
@@ -1016,7 +1020,7 @@ class ClaimService
                         else
                             $status = ClaimStatuses::TASK_STATUS_CONFIRMED;
                     }
-                    if ($consolidationGov->task->status == "process" && $consolidationGov->task->current_node == "statement-formation"){
+                    if ($consolidationGov->task->status == "process" && $consolidationGov->task->current_node == "statement-formation") {
 
                         if ($consolidationGov->entities->CompletedBuildingsRegistrationCadastral->minstroy_territory->real_value != null || $consolidationGov->entities->CompletedBuildingsRegistrationCadastral->minstroy_territory->real_value != "")
                             $status = ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG;
