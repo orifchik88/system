@@ -48,7 +48,7 @@ class MyGovService
         $tmpArr[UserRoleEnum::TEXNIK->value] = [];
         $tmpArr[UserRoleEnum::MUALLIF->value] = [];
 
-        foreach ($objects->objects()->get() as $object) {
+        foreach ($objects->objects()->where('object_status_id', ObjectStatusEnum::PROGRESS)->get() as $object) {
             $tmpArr[$object->getOriginal('pivot_role_id')][] = $object->id;
         }
 
