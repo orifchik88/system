@@ -455,16 +455,30 @@ class RegulationController extends BaseController
     {
         try {
 
-            $token = request('token');
-            $secret = config('jwt.secret');
-            $decoded = JWT::decode($token, $secret, ['HS256']);
-            $expiryTimestamp = $decoded->exp;
-            $expiryDate = date('Y-m-d H:i:s', $expiryTimestamp);
+            $phone = str_replace('+', '', request('phone'));
+            $data = [
+                'login' => config('services.sms_provider.login'),
+                'password' => config('services.sms_provider.password'),
+//            'nickname' => config('services.sms_provider.nickname'),
+                'data' => json_encode([[
+                    'phone' => $phone,
+                    'text' => 'message'
+                ]])
+            ];
 
-            return response()->json([
-                'expiry_date' => $expiryDate,
-                'expiry_timestamp' => $expiryTimestamp,
-            ]);
+            $url = config('services.sms_provider.url');
+            Http::post($url, $data);
+
+//            $token = request('token');
+//            $secret = config('jwt.secret');
+//            $decoded = JWT::decode($token, $secret, ['HS256']);
+//            $expiryTimestamp = $decoded->exp;
+//            $expiryDate = date('Y-m-d H:i:s', $expiryTimestamp);
+//
+//            return response()->json([
+//                'expiry_date' => $expiryDate,
+//                'expiry_timestamp' => $expiryTimestamp,
+//            ]);
 
 //            $response = Http::withHeaders([
 //                'Content-Type' => 'application/json; charset=utf-8',

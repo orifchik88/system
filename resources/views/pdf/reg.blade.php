@@ -143,7 +143,7 @@
         <tbody>
         <tr>
             <td style="text-align: center; font-weight: 500">
-                <div style="margin-bottom: 8px">
+                <div style="margin-bottom: 8px; font-size: 20px;">
                     Qurilish nizomi va qoidalari talablarining bajarilishida
                     aniqlangan <br />
                     kamchiliklarni bartaraf qilish bo'yicha
@@ -152,7 +152,7 @@
                     style="
                   text-transform: uppercase;
                   font-weight: 600;
-                  font-size: 22px;
+                  font-size: 18px;
                 "
                 >
                     Ko'rsatma
