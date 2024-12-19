@@ -129,7 +129,7 @@ class QuestionService
                         'author_answered' => $answer ? $answer->author_answered : null,
                         'inspector_deadline' => $answer ? $answer->inspector_answered_at : null,
                         'technic_author_deadline' => $answer ? $answer->technic_author_answered_at : null,
-                        
+
                     ];
                 }
             }
@@ -541,8 +541,15 @@ class QuestionService
 
     private function determinateNumber()
     {
-        $lastRegulationNumber = Regulation::query()->max('regulation_number') ?? 199999;
-        return (int)$lastRegulationNumber + 1;
+        $regulation = DB::table('regulations')
+            ->select('regulation_number')
+            ->whereRaw("CAST(REGEXP_REPLACE(regulation_number, '[^0-9]', '', 'g') AS BIGINT) = (
+                    SELECT MAX(CAST(REGEXP_REPLACE(regulation_number, '[^0-9]', '', 'g') AS BIGINT))
+                    FROM regulations
+                    WHERE regulation_number ~ '^\\d+$'
+                )")
+            ->first() ;
+        return $regulation->regulation_number ? (int)$regulation->regulation_number + 1 : 299999;
     }
 
 
