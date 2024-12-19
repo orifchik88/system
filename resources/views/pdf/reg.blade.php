@@ -152,7 +152,7 @@
                     style="
                   text-transform: uppercase;
                   font-weight: 600;
-                  font-size: 18px;
+                  font-size: 22px;
                 "
                 >
                     Ko'rsatma
