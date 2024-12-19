@@ -37,7 +37,7 @@ class Block extends Model
 
     public function getClaimChecklistCount($claim_id)
     {
-        return CheckListAnswer::query()->where(['monitoring_id' => $claim_id, 'type' => 2, 'block_id' => $this->id])->groupBy('question_id')->get()->count();
+        return CheckListAnswer::query()->where(['monitoring_id' => $claim_id, 'type' => 2, 'block_id' => $this->id])->groupBy('question_id')->get()->select('question_id')->count();
     }
 
     public function type(): BelongsTo
