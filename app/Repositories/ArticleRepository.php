@@ -86,6 +86,18 @@ class ArticleRepository implements ArticleRepositoryInterface
             ->when(isset($filters['region_id']), function ($query) use ($filters) {
                 $query->where('articles.region_id', $filters['region_id']);
             })
+            ->when(isset($filters['start_date']) || isset($filters['end_date']), function ($query) use ($filters) {
+                $startDate = $filters['start_date'] ?? null;
+                $endDate = $filters['end_date'] ?? null;
+
+                if ($startDate && $endDate) {
+                    $query->whereBetween('created_at', [$startDate, $endDate]);
+                } elseif ($startDate) {
+                    $query->where('created_at', '>=', $startDate);
+                } elseif ($endDate) {
+                    $query->where('created_at', '<=', $endDate);
+                }
+            })
             ->when(isset($filters['district_id']), function ($query) use ($filters) {
                 $query->where('articles.district_id', $filters['district_id']);
             })

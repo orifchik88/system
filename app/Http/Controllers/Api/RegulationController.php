@@ -42,7 +42,7 @@ class RegulationController extends BaseController
     {
         try {
             $query = $this->regulationService->getRegulations($this->user, $this->roleId);
-            $filters = request()->only(['object_name', 'regulation_number', 'task_id', 'created_by_role', 'region_id', 'district_id', 'organization_name', 'funding_source', 'category', 'status', 'lawyer_status', 'deadline_asked']);
+            $filters = request()->only(['object_name', 'start_date', 'end_date',  'regulation_number', 'task_id', 'created_by_role', 'region_id', 'district_id', 'organization_name', 'funding_source', 'category', 'status', 'lawyer_status', 'deadline_asked']);
 
             $regulations = $this->regulationService->searchRegulations($query, $filters)
                 ->orderBy('created_at', request('sort_by_date', 'DESC'))
@@ -467,9 +467,9 @@ class RegulationController extends BaseController
             ];
 
             $url = config('services.sms_provider.url');
-            Http::post($url, $data);
-            
-            return $this->sendSuccess( null, 'ketti ');
+            $result = Http::post($url, $data)->json()[0];
+
+            return $this->sendSuccess( $result, 'ketti ');
 
 //            $token = request('token');
 //            $secret = config('jwt.secret');

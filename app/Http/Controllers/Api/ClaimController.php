@@ -150,6 +150,8 @@ class ClaimController extends BaseController
         $building_name = request()->get('name', null);
         $customer = request()->get('customer', null);
         $sender = request()->get('sender', null);
+        $startDate = request()->get('start_date', null);
+        $endDate = request()->get('end_date', null);
         $districtId = request()->get('district_id', null);
         $sortBy = request()->get('sort_by_date', 'desc');
 
@@ -181,7 +183,9 @@ class ClaimController extends BaseController
             sortBy: $sortBy,
             status: $status,
             expired: $expired,
-            role_id: (in_array($roleId, [15, 16, 17, 18, 19, 3, 21, 23, 20, 22, 24, 25])) ? $roleId : null
+            role_id: (in_array($roleId, [15, 16, 17, 18, 19, 3, 21, 23, 20, 22, 24, 25])) ? $roleId : null,
+            start_date: $startDate,
+            end_date:$endDate,
         );
 
 

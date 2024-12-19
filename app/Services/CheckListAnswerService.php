@@ -53,5 +53,22 @@ class CheckListAnswerService
         });
     }
 
+    public function searchCheckList($query, $filters)
+    {
+        return $query
+            ->when(isset($filters['start_date']) || isset($filters['end_date']), function ($query) use ($filters) {
+                $startDate = $filters['start_date'] ?? null;
+                $endDate = $filters['end_date'] ?? null;
+
+                if ($startDate && $endDate) {
+                    $query->whereBetween('created_at', [$startDate, $endDate]);
+                } elseif ($startDate) {
+                    $query->where('created_at', '>=', $startDate);
+                } elseif ($endDate) {
+                    $query->where('created_at', '<=', $endDate);
+                }
+            });
+    }
+
 
 }

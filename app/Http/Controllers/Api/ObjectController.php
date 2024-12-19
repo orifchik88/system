@@ -42,7 +42,7 @@ class ObjectController extends BaseController
 
         try {
             $query = $this->service->getObjects($this->user, $this->roleId);
-            $filters = request()->only(['status', 'customer_name', 'inspector_id', 'funding_source', 'object_type', 'task_id', 'region_id', 'district_id', 'user_search']);
+            $filters = request()->only(['status', 'start_date', 'end_date', 'customer_name', 'inspector_id', 'funding_source', 'object_type', 'task_id', 'region_id', 'district_id', 'user_search']);
 
             $objects = $this->service->searchObjects($query, $filters)
                 ->orderBy('created_at', request('sort_by_date', 'DESC'))

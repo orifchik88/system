@@ -446,7 +446,9 @@ class ClaimRepository implements ClaimRepositoryInterface
         ?string $sortBy,
         ?int    $status,
         ?int    $expired,
-        ?int    $role_id
+        ?int    $role_id,
+        ?string $start_date,
+        ?string $end_date,
     ): LengthAwarePaginator
     {
         $role = match ($role_id) {
@@ -487,6 +489,15 @@ class ClaimRepository implements ClaimRepositoryInterface
                 })
                 ->when($status, function ($q) use ($status) {
                     $q->where('claims.status', $status);
+                })
+                ->when($start_date || $end_date, function ($query) use ($start_date, $end_date) {
+                    if ($start_date && $end_date) {
+                        $query->whereBetween('claims.created_at', [$start_date, $end_date]);
+                    } elseif ($start_date) {
+                        $query->where('claims.created_at', '>=', $start_date);
+                    } elseif ($end_date) {
+                        $query->where('claims.created_at', '<=', $end_date);
+                    }
                 })
                 ->when($expired, function ($q) use ($expired) {
                     $q->where('claims.expired', $expired);

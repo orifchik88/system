@@ -45,7 +45,7 @@ class RegisterController extends BaseController
     public function registers(): JsonResponse
     {
         $query = $this->service->getRegisters($this->user, $this->roleId, 1);
-        $filters = request()->only(['customer_name', 'sphere_id', 'status', 'inspector_id', 'region_id',  'object_type', 'task_id', 'district_id', 'lawyer_status']);
+        $filters = request()->only(['customer_name', 'start_date', 'end_date', 'sphere_id', 'status', 'inspector_id', 'region_id',  'object_type', 'task_id', 'district_id', 'lawyer_status']);
         $registers = $this->service->searchRegisters($query, $filters)
             ->when(isset($filters['status']) && $filters['status'] == 4, function ($query) {
                 $query->orderBy('confirmed_at', request('sort_by_confirmed', 'DESC'));
@@ -60,7 +60,7 @@ class RegisterController extends BaseController
     public function reRegister(): JsonResponse
     {
         $query = $this->service->getRegisters($this->user, $this->roleId, 2);
-        $filters = request()->only(['customer_name', 'sphere_id', 'inspector_id', 'status', 'object_type', 'task_id', 'district_id', 'region_id',  'lawyer_status']);
+        $filters = request()->only(['customer_name', 'start_date', 'end_date', 'sphere_id', 'inspector_id', 'status', 'object_type', 'task_id', 'district_id', 'region_id',  'lawyer_status']);
         $registers = $this->service->searchRegisters($query, $filters)
             ->when(isset($filters['status']) && $filters['status'] == 4, function ($query) {
                 $query->orderBy('confirmed_at', request('sort_by_confirmed', 'DESC'));
@@ -283,7 +283,7 @@ class RegisterController extends BaseController
 
         try {
             $registers = $this->service->getRegisters($this->user, $this->roleId, 1);
-            $filters = request()->only(['customer_name', 'sphere_id', 'object_type', 'task_id', 'district_id', 'region_id']);
+            $filters = request()->only(['customer_name', 'start_date', 'end_date', 'sphere_id', 'object_type', 'task_id', 'district_id', 'region_id']);
             $query = $this->service->searchRegisters($registers, $filters);
             $data = [
                 'all' => $query->clone()->count(),
@@ -323,7 +323,7 @@ class RegisterController extends BaseController
 
         try {
             $registers = $this->service->getRegisters($this->user, $this->roleId, 2);
-            $filters = request()->only(['customer_name', 'sphere_id', 'status', 'object_type', 'task_id', 'district_id', 'region_id',  'lawyer_status']);
+            $filters = request()->only(['customer_name', 'start_date', 'end_date', 'sphere_id', 'status', 'object_type', 'task_id', 'district_id', 'region_id',  'lawyer_status']);
             $query = $this->service->searchRegisters($registers, $filters);
 
             $data = [

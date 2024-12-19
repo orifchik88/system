@@ -54,6 +54,18 @@ class MonitoringRepository implements MonitoringRepositoryInterface
                         $query->where('funding_source_id', $filters['funding_source']);
                     });
                 })
+                ->when(isset($filters['start_date']) || isset($filters['end_date']), function ($query) use ($filters) {
+                    $startDate = $filters['start_date'] ?? null;
+                    $endDate = $filters['end_date'] ?? null;
+
+                    if ($startDate && $endDate) {
+                        $query->whereBetween('created_at', [$startDate, $endDate]);
+                    } elseif ($startDate) {
+                        $query->where('created_at', '>=', $startDate);
+                    } elseif ($endDate) {
+                        $query->where('created_at', '<=', $endDate);
+                    }
+                })
                 ->when(isset($filters['category']), function ($q) use($filters) {
                     $q->whereHas('article', function ($query) use($filters) {
                         $query->where('difficulty_category_id', $filters['category']);

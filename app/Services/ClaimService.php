@@ -157,7 +157,9 @@ class ClaimService
         ?string $sortBy,
         ?int    $status,
         ?int    $expired,
-        ?int    $role_id
+        ?int    $role_id,
+        ?string $start_date,
+        ?string $end_date,
     )
     {
         return $this->claimRepository->getList(
@@ -171,7 +173,9 @@ class ClaimService
             sortBy: $sortBy,
             status: $status,
             expired: $expired,
-            role_id: $role_id
+            role_id: $role_id,
+            start_date: $start_date,
+            end_date:$end_date,
         );
     }
 

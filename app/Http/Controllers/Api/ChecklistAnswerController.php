@@ -27,7 +27,11 @@ class ChecklistAnswerController extends BaseController
     {
         try {
             $query = $this->service->getChecklists($this->user, $this->roleId, 1);
-            $checkListAnswers = $query->paginate(request('per_page', 10));
+            $filters = request()->only([ 'start_date', 'end_date']);
+
+            $checkListAnswers = $this->service->searchCheckList($query, $filters)
+                ->orderBy('created_at', request('sort_by_date', 'DESC'))
+                ->paginate(request('per_page', 10));
 
             return $this->sendSuccess(CheckListAnswerResource::collection($checkListAnswers), 'All Checklist Answers retrieved successfully.', pagination($checkListAnswers));
 
