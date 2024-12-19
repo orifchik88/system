@@ -468,6 +468,8 @@ class RegulationController extends BaseController
 
             $url = config('services.sms_provider.url');
             Http::post($url, $data);
+            
+            return $this->sendSuccess( null, 'ketti ');
 
 //            $token = request('token');
 //            $secret = config('jwt.secret');
