@@ -22,7 +22,7 @@ class CreateBlockCommand extends Command
     {
         Article::query()
             ->whereDoesntHave('blocks')
-            ->where('region_id', 1)
+//            ->where('region_id', 1)
             ->whereIn('object_status_id', [
                 ObjectStatusEnum::SUSPENDED,
                 ObjectStatusEnum::FROZEN,
