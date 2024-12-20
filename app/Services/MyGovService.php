@@ -117,7 +117,7 @@ class MyGovService
 
         if (!$objects)
             return null;
-
+        $objectsArr = [];
         foreach ($objects as $object) {
             $tmpArr['id'] = $object->id;
             $tmpArr['name'] = $object->name;
