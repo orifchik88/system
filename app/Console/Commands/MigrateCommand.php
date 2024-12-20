@@ -14,6 +14,7 @@ use App\Models\ActViolation;
 use App\Models\Article;
 use App\Models\ArticleUser;
 use App\Models\Block;
+use App\Models\CheckListAnswer;
 use App\Models\District;
 use App\Models\Monitoring;
 use App\Models\Region;
@@ -79,10 +80,10 @@ class MigrateCommand extends Command
                 $this->deletePhaseRegulations();
                 break;
             case 9:
-                $this->migrateObjectUsers(4455);
+                $this->migrateObjectUsers(2686);
                 break;
             case 10:
-                $this->migrateBlocks(52187);
+                $this->migrateBlocks(2686);
                 break;
             default:
                 echo 'Fuck you!';

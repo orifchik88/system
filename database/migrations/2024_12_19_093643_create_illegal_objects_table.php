@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('region_id');
             $table->integer('district_id');
             $table->integer('score');
+            $table->integer('status')->default(0);
             $table->bigInteger('created_by');
 
             $table->timestamps();

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\BlockController;
 use App\Http\Controllers\Api\ChecklistAnswerController;
 use App\Http\Controllers\Api\ClaimController;
+use App\Http\Controllers\Api\IllegalObjectController;
 use App\Http\Controllers\Api\MyGovController;
 use App\Http\Controllers\Api\PdfController;
 use App\Http\Controllers\Api\ProfileController;
@@ -191,6 +192,16 @@ Route::group([
 
 
     Route::post('test', [RegulationController::class, 'test']);
+
+    Route::group(['prefix' => 'illegal'], function () {
+        Route::get('objects', [IllegalObjectController::class, 'objectsList']);
+        Route::get('questions/{id}', [IllegalObjectController::class, 'questionList']);
+        Route::get('object/{id}', [IllegalObjectController::class, 'getObject']);
+        Route::get('districts', [IllegalObjectController::class, 'districtList']);
+        Route::post('create-object', [IllegalObjectController::class, 'createObject']);
+        Route::post('save-object/{id}', [IllegalObjectController::class, 'saveObject']);
+        Route::post('update-checklist', [IllegalObjectController::class, 'updateCheckList']);
+    });
 
     Route::group(['prefix' => 'claim'], function () {
         Route::get('tasks', [ClaimController::class, 'tasksList']);

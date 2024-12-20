@@ -6,9 +6,11 @@ namespace App\Providers;
 use App\Repositories\ArticleRepository;
 use App\Repositories\BlockRepository;
 use App\Repositories\ClaimRepository;
+use App\Repositories\IllegalObjectRepository;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use App\Repositories\Interfaces\BlockRepositoryInterface;
 use App\Repositories\Interfaces\ClaimRepositoryInterface;
+use App\Repositories\Interfaces\IllegalObjectRepositoryInterface;
 use App\Repositories\Interfaces\MonitoringRepositoryInterface;
 use App\Repositories\Interfaces\RegulationRepositoryInterface;
 use App\Repositories\Interfaces\ResponseRepositoryInterface;
@@ -39,6 +41,7 @@ class RepositoryServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->app->bind(ClaimRepositoryInterface::class,ClaimRepository::class);
+        $this->app->bind(IllegalObjectRepositoryInterface::class,IllegalObjectRepository::class);
         $this->app->bind(ArticleRepositoryInterface::class,ArticleRepository::class);
         $this->app->bind(BlockRepositoryInterface::class,BlockRepository::class);
         $this->app->bind(UserRepositoryInterface::class,UserRepository::class);
