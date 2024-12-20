@@ -48,7 +48,7 @@ class ArticleRepository implements ArticleRepositoryInterface
                 } elseif ($endDate) {
                     $query->where('created_at', '<=', $endDate);
                 }
-            })->paginate(50);
+            })->get();
     }
 
     public function findByTaskId($taskId): ?Article
