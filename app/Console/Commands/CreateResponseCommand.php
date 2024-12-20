@@ -36,43 +36,28 @@ class CreateResponseCommand extends Command
             ->take(20)
             ->get();
         foreach ($data as $item) {
-            $responseExist = DxaResponse::query()->where('task_id', $item->task_id)->exists();
-            if (!$responseExist) {
-                DB::beginTransaction();
+            if (!DxaResponse::query()->where('task_id', $item->task_id)->exists()) {
                 try {
-                    $taskId = $item->task_id;
-                    $response = $this->service->fetchTaskData($taskId);
-                    $data = $this->service->parseResponse($response);
-                    $userType = $this->service->determineUserType($data['user_type']['real_value']);
-                    $dxa = $this->service->saveDxaResponse($taskId, $data, $userType, $response->json());
-                    $this->service->sendMyGov($dxa);
-                    $this->service->saveExpertise($dxa);
+                    DB::transaction(function () use ($item) {
+                        $taskId = $item->task_id;
+                        $response = $this->service->fetchTaskData($taskId);
+                        $data = $this->service->parseResponse($response);
+                        $userType = $this->service->determineUserType($data['user_type']['real_value']);
+                        $dxa = $this->service->saveDxaResponse($taskId, $data, $userType, $response->json());
+                        $this->service->sendMyGov($dxa);
+                        $this->service->saveExpertise($dxa);
 
-                    $item->update([
-                        'status' => ClaimStatuses::RESPONSE_WATCHED
-                    ]);
-
-                    DB::commit();
+                        $item->update(['status' => ClaimStatuses::RESPONSE_WATCHED]);
+                    });
                 } catch (\Exception $exception) {
-                    DB::rollBack();
-
-                    $item->update([
-                        'status' => ClaimStatuses::RESPONSE_ERRORED
-                    ]);
-
-                    Log::info('Xatolik binoda: task_id= '.$item->task_id.'    '. $exception->getMessage());
-
-                    echo $exception->getMessage() . ' ' . $exception->getLine();
-                    continue;
+                    $item->update(['status' => ClaimStatuses::RESPONSE_ERRORED]);
+                    Log::error('Xatolik binoda: task_id= '.$item->task_id.'   '.$exception->getMessage());
                 }
-                sleep(3);
-            }else{
-                $item->update([
-                    'status' => ClaimStatuses::RESPONSE_WATCHED
-                ]);
+            } else {
+                $item->update(['status' => ClaimStatuses::RESPONSE_WATCHED]);
             }
 
-
+            sleep(3);
         }
     }
 }
