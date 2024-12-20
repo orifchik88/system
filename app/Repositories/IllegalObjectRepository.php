@@ -10,6 +10,7 @@ use App\Models\IllegalObjectImage;
 use App\Models\IllegalObjectQuestion;
 use App\Repositories\Interfaces\IllegalObjectRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class IllegalObjectRepository implements IllegalObjectRepositoryInterface
 {
@@ -38,6 +39,52 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                 'status' => IllegalObjectStatuses::NEW
             ]
         );
+    }
+
+    public function getStatistics(
+        ?int    $regionId,
+        ?string $dateFrom,
+        ?string $dateTo
+    )
+    {
+
+        if ($regionId == null)
+            $results = $this->illegalObject->query()
+                ->rightJoin('regions', 'regions.id', '=', 'illegal_objects.region_id')
+                ->when($dateFrom, function ($q) use ($dateFrom) {
+                    $q->whereDate('illegal_objects.created_at', '>=', $dateFrom);
+                })
+                ->when($dateTo, function ($q) use ($dateTo) {
+                    $q->whereDate('illegal_objects.created_at', '<=', $dateTo);
+                })
+                ->groupBy('regions.id', 'regions.name_uz')
+                ->select(DB::raw("
+                    regions.id as region_id,
+                    regions.name_uz as name_uz,
+                    COUNT(CASE WHEN illegal_objects.status = " . IllegalObjectStatuses::CONFIRMED . " THEN 1 ELSE null END) as count
+                  "))
+                ->get();
+        else
+            $results = $this->illegalObject->query()
+                ->rightJoin('districts', 'districts.id', '=', 'illegal_objects.district_id')
+                ->when($dateFrom, function ($q) use ($dateFrom) {
+                    $q->whereDate('illegal_objects.created_at', '>=', $dateFrom);
+                })
+                ->when($dateTo, function ($q) use ($dateTo) {
+                    $q->whereDate('illegal_objects.created_at', '<=', $dateTo);
+                })
+                ->when($regionId, function ($q) use ($regionId) {
+                    $q->where('districts.region_id', $regionId);
+                })
+                ->groupBy('districts.id', 'districts.name_uz')
+                ->select(DB::raw("
+                    districts.id as district_id,
+                    districts.name_uz as name_uz,
+                    COUNT(CASE WHEN illegal_objects.status = " . IllegalObjectStatuses::CONFIRMED . " THEN 1 ELSE null END) as count
+                 "))
+                ->get();
+
+        return $results;
     }
 
     public function createObject($data)
