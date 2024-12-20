@@ -831,7 +831,7 @@ class ClaimService
                     "ext" => "jpg",
                     "file" => "iVBORw0KGgoAAAANSUhEUgAAAPgAAADLCAMAAAB04a46AAAAKlBMVEX///8AAABMTEw/Pz+cnJz19fU6OjpDQ0NLS0tISEhycnIMDAyampqsrKz4G7DdAAABLUlEQVR4nO3UyRHCQAwAQbABL1f+6QIPKEfAPqYnAnVJpcNBtZ7bGEur6+0DPx17jSp8+cLXUNt9B5/3YSa07uDn2cP8sws4eCNw8Ejg4JHAwSOBg0cCB48EDh4JHDwSOHgkcPBI4OCRwMEjgYNHAgePBA4eCRw8Ejh4JHDwSODgkcDBI4GDRwIHjwQOHgkcPBI4eCRw8Ejg4JHAwSOBg0cCB48EDh4JHDwSOHgkcPBI4OCRwMEjgYNHAgePBA4eCRw8Ejh4JHDwSODgkcDBI4GDRwIHjwQOHgkcPBI4eCRw8Ejg4JHAwSOBg0cCB48EDh4JHDwSOHgkcPBI4OCRwMEjgYNHAgePBF6FP97w2bP8tXW38TXUdt/Ba/1Ovdb4wJ/bMpZW19u8D6NZvQAHUx5B5LstjAAAAABJRU5ErkJggg=="
                 ],
-                "address_object_gasn" => $claimObject->object->region->name_uz . ', ' . $claimObject->object->district->name_uz . ', ' . $claimObject->object->location_building,
+                "address_object_gasn" => $claimObject->object->region->name_uz . ', ' . $claimObject->object->district->name_uz . ', ' . $claimObject->building_address,
                 "buildings_title_documents_gasn" => $tableHtml
             ];
 
