@@ -67,6 +67,11 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
         return $object;
     }
 
+    public function getObject(int $id)
+    {
+        return $this->illegalObject->query()->with(['region', 'district', 'images'])->where('id', $id)->first();
+    }
+
     public function getQuestionList(int $id)
     {
         return IllegalObjectCheckList::query()->with('question')->where('object_id', $id)->get();

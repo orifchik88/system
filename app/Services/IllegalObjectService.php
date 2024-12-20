@@ -30,6 +30,11 @@ class IllegalObjectService
         return $this->illegalObjectRepository->getQuestionList(id: $id);
     }
 
+    public function getObject(int $id)
+    {
+        return $this->illegalObjectRepository->getObject(id: $id);
+    }
+
     public function getObjectList(
         ?int    $regionId,
         ?int    $id,

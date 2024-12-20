@@ -57,6 +57,13 @@ class IllegalObjectController extends BaseController
         return $this->sendSuccess($data, 'Successfully sent!');
     }
 
+    public function getObject($id)
+    {
+        $data = $this->illegalObjectService->getObject($id);
+
+        return $this->sendSuccess($data, 'Successfully sent!');
+    }
+
     public function objectsList()
     {
         $id = request()->get('id', null);

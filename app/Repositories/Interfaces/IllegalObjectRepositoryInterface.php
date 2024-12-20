@@ -11,6 +11,7 @@ interface IllegalObjectRepositoryInterface
     public function createObject($data);
 
     public function getQuestionList(int $id);
+    public function getObject(int $id);
 
     public function getList(
         ?int    $regionId,
