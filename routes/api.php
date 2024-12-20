@@ -196,6 +196,7 @@ Route::group([
 
     Route::group(['prefix' => 'illegal'], function () {
         Route::get('objects', [IllegalObjectController::class, 'objectsList']);
+        Route::get('statistics', [IllegalObjectController::class, 'getStatistics']);
         Route::get('questions/{id}', [IllegalObjectController::class, 'questionList']);
         Route::get('object/{id}', [IllegalObjectController::class, 'getObject']);
         Route::get('districts', [IllegalObjectController::class, 'districtList']);

@@ -72,6 +72,26 @@ class IllegalObjectController extends BaseController
     {
         $data = $this->illegalObjectService->getObject($id);
 
+        if ($data) {
+            return $this->sendSuccess($data, 'Success');
+        } else {
+            return $this->sendError("Obyekt Topilmadi!", "message");
+        }
+    }
+
+    public function getStatistics()
+    {
+        $dateFrom = request()->get('date_from', null);
+        $dateTo = request()->get('date_to', null);
+
+        $regionId = request()->get('region_id', null);
+
+        $data = $this->illegalObjectService->getStatistics(
+            regionId: $regionId,
+            dateFrom: $dateFrom,
+            dateTo: $dateTo
+        );
+
         return $this->sendSuccess($data, 'Successfully sent!');
     }
 

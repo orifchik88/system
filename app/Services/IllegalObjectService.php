@@ -30,6 +30,19 @@ class IllegalObjectService
         return $this->illegalObjectRepository->updateObject(id: $id);
     }
 
+    public function getStatistics(
+        ?int    $regionId,
+        ?string $dateFrom,
+        ?string $dateTo,
+    )
+    {
+        return $this->illegalObjectRepository->getStatistics(
+            regionId: $regionId,
+            dateFrom: $dateFrom,
+            dateTo: $dateTo
+        );
+    }
+
     public function getQuestionList(int $id)
     {
         return $this->illegalObjectRepository->getQuestionList(id: $id);

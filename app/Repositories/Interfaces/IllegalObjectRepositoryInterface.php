@@ -10,7 +10,11 @@ interface IllegalObjectRepositoryInterface
     public function updateCheckList(UpdateCheckListRequest $request);
     public function createObject($data);
     public function updateObject(int $id);
-
+    public function getStatistics(
+        ?int    $regionId,
+        ?string $dateFrom,
+        ?string $dateTo
+    );
     public function getQuestionList(int $id);
     public function getObject(int $id);
 
