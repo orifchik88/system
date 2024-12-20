@@ -119,15 +119,40 @@ class MyGovService
             return null;
 
         foreach ($objects as $object) {
-                $tmpArr['id'] = $object->id;
-                $tmpArr['name'] = $object->name;
-                $tmpArr['region'] = $object?->region->name_uz;
-                $tmpArr['region_id'] = $object->region_id;
-                $tmpArr['district'] = $object?->district->name_uz;
-                $tmpArr['district_id'] = $object->district_id;
-                $tmpArr['difficulty_category_id'] = $object->difficulty_category_id;
-                $tmpArr['address'] = $object->address;
-                $objectsArr[] = $tmpArr;
+            $tmpArr['id'] = $object->id;
+            $tmpArr['name'] = $object->name;
+            $tmpArr['region'] = $object?->region->name_uz;
+            $tmpArr['region_id'] = $object->region_id;
+            $tmpArr['district'] = $object?->district->name_uz;
+            $tmpArr['district_id'] = $object->district_id;
+            $tmpArr['address'] = $object->address;
+            $tmpArr['difficulty_category_name'] = $object->difficulty->difficulty;
+            $tmpArr['difficulty_category_id'] = $object->difficulty_category_id;
+            $tmpArr['construction_type'] = $object?->response->construction_works;
+            $tmpArr['construction_cost'] = $object->cost;
+            $tmpArr['blocks'] = $object?->blocks()->pluck('id');
+            $tmpArr['object_status_id'] = $object->object_status_id;
+            $tmpArr['object_status'] = $object?->objectStatus->name;
+            $tmpArr['created_at'] = $object->created_at;
+            $tmpArr['updated_at'] = $object->updated_at;
+            $tmpArr['deleted_at'] = $object->deleted_at;
+            $tmpArr['object_type'] = $object->object_type_id;
+            $tmpArr['cadastral_number'] = $object->cadastral_number;
+            $tmpArr['name_expertise'] = $object->name_expertise;
+            $tmpArr['lat'] = $object->lat;
+            $tmpArr['long'] = $object->long;
+            $tmpArr['dxa_id'] = $object->dxa_response_id;
+            $tmpArr['task_id'] = $object->task_id;
+            $tmpArr['funding_source'] = $object?->fundingSource->name;
+            $tmpArr['funding_source_id'] = $object->funding_source_id;
+            $tmpArr['closed_at'] = $object->closed_at;
+            $tmpArr['object_sector'] = $object->objectSector->name;
+            $tmpArr['object_sector_id'] = $object->object_sector_id;
+            $tmpArr['deadline'] = $object->deadline;
+            $tmpArr['gnk_id'] = $object->gnk_id;
+
+
+            $objectsArr[] = $tmpArr;
         }
         return $objectsArr;
     }

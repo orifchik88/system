@@ -59,6 +59,19 @@ class MyGovController extends Controller
         return $data;
     }
 
+    public function getObjectsList()
+    {
+        $filters = request()->only(['date_from', 'date_to', 'regions', 'stir']);
+
+        $data = $this->myGovService->getObjectList($filters);
+
+        if (!$data) {
+            return ['success' =>  false, 'message' => "Ma'lumot topilmadi"];
+        }
+
+        return $data;
+    }
+
 
 
 }

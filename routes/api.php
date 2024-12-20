@@ -235,7 +235,7 @@ Route::middleware('auth.custom_basic')->prefix('mygov')->group(function () {
     Route::get('get-objects-by-pinfl', [MyGovController::class, 'getObjectsByPinfl']);
     Route::get('get-objects-by-customer', [MyGovController::class, 'getObjectsByCustomer']);
     Route::get('get-objects-by-cadasr', [MyGovController::class, 'getObjectsByCadastr']);
-    Route::get('get-objects-palata', [InformationController::class, 'getObjects']);
+    Route::get('get-objects-list', [MyGovController::class, 'getObjectsList']);
 });
 
 
