@@ -25,6 +25,11 @@ class IllegalObjectService
         return $this->illegalObjectRepository->createObject(data: $request);
     }
 
+    public function saveObject($id)
+    {
+        return $this->illegalObjectRepository->updateObject(id: $id);
+    }
+
     public function getQuestionList(int $id)
     {
         return $this->illegalObjectRepository->getQuestionList(id: $id);

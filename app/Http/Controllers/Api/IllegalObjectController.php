@@ -43,6 +43,17 @@ class IllegalObjectController extends BaseController
         }
     }
 
+    public function saveObject($id)
+    {
+        $response = $this->illegalObjectService->saveObject($id);
+
+        if ($response) {
+            return $this->sendSuccess($response, 'Success');
+        } else {
+            return $this->sendError("API ERROR", "message");
+        }
+    }
+
     public function districtList()
     {
         $data = District::query()->where('region_id', Auth::user()->region_id)->get();

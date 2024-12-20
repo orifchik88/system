@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Helpers\IllegalObjectStatuses;
 use App\Http\Requests\UpdateCheckListRequest;
 use App\Models\IllegalObject;
 use App\Models\IllegalObjectCheckList;
@@ -28,6 +29,15 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
         }
 
         return true;
+    }
+
+    public function updateObject(int $id)
+    {
+        return $this->illegalObject->query()->where('id', $id)->update(
+            [
+                'status' => IllegalObjectStatuses::NEW
+            ]
+        );
     }
 
     public function createObject($data)
@@ -103,6 +113,7 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                 ->when($status, function ($q) use ($status) {
                     $q->where('illegal_objects.status', $status);
                 })
+                ->where('status', '<>', IllegalObjectStatuses::DRAFT)
                 ->groupBy('illegal_objects.id')
                 ->orderBy('illegal_objects.created_at', strtoupper($sortBy))
                 ->select([
