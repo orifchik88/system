@@ -12,4 +12,6 @@ interface ArticleRepositoryInterface
     public function findById($id): ?Article;
 
     public function findByCadastralNumber($number);
+
+    public function getList($filters);
 }

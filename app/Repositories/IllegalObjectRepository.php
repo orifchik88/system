@@ -113,7 +113,7 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                 ->when($status, function ($q) use ($status) {
                     $q->where('illegal_objects.status', $status);
                 })
-                ->where('status', '<>', IllegalObjectStatuses::DRAFT)
+                ->where('illegal_objects.status', '<>', IllegalObjectStatuses::DRAFT)
                 ->groupBy('illegal_objects.id')
                 ->orderBy('illegal_objects.created_at', strtoupper($sortBy))
                 ->select([

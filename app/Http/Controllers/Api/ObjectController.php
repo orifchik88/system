@@ -8,6 +8,7 @@ use App\Enums\ObjectCheckEnum;
 use App\Enums\ObjectStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Http\Requests\ArticleChangeStatusRequest;
+use App\Http\Requests\ArticleLocationChangeRequest;
 use App\Http\Requests\ObjectManualRequest;
 use App\Http\Requests\ObjectRequest;
 use App\Http\Requests\ObjectUserRequest;
@@ -305,6 +306,20 @@ class ObjectController extends BaseController
             return $this->sendSuccess(null, 'Object status updated');
         } catch (\Exception $exception) {
             DB::rollBack();
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function changeObjectLocation(ArticleLocationChangeRequest $request): JsonResponse
+    {
+        try {
+            Article::query()->findOrFail($request->object_id)->update([
+                'lat' => $request->lat,
+                'long' => $request->long,
+            ]);
+
+            return $this->sendSuccess(null, 'Object location updated');
+        }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }

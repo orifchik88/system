@@ -110,4 +110,25 @@ class MyGovService
         }
         return $objectsArr;
     }
+
+    public function getObjectList($filters)
+    {
+        $objects = $this->articleRepository->getList($filters);
+
+        if (!$objects)
+            return null;
+
+        foreach ($objects as $object) {
+                $tmpArr['id'] = $object->id;
+                $tmpArr['name'] = $object->name;
+                $tmpArr['region'] = $object?->region->name_uz;
+                $tmpArr['region_id'] = $object->region_id;
+                $tmpArr['district'] = $object?->district->name_uz;
+                $tmpArr['district_id'] = $object->district_id;
+                $tmpArr['difficulty_category_id'] = $object->difficulty_category_id;
+                $tmpArr['address'] = $object->address;
+                $objectsArr[] = $tmpArr;
+        }
+        return $objectsArr;
+    }
 }

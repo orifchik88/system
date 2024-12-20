@@ -67,7 +67,7 @@ class ResponseCreated extends Command
     {
         try {
             if ($dxa->notification_type == 2) {
-                $response = DxaResponse::query()->where('task_id', $dxa->old_task_id)->first();
+                $response = DxaResponse::query()->where('task_id', (int)$dxa->old_task_id)->first();
                 if ($response)
                 {
                     $reestrNumber = isset($dxa->reestr_number) ? $response->reestr_number : $dxa->reestr_number;

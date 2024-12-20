@@ -133,6 +133,7 @@ Route::group([
     Route::post('object-create', [ObjectController::class, 'create']);
     Route::post('check-object', [ObjectController::class, 'checkObject']);
     Route::post('change-object-status', [ObjectController::class, 'changeObjectStatus']);
+    Route::post('change-object-location', [ObjectController::class, 'changeObjectLocation']);
     Route::post('payment', [ObjectController::class, 'payment']);
     Route::get('total-payment', [ObjectController::class, 'totalPayment']);
     Route::get('payment-statistics', [ObjectController::class, 'paymentStatistics']);
@@ -233,6 +234,7 @@ Route::middleware('auth.custom_basic')->prefix('mygov')->group(function () {
     Route::get('get-objects-by-pinfl', [MyGovController::class, 'getObjectsByPinfl']);
     Route::get('get-objects-by-customer', [MyGovController::class, 'getObjectsByCustomer']);
     Route::get('get-objects-by-cadasr', [MyGovController::class, 'getObjectsByCadastr']);
+    Route::get('get-objects-palata', [InformationController::class, 'getObjects']);
 });
 
 
