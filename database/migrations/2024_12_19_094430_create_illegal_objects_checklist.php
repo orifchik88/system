@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('illegal_objects_checklist', function (Blueprint $table) {
             $table->id();
             $table->integer('question_id');
+            $table->integer('object_id');
             $table->boolean('answer');
             $table->timestamps();
         });
