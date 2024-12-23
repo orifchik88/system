@@ -151,8 +151,8 @@ class MonitoringController extends BaseController
                         'inspector_answered' => null,
                         'technic_answered' => null,
                         'author_answered' => null,
-                        'inspector_answered_at' => $inspectorAnswered,
-                        'technic_author_answered_at' => $technicAnswered,
+                        'inspector_answered_at' => $item['work_type_id'] == 14 ? null : $inspectorAnswered,
+                        'technic_author_answered_at' => $item['work_type_id'] == 14 ? null : $technicAnswered,
                     ]);
                     $answer->images()->delete();
                     $answer->documents()->delete();
@@ -168,8 +168,8 @@ class MonitoringController extends BaseController
                     $answer->status = $status;
                     $answer->type = isset($data['type']) ? 2 : 1;
                     $answer->monitoring_id = isset($data['type']) ? $data['claim_id'] : null;
-                    $answer->inspector_answered_at = $inspectorAnswered;
-                    $answer->technic_author_answered_at = $technicAnswered;
+                    $answer->inspector_answered_at = $item['work_type_id'] == 14 ? null : $inspectorAnswered;
+                    $answer->technic_author_answered_at = $item['work_type_id'] == 14 ? null : $technicAnswered;
                     $answer->save();
                 }
 

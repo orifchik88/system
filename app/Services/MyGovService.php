@@ -125,7 +125,7 @@ class MyGovService
             ],
             'meta' => pagination($objects)
         ];
-        
+
         return response()->json($response, 200);
 
     }
