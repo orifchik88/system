@@ -421,7 +421,6 @@ class ClaimService
         ];
 
         $statusReview = $request['answer_type'] == 1;
-        $this->claimRepository->updateConclusionOrganization(data: $requestData, id: $reviewObject->id, status: $statusReview);
 
         if ($reviewObject->organization_id != 18) {
             $dataArray['Conclusion' . ucfirst($apiType) . 'V2FormCompletedBuildingsRegistrationCadastral'] = $requestData;
@@ -432,6 +431,7 @@ class ClaimService
             }
         }
 
+        $this->claimRepository->updateConclusionOrganization(data: $requestData, id: $reviewObject->id, status: $statusReview);
         $role = Role::find($reviewObject->organization_id);
 
         $this->historyService->createHistory(
