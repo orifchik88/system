@@ -229,7 +229,7 @@ class ClaimService
         $claimObject->update(
             [
                 'status' => ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG,
-                'end_date' => Carbon::now()
+                'end_date' => Carbon::now()->format('Y-m-d H:i:s')
             ]
         );
 
@@ -417,11 +417,10 @@ class ClaimService
             $apiType . "_territory" => (in_array($reviewObject->organization_id, [15, 16])) ? Auth::user()->district->name_uz : Auth::user()->region->name_uz,
             $apiType . "_name" => Auth::user()->name . ' ' . Auth::user()->surname,
             $apiType . "_conclusion_act" => $request['comment'],
-            $apiType . "_datetime" => Carbon::now()
+            $apiType . "_datetime" => Carbon::now()->format('Y-m-d H:i:s')
         ];
 
         $statusReview = $request['answer_type'] == 1;
-        $this->claimRepository->updateConclusionOrganization(data: $requestData, id: $reviewObject->id, status: $statusReview);
 
         if ($reviewObject->organization_id != 18) {
             $dataArray['Conclusion' . ucfirst($apiType) . 'V2FormCompletedBuildingsRegistrationCadastral'] = $requestData;
@@ -432,6 +431,7 @@ class ClaimService
             }
         }
 
+        $this->claimRepository->updateConclusionOrganization(data: $requestData, id: $reviewObject->id, status: $statusReview);
         $role = Role::find($reviewObject->organization_id);
 
         $this->historyService->createHistory(
@@ -510,7 +510,7 @@ class ClaimService
         $reviewObject->monitoring->claim->update(
             [
                 'status' => ClaimStatuses::TASK_STATUS_ORGANIZATION_REJECTED,
-                'end_date' => Carbon::now()
+                'end_date' => Carbon::now()->format('Y-m-d H:i:s')
             ]
         );
 
@@ -549,7 +549,7 @@ class ClaimService
         $claimObject->update(
             [
                 'status' => ClaimStatuses::TASK_STATUS_ATTACH_OBJECT,
-                'end_date' => Carbon::now()
+                'end_date' => Carbon::now()->format('Y-m-d H:i:s')
             ]
         );
 
@@ -590,7 +590,7 @@ class ClaimService
         $objectModel->update(
             [
                 'object_status_id' => ObjectStatusEnum::SUBMITTED,
-                'closed_at' => Carbon::now()
+                'closed_at' => Carbon::now()->format('Y-m-d H:i:s')
             ]
         );
 
@@ -697,7 +697,7 @@ class ClaimService
         $claimObject->update(
             [
                 'status' => ClaimStatuses::TASK_STATUS_REJECTED,
-                'end_date' => Carbon::now()
+                'end_date' => Carbon::now()->format('Y-m-d H:i:s')
             ]
         );
 
@@ -749,7 +749,7 @@ class ClaimService
             $claimObject->update(
                 [
                     'status' => ClaimStatuses::TASK_STATUS_REJECTED,
-                    'end_date' => Carbon::now()
+                    'end_date' => Carbon::now()->format('Y-m-d H:i:s')
                 ]
             );
 
@@ -825,7 +825,7 @@ class ClaimService
                 "gasn_match" => 1,
                 "gasn_cause" => $request['comment'],
                 "gasn_territory" => Auth::user()->region->name_uz,
-                "date_issue_act_gasn" => Carbon::now(),
+                "date_issue_act_gasn" => Carbon::now()->format('Y-m-d H:i:s'),
                 "object_project_gasn" => [
                     "target" => "file",
                     "ext" => "jpg",
@@ -844,7 +844,7 @@ class ClaimService
             $claimObject->update(
                 [
                     'status' => ClaimStatuses::TASK_STATUS_CONFIRMED,
-                    'end_date' => Carbon::now()
+                    'end_date' => Carbon::now()->format('Y-m-d H:i:s')
                 ]
             );
 
@@ -871,7 +871,7 @@ class ClaimService
                 $object->update(
                     [
                         'object_status_id' => ObjectStatusEnum::SUBMITTED,
-                        'closed_at' => Carbon::now()
+                        'closed_at' => Carbon::now()->format('Y-m-d H:i:s')
                     ]
                 );
             }
@@ -987,7 +987,7 @@ class ClaimService
                                     $claimObject->update(
                                         [
                                             'status' => ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG,
-                                            'end_date' => Carbon::now()
+                                            'end_date' => Carbon::now()->format('Y-m-d H:i:s')
                                         ]
                                     );
 
