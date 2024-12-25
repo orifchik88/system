@@ -57,7 +57,7 @@ class CreateResponseCommand extends Command
                 $item->update(['status' => ClaimStatuses::RESPONSE_WATCHED]);
             }
 
-            sleep(3);
+            sleep(15);
         }
     }
 }

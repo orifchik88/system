@@ -62,7 +62,7 @@ class CreateLinearResponseCommand extends Command
                     continue;
                 }
 
-                sleep(8);
+                sleep(15);
             }else{
                 $item->update([
                     'status' => ClaimStatuses::RESPONSE_WATCHED
