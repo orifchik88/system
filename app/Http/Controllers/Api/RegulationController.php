@@ -378,14 +378,14 @@ class RegulationController extends BaseController
             $fine->save();
 
             if ($request->hasFile('images')) {
-                foreach ($request->images as $image) {
+                foreach ($request->file('images') as $image) {
                     $path = $image->store('images/fines', 'public');
                     $fine->images()->create(['url' => $path]);
                 }
             }
 
             if ($request->hasFile('files')) {
-                foreach ($request->files as $document) {
+                foreach ($request->file('files') as $document) {
                     $path = $document->store('document/fines', 'public');
                     $fine->documents()->create(['url' => $path]);
                 }
