@@ -194,6 +194,9 @@ class MigrateCommand extends Command
                             ->where('article_id', $article->id)
                         ->first();
 
+                        if($blockModel != null && $status == ClaimStatuses::TASK_STATUS_CONFIRMED)
+                            $blockModel->update(['accepted' => true]);
+
                         if($blockModel)
                             $blocksArr[] = $blockModel->id;
                     }
