@@ -34,7 +34,7 @@ class CreateResponseCommand extends Command
             ->where('module', 1)
             ->orderBy('id', 'asc')
             ->lockForUpdate()
-            ->take(1)
+            ->take(2)
             ->get();
         foreach ($data as $item) {
             if (!DxaResponse::query()->where('task_id', $item->task_id)->exists()) {
