@@ -721,18 +721,20 @@ class ClaimService
 
         $histories = $this->historyService->getFilteredList(guId: $claimObject->gu_id, jsonColumn: 'role', needle: 3);
         $lastInspectorConclusion = json_decode($histories[0]->content, true);
-
         $dataArray['SendToStepConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
             'comment_gasn' => $lastInspectorConclusion['comment'],
         ];
 
-        $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/send-to-step-conclusion-gasn", $dataArray);
+        if ($claimObject->current_node == 'answer-other-institutions') {
+            $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/send-to-step-conclusion-gasn", $dataArray);
 
-        if ($response->status() != 200) {
-            return false;
+            if ($response->status() != 200) {
+                return false;
+            }
         }
 
         if ($request['type'] == 15) {
+
             $dataArray['IssuanceExtractRejectGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
                 "gasn_name_reject" => Auth::user()->name . ' ' . Auth::user()->surname,
                 "gasn_match" => 2,
