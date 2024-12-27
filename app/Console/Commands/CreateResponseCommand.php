@@ -33,10 +33,12 @@ class CreateResponseCommand extends Command
         $data = Response::query()->where('status', ClaimStatuses::RESPONSE_NEW)
             ->where('module', 1)
             ->orderBy('id', 'asc')
+            ->lockForUpdate()
             ->take(20)
             ->get();
         foreach ($data as $item) {
             if (!DxaResponse::query()->where('task_id', $item->task_id)->exists()) {
+                $item->update(['status' => ClaimStatuses::RESPONSE_PROCESSING]);
                 try {
                     DB::transaction(function () use ($item) {
                         $taskId = $item->task_id;

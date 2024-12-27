@@ -6,6 +6,7 @@ class ClaimStatuses
 {
     const RESPONSE_NEW = 0;
     const RESPONSE_WATCHED = 2;
+    const RESPONSE_PROCESSING = 33;
     const RESPONSE_ERRORED = 5;
 
     const TASK_STATUS_ACCEPTANCE = 1; // Jarayonda

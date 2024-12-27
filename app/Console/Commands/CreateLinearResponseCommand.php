@@ -31,12 +31,13 @@ class CreateLinearResponseCommand extends Command
             ->where('status', ClaimStatuses::RESPONSE_NEW)
             ->where('module', 3)
             ->orderBy('id')
+            ->lockForUpdate()
             ->take(20)
             ->get();
 
         foreach ($data as $item) {
-            $responseExist = DxaResponse::query()->where('task_id', $item->task_id)->exists();
-            if (!$responseExist) {
+            if (!DxaResponse::query()->where('task_id', $item->task_id)->exists()) {
+                $item->update(['status' => ClaimStatuses::RESPONSE_PROCESSING]);
                 DB::beginTransaction();
                 try {
                     $taskId = $item->task_id;
