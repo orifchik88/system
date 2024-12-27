@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Enums\DifficultyCategoryEnum;
+use App\Enums\LogType;
 use App\Enums\ObjectStatusEnum;
 use App\Enums\ObjectTypeEnum;
 use App\Enums\RegulationStatusEnum;
@@ -32,6 +33,7 @@ use App\Models\UserEmployee;
 use App\Models\UserRole;
 use App\Models\Violation;
 use App\Services\ClaimService;
+use App\Services\HistoryService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Auth;
@@ -120,10 +122,7 @@ class MigrateCommand extends Command
                 $taskFormGov = $this->claimService->getClaimFromApi($response->task_id);
 
                 if (!$taskFormGov) {
-                    $this->claimService->updateResponseStatus(
-                        guId: $response->task_id,
-                        status: ClaimStatuses::RESPONSE_ERRORED
-                    );
+                    $response->update(['status' => 2]);
 
                     DB::commit();
                     continue;
@@ -218,11 +217,56 @@ class MigrateCommand extends Command
                     if($oldNogironAssosatsiya != null)
                         $organizationArray[] = 18;
 
+                    $buildings = [];
+                    if($status == ClaimStatuses::TASK_STATUS_OPERATOR || $status == ClaimStatuses::TASK_STATUS_DIRECTOR){
+                        if($oldClaim->html_table != null){
+                            $html = $oldClaim->html_table;
+
+                            preg_match_all('/<tbody>(.*?)<\/tbody>/s', $html, $tbodyMatches);
+                            $tbodyContent = $tbodyMatches[1][0] ?? '';
+
+                            preg_match_all('/<tr>(.*?)<\/tr>/s', $tbodyContent, $rowMatches);
+
+                            $data = [];
+                            foreach ($rowMatches[1] as $row) {
+                                preg_match_all('/<td.*?>(.*?)<\/td>/s', $row, $cellMatches);
+                                $rowData = array_map('strip_tags', $cellMatches[1]); // HTML teglarini olib tashlash
+                                $data[] = $rowData;
+                            }
+
+                            if(count($data) > 0){
+                                foreach ($data as $datum) {
+                                    $building = [
+                                        'name' => $datum[0],
+                                        'cadaster' => $datum[1],
+                                        'building_number' => $datum[2],
+                                        'total_area' => $datum[3],
+                                        'total_use_area' => $datum[4],
+                                        'living_area' => $datum[5],
+                                        'area' => $datum[6],
+                                    ];
+
+                                    $buildings[] = $building;
+                                }
+                            }
+                        }
+
+                        (new HistoryService('claim_histories'))->createHistory(
+                            guId: $response->task_id,
+                            status: ClaimStatuses::TASK_STATUS_OPERATOR,
+                            type: LogType::TASK_HISTORY,
+                            date: null,
+                            comment: $oldClaim->inspector_comment
+                        );
+                    }
+
                     $monitoring = ClaimMonitoring::query()->create(
                         [
                             'blocks' => json_encode($blocksArr),
                             'organizations' => json_encode($organizationArray),
                             'claim_id' => $claimModel->id,
+                            'inspector_answer' => ($status == ClaimStatuses::TASK_STATUS_OPERATOR || $status == ClaimStatuses::TASK_STATUS_DIRECTOR) ? 20 : 0,
+                            'operator_answer' => count($buildings) > 0 ? base64_encode(gzcompress(json_encode($buildings), 9)) : null,
                             'object_id' => $article->id
                         ]
                     );
@@ -302,10 +346,7 @@ class MigrateCommand extends Command
                 $this->output->writeln($e->getMessage());
                 $this->output->writeln($e->getTraceAsString());
 
-                $this->claimService->updateResponseStatus(
-                    guId: $response->task_id,
-                    status: ClaimStatuses::RESPONSE_ERRORED
-                );
+                $response->update(['status' => 2]);
             }
 
         }
