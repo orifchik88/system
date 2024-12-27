@@ -32,7 +32,7 @@ class CreateLinearResponseCommand extends Command
             ->where('module', 3)
             ->orderBy('id')
             ->lockForUpdate()
-            ->take(20)
+            ->take(1)
             ->get();
 
         foreach ($data as $item) {

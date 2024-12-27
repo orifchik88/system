@@ -28,7 +28,7 @@ class ResponseCreated extends Command
      */
 
 
-    protected $signature = 'app:response {task_id}';
+    protected $signature = 'app:responses {task_id}';
 
     /**
      * The console command description.

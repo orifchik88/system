@@ -23,7 +23,7 @@ class NetworkResponseCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:network {task_id}';
+    protected $signature = 'app:networkes {task_id}';
 
     /**
      * The console command description.
