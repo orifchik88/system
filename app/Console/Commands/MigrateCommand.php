@@ -221,7 +221,7 @@ class MigrateCommand extends Command
                         $organizationArray[] = 18;
 
                     $buildings = [];
-                    if($status == ClaimStatuses::TASK_STATUS_OPERATOR || $status == ClaimStatuses::TASK_STATUS_DIRECTOR){
+                    if(in_array($status, [ClaimStatuses::TASK_STATUS_OPERATOR, ClaimStatuses::TASK_STATUS_DIRECTOR, ClaimStatuses::TASK_STATUS_CONFIRMED])){
                         if($oldClaim->html_table != null){
                             $html = $oldClaim->html_table;
 
@@ -283,7 +283,7 @@ class MigrateCommand extends Command
                             $orgNameTag[0] . "_match" => $orgJson[$orgNameTag[0] . "_match"],
                             $orgNameTag[0] . "_territory" => $orgJson[$orgNameTag[0] . "_territory"],
                             $orgNameTag[0] . "_name" => $orgJson[$orgNameTag[0] . "_name"],
-                            $orgNameTag[0] . "_conclusion_act" => str_replace(['<br>','</br>'], '', $orgJson[$orgNameTag[0] . "_conclusion_act"]),
+                            $orgNameTag[0] . "_conclusion_act" => str_replace('<br/>', '', $orgJson[$orgNameTag[0] . "_conclusion_act"]),
                             $orgNameTag[0] . "_datetime" => \Illuminate\Support\Carbon::now()->format('Y-m-d H:i:s')
                         ];
 
@@ -316,7 +316,7 @@ class MigrateCommand extends Command
                             "nogiron_match" => $oldNogironAssosatsiya->status == 'accepted' ? 1 : 2,
                             "nogiron_territory" => '',
                             "nogiron_name" => $oldUser->name . ' ' . $oldUser->surname,
-                            "nogiron_conclusion_act" => str_replace(['<br>','</br>'], '', $oldNogironAssosatsiya->comment),
+                            "nogiron_conclusion_act" => str_replace('<br/>', '', $oldNogironAssosatsiya->comment),
                             "nogiron_datetime" => \Illuminate\Support\Carbon::now()->format('Y-m-d H:i:s')
                         ];
 
