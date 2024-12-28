@@ -725,7 +725,7 @@ class ClaimService
             'comment_gasn' => $lastInspectorConclusion['comment'],
         ];
 
-        if ($claimObject->current_node == 'answer-other-institutions') {
+        if ($claimObject->current_node != 'conclusion-gasn') {
             $response = $this->PostRequest("update/id/" . $claimObject->gu_id . "/action/send-to-step-conclusion-gasn", $dataArray);
 
             if ($response->status() != 200) {
