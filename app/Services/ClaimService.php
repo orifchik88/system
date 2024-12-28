@@ -175,7 +175,7 @@ class ClaimService
             expired: $expired,
             role_id: $role_id,
             start_date: $start_date,
-            end_date:$end_date,
+            end_date: $end_date,
         );
     }
 
@@ -720,7 +720,14 @@ class ClaimService
             return false;
 
         $histories = $this->historyService->getFilteredList(guId: $claimObject->gu_id, jsonColumn: 'role', needle: 3);
-        $lastInspectorConclusion = json_decode($histories[0]->content, true);
+        $historiesNew = $this->historyService->getFilteredList(guId: $claimObject->gu_id, jsonColumn: 'status', needle: 12);
+        if (isset($histories[0]))
+            $lastInspectorConclusion = json_decode($histories[0]->content, true);
+        elseif(isset($historiesNew[0]))
+            $lastInspectorConclusion = json_decode($historiesNew[0]->content, true);
+        else
+            $lastInspectorConclusion['comment'] = '  ';
+        
         $dataArray['SendToStepConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
             'comment_gasn' => $lastInspectorConclusion['comment'],
         ];
