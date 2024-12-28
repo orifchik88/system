@@ -9,6 +9,7 @@ use App\Enums\ObjectTypeEnum;
 use App\Enums\RegulationStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Enums\UserStatusEnum;
+use App\Exceptions\NotFoundException;
 use App\Helpers\ClaimStatuses;
 use App\Http\Requests\PinflRequest;
 use App\Models\ActStatus;
@@ -21,6 +22,7 @@ use App\Models\Claim;
 use App\Models\ClaimMonitoring;
 use App\Models\ClaimOrganizationReview;
 use App\Models\District;
+use App\Models\DxaResponse;
 use App\Models\Monitoring;
 use App\Models\Region;
 use App\Models\Regulation;
@@ -32,6 +34,7 @@ use App\Models\User;
 use App\Models\UserEmployee;
 use App\Models\UserRole;
 use App\Models\Violation;
+use App\Services\ArticleService;
 use App\Services\ClaimService;
 use App\Services\HistoryService;
 use Carbon\Carbon;
@@ -57,6 +60,7 @@ class MigrateCommand extends Command
     protected $description = 'Command description';
 
     private ClaimService $claimService;
+    private ArticleService $articleService;
 
     /**
      * Execute the console command.
@@ -97,6 +101,9 @@ class MigrateCommand extends Command
             case 11:
                 $this->migrateClaims();
                 break;
+            case 12:
+                $this->dxaResponseMygov(165929773);
+                break;
             default:
                 echo 'Fuck you!';
                 break;
@@ -104,11 +111,26 @@ class MigrateCommand extends Command
     }
 
     public function __construct(
-        ClaimService $claimService,
+        ClaimService   $claimService,
+        ArticleService $articleService
     )
     {
         parent::__construct();
         $this->claimService = $claimService;
+        $this->articleService = $articleService;
+    }
+
+    /**
+     * @throws NotFoundException
+     */
+    public function dxaResponseMygov(int $task_id)
+    {
+        $response = DxaResponse::query()->where('task_id', $task_id)->first();
+
+        if ($response)
+            $this->articleService->acceptResponse($response);
+
+        echo 'Ok';
     }
 
     public function migrateClaims()
@@ -252,7 +274,7 @@ class MigrateCommand extends Command
                                 }
                             }
                         }
-                        
+
                         if ($oldClaim->inspector_comment != null)
                             (new HistoryService('claim_histories'))->createHistory(
                                 guId: $response->task_id,

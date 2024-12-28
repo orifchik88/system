@@ -621,7 +621,7 @@ class ArticleService
 
     }
 
-    private function acceptResponse(DxaResponse $response)
+    public function acceptResponse(DxaResponse $response)
     {
         try {
                 $authUsername = config('app.mygov.login');
