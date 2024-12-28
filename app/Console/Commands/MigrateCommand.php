@@ -130,7 +130,7 @@ class MigrateCommand extends Command
 
                 $claimModel = Claim::query()->with('monitoring')->where('guid', $response->task_id)->first();
 
-                if($claimModel->monitoring != null){
+                if ($claimModel->monitoring != null) {
                     $this->claimService->updateResponseStatus(
                         guId: $response->task_id,
                         status: ClaimStatuses::RESPONSE_WATCHED
@@ -165,8 +165,7 @@ class MigrateCommand extends Command
 
                 $status = $claimModel->status;
 
-                if(!in_array($status, [ClaimStatuses::TASK_STATUS_CONFIRMED, ClaimStatuses::TASK_STATUS_REJECTED, ClaimStatuses::TASK_STATUS_ORGANIZATION_REJECTED]))
-                {
+                if (!in_array($status, [ClaimStatuses::TASK_STATUS_CONFIRMED, ClaimStatuses::TASK_STATUS_REJECTED, ClaimStatuses::TASK_STATUS_ORGANIZATION_REJECTED])) {
                     if ($oldClaim->status == 'organization')
                         $status = ClaimStatuses::TASK_STATUS_SENT_ORGANIZATION;
                     if ($oldClaim->status == 'inspector')
@@ -192,12 +191,12 @@ class MigrateCommand extends Command
                             ->where('name', $oldBlock->name)
                             ->where('block_number', $oldBlock->number)
                             ->where('article_id', $article->id)
-                        ->first();
+                            ->first();
 
-                        if($blockModel != null && $status == ClaimStatuses::TASK_STATUS_CONFIRMED)
+                        if ($blockModel != null && $status == ClaimStatuses::TASK_STATUS_CONFIRMED)
                             $blockModel->update(['accepted' => true]);
 
-                        if($blockModel)
+                        if ($blockModel)
                             $blocksArr[] = $blockModel->id;
                     }
 
@@ -209,20 +208,20 @@ class MigrateCommand extends Command
                         ->whereNull('deleted_at')
                         ->first();
 
-                    if(isset($orgJson['ses_conclusion_act']) && strlen($orgJson['ses_conclusion_act'] > 0))
+                    if (isset($orgJson['ses_conclusion_act']) && strlen($orgJson['ses_conclusion_act'] > 0))
                         $organizationArray[] = $orgsActs['ses_conclusion_act'];
-                    if(isset($orgJson['mchs_conclusion_act']) && strlen($orgJson['mchs_conclusion_act'] > 0))
+                    if (isset($orgJson['mchs_conclusion_act']) && strlen($orgJson['mchs_conclusion_act'] > 0))
                         $organizationArray[] = $orgsActs['mchs_conclusion_act'];
-                    if(isset($orgJson['nogiron_conclusion_act']) && strlen($orgJson['nogiron_conclusion_act'] > 0))
+                    if (isset($orgJson['nogiron_conclusion_act']) && strlen($orgJson['nogiron_conclusion_act'] > 0))
                         $organizationArray[] = $orgsActs['nogiron_conclusion_act'];
-                    if(isset($orgJson['kvartira_conclusion_act']) && strlen($orgJson['kvartira_conclusion_act'] > 0))
+                    if (isset($orgJson['kvartira_conclusion_act']) && strlen($orgJson['kvartira_conclusion_act'] > 0))
                         $organizationArray[] = $orgsActs['kvartira_conclusion_act'];
-                    if($oldNogironAssosatsiya != null)
+                    if ($oldNogironAssosatsiya != null)
                         $organizationArray[] = 18;
 
                     $buildings = [];
-                    if(in_array($status, [ClaimStatuses::TASK_STATUS_OPERATOR, ClaimStatuses::TASK_STATUS_DIRECTOR, ClaimStatuses::TASK_STATUS_CONFIRMED])){
-                        if($oldClaim->html_table != null){
+                    if (in_array($status, [ClaimStatuses::TASK_STATUS_OPERATOR, ClaimStatuses::TASK_STATUS_DIRECTOR, ClaimStatuses::TASK_STATUS_CONFIRMED])) {
+                        if ($oldClaim->html_table != null) {
                             $html = $oldClaim->html_table;
 
                             preg_match_all('/<tbody>(.*?)<\/tbody>/s', $html, $tbodyMatches);
@@ -237,7 +236,7 @@ class MigrateCommand extends Command
                                 $data[] = $rowData;
                             }
 
-                            if(count($data) > 0){
+                            if (count($data) > 0) {
                                 foreach ($data as $datum) {
                                     $building = [
                                         'name' => $datum[0],
@@ -253,14 +252,15 @@ class MigrateCommand extends Command
                                 }
                             }
                         }
-
-                        (new HistoryService('claim_histories'))->createHistory(
-                            guId: $response->task_id,
-                            status: ClaimStatuses::TASK_STATUS_OPERATOR,
-                            type: LogType::TASK_HISTORY,
-                            date: null,
-                            comment: $oldClaim->inspector_comment
-                        );
+                        
+                        if ($oldClaim->inspector_comment != null)
+                            (new HistoryService('claim_histories'))->createHistory(
+                                guId: $response->task_id,
+                                status: ClaimStatuses::TASK_STATUS_OPERATOR,
+                                type: LogType::TASK_HISTORY,
+                                date: null,
+                                comment: $oldClaim->inspector_comment
+                            );
                     }
 
                     $monitoring = ClaimMonitoring::query()->create(
@@ -275,7 +275,7 @@ class MigrateCommand extends Command
                     );
 
                     foreach ($organizationArray as $item) {
-                        if($item == 18)
+                        if ($item == 18)
                             continue;
 
                         $orgNameTag = explode('_', array_search($item, $orgsActs));
@@ -300,14 +300,13 @@ class MigrateCommand extends Command
                         );
                     }
 
-                    if($oldNogironAssosatsiya != null)
-                    {
+                    if ($oldNogironAssosatsiya != null) {
                         $oldUser = DB::connection('second_pgsql')->table('user')
                             ->where('id', $oldNogironAssosatsiya->user_id)
                             ->first();
 
                         $statusOrg = null;
-                        if($oldNogironAssosatsiya->status == 'accepted')
+                        if ($oldNogironAssosatsiya->status == 'accepted')
                             $statusOrg = true;
                         elseif ($oldNogironAssosatsiya->status == 'failed')
                             $statusOrg = false;
