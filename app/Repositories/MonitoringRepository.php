@@ -66,6 +66,9 @@ class MonitoringRepository implements MonitoringRepositoryInterface
                         $query->where('created_at', '<=', $endDate);
                     }
                 })
+                ->when(isset($filters['created_by']), function ($q) use($filters) {
+                    $q->where('created_by_role', $filters['created_by'])->where('created_at', '>=', '2024-12-13 00:00:00');
+                })
                 ->when(isset($filters['category']), function ($q) use($filters) {
                     $q->whereHas('article', function ($query) use($filters) {
                         $query->where('difficulty_category_id', $filters['category']);

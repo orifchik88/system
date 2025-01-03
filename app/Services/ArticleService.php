@@ -27,6 +27,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\URL;
+use mysql_xdevapi\Exception;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class ArticleService
