@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\DTO\RegulationDto;
+use App\Enums\DxaResponseStatusEnum;
 use App\Enums\LawyerStatusEnum;
 use App\Enums\UserRoleEnum;
+use App\Exceptions\NotFoundException;
 use App\Http\Requests\RegulationAcceptRequest;
 use App\Http\Requests\RegulationDemandRequest;
 use App\Http\Requests\RegulationFineRequest;
@@ -13,6 +15,7 @@ use App\Http\Resources\RegulationResource;
 use App\Models\ActViolation;
 use App\Models\Article;
 use App\Models\AuthorRegulation;
+use App\Models\DxaResponse;
 use App\Models\Regulation;
 use App\Models\RegulationDemand;
 use App\Models\RegulationFine;
@@ -27,6 +30,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class RegulationController extends BaseController
 {
@@ -455,60 +460,39 @@ class RegulationController extends BaseController
     {
         try {
 
-            $phone = str_replace('+', '', request('phone'));
-            $data = [
-                'login' => config('services.sms_provider.login'),
-                'password' => config('services.sms_provider.password'),
-//            'nickname' => config('services.sms_provider.nickname'),
-                'data' => json_encode([[
-                    'phone' => $phone,
-                    'text' => 'message'
-                ]])
-            ];
+            $response = DxaResponse::query()->find(request('task_id'));
+            $authUsername = config('app.mygov.login');
+            $authPassword = config('app.mygov.password');
 
-            $url = config('services.sms_provider.url');
-            $result = Http::post($url, $data)->json()[0];
+            if ($response->object_type_id == 2) {
+                $apiUrl = config('app.mygov.url') . '/update/id/' . $response->task_id . '/action/issue-amount';
+                $formName = 'IssueAmountV4FormNoticeBeginningConstructionWorks';
+            } else {
+                $apiUrl = config('app.mygov.linear') . '/update/id/' . $response->task_id . '/action/issue-amount';
+                $formName = 'IssueAmountFormRegistrationStartLinearObject';
+            }
 
-            return $this->sendSuccess( $result, 'ketti ');
+            $domain = URL::to('/object-info').'/'.$response->task_id;
 
-//            $token = request('token');
-//            $secret = config('jwt.secret');
-//            $decoded = JWT::decode($token, $secret, ['HS256']);
-//            $expiryTimestamp = $decoded->exp;
-//            $expiryDate = date('Y-m-d H:i:s', $expiryTimestamp);
-//
-//            return response()->json([
-//                'expiry_date' => $expiryDate,
-//                'expiry_timestamp' => $expiryTimestamp,
-//            ]);
+            $qrImage = base64_encode(QrCode::format('png')->size(200)->generate($domain));
 
-//            $response = Http::withHeaders([
-//                'Content-Type' => 'application/json; charset=utf-8',
-//                'Authorization' => 'ODFjNmNkOTgtMzI4OS00ZjAxLWI3YmQtNmI2Nzc0M2VlMDVi', // OneSignal REST API key
-//            ])->post('https://onesignal.com/api/v1/notifications', [
-//                'app_id' => 'a09289fb-95f4-4e89-a860-b66bcd773242',
-//                'include_external_user_ids' => ['8ce3385a-cef8-42c7-9788-fa27719a43bd'],
-//                'data' => [
-//                      'screen' => '/tutorial'
-//                ],
-//
-//                'contents' => [
-//                    'en' => "147352716 raqamli obyekt, 200024 raqamli yozma ko'rsatmaga muddat uzaytirish so'raldi
-//                             RO‘ZIYEV SHAHZOD HAYITBOYEVICH (Mualliflik nazorati)
-//                             2024-10-25 19:24:39",
-//                ],
-//                'headings' => [
-//                    'en' => "Nazorat",
-//                ]
-//            ]);
+            $qrImageTag = '<img src="data:image/png;base64,' . $qrImage . '" alt="QR Image" />';
 
-//            if ($response->successful()) {
-//                return $response->json();
-//            } else {
-//                return $response->body();  // Xatolik yuz bersa, ma'lumotni ko'rsatadi.
-//            }
-        } catch (\Exception $exception) {
-            Log::info($exception->getMessage());
+            $return = Http::withBasicAuth($authUsername, $authPassword)
+                ->post($apiUrl, [
+                    $formName => [
+                        "requisites" => $response->rekvizit->name ?? '',
+                        "loacation_rep" => $response->region->name_uz . ' ' . $response->district->name_uz . ' ' . $response->location_building,
+                        "name_rep" => $response->organization_name,
+                        "amount" => $response->price_supervision_service,
+                        "qr_image" => $qrImageTag,
+                        "qr_comment" => "Ushbu QR kod obyekt pasporti hisoblanadi. QR kodni obyektning ko‘rinarli joyiga o‘rnatib qo‘yishingiz talab etiladi"
+                    ]
+                ]);
+
+            if ($return->failed()) throw new NotFoundException("mygovda xatolik yuz berdi");
+        }catch (\Exception $exception){
+            throw new NotFoundException($exception->getMessage(), $exception->getCode());
         }
     }
 }
