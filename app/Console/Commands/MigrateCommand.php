@@ -3,11 +3,14 @@
 namespace App\Console\Commands;
 
 use App\Enums\DifficultyCategoryEnum;
+use App\Enums\LogType;
 use App\Enums\ObjectStatusEnum;
 use App\Enums\ObjectTypeEnum;
 use App\Enums\RegulationStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Enums\UserStatusEnum;
+use App\Exceptions\NotFoundException;
+use App\Helpers\ClaimStatuses;
 use App\Http\Requests\PinflRequest;
 use App\Models\ActStatus;
 use App\Models\ActViolation;
@@ -15,7 +18,11 @@ use App\Models\Article;
 use App\Models\ArticleUser;
 use App\Models\Block;
 use App\Models\CheckListAnswer;
+use App\Models\Claim;
+use App\Models\ClaimMonitoring;
+use App\Models\ClaimOrganizationReview;
 use App\Models\District;
+use App\Models\DxaResponse;
 use App\Models\Monitoring;
 use App\Models\Region;
 use App\Models\Regulation;
@@ -27,6 +34,9 @@ use App\Models\User;
 use App\Models\UserEmployee;
 use App\Models\UserRole;
 use App\Models\Violation;
+use App\Services\ArticleService;
+use App\Services\ClaimService;
+use App\Services\HistoryService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Auth;
@@ -48,6 +58,9 @@ class MigrateCommand extends Command
      * @var string
      */
     protected $description = 'Command description';
+
+    private ClaimService $claimService;
+    private ArticleService $articleService;
 
     /**
      * Execute the console command.
@@ -83,11 +96,283 @@ class MigrateCommand extends Command
                 $this->migrateObjectUsers(2686);
                 break;
             case 10:
-                $this->migrateBlocks(2686);
+                $this->migrateBlocks(1691);
+                break;
+            case 11:
+                $this->migrateClaims();
+                break;
+            case 12:
+                $this->dxaResponseMygov(165929773);
                 break;
             default:
                 echo 'Fuck you!';
                 break;
+        }
+    }
+
+    public function __construct(
+        ClaimService   $claimService,
+        ArticleService $articleService
+    )
+    {
+        parent::__construct();
+        $this->claimService = $claimService;
+        $this->articleService = $articleService;
+    }
+
+    /**
+     * @throws NotFoundException
+     */
+    public function dxaResponseMygov(int $task_id)
+    {
+        $response = DxaResponse::query()->where('task_id', $task_id)->first();
+
+        if ($response)
+            $this->articleService->acceptResponse($response);
+
+        echo 'Ok';
+    }
+
+    public function migrateClaims()
+    {
+        $responses = Response::query()->where('module', 505)->where('status', 0)->limit(20)->get();
+
+        foreach ($responses as $response) {
+            DB::beginTransaction();
+
+            try {
+                $taskFormGov = $this->claimService->getClaimFromApi($response->task_id);
+
+                if (!$taskFormGov) {
+                    $response->update(['status' => 2]);
+
+                    DB::commit();
+                    continue;
+                }
+
+                $claimModel = Claim::query()->with('monitoring')->where('guid', $response->task_id)->first();
+
+                if ($claimModel->monitoring != null) {
+                    $this->claimService->updateResponseStatus(
+                        guId: $response->task_id,
+                        status: ClaimStatuses::RESPONSE_WATCHED
+                    );
+
+                    DB::commit();
+                    continue;
+                }
+
+                $oldClaim = DB::connection('third_pgsql')->table('claims')
+                    ->where('mygov_id', $response->task_id)
+                    ->first();
+
+                if (!$oldClaim)
+                    continue;
+
+                $orgsActs = [
+                    'ses_conclusion_act' => 16,
+                    'mchs_conclusion_act' => 15,
+                    'nogiron_conclusion_act' => 17,
+                    'kvartira_conclusion_act' => 19
+                ];
+
+                $orgsStatus = [
+                    'ses_conclusion_act' => 'ses_match',
+                    'mchs_conclusion_act' => 'mchs_match',
+                    'nogiron_conclusion_act' => 'nogiron_match',
+                    'kvartira_conclusion_act' => 'kvartira_match'
+                ];
+
+                $article = Article::query()->where('old_id', $oldClaim->object_id)->first();
+
+                $status = $claimModel->status;
+
+                if (!in_array($status, [ClaimStatuses::TASK_STATUS_CONFIRMED, ClaimStatuses::TASK_STATUS_REJECTED, ClaimStatuses::TASK_STATUS_ORGANIZATION_REJECTED])) {
+                    if ($oldClaim->status == 'organization')
+                        $status = ClaimStatuses::TASK_STATUS_SENT_ORGANIZATION;
+                    if ($oldClaim->status == 'inspector')
+                        $status = ClaimStatuses::TASK_STATUS_INSPECTOR;
+                    if ($oldClaim->status == 'connecting')
+                        $status = ClaimStatuses::TASK_STATUS_ATTACH_OBJECT;
+                    if ($oldClaim->status == 'checked')
+                        $status = ClaimStatuses::TASK_STATUS_OPERATOR;
+                    if ($oldClaim->status == 'inspection')
+                        $status = ClaimStatuses::TASK_STATUS_DIRECTOR;
+                    if ($oldClaim->status == 'inspection')
+                        $status = ClaimStatuses::TASK_STATUS_DIRECTOR;
+                }
+
+                if ($status != ClaimStatuses::TASK_STATUS_ANOTHER) {
+                    $blocksJson = json_decode($oldClaim->blocks, true);
+                    $blocksArr = [];
+                    foreach ($blocksJson as $item) {
+                        $oldBlock = DB::connection('third_pgsql')->table('blocks')
+                            ->where('id', $item)
+                            ->first();
+                        $blockModel = Block::query()
+                            ->where('name', $oldBlock->name)
+                            ->where('block_number', $oldBlock->number)
+                            ->where('article_id', $article->id)
+                            ->first();
+
+                        if ($blockModel != null && $status == ClaimStatuses::TASK_STATUS_CONFIRMED)
+                            $blockModel->update(['accepted' => true]);
+
+                        if ($blockModel)
+                            $blocksArr[] = $blockModel->id;
+                    }
+
+                    $organizationArray = [];
+                    $orgJson = json_decode($oldClaim->object_info, true);
+                    $oldNogironAssosatsiya = DB::connection('third_pgsql')->table('organization_reviews_blocks')
+                        ->where('claim_id', $oldClaim->id)
+                        ->where('organization_name', "Nogironlar assotsiatsiyasi")
+                        ->whereNull('deleted_at')
+                        ->first();
+
+                    if (isset($orgJson['ses_conclusion_act']) && strlen($orgJson['ses_conclusion_act'] > 0))
+                        $organizationArray[] = $orgsActs['ses_conclusion_act'];
+                    if (isset($orgJson['mchs_conclusion_act']) && strlen($orgJson['mchs_conclusion_act'] > 0))
+                        $organizationArray[] = $orgsActs['mchs_conclusion_act'];
+                    if (isset($orgJson['nogiron_conclusion_act']) && strlen($orgJson['nogiron_conclusion_act'] > 0))
+                        $organizationArray[] = $orgsActs['nogiron_conclusion_act'];
+                    if (isset($orgJson['kvartira_conclusion_act']) && strlen($orgJson['kvartira_conclusion_act'] > 0))
+                        $organizationArray[] = $orgsActs['kvartira_conclusion_act'];
+                    if ($oldNogironAssosatsiya != null)
+                        $organizationArray[] = 18;
+
+                    $buildings = [];
+                    if (in_array($status, [ClaimStatuses::TASK_STATUS_OPERATOR, ClaimStatuses::TASK_STATUS_DIRECTOR, ClaimStatuses::TASK_STATUS_CONFIRMED])) {
+                        if ($oldClaim->html_table != null) {
+                            $html = $oldClaim->html_table;
+
+                            preg_match_all('/<tbody>(.*?)<\/tbody>/s', $html, $tbodyMatches);
+                            $tbodyContent = $tbodyMatches[1][0] ?? '';
+
+                            preg_match_all('/<tr>(.*?)<\/tr>/s', $tbodyContent, $rowMatches);
+
+                            $data = [];
+                            foreach ($rowMatches[1] as $row) {
+                                preg_match_all('/<td.*?>(.*?)<\/td>/s', $row, $cellMatches);
+                                $rowData = array_map('strip_tags', $cellMatches[1]); // HTML teglarini olib tashlash
+                                $data[] = $rowData;
+                            }
+
+                            if (count($data) > 0) {
+                                foreach ($data as $datum) {
+                                    $building = [
+                                        'name' => $datum[0],
+                                        'cadaster' => $datum[1],
+                                        'building_number' => $datum[2],
+                                        'total_area' => $datum[3],
+                                        'total_use_area' => $datum[4],
+                                        'living_area' => $datum[5],
+                                        'area' => $datum[6],
+                                    ];
+
+                                    $buildings[] = $building;
+                                }
+                            }
+                        }
+
+                        if ($oldClaim->inspector_comment != null)
+                            (new HistoryService('claim_histories'))->createHistory(
+                                guId: $response->task_id,
+                                status: ClaimStatuses::TASK_STATUS_OPERATOR,
+                                type: LogType::TASK_HISTORY,
+                                date: null,
+                                comment: $oldClaim->inspector_comment
+                            );
+                    }
+
+                    $monitoring = ClaimMonitoring::query()->create(
+                        [
+                            'blocks' => json_encode($blocksArr),
+                            'organizations' => json_encode($organizationArray),
+                            'claim_id' => $claimModel->id,
+                            'inspector_answer' => ($status == ClaimStatuses::TASK_STATUS_OPERATOR || $status == ClaimStatuses::TASK_STATUS_DIRECTOR) ? 20 : 0,
+                            'operator_answer' => count($buildings) > 0 ? base64_encode(gzcompress(json_encode($buildings), 9)) : null,
+                            'object_id' => $article->id
+                        ]
+                    );
+
+                    foreach ($organizationArray as $item) {
+                        if ($item == 18)
+                            continue;
+
+                        $orgNameTag = explode('_', array_search($item, $orgsActs));
+                        $requestData = [
+                            $orgNameTag[0] . "_match" => $orgJson[$orgNameTag[0] . "_match"],
+                            $orgNameTag[0] . "_territory" => $orgJson[$orgNameTag[0] . "_territory"],
+                            $orgNameTag[0] . "_name" => $orgJson[$orgNameTag[0] . "_name"],
+                            $orgNameTag[0] . "_conclusion_act" => str_replace('<br/>', '', $orgJson[$orgNameTag[0] . "_conclusion_act"]),
+                            $orgNameTag[0] . "_datetime" => \Illuminate\Support\Carbon::now()->format('Y-m-d H:i:s')
+                        ];
+
+                        ClaimOrganizationReview::query()->create(
+                            [
+                                'claim_id' => $claimModel->id,
+                                'monitoring_id' => $monitoring->id,
+                                'organization_id' => $item,
+                                'answered_at' => Carbon::now(),
+                                'status' => $orgJson[$orgsStatus[array_search($item, $orgsActs)]] == 1,
+                                'answer' => base64_encode(gzcompress(json_encode($requestData), 9)),
+                                'expiry_date' => $this->claimService->getExpirationDate(Carbon::now(), 3)
+                            ]
+                        );
+                    }
+
+                    if ($oldNogironAssosatsiya != null) {
+                        $oldUser = DB::connection('second_pgsql')->table('user')
+                            ->where('id', $oldNogironAssosatsiya->user_id)
+                            ->first();
+
+                        $statusOrg = null;
+                        if ($oldNogironAssosatsiya->status == 'accepted')
+                            $statusOrg = true;
+                        elseif ($oldNogironAssosatsiya->status == 'failed')
+                            $statusOrg = false;
+
+                        $requestData = [
+                            "nogiron_match" => $oldNogironAssosatsiya->status == 'accepted' ? 1 : 2,
+                            "nogiron_territory" => '',
+                            "nogiron_name" => $oldUser->name . ' ' . $oldUser->surname,
+                            "nogiron_conclusion_act" => str_replace('<br/>', '', $oldNogironAssosatsiya->comment),
+                            "nogiron_datetime" => \Illuminate\Support\Carbon::now()->format('Y-m-d H:i:s')
+                        ];
+
+                        ClaimOrganizationReview::query()->create(
+                            [
+                                'claim_id' => $claimModel->id,
+                                'monitoring_id' => $monitoring->id,
+                                'organization_id' => 18,
+                                'answered_at' => ($statusOrg != null) ? Carbon::now() : null,
+                                'status' => ($statusOrg != null) ? $statusOrg : null,
+                                'answer' => ($statusOrg != null) ? base64_encode(gzcompress(json_encode($requestData), 9)) : null,
+                                'expiry_date' => $this->claimService->getExpirationDate(Carbon::now(), 3)
+                            ]
+                        );
+                    }
+                }
+
+                $claimModel->update(
+                    [
+                        'status' => $status,
+                        'object_id' => $article->id
+                    ]
+                );
+
+                $response->update(['status' => 2]);
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollback();
+
+                $this->output->writeln($e->getMessage());
+                $this->output->writeln($e->getTraceAsString());
+
+                $response->update(['status' => 2]);
+            }
+
         }
     }
 
@@ -100,7 +385,7 @@ class MigrateCommand extends Command
                 ->where('id', $article->old_id)
                 ->first();
 
-            if(!$oldObject)
+            if (!$oldObject)
                 continue;
 
             $article->update(
