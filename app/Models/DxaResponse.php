@@ -29,6 +29,11 @@ class DxaResponse extends Model
         return $this->hasMany(DxaResponseSupervisor::class);
     }
 
+    public function inspector(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'inspector_id');
+    }
+
     public function images(): MorphMany
     {
         return $this->morphMany(Image::class, 'imageable');
@@ -108,23 +113,7 @@ class DxaResponse extends Model
             ->orWhere('id', 'like', '%' . $searchTerm . '%');
     }
 
-    public function scopeSearchByCustomer($query, $searchTerm)
-    {
-        $searchTerm = strtolower($searchTerm);
 
-        return $query->whereRaw('LOWER(full_name) LIKE ?', ['%' . $searchTerm . '%'])
-            ->orWhereRaw('LOWER(organization_name) LIKE ?', ['%' . $searchTerm . '%']);
-
-    }
-    public function scopeSearchByCustomerName($query, $searchTerm)
-    {
-        $searchTerm = strtolower($searchTerm);
-
-        return $query->whereRaw('LOWER(full_name) LIKE ?', ['%' . $searchTerm . '%'])
-            ->orWhereRaw('LOWER(organization_name) LIKE ?', ['%' . $searchTerm . '%'])
-            ->orWhereRaw('LOWER(object_name) LIKE ?', ['%' . $searchTerm . '%']);
-
-    }
 
     public function objectType(): BelongsTo
     {

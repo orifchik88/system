@@ -17,10 +17,9 @@ class DxaResponseListResource extends JsonResource
     {
 
         $this->loadMissing([
-            'status', 'region', 'district'
+            'status', 'region', 'district', 'inspector'
         ]);
 
-        $inspector = User::find($this->inspector_id);
 
         return [
             'id' =>$this->id,
@@ -40,9 +39,9 @@ class DxaResponseListResource extends JsonResource
             'created_at' => $this->created_at,
             'confirmed_at' => $this->confirmed_at,
             'inspector' => [
-                'id' => $inspector ? $inspector->id : null,
-                'name' =>  $inspector ? "{$inspector->surname} {$inspector->name} {$inspector->middle_name}" : null,
-                'phone' =>  $inspector ? $inspector->phone : null,
+                'id' => $this->inspector ? $this->inspector->id : null,
+                'name' =>  $this->inspector ? "{$this->inspector->surname} {$this->inspector->name} {$this->inspector->middle_name}" : null,
+                'phone' =>  $this->inspector ? $this->inspector->phone : null,
             ],
         ];
     }

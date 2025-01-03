@@ -35,4 +35,22 @@ trait DxaResponseTrait
 
         return $oldTaskIds;
     }
+
+    public function scopeSearchByCustomer($query, $searchTerm)
+    {
+        $searchTerm = strtolower($searchTerm);
+
+        return $query->whereRaw('LOWER(full_name) LIKE ?', ['%' . $searchTerm . '%'])
+            ->orWhereRaw('LOWER(organization_name) LIKE ?', ['%' . $searchTerm . '%']);
+
+    }
+    public function scopeSearchByCustomerName($query, $searchTerm)
+    {
+        $searchTerm = strtolower($searchTerm);
+
+        return $query->whereRaw('LOWER(full_name) LIKE ?', ['%' . $searchTerm . '%'])
+            ->orWhereRaw('LOWER(organization_name) LIKE ?', ['%' . $searchTerm . '%'])
+            ->orWhereRaw('LOWER(object_name) LIKE ?', ['%' . $searchTerm . '%']);
+
+    }
 }

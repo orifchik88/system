@@ -158,6 +158,7 @@ Route::group([
 
     Route::get('monitoring', [MonitoringController::class, 'monitoring']);
     Route::post('monitoring-create', [MonitoringController::class, 'create']);
+
     Route::get('regulations', [RegulationController::class, 'regulations']);
     Route::get('regulation/{id}', [RegulationController::class, 'getRegulation']);
     Route::post('accept-answer', [RegulationController::class, 'acceptAnswer']);
