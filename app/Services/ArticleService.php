@@ -27,7 +27,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\URL;
-use PHPUnit\Exception;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class ArticleService
@@ -559,6 +558,22 @@ class ArticleService
         }
 
         $article->users()->attach($response->inspector_id, ['role_id' => 3]);
+    }
+
+    public function createObjectManual($taskId)
+    {
+        try {
+            DB::beginTransaction();
+            $response = DxaResponse::query()->where('task_id', $taskId)->first();
+            if ($response) {
+                $article = $this->saveResponse($response);
+                $this->saveResponseUser($response, $article);
+                $this->saveEmployee($article);
+            }
+        }catch (\Exception $exception){
+            throw new $exception;
+        }
+
     }
 
     private function generateFish(?string $fish): ?array

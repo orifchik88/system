@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\DTO\ObjectDto;
+use App\Enums\DifficultyCategoryEnum;
 use App\Enums\LogType;
 use App\Enums\ObjectCheckEnum;
 use App\Enums\ObjectStatusEnum;
@@ -18,8 +19,10 @@ use App\Http\Resources\FundingSourceResource;
 use App\Http\Resources\UserResource;
 use App\Models\Article;
 use App\Models\ArticleHistory;
+use App\Models\DxaResponse;
 use App\Services\ArticleService;
 use App\Services\HistoryService;
+use Carbon\Carbon;
 use Hamcrest\Core\JavaForm;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -226,10 +229,12 @@ class ObjectController extends BaseController
         }
     }
 
-    public function manualCreate(ObjectManualRequest $request): JsonResponse
+    public function manualCreate(): JsonResponse
     {
         try {
+            $this->service->createObjectManual(request('task_id'));
 
+            return $this->sendSuccess([],'success');
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
