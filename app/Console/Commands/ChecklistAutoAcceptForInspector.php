@@ -5,10 +5,13 @@ namespace App\Console\Commands;
 use App\Enums\CheckListStatusEnum;
 use App\Enums\LogType;
 use App\Enums\UserRoleEnum;
+use App\Enums\WorkTypeStatusEnum;
 use App\Models\Article;
+use App\Models\Block;
 use App\Models\CheckListAnswer;
 use App\Repositories\HistoryRepository;
 use App\Repositories\Interfaces\HistoryRepositoryInterface;
+use App\Services\QuestionService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +22,7 @@ class ChecklistAutoAcceptForInspector extends Command
     private HistoryRepositoryInterface $repository;
 
 
-    public function __construct()
+    public function __construct(protected QuestionService $questionService)
     {
         parent::__construct();
         $this->repository = new HistoryRepository('check_list_histories');
@@ -43,6 +46,8 @@ class ChecklistAutoAcceptForInspector extends Command
                             'technic_author_answered_at' => null,
                             'inspector_answered_at' => null,
                         ]);
+
+                        $this->updateBlock($checklist);
                     }else{
                         $checklist->update([
                             'status' => CheckListStatusEnum::AUTO_CONFIRMED,
@@ -57,6 +62,23 @@ class ChecklistAutoAcceptForInspector extends Command
                 }
             });
 
+    }
+
+    private function updateBlock($checklist)
+    {
+        $workTypes = $this->questionService->getQuestionList($checklist->block_id);
+        $block = Block::query()->find($checklist->block_id);
+        $count = 0;
+        foreach ($workTypes as $workType) {
+            if ($workType['questions'][0]['work_type_status'] == WorkTypeStatusEnum::CONFIRMED) {
+                $count += 1;
+            }
+        }
+        if ($count == count($workTypes)) {
+            $block->update([
+                'status' => false
+            ]);
+        }
     }
 
     private function saveHistory($roleId, $checklist)
