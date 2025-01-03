@@ -12,7 +12,6 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -57,8 +56,7 @@ class LoginController extends BaseController
 
     public function auth(): JsonResponse
     {
-        $user = User::where('login', request('username'))->first();
-        if ($user && Hash::check(request('password'), $user->password)) {
+        if (Auth::attempt(['login' => request('username'), 'password' => request('password')])) {
             $user = Auth::user();
             if ($user->user_status_id != UserStatusEnum::ACTIVE) return $this->sendError('Kirish huquqi mavjud emas', code: 401);
             $roleId = request('role_id');
@@ -82,7 +80,8 @@ class LoginController extends BaseController
             $success['image'] = $user->image ?  Storage::disk('public')->url($user->image): null;
 
             return $this->sendSuccess($success, 'User logged in successfully.');
-        } else {
+        }
+        else{
             return $this->sendError('Unauthorised.', code: 401);
         }
     }
