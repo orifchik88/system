@@ -562,15 +562,17 @@ class ArticleService
 
     public function createObjectManual($taskId)
     {
+        DB::beginTransaction();
         try {
-            DB::beginTransaction();
             $response = DxaResponse::query()->where('task_id', $taskId)->first();
             if ($response) {
                 $article = $this->saveResponse($response);
                 $this->saveResponseUser($response, $article);
                 $this->saveEmployee($article);
+                DB::commit();
             }
         }catch (\Exception $exception){
+            DB::rollBack();
             throw new $exception;
         }
 
