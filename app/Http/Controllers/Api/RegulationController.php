@@ -9,6 +9,7 @@ use App\Enums\UserRoleEnum;
 use App\Exceptions\NotFoundException;
 use App\Http\Requests\RegulationAcceptRequest;
 use App\Http\Requests\RegulationDemandRequest;
+use App\Http\Requests\RegulationEventRequest;
 use App\Http\Requests\RegulationFineRequest;
 use App\Http\Resources\AuthorRegulationResource;
 use App\Http\Resources\RegulationResource;
@@ -18,6 +19,7 @@ use App\Models\AuthorRegulation;
 use App\Models\DxaResponse;
 use App\Models\Regulation;
 use App\Models\RegulationDemand;
+use App\Models\RegulationEvent;
 use App\Models\RegulationFine;
 use App\Models\Role;
 use App\Models\User;
@@ -215,6 +217,45 @@ class RegulationController extends BaseController
             return $this->sendSuccess([], 'Data saved successfully');
 
         } catch (\Exception $exception) {
+            DB::rollBack();
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function regulationChange(RegulationEventRequest $request): JsonResponse
+    {
+        DB::beginTransaction();
+        try {
+            $regulation = Regulation::query()->findOrFaiL($request->regulation_id);
+            $event = new RegulationEvent();
+            $event->regulation_id = $regulation->id;
+            $event->status = $request->status;
+            $event->comment = $request->comment;
+            $event->user_id = $this->user->id;
+            $event->role_id = $this->roleId;
+            $event->save();
+
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $image) {
+                    $path = $image->store('images/regulation-event', 'public');
+                    $event->images()->create(['url' => $path]);
+                }
+            }
+
+            if ($request->hasFile('files')) {
+                foreach ($request->file('files') as $document) {
+                    $path = $document->store('document/regulation-event', 'public');
+                    $event->documents()->create(['url' => $path]);
+                }
+            }
+
+            $regulation->update([
+               'regulation_status_id' => request('status'),
+            ]);
+
+            DB::commit();
+            return $this->sendSuccess([], 'Data saved successfully');
+        }catch (\Exception $exception) {
             DB::rollBack();
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
