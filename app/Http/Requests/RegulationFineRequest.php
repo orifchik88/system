@@ -26,7 +26,7 @@ class RegulationFineRequest extends FormRequest
             'user_type' => 'required',
             'organization_name' => 'sometimes|string',
             'inn' => 'sometimes|integer',
-            'decision_number' => 'required|integer',
+            'decision_number' => 'required|string',
             'full_name' => 'required|string',
             'pinfl' => 'required|string',
             'position' => 'required|string',
