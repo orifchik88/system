@@ -148,8 +148,10 @@ class MigrateCommand extends Command
                 ->where('regulation_number', $regulation->regulation_number)
                 ->first();
 
-            if(!$oldRegulation)
+            if(!$oldRegulation){
+                $regulation->update(['is_sync' => true]);
                 continue;
+            }
 
             if ($regulation->phase == null || $regulation->phase == '0')
                 continue;
