@@ -104,6 +104,9 @@ class MigrateCommand extends Command
             case 12:
                 $this->dxaResponseMygov(165929773);
                 break;
+            case 13:
+                $this->checkRegulations();
+                break;
             default:
                 echo 'Fuck you!';
                 break;
@@ -118,6 +121,50 @@ class MigrateCommand extends Command
         parent::__construct();
         $this->claimService = $claimService;
         $this->articleService = $articleService;
+    }
+
+    public function checkRegulations()
+    {
+        $regulationStatuses = [
+            0 => RegulationStatusEnum::PROVIDE_REMEDY,
+            1 => RegulationStatusEnum::PROVIDE_REMEDY,
+            2 => RegulationStatusEnum::CONFIRM_REMEDY,
+            3 => RegulationStatusEnum::ATTACH_DEED,
+            4 => RegulationStatusEnum::CONFIRM_DEED,
+            5 => RegulationStatusEnum::CONFIRM_DEED_CMR,
+            6 => RegulationStatusEnum::CONFIRM_DEED_CMR,
+            7 => RegulationStatusEnum::ELIMINATED,
+            8 => RegulationStatusEnum::IN_LAWYER
+        ];
+
+        $regulations = Regulation::query()
+            ->where('regulation_status_id', RegulationStatusEnum::IN_LAWYER)
+            ->where('is_sync', false)
+            ->limit(500)
+            ->get();
+
+        foreach ($regulations as $regulation) {
+            $oldRegulation = DB::connection('third_pgsql')->table('regulations')
+                ->where('regulation_number', $regulation->regulation_number)
+                ->first();
+
+            if(!$oldRegulation)
+                continue;
+
+            $regulationStatus = $regulationStatuses[$regulation->phase];
+            if ($regulation->is_administrative && in_array($regulation->phase, [1, 2, 3, 4, 8]))
+                $regulationStatus = RegulationStatusEnum::IN_LAWYER;
+
+            if ($regulation->is_administrative && $regulation->phase == 7)
+                $regulationStatus = RegulationStatusEnum::LATE_EXECUTION;
+
+            $regulation->update(['regulation_status_id' => $regulationStatus]);
+
+            if($oldRegulation->deadline >= Carbon::parse($regulation->deadline)->format('Y-m-d'))
+                $regulation->update(['deadline' => $oldRegulation->deadline]);
+
+            $regulation->update(['is_sync' => true]);
+        }
     }
 
     /**
