@@ -151,6 +151,9 @@ class MigrateCommand extends Command
             if(!$oldRegulation)
                 continue;
 
+            if ($regulation->phase == null || $regulation->phase == '0')
+                continue;
+
             $regulationStatus = $regulationStatuses[$regulation->phase];
             if ($regulation->is_administrative && in_array($regulation->phase, [1, 2, 3, 4, 8]))
                 $regulationStatus = RegulationStatusEnum::IN_LAWYER;
