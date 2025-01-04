@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('check_list_answers', function (Blueprint $table) {
-            $table->dropForeign(['monitoring_id']);
 
             $table->unsignedBigInteger('monitoring_id')->nullable()->change();
 
