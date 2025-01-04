@@ -153,14 +153,14 @@ class MigrateCommand extends Command
                 continue;
             }
 
-            if ($regulation->phase == null || $regulation->phase == '0')
+            if ($oldRegulation->phase == null || $oldRegulation->phase == '0')
                 continue;
 
-            $regulationStatus = $regulationStatuses[$regulation->phase];
-            if ($regulation->is_administrative && in_array($regulation->phase, [1, 2, 3, 4, 8]))
+            $regulationStatus = $regulationStatuses[$oldRegulation->phase];
+            if ($oldRegulation->is_administrative && in_array($oldRegulation->phase, [1, 2, 3, 4, 8]))
                 $regulationStatus = RegulationStatusEnum::IN_LAWYER;
 
-            if ($regulation->is_administrative && $regulation->phase == 7)
+            if ($oldRegulation->is_administrative && $oldRegulation->phase == 7)
                 $regulationStatus = RegulationStatusEnum::LATE_EXECUTION;
 
             $regulation->update(['regulation_status_id' => $regulationStatus]);
