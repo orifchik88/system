@@ -25,8 +25,8 @@ class RegulationEventRequest extends FormRequest
             'regulation_id' => 'required|exists:regulations,id',
             'comment' => 'required|string',
             'status' => 'required|exists:regulation_statuses,id',
-            'files.*' => 'sometimes|array',
-            'images.*' => 'sometimes|array',
+            'files' => 'sometimes|array',
+            'images' => 'sometimes|array',
         ];
     }
 }
