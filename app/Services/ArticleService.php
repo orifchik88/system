@@ -299,7 +299,7 @@ class ArticleService
 
             return $article;
 
-        } catch (Exception $exception) {
+        } catch (\Exception $exception) {
             DB::rollBack();
             throw new NotFoundException($exception->getLine(), $exception->getLine(), );
         }
@@ -566,17 +566,33 @@ class ArticleService
         DB::beginTransaction();
         try {
             $response = DxaResponse::query()->where('task_id', $taskId)->first();
-            if ($response) {
-                $article = $this->saveResponse($response);
-                $this->saveResponseUser($response, $article);
-                $this->saveEmployee($article);
+            if (!$response)  throw new NotFoundException('Ariza topilmadi');
+            $article = $this->saveResponse($response);
+            $this->saveResponseUser($response, $article);
+            $this->saveEmployee($article);
                 DB::commit();
-            }
         }catch (\Exception $exception){
             DB::rollBack();
             throw new $exception;
         }
+    }
 
+    public function updateObjectManual($taskId)
+    {
+        DB::beginTransaction();
+        try {
+            $response = DxaResponse::query()->where('task_id', $taskId)->first();
+            if ($response) throw new NotFoundException('Ariza topilmadi');
+
+            $article = $this->saveRepeat($response);
+            $this->saveRepeatUser($response, $article);
+            $this->saveEmployee($article);
+            DB::commit();
+
+        }catch (\Exception $exception){
+            DB::rollBack();
+            throw new $exception;
+        }
     }
 
     private function generateFish(?string $fish): ?array

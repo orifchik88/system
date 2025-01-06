@@ -240,6 +240,16 @@ class ObjectController extends BaseController
         }
     }
 
+    public function manualUpdate(): JsonResponse
+    {
+        try {
+            $this->service->updateObjectManual(request('task_id'));
+            return $this->sendSuccess([],'success');
+        } catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
     private function checkUsers($object): array
     {
         $users = $object->users;
