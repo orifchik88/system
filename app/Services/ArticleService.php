@@ -289,11 +289,10 @@ class ArticleService
                 $article = $this->saveResponse($response);
                 $this->saveResponseUser($response, $article);
                 $this->saveBlocks($response, $article);
-
+                $this->saveEmployee($article);
             }
 
             $this->acceptResponse($response);
-            $this->saveEmployee($article);
 
             DB::commit();
 
@@ -582,7 +581,7 @@ class ArticleService
         DB::beginTransaction();
         try {
             $response = DxaResponse::query()->where('task_id', $taskId)->first();
-            if ($response) throw new NotFoundException('Ariza topilmadi');
+            if (!$response) throw new NotFoundException('Ariza topilmadi');
 
             $article = $this->saveRepeat($response);
             $this->saveRepeatUser($response, $article);

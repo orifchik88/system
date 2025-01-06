@@ -501,7 +501,7 @@ class RegulationController extends BaseController
     {
         try {
 
-            $response = DxaResponse::query()->find(request('task_id'));
+            $response = DxaResponse::query()->where('task_id', request('task_id'))->first();
             $authUsername = config('app.mygov.login');
             $authPassword = config('app.mygov.password');
 
