@@ -14,4 +14,12 @@ class Sphere extends Model
     {
         return $this->hasMany(DxaResponse::class, 'sphere_id');
     }
+
+    public function scopeSearchByName($query, $searchTerm)
+    {
+        $searchTerm = strtolower($searchTerm);
+
+        return $query->whereRaw('LOWER(name_uz) LIKE ?', ['%' . $searchTerm . '%']);
+
+    }
 }

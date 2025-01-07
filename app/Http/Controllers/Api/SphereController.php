@@ -14,8 +14,8 @@ class SphereController extends BaseController
     {
         try {
             $spheres = Sphere::query()
-                ->when(\request('name'), function ($query, $name) {
-                     $query->where('name_uz', 'like', '%' . $name . '%');
+                ->when(\request('name'), function ($query) {
+                     $query->searchByName(request('name'));
                 })
                 ->paginate(request('per_page', 10));
             return $this->sendSuccess(SphereResource::collection($spheres), 'All Spheres', pagination($spheres));
