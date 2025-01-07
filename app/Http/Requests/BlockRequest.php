@@ -25,18 +25,20 @@ class BlockRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'dxa_response_id' => 'required|integer|exists:dxa_responses,id',
+            'dxa_response_id' => 'sometimes|integer|exists:dxa_responses,id',
+            'article_id' => 'required|integer|exists:articles,id',
             'name' => 'required|string',
             'floor' => 'sometimes|string',
             'construction_area' => 'sometimes|string',
             'count_apartments' => 'sometimes|string',
             'height' => 'sometimes|string',
             'length' => 'sometimes|string',
-            'block_mode_id' => 'required|integer|exists:block_modes,id',
-            'block_type_id' => 'required|integer|exists:block_types,id',
+            'block_mode_id' => 'sometimes|integer|exists:block_modes,id',
+            'block_type_id' => 'sometimes|integer|exists:block_types,id',
             'created_by' => 'required|integer|exists:users,id',
             'status' => 'required|boolean',
             'appearance_type' => 'sometimes|integer',
+            'selected_work_type' => 'required|boolean',
         ];
     }
 
