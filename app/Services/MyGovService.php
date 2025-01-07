@@ -37,6 +37,43 @@ class MyGovService
         ];
     }
 
+    public function getObjectTaskById(int $task_id)
+    {
+        $object = $this->articleRepository->findByTaskId($task_id);
+        if (!$object)
+            return null;
+
+        $customer_inn = "";
+        $customer_name = "";
+        $vendor_inn = "";
+        $vendor_name = "";
+
+        foreach ($object->users as $user) {
+            if($user->pivot->role_id == 8){
+                $customer_inn = $user->identification_number;
+                $customer_name = $user->organization_name;
+            }
+            if($user->pivot->role_id == 10){
+                $vendor_inn = $user->identification_number;
+                $vendor_name = $user->organization_name;
+            }
+        }
+
+        return [
+            'request_number' => $task_id,
+            'object_name' => $object->name,
+            'created_at' => $object->created_at,
+            'deadline' => $object->deadline,
+            'inn' => $customer_inn,
+            'fullname' => $customer_name,
+            'vendor_name' => $vendor_name,
+            'vendor_inn' => $vendor_inn,
+            'status' => $object->object_status_id,
+            'gnk_id' => $object->gnk_id,
+            'file_urls' => []
+        ];
+    }
+
     public function getObjectsByPinfl($pinfl)
     {
         $objects = $this->userRepository->findByPinfl($pinfl);

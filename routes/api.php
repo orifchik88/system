@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ApiController;
 use App\Http\Controllers\Api\BlockController;
 use App\Http\Controllers\Api\ChecklistAnswerController;
 use App\Http\Controllers\Api\ClaimController;
@@ -239,6 +240,13 @@ Route::middleware('auth.custom_basic')->prefix('mygov')->group(function () {
     Route::get('get-objects-by-customer', [MyGovController::class, 'getObjectsByCustomer']);
     Route::get('get-objects-by-cadasr', [MyGovController::class, 'getObjectsByCadastr']);
     Route::get('get-objects-list', [MyGovController::class, 'getObjectsList']);
+
+
+});
+
+Route::middleware('auth.custom_basic')->prefix('internal')->group(function () {
+    Route::get('object-by-task-id/{id}', [ApiController::class, 'showTask']);
+    Route::post('update-deadline', [ApiController::class, 'updateDeadline']);
 });
 
 
