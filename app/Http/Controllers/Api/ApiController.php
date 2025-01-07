@@ -49,6 +49,8 @@ class ApiController extends Controller
         DB::table('article_deadline_log')->insertGetId(
             [
                 'object_id' => $objectModel->id,
+                'old_deadline' => $objectModel->deadline,
+                'new_deadline' => $request['end_term_work'],
                 'files' => json_encode($request['files']),
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()

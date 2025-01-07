@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('article_deadline_log', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('object_id');
+            $table->string('old_deadline');
+            $table->string('new_deadline');
             $table->json('files');
             $table->timestamps();
         });
