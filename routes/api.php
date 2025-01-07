@@ -25,6 +25,8 @@ use App\Http\Controllers\Api\InformationController;
 use App\Http\Controllers\Api\SphereController;
 use App\Http\Controllers\Api\ProgramController;
 
+use App\Http\Controllers\Api\StatisticsController;
+
 
 Route::post('login', [LoginController::class, 'login']);
 Route::post('auth', [LoginController::class, 'auth']);
@@ -73,6 +75,8 @@ Route::group([
     Route::post('notification-read', [InformationController::class, 'notificationRead']);
     Route::get('statement', [InformationController::class, 'statement']);
     Route::get('qr-image/{id}', [InformationController::class, 'qrImage']);
+
+    Route::get('statistics', [StatisticsController::class, 'statistics']);
 
 
 
