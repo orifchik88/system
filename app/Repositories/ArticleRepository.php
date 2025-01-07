@@ -56,6 +56,14 @@ class ArticleRepository implements ArticleRepositoryInterface
         return Article::with('objectType')->where('task_id', $taskId)->first();
     }
 
+    public function findByTaskAndGnkId($taskId, $gnk): ?Article
+    {
+        return Article::with('objectType')
+            ->where('task_id', $taskId)
+            ->where('gnk_id', $gnk)
+            ->first();
+    }
+
     public function findById($id): ?Article
     {
         return Article::with('objectType')->where('id', $id)->first();
