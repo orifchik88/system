@@ -98,7 +98,7 @@ class MonitoringController extends BaseController
     {
         try {
             $checklist = CheckListAnswer::query()->findOrFail(request('checklist_id'));
-            $logs = CheckListHistoryResource::collection($checklist->logs()->orderBy('created_at'));
+            $logs = CheckListHistoryResource::collection($checklist->logs()->orderBy('created_at')->get());
 
             return $this->sendSuccess($logs, 'Checklist logs');
         }catch (\Exception $exception){
