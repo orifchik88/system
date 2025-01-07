@@ -35,7 +35,7 @@ class ApiController extends Controller
 
     public function updateDeadline(UpdateDeadline $request)
     {
-        $objectModel = $this->articleRepository->findByTaskAndGnkId(taskId:  $request['task_id'], gnk: $request['gnk_id']);
+        $objectModel = $this->articleRepository->findById($request['task_id']);
 
         if ($objectModel->object_status_id != ObjectStatusEnum::PROGRESS)
             return ['success' =>  false, 'message' => "Bu obyekt yakunlangan"];
@@ -57,7 +57,8 @@ class ApiController extends Controller
 
         $objectModel->update(
             [
-                'deadline' => $request['end_term_work']
+                'deadline' => $request['end_term_work'],
+                'gnk_tender' => $request['gnk_id']
             ]
         );
 
