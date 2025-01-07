@@ -289,9 +289,9 @@ class ArticleService
                 $article = $this->saveResponse($response);
                 $this->saveResponseUser($response, $article);
                 $this->saveBlocks($response, $article);
-                $this->saveEmployee($article);
             }
 
+            $this->saveEmployee($article);
             $this->acceptResponse($response);
 
             DB::commit();
