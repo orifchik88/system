@@ -58,8 +58,10 @@ class StatisticsController extends BaseController
             $startDate = $request->get('start_date');
             $endDate = $request->get('end_date');
 
+            // Regionlarni olish
             $regions = Region::all(['id', 'name_uz']);
 
+            // Foydalanuvchilarni hisoblash
             $userCounts = User::query()
                 ->whereHas('roles', function ($query) {
                     $query->where('role_id', 3);
@@ -68,32 +70,35 @@ class StatisticsController extends BaseController
                 ->groupBy('region_id')
                 ->pluck('count', 'region_id');
 
-            $articlesQuery = Article::query()->select('region_id', 'object_status_id', 'difficulty_category_id')
+            // Articles query (startDate va endDate orqali filtrni qo'llash)
+            $articlesQuery = Article::query()
+                ->select('region_id', 'object_status_id', 'difficulty_category_id')
                 ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
                     $query->whereBetween('created_at', [$startDate, $endDate]);
                 });
 
-            // Fetch article counts grouped by region and status
+            // Articles bo'yicha hisoblash
             $articleCounts = $articlesQuery->clone()
                 ->selectRaw('region_id, object_status_id, difficulty_category_id, COUNT(*) as count')
                 ->groupBy('region_id', 'object_status_id', 'difficulty_category_id')
                 ->get()
                 ->groupBy('region_id');
 
-            // Fetch monitoring counts grouped by region
+            // Monitoringlar bo'yicha hisoblash
             $monitoringCounts = $articlesQuery->clone()
                 ->whereHas('monitorings')
                 ->selectRaw('region_id, COUNT(*) as count')
                 ->groupBy('region_id')
                 ->pluck('count', 'region_id');
 
-            // Fetch regulation counts grouped by region and status
+            // Regulations bo'yicha hisoblash
             $regulationCounts = $articlesQuery->clone()
                 ->whereHas('regulations')
                 ->selectRaw('region_id, COUNT(*) as count')
                 ->groupBy('region_id')
                 ->pluck('count', 'region_id');
 
+            // Regulation eliminatsiya holati
             $eliminatedRegulations = $articlesQuery->clone()
                 ->whereHas('regulations', function ($query) {
                     $query->where('status_id', RegulationStatusEnum::ELIMINATED);
@@ -102,7 +107,7 @@ class StatisticsController extends BaseController
                 ->groupBy('region_id')
                 ->pluck('count', 'region_id');
 
-            // Prepare the response data
+            // Natijalarni tayyorlash
             $data = $regions->map(function ($region) use (
                 $userCounts,
                 $articleCounts,
@@ -131,6 +136,7 @@ class StatisticsController extends BaseController
             });
 
             return $this->sendSuccess($data->values(), 'Data retrieved successfully');
+
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getLine());
         }
