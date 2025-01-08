@@ -266,8 +266,6 @@ class ClaimRepository implements ClaimRepositoryInterface
                     'claims.id as id',
                     'claims.guid as gu_id',
                     'articles.task_id as object_task_id',
-                    'articles.lat as lat',
-                    'articles.long as long',
                     'responses.api as api_type',
                     'claims.district as district',
                     'claims.region as region',
