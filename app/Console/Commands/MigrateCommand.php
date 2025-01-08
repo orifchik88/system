@@ -87,7 +87,7 @@ class MigrateCommand extends Command
                 $this->syncObjects();
                 break;
             case 7:
-                $this->manualMigrateRegulations('0124-0144331/3');
+                $this->manualMigrateRegulations('3024-0157204/2');
                 break;
             case 8:
                 $this->deletePhaseRegulations();
@@ -107,6 +107,9 @@ class MigrateCommand extends Command
             case 13:
                 $this->checkRegulations();
                 break;
+            case 14:
+                $this->migrateActViolations();
+                break;
             default:
                 echo 'Fuck you!';
                 break;
@@ -121,6 +124,91 @@ class MigrateCommand extends Command
         parent::__construct();
         $this->claimService = $claimService;
         $this->articleService = $articleService;
+    }
+
+    private function migrateActViolations()
+    {
+        $regulations = Regulation::query()
+            ->whereRaw("TRIM(regulation_number) ~ '^[0-9]+(-[0-9]+)?/[0-9]+$'")
+            ->whereNotIn('regulation_status_id', [RegulationStatusEnum::ELIMINATED, RegulationStatusEnum::LATE_EXECUTION])
+            ->where('is_act_sync', false)
+            ->limit(100)
+            ->get();
+
+        foreach ($regulations as $regulation) {
+            $oldRegulation = DB::connection('third_pgsql')->table('regulations')
+                ->where('regulation_number', $regulation->regulation_number)
+                ->first();
+            $violations = DB::connection('third_pgsql')->table('violations')
+                ->where('regulation_id', $oldRegulation->id)
+                ->where('is_migrated', true)
+                ->get();
+
+            $actViolationTypes = [
+                '41a6378c-b3f1-453b-bb4f-9538c2309348' => 1,
+                '53485e56-899c-4615-bc6e-4ec76a9bfaca' => 2,
+                'b8f8f00d-4c3d-48d6-800c-9fffd2394777' => 3,
+            ];
+
+            $regulationViolationIds = RegulationViolation::query()->where('regulation_id', $regulation->id)->pluck('violation_id')->toArray();
+
+            foreach ($violations as $violation) {
+                $violationModel = Violation::query()
+                    ->where('title', $violation->title)
+                    ->where('description', $violation->description)
+                    ->whereIn('id', $regulationViolationIds)
+                    ->first();
+
+                if(!$violationModel)
+                    continue;
+
+                $actViolations = DB::connection('third_pgsql')->table('violation_act')
+                    ->where('violation_id', $violation->id)
+                    ->get();
+
+                foreach ($actViolations as $actViolation) {
+                    $exists = ActViolation::query()
+                        ->where('comment', $actViolation->comment)
+                        ->where('act_violation_type_id', $actViolationTypes[$actViolation->type_id])
+                        ->first();
+
+                    if($exists)
+                        continue;
+
+                    $actUser = User::query()->where('old_id', $actViolation->user_id)->first();
+                    if ($actUser == null)
+                        continue;
+
+                    $articleUserRole = ArticleUser::query()->where('article_id', $regulation->object_id)->where('user_id', $actUser->id)->first();
+                    if ($articleUserRole == null)
+                        continue;
+
+                    $actViolationStatus = ActViolation::PROGRESS;
+                    if (in_array($regulation->act_status_id, [2, 5, 8, 11, 13]))
+                        $actViolationStatus = ActViolation::ACCEPTED;
+                    if (in_array($regulation->act_status_id, [3, 6, 9, 12]))
+                        $actViolationStatus = ActViolation::REJECTED;
+
+                    ActViolation::create([
+                        'regulation_id' => $regulation->id,
+                        'regulation_violation_id' => $violationModel->id,
+                        'user_id' => $actUser->id,
+                        'act_status_id' => $regulation->act_status_id,
+                        'comment' => $actViolation->comment,
+                        'role_id' => $articleUserRole->role_id,
+                        'created_at' => $actViolation->created_at,
+                        'act_violation_type_id' => $actViolationTypes[$actViolation->type_id],
+                        'status' => $actViolationStatus,
+                    ]);
+                }
+            }
+
+            $regulation->update(
+                [
+                    'is_act_sync' => true
+                ]
+            );
+        }
     }
 
     public function checkRegulations()
@@ -148,7 +236,7 @@ class MigrateCommand extends Command
                 ->where('regulation_number', $regulation->regulation_number)
                 ->first();
 
-            if(!$oldRegulation){
+            if (!$oldRegulation) {
                 $regulation->update(['is_sync' => true]);
                 continue;
             }
@@ -165,7 +253,7 @@ class MigrateCommand extends Command
 
             $regulation->update(['regulation_status_id' => $regulationStatus]);
 
-            if($oldRegulation->deadline >= Carbon::parse($regulation->deadline)->format('Y-m-d'))
+            if ($oldRegulation->deadline >= Carbon::parse($regulation->deadline)->format('Y-m-d'))
                 $regulation->update(['deadline' => $oldRegulation->deadline]);
 
             $regulation->update(['is_sync' => true]);
