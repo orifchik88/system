@@ -14,6 +14,7 @@ use App\Http\Resources\CheckListHistoryResource;
 use App\Http\Resources\MonitoringResource;
 use App\Models\Article;
 use App\Models\Block;
+use App\Models\CheckList;
 use App\Models\CheckListAnswer;
 use App\Models\CheckListHistory;
 use App\Models\Monitoring;
@@ -31,7 +32,7 @@ class MonitoringController extends BaseController
     private HistoryService $historyService;
 
     public function __construct(
-        protected  QuestionService $questionService,
+        protected QuestionService   $questionService,
         protected MonitoringService $monitoringService)
     {
         $this->middleware('auth');
@@ -43,14 +44,14 @@ class MonitoringController extends BaseController
     {
         try {
             $query = $this->monitoringService->getMonitorings($this->user, $this->roleId);
-            $filters = request()->only(['object_name', 'start_date', 'end_date', 'task_id', 'region_id', 'district_id', 'funding_source', 'created_by',  'category']);
+            $filters = request()->only(['object_name', 'start_date', 'end_date', 'task_id', 'region_id', 'district_id', 'funding_source', 'created_by', 'category']);
 
             $monitorings = $this->monitoringService->searchMonitoring($query, $filters)
                 ->orderBy('created_at', request('sort_by_date', 'DESC'))
                 ->paginate(request('per_page', 10));
 
             return $this->sendSuccess(MonitoringResource::collection($monitorings), 'Monitorings', pagination($monitorings));
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage());
         }
 
@@ -101,7 +102,7 @@ class MonitoringController extends BaseController
             $logs = CheckListHistoryResource::collection($checklist->logs()->orderBy('created_at')->get());
 
             return $this->sendSuccess($logs, 'Checklist logs');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -113,7 +114,7 @@ class MonitoringController extends BaseController
 
             return $this->sendSuccess(CheckListHistoryFileResource::make($history), 'Files');
 
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -137,11 +138,10 @@ class MonitoringController extends BaseController
 
             $object = Article::query()->findOrFail($data['object_id']);
             foreach ($data['regular_checklist'] as $item) {
-                if (isset($item['status']))
-                {
+                if (isset($item['status'])) {
                     $status = CheckListStatusEnum::SECOND;
                     $inspectorAnswered = now()->addDays(5)->setTime(23, 59, 59);
-                }else{
+                } else {
                     $status = CheckListStatusEnum::FIRST;
                     $technicAnswered = now()->addDays(3)->setTime(23, 59, 59);
                 }
@@ -158,7 +158,7 @@ class MonitoringController extends BaseController
                     ]);
                     $answer->images()->delete();
                     $answer->documents()->delete();
-                } else {
+                }else {
                     $answer = new CheckListAnswer();
                     $answer->question_id = $item['question_id'];
                     $answer->comment = $item['comment'];
@@ -222,10 +222,26 @@ class MonitoringController extends BaseController
             $object = Article::query()->findOrFail($data['object_id']);
             $block = Block::query()->findOrFail($data['block_id']);
 
-           $block->update([
+            $block->update([
                 'selected_work_type' => true
             ]);
             foreach ($data['regular_checklist'] as $item) {
+
+                $answer = CheckListAnswer::query()
+                    ->where('work_type_id', $item['work_type_id'])
+                    ->where('question_id', $item['question_id'])
+                    ->where('floor', $item['floor'])
+                    ->where('block_id', $data['block_id'])
+                    ->first();
+
+                if ($answer) {
+                    $answer->update([
+                        'comment' => $item['comment'] ?? null,
+                        'status' => CheckListStatusEnum::CONFIRMED,
+                        'type' => isset($data['type']) ? 2 : 1,
+                        'inspector_answered' => 1
+                    ]);
+                } else {
                     $answer = new CheckListAnswer();
                     $answer->question_id = $item['question_id'];
                     $answer->comment = $item['comment'] ?? null;
@@ -238,12 +254,14 @@ class MonitoringController extends BaseController
                     $answer->type = isset($data['type']) ? 2 : 1;
                     $answer->inspector_answered = 1;
                     $answer->save();
+                }
 
-                     $this->historyService->createHistory(guId: $answer->id,
-                        status: $answer->status->value,
-                        type: isset($data['type']) ? LogType::CLAIM_HISTORY : LogType::TASK_HISTORY,
-                        date: null,
-                        comment: $item['comment'] ?? ""
+
+                $this->historyService->createHistory(guId: $answer->id,
+                    status: $answer->status->value,
+                    type: isset($data['type']) ? LogType::CLAIM_HISTORY : LogType::TASK_HISTORY,
+                    date: null,
+                    comment: $item['comment'] ?? ""
                 );
             }
 
@@ -284,7 +302,8 @@ class MonitoringController extends BaseController
         try {
             $message = MessageTemplate::checklistCreated($object->task_id);
             (new SmsService($user->phone, $message))->sendSms();
-        }catch (\Exception $exception) {}
+        } catch (\Exception $exception) {
+        }
 
     }
 

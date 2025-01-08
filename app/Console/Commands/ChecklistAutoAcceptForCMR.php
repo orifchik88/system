@@ -44,9 +44,6 @@ class ChecklistAutoAcceptForCMR extends Command
                             'technic_author_answered_at' => null,
                             'inspector_answered_at' => null,
                         ]);
-
-
-
                     $this->saveHistory(UserRoleEnum::INSPECTOR->value, $checklist);
                 }
             });
