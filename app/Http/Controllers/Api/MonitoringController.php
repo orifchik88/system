@@ -227,7 +227,7 @@ class MonitoringController extends BaseController
             ]);
             foreach ($data['regular_checklist'] as $item) {
 
-                $answer = CheckList::query()
+                $answer = CheckListAnswer::query()
                     ->where('work_type_id', $item['work_type_id'])
                     ->where('question_id', $item['question_id'])
                     ->where('floor', $item['floor'])
