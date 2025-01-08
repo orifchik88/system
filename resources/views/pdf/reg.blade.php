@@ -275,6 +275,15 @@
                 </p>
             </td>
         </tr>
+        @else
+            <tr>
+                <td style="border: 1px solid #bfbfbf; padding: 10px">
+                    <div style="font-weight: 500; margin-bottom: 4px">Ish turi:</div>
+                    <p style="margin: 0">
+                        {{ $violation?->title }}
+                    </p>
+                </td>
+            </tr>
         @endif
         <tr>
             <td style="border: 1px solid #bfbfbf; padding: 10px">
