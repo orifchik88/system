@@ -223,6 +223,9 @@ class StatisticsController extends BaseController
                 ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
                     $query->whereBetween('monitorings.created_at', [$startDate, $endDate]);
                 })
+                ->when(\request('program_id'), function ($query) {
+                    $query->where('articles.program_id', \request('program_id'));
+                })
                 ->groupBy('articles.'.$group)
                 ->pluck('count', $group);
 
