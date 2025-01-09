@@ -338,6 +338,9 @@ class StatisticsController extends BaseController
             ->when($lawyerStatus, function ($query) use($lawyerStatus){
                 $query->where('lawyer_status_id', $lawyerStatus);
             })
+            ->when(\request('program_id'), function ($query) {
+                $query->where('program_id', \request('program_id'));
+            })
             ->groupBy($groupBy)
             ->pluck('count', $groupBy);
     }
