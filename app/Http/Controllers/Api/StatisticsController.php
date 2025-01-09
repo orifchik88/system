@@ -198,34 +198,39 @@ class StatisticsController extends BaseController
             $startDate = $request->get('start_date');
             $endDate = $request->get('end_date');
 
-            if ($request->get('region_id'))
-            {
-                $regions = District::query()->where('region_id', $request->get('district_id'))->get(['id', 'name_uz']);
-                $group = 'district_id';
-            }else{
-                $regions = Region::all(['id', 'name_uz']);
-                $group = 'region_id';
-            }
+            $regionId = $request->get('region_id');
+
+            $regions = $regionId
+                ? District::query()->where('region_id', $regionId)->get(['id', 'name_uz'])
+                : Region::all(['id', 'name_uz']);
+
+            $group = $regionId ? 'district_id' : 'region_id';
+            
 
             $userCounts = User::query()
-                ->selectRaw('region_id, COUNT(*) as count')
+                ->selectRaw($group.', COUNT(*) as count')
                 ->leftJoin('user_roles', 'user_roles.user_id', '=', 'users.id')
                 ->where('user_roles.role_id', 3)
-                ->groupBy('region_id')
-                ->pluck('count', 'region_id');
+                ->groupBy($group)
+                ->pluck('count', $group);
 
-            $articleCounts = $this->getGroupedCounts(Article::query(), 'region_id, object_status_id, difficulty_category_id', ['region_id', 'object_status_id', 'difficulty_category_id'], $startDate, $endDate)->groupBy('region_id');
+            $articleCounts = $this->getGroupedCounts(Article::query(), $group.', object_status_id, difficulty_category_id', [$group, 'object_status_id', 'difficulty_category_id'], $startDate, $endDate)->groupBy($group);
+
 
             $monitoringCounts = Article::query()
-                ->selectRaw('region_id, COUNT(monitorings.id) as count')
+                ->selectRaw($group.', COUNT(monitorings.id) as count')
                 ->leftJoin('monitorings', 'articles.id', '=', 'monitorings.object_id')
                 ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
                     $query->whereBetween('monitorings.created_at', [$startDate, $endDate]);
                 })
-                ->groupBy('articles.region_id')
-                ->pluck('count', 'region_id');
+                ->groupBy('articles.'.$group)
+                ->pluck('count', $group);
+
+
 
             $regulationCounts = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, startDate: $startDate, endDate: $endDate);
+
+
             $eliminatedRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, status:[6],  startDate: $startDate, endDate: $endDate);
             $inProgressRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, status:[1,2,3,4,5],  startDate: $startDate, endDate: $endDate);
             $notExecutionRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, status:[7],  startDate: $startDate, endDate: $endDate);
@@ -313,23 +318,23 @@ class StatisticsController extends BaseController
             ->get();
     }
 
-   private function getRegulationCounts($relation, $groupBy, $roleId = null, $status = [], $startDate = null, $endDate = null, $lawyerStatus = null)
-   {
-       return  Article::query()
-           ->selectRaw('region_id, COUNT(' . $relation . '.id) as count')
-           ->leftJoin($relation, 'articles.id', '=', $relation.'.object_id')
-           ->when($startDate && $endDate, function ($query) use ($startDate, $endDate, $relation) {
-               $query->whereBetween($relation.'.created_at', [$startDate, $endDate]);
-           })
-           ->when($roleId, function ($query) use ($roleId) {
-               $query->where('role_id', $roleId);
-           })
-           ->when(!empty($status), function ($query) use ($status) {
-               $query->whereIn('status', $status);
-           })
-           ->groupBy($groupBy)
-           ->pluck('count', $groupBy);
-   }
+    private function getRegulationCounts($relation, $groupBy, $roleId = null, $status = [], $startDate = null, $endDate = null, $lawyerStatus = null)
+    {
+        return  Article::query()
+            ->selectRaw($groupBy.', COUNT(' . $relation . '.id) as count')
+            ->leftJoin($relation, 'articles.id', '=', $relation.'.object_id')
+            ->when($startDate && $endDate, function ($query) use ($startDate, $endDate, $relation) {
+                $query->whereBetween($relation.'.created_at', [$startDate, $endDate]);
+            })
+            ->when($roleId, function ($query) use ($roleId) {
+                $query->where('role_id', $roleId);
+            })
+            ->when(!empty($status), function ($query) use ($status) {
+                $query->whereIn('regulation_status_id', $status);
+            })
+            ->groupBy($groupBy)
+            ->pluck('count', $groupBy);
+    }
 
 
 
