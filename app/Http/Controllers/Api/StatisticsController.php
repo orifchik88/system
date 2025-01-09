@@ -205,7 +205,7 @@ class StatisticsController extends BaseController
                 : Region::all(['id', 'name_uz']);
 
             $group = $regionId ? 'district_id' : 'region_id';
-            
+
 
             $userCounts = User::query()
                 ->selectRaw($group.', COUNT(*) as count')
@@ -246,6 +246,7 @@ class StatisticsController extends BaseController
             $authorRegulationsEliminated = $this->getRegulationCounts(relation: 'regulations',  groupBy: $group, roleId: 7, status:[6],  startDate: $startDate, endDate: $endDate);
             $authorInProgressRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 7, status:[1,2,3,4,5],  startDate: $startDate, endDate: $endDate);
             $authorNotExecutionRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 7, status:[7],  startDate: $startDate, endDate: $endDate);
+            $administratively = $this->getRegulationCounts(relation: 'regulations', groupBy: $group,  startDate: $startDate, endDate: $endDate, lawyerStatus: 3);
 
 
             $data = $regions->map(function ($region) use (
@@ -264,7 +265,8 @@ class StatisticsController extends BaseController
                 $manageNotExecutionRegulations,
                 $authorRegulationsEliminated,
                 $authorInProgressRegulations,
-                $authorNotExecutionRegulations
+                $authorNotExecutionRegulations,
+                $administratively
             ) {
                 $regionId = $region->id;
                 $regionArticles = $articleCounts->get($regionId, collect());
@@ -295,6 +297,7 @@ class StatisticsController extends BaseController
                     'author_regulation_eliminated' => $authorRegulationsEliminated->get($regionId, 0),
                     'author_regulation_progress' => $authorInProgressRegulations->get($regionId, 0),
                     'author_regulation_not_execution' => $authorNotExecutionRegulations->get($regionId, 0),
+                    'administratively' => $administratively->get($regionId, 0),
 
                 ];
             });
@@ -331,6 +334,9 @@ class StatisticsController extends BaseController
             })
             ->when(!empty($status), function ($query) use ($status) {
                 $query->whereIn('regulation_status_id', $status);
+            })
+            ->when($lawyerStatus, function ($query) use($lawyerStatus){
+                $query->where('lawyer_status_id', $lawyerStatus);
             })
             ->groupBy($groupBy)
             ->pluck('count', $groupBy);
