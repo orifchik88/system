@@ -71,6 +71,7 @@ class RegulationController extends BaseController
         try {
             $query =  $this->regulationService->getRegulations($this->user, $this->roleId);
             $data = [
+                'all' => $query->clone()->count(),
                 'new' => $query->clone()->where('lawyer_status_id', LawyerStatusEnum::NEW)->count(),
                 'process' => $query->clone()->where('lawyer_status_id', LawyerStatusEnum::PROCESS)->count(),
                 'administrative' => $query->clone()->where('lawyer_status_id', LawyerStatusEnum::ADMINISTRATIVE)->count(),
