@@ -238,13 +238,18 @@ class StatisticsController extends BaseController
 
             $inProgressRegulations = Article::query()
                 ->selectRaw('region_id, COUNT(regulations.id) as count')
-                ->whereNotIn('regulations.regulation_status_id', [RegulationStatusEnum::ELIMINATED, RegulationStatusEnum::LATE_EXECUTION, RegulationStatusEnum::IN_LAWYER])
+                ->whereNotIn('regulations.regulation_status_id', [
+                        RegulationStatusEnum::ELIMINATED,
+                        RegulationStatusEnum::LATE_EXECUTION,
+                        RegulationStatusEnum::IN_LAWYER
+                    ])
                 ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
                     $query->whereBetween('regulations.created_at', [$startDate, $endDate]);
                 })
                 ->leftJoin('regulations', 'articles.id', '=', 'regulations.object_id')
                 ->groupBy('articles.region_id')
                 ->pluck('count', 'region_id');
+
 
             $notExecutionRegulations = Article::query()
                 ->selectRaw('region_id, COUNT(regulations.id) as count')
@@ -268,7 +273,7 @@ class StatisticsController extends BaseController
                 ->groupBy('articles.region_id')
                 ->pluck('count', 'region_id');
 
-            $customerInProgressRegulations = Regulation::query()
+            $customerInProgressRegulations = Article::query()
                 ->selectRaw('region_id, COUNT(regulations.id) as count')
                 ->whereNotIn('regulations.regulation_status_id', [RegulationStatusEnum::ELIMINATED, RegulationStatusEnum::LATE_EXECUTION, RegulationStatusEnum::IN_LAWYER])
                 ->where('role_id', 6)
@@ -282,7 +287,7 @@ class StatisticsController extends BaseController
             $costumerNotExecutionRegulations = Article::query()
                 ->selectRaw('region_id, COUNT(regulations.id) as count')
                 ->where('regulations.regulation_status_id', RegulationStatusEnum::IN_LAWYER)
-                ->where('role_id', 6)
+                ->where('regulations.role_id', 6)
                 ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
                     $query->whereBetween('regulations.created_at', [$startDate, $endDate]);
                 })
