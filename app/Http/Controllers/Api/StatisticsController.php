@@ -314,6 +314,10 @@ class StatisticsController extends BaseController
         if ($startDate && $endDate) {
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
+        if (\request('program_id'))
+        {
+            $query->where('program_id', \request('program_id'));
+        }
 
         return $query
             ->selectRaw("$selectRaw, COUNT(*) as count")
@@ -338,9 +342,7 @@ class StatisticsController extends BaseController
             ->when($lawyerStatus, function ($query) use($lawyerStatus){
                 $query->where('lawyer_status_id', $lawyerStatus);
             })
-            ->when(\request('program_id'), function ($query) {
-                $query->where('program_id', \request('program_id'));
-            })
+
             ->groupBy($groupBy)
             ->pluck('count', $groupBy);
     }
