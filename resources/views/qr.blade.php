@@ -154,7 +154,7 @@
         </div>
         <div class="bottom-border py-2">
             <span class="fs-14 text-light2 font-inter">Buyurtmachi:</span>
-            <p class="mb-0 fs-14 fw-medium">{{ $object->users()->where('role_id', \App\Enums\UserRoleEnum::BUYURTMACHI->value)->first()->full_name ?? $object->users()->where('role_id', \App\Enums\UserRoleEnum::BUYURTMACHI->value)->first()->organization_name }}</p>
+            <p class="mb-0 fs-14 fw-medium">{{ $object->users()->where('role_id', \App\Enums\UserRoleEnum::BUYURTMACHI->value)->first()->organization_name ?? $object->users()->where('role_id', \App\Enums\UserRoleEnum::BUYURTMACHI->value)->first()->full_name }}</p>
         </div>
         <div class="bottom-border py-2">
             <span class="fs-14 text-light2 font-inter">Loyihachi:</span>
