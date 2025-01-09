@@ -7,9 +7,7 @@ use App\Enums\RegulationStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ArticlePalataResource;
 use App\Models\Article;
-use App\Models\Monitoring;
 use App\Models\Region;
-use App\Models\Regulation;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -201,45 +199,26 @@ class StatisticsController extends BaseController
 
             $userCounts = $this->getCounts(User::query(), 'roles', 'role_id', 3, $startDate, $endDate);
 
-            $articleCounts = $this->getGroupedCounts(
-                Article::query(),
-                'region_id, object_status_id, difficulty_category_id',
-                ['region_id', 'object_status_id', 'difficulty_category_id'],
-                $startDate,
-                $endDate
-            )->groupBy('region_id');
+            $articleCounts = $this->getGroupedCounts(Article::query(), 'region_id, object_status_id, difficulty_category_id', ['region_id', 'object_status_id', 'difficulty_category_id'], $startDate, $endDate)->groupBy('region_id');
 
-            $monitoringCounts = $this->getCounts(Monitoring::query(), null, null, null, $startDate, $endDate);
+            $monitoringCounts = $this->getCounts(Article::query(), 'monitorings', null, null, $startDate, $endDate);
+            $regulationCounts = $this->getCounts(Article::query(), 'regulations', null, null, $startDate, $endDate);
 
-            $regulationCounts = $this->getCounts(
-                Regulation::query()->join('articles', 'regulations.object_id', '=', 'articles.id'),
-                null,
-                null,
-                null,
-                $startDate,
-                $endDate
-            );
+            $eliminatedRegulations = $this->getRegulationCounts(RegulationStatusEnum::ELIMINATED, null, $startDate, $endDate);
+            $inProgressRegulations = $this->getRegulationCounts([RegulationStatusEnum::ELIMINATED, RegulationStatusEnum::LATE_EXECUTION, RegulationStatusEnum::IN_LAWYER], 'not_in', $startDate, $endDate);
+            $notExecutionRegulations = $this->getRegulationCounts(RegulationStatusEnum::IN_LAWYER, null, $startDate, $endDate);
 
-            $eliminatedRegulations = $this->getRegulationCounts(
-                RegulationStatusEnum::ELIMINATED,
-                null,
-                $startDate,
-                $endDate
-            );
+            $costumerRegulationsEliminated = $this->getRegulationCounts(RegulationStatusEnum::ELIMINATED, null, $startDate, $endDate, 6);
+            $customerInProgressRegulations = $this->getRegulationCounts([RegulationStatusEnum::ELIMINATED, RegulationStatusEnum::LATE_EXECUTION, RegulationStatusEnum::IN_LAWYER], 'not_in', $startDate, $endDate, 6);
+            $costumerNotExecutionRegulations = $this->getRegulationCounts(RegulationStatusEnum::IN_LAWYER, null, $startDate, $endDate, 6);
 
-            $inProgressRegulations = $this->getRegulationCounts(
-                [RegulationStatusEnum::ELIMINATED, RegulationStatusEnum::LATE_EXECUTION, RegulationStatusEnum::IN_LAWYER],
-                'not_in',
-                $startDate,
-                $endDate
-            );
+            $manageRegulationsEliminated = $this->getRegulationCounts(RegulationStatusEnum::ELIMINATED, null, $startDate, $endDate, 5);
+            $manageInProgressRegulations = $this->getRegulationCounts([RegulationStatusEnum::ELIMINATED, RegulationStatusEnum::LATE_EXECUTION, RegulationStatusEnum::IN_LAWYER], 'not_in', $startDate, $endDate, 5);
+            $manageNotExecutionRegulations = $this->getRegulationCounts(RegulationStatusEnum::IN_LAWYER, null, $startDate, $endDate, 5);
 
-            $notExecutionRegulations = $this->getRegulationCounts(
-                RegulationStatusEnum::IN_LAWYER,
-                null,
-                $startDate,
-                $endDate
-            );
+            $authorRegulationsEliminated = $this->getRegulationCounts(RegulationStatusEnum::ELIMINATED, null, $startDate, $endDate, 7);
+            $authorInProgressRegulations = $this->getRegulationCounts([RegulationStatusEnum::ELIMINATED, RegulationStatusEnum::LATE_EXECUTION, RegulationStatusEnum::IN_LAWYER], 'not_in', $startDate, $endDate, 7);
+            $authorNotExecutionRegulations = $this->getRegulationCounts(RegulationStatusEnum::IN_LAWYER, null, $startDate, $endDate, 7);
 
             $data = $regions->map(function ($region) use (
                 $userCounts,
@@ -248,7 +227,16 @@ class StatisticsController extends BaseController
                 $regulationCounts,
                 $eliminatedRegulations,
                 $inProgressRegulations,
-                $notExecutionRegulations
+                $notExecutionRegulations,
+                $costumerRegulationsEliminated,
+                $customerInProgressRegulations,
+                $costumerNotExecutionRegulations,
+                $manageRegulationsEliminated,
+                $manageInProgressRegulations,
+                $manageNotExecutionRegulations,
+                $authorRegulationsEliminated,
+                $authorInProgressRegulations,
+                $authorNotExecutionRegulations
             ) {
                 $regionId = $region->id;
                 $regionArticles = $articleCounts->get($regionId, collect());
@@ -270,6 +258,16 @@ class StatisticsController extends BaseController
                     'regulation_eliminated' => $eliminatedRegulations->get($regionId, 0),
                     'regulation_progress' => $inProgressRegulations->get($regionId, 0),
                     'regulation_not_execution' => $notExecutionRegulations->get($regionId, 0),
+                    'costumer_regulation_eliminated' => $costumerRegulationsEliminated->get($regionId, 0),
+                    'customer_regulation_progress' => $customerInProgressRegulations->get($regionId, 0),
+                    'customer_regulation_not_execution' => $costumerNotExecutionRegulations->get($regionId, 0),
+                    'manage_regulation_eliminated' => $manageRegulationsEliminated->get($regionId, 0),
+                    'manage_regulation_progress' => $manageInProgressRegulations->get($regionId, 0),
+                    'manage_regulation_not_execution' => $manageNotExecutionRegulations->get($regionId, 0),
+                    'author_regulation_eliminated' => $authorRegulationsEliminated->get($regionId, 0),
+                    'author_regulation_progress' => $authorInProgressRegulations->get($regionId, 0),
+                    'author_regulation_not_execution' => $authorNotExecutionRegulations->get($regionId, 0),
+
                 ];
             });
 
@@ -279,18 +277,14 @@ class StatisticsController extends BaseController
         }
     }
 
-    private function getCounts($query, $relation = null, $joinTable = null, $foreignKey = null, $localKey = null, $groupByColumn = 'region_id', $startDate = null, $endDate = null)
+    private function getCounts($query, $relation = null, $column = null, $value = null, $startDate = null, $endDate = null)
     {
         if ($relation) {
-            $query->whereHas($relation, function ($q) use ($foreignKey, $localKey) {
-                if ($foreignKey && $localKey) {
-                    $q->where($foreignKey, $localKey);
+            $query->whereHas($relation, function ($q) use ($column, $value) {
+                if ($column && $value) {
+                    $q->where($column, $value);
                 }
             });
-        }
-
-        if ($joinTable && $foreignKey && $localKey) {
-            $query->join($joinTable, $foreignKey, '=', $localKey);
         }
 
         if ($startDate && $endDate) {
@@ -298,9 +292,9 @@ class StatisticsController extends BaseController
         }
 
         return $query
-            ->selectRaw("$groupByColumn, COUNT(*) as count")
-            ->groupBy($groupByColumn)
-            ->pluck('count', $groupByColumn);
+            ->selectRaw('region_id, COUNT(*) as count')
+            ->groupBy('region_id')
+            ->pluck('count', 'region_id');
     }
 
     private function getGroupedCounts($query, $selectRaw, $groupBy, $startDate = null, $endDate = null)
@@ -315,24 +309,27 @@ class StatisticsController extends BaseController
             ->get();
     }
 
-    private function getRegulationCounts($statuses, $type = null, $startDate = null, $endDate = null)
+    private function getRegulationCounts($statuses, $type = null, $startDate = null, $endDate = null, $roleId = null)
     {
-        $query = Regulation::query()->join('articles', 'regulations.object_id', '=', 'articles.id')
-            ->where(function ($q) use ($statuses, $type) {
-                if ($type === 'not_in') {
-                    $q->whereNotIn('regulation_status_id', (array)$statuses);
-                } else {
-                    $q->whereIn('regulation_status_id', (array)$statuses);
-                }
-            });
+        $query = Article::query()->whereHas('regulations', function ($q) use ($statuses, $type, $roleId) {
+            if ($type === 'not_in') {
+                $q->whereNotIn('regulation_status_id', (array)$statuses);
+            } else {
+                $q->where('regulation_status_id', $statuses);
+            }
+
+            if ($roleId) {
+                $q->where('role_id', $roleId);
+            }
+        });
 
         if ($startDate && $endDate) {
-            $query->whereBetween('regulations.created_at', [$startDate, $endDate]);
+            $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
         return $query
-            ->selectRaw('articles.region_id as region_id, COUNT(*) as count')
-            ->groupBy('articles.region_id')
+            ->selectRaw('region_id, COUNT(*) as count')
+            ->groupBy('region_id')
             ->pluck('count', 'region_id');
     }
 
