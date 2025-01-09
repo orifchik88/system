@@ -204,7 +204,7 @@ class StatisticsController extends BaseController
                 $group = 'district_id';
             }else{
                 $regions = Region::all(['id', 'name_uz']);
-                $group = 'district_id';
+                $group = 'region_id';
             }
 
             $userCounts = User::query()
