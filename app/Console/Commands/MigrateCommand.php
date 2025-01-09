@@ -169,6 +169,7 @@ class MigrateCommand extends Command
                 foreach ($actViolations as $actViolation) {
                     $exists = ActViolation::query()
                         ->where('comment', $actViolation->comment)
+                        ->where('regulation_id', $regulation->id)
                         ->where('act_violation_type_id', $actViolationTypes[$actViolation->type_id])
                         ->first();
 
