@@ -212,13 +212,13 @@ class StatisticsController extends BaseController
             $customerInProgressRegulations = $this->getRegulationCounts([RegulationStatusEnum::ELIMINATED, RegulationStatusEnum::LATE_EXECUTION, RegulationStatusEnum::IN_LAWYER], 'not_in', $startDate, $endDate, 6);
             $costumerNotExecutionRegulations = $this->getRegulationCounts(RegulationStatusEnum::IN_LAWYER, null, $startDate, $endDate, 6);
 
-            $costumerRegulationsEliminated = $this->getRegulationCounts(RegulationStatusEnum::ELIMINATED, null, $startDate, $endDate, 6);
-            $customerInProgressRegulations = $this->getRegulationCounts([RegulationStatusEnum::ELIMINATED, RegulationStatusEnum::LATE_EXECUTION, RegulationStatusEnum::IN_LAWYER], 'not_in', $startDate, $endDate, 6);
-            $costumerNotExecutionRegulations = $this->getRegulationCounts(RegulationStatusEnum::IN_LAWYER, null, $startDate, $endDate, 6);
+            $manageRegulationsEliminated = $this->getRegulationCounts(RegulationStatusEnum::ELIMINATED, null, $startDate, $endDate, 5);
+            $manageInProgressRegulations = $this->getRegulationCounts([RegulationStatusEnum::ELIMINATED, RegulationStatusEnum::LATE_EXECUTION, RegulationStatusEnum::IN_LAWYER], 'not_in', $startDate, $endDate, 5);
+            $manageNotExecutionRegulations = $this->getRegulationCounts(RegulationStatusEnum::IN_LAWYER, null, $startDate, $endDate, 5);
 
-            $costumerRegulationsEliminated = $this->getRegulationCounts(RegulationStatusEnum::ELIMINATED, null, $startDate, $endDate, 6);
-            $customerInProgressRegulations = $this->getRegulationCounts([RegulationStatusEnum::ELIMINATED, RegulationStatusEnum::LATE_EXECUTION, RegulationStatusEnum::IN_LAWYER], 'not_in', $startDate, $endDate, 6);
-            $costumerNotExecutionRegulations = $this->getRegulationCounts(RegulationStatusEnum::IN_LAWYER, null, $startDate, $endDate, 6);
+            $authorRegulationsEliminated = $this->getRegulationCounts(RegulationStatusEnum::ELIMINATED, null, $startDate, $endDate, 7);
+            $authorInProgressRegulations = $this->getRegulationCounts([RegulationStatusEnum::ELIMINATED, RegulationStatusEnum::LATE_EXECUTION, RegulationStatusEnum::IN_LAWYER], 'not_in', $startDate, $endDate, 7);
+            $authorNotExecutionRegulations = $this->getRegulationCounts(RegulationStatusEnum::IN_LAWYER, null, $startDate, $endDate, 7);
 
             $data = $regions->map(function ($region) use (
                 $userCounts,
@@ -230,7 +230,13 @@ class StatisticsController extends BaseController
                 $notExecutionRegulations,
                 $costumerRegulationsEliminated,
                 $customerInProgressRegulations,
-                $costumerNotExecutionRegulations
+                $costumerNotExecutionRegulations,
+                $manageRegulationsEliminated,
+                $manageInProgressRegulations,
+                $manageNotExecutionRegulations,
+                $authorRegulationsEliminated,
+                $authorInProgressRegulations,
+                $authorNotExecutionRegulations
             ) {
                 $regionId = $region->id;
                 $regionArticles = $articleCounts->get($regionId, collect());
@@ -255,6 +261,13 @@ class StatisticsController extends BaseController
                     'costumer_regulation_eliminated' => $costumerRegulationsEliminated->get($regionId, 0),
                     'customer_regulation_progress' => $customerInProgressRegulations->get($regionId, 0),
                     'customer_regulation_not_execution' => $costumerNotExecutionRegulations->get($regionId, 0),
+                    'manage_regulation_eliminated' => $manageRegulationsEliminated->get($regionId, 0),
+                    'manage_regulation_progress' => $manageInProgressRegulations->get($regionId, 0),
+                    'manage_regulation_not_execution' => $manageNotExecutionRegulations->get($regionId, 0),
+                    'author_regulation_eliminated' => $authorRegulationsEliminated->get($regionId, 0),
+                    'author_regulation_progress' => $authorInProgressRegulations->get($regionId, 0),
+                    'author_regulation_not_execution' => $authorNotExecutionRegulations->get($regionId, 0),
+
                 ];
             });
 
