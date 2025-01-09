@@ -197,7 +197,12 @@ class StatisticsController extends BaseController
 
             $regions = Region::all(['id', 'name_uz']);
 
-            $userCounts = $this->getCounts(User::query(), 'roles', 'role_id', 3, $startDate, $endDate);
+            $userCounts = User::query()
+                ->selectRaw('region_id, COUNT(*) as count')
+                ->leftJoin('user_roles', 'user_roles.user_id', '=', 'users.id')
+                ->where('role_id', 3)
+                ->groupBy('region_id');
+
 
             $articleCounts = $this->getGroupedCounts(Article::query(), 'region_id, object_status_id, difficulty_category_id', ['region_id', 'object_status_id', 'difficulty_category_id'], $startDate, $endDate)->groupBy('region_id');
 
