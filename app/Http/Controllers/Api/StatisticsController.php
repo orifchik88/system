@@ -198,14 +198,14 @@ class StatisticsController extends BaseController
             $startDate = $request->get('start_date');
             $endDate = $request->get('end_date');
 
-            if ($request->get('district_id'))
+            if ($request->get('region_id'))
             {
-                $regions = District::query()->where('region_id', $request->get('district_id'))->get();
+                $regions = District::query()->where('region_id', $request->get('district_id'))->get(['id', 'name_uz']);
+                $group = 'district_id';
             }else{
-                $regions = Region::all();
+                $regions = Region::all(['id', 'name_uz']);
+                $group = 'district_id';
             }
-
-            $regions = Region::all(['id', 'name_uz']);
 
             $userCounts = User::query()
                 ->selectRaw('region_id, COUNT(*) as count')
@@ -225,151 +225,22 @@ class StatisticsController extends BaseController
                 ->groupBy('articles.region_id')
                 ->pluck('count', 'region_id');
 
-            $regulationCounts = $this->getRegulationCounts(relation: 'regulations', groupBy: 'region_id', startDate: $startDate, endDate: $endDate);
+            $regulationCounts = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, startDate: $startDate, endDate: $endDate);
+            $eliminatedRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, status:[6],  startDate: $startDate, endDate: $endDate);
+            $inProgressRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, status:[1,2,3,4,5],  startDate: $startDate, endDate: $endDate);
+            $notExecutionRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, status:[7],  startDate: $startDate, endDate: $endDate);
 
-//            $regulationCounts = Article::query()
-//                ->selectRaw('region_id, COUNT(regulations.id) as count')
-//                ->leftJoin('regulations', 'articles.id', '=', 'regulations.object_id')
-//                ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-//                    $query->whereBetween('regulations.created_at', [$startDate, $endDate]);
-//                })
-//                ->groupBy('articles.region_id')
-//                ->pluck('count', 'region_id');
+            $costumerRegulationsEliminated = $this->getRegulationCounts(relation: 'regulations',  groupBy: $group, roleId: 6, status:[6],  startDate: $startDate, endDate: $endDate);
+            $customerInProgressRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 6, status:[1,2,3,4,5],  startDate: $startDate, endDate: $endDate);
+            $costumerNotExecutionRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 6, status:[7],  startDate: $startDate, endDate: $endDate);
 
-            $eliminatedRegulations = Article::query()
-                ->selectRaw('region_id, COUNT(regulations.id) as count')
-                ->where('regulations.regulation_status_id', RegulationStatusEnum::ELIMINATED)
-                ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                    $query->whereBetween('regulations.created_at', [$startDate, $endDate]);
-                })
-                ->leftJoin('regulations', 'articles.id', '=', 'regulations.object_id')
-                ->groupBy('articles.region_id')
-                ->pluck('count', 'region_id');
+            $manageRegulationsEliminated = $this->getRegulationCounts(relation: 'regulations',  groupBy: $group, roleId: 5, status:[6],  startDate: $startDate, endDate: $endDate);
+            $manageInProgressRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 5, status:[1,2,3,4,5],  startDate: $startDate, endDate: $endDate);
+            $manageNotExecutionRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 5, status:[7],  startDate: $startDate, endDate: $endDate);
 
-            $inProgressRegulations = Article::query()
-                ->selectRaw('region_id, COUNT(regulations.id) as count')
-                ->whereNotIn('regulations.regulation_status_id', [
-                        RegulationStatusEnum::ELIMINATED,
-                        RegulationStatusEnum::LATE_EXECUTION,
-                        RegulationStatusEnum::IN_LAWYER
-                    ])
-                ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                    $query->whereBetween('regulations.created_at', [$startDate, $endDate]);
-                })
-                ->leftJoin('regulations', 'articles.id', '=', 'regulations.object_id')
-                ->groupBy('articles.region_id')
-                ->pluck('count', 'region_id');
-
-
-            $notExecutionRegulations = Article::query()
-                ->selectRaw('region_id, COUNT(regulations.id) as count')
-                ->where('regulations.regulation_status_id', RegulationStatusEnum::IN_LAWYER)
-                ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                    $query->whereBetween('regulations.created_at', [$startDate, $endDate]);
-                })
-                ->leftJoin('regulations', 'articles.id', '=', 'regulations.object_id')
-                ->groupBy('articles.region_id')
-                ->pluck('count', 'region_id');
-
-
-            $costumerRegulationsEliminated = Article::query()
-                ->selectRaw('region_id, COUNT(regulations.id) as count')
-                ->where('regulations.regulation_status_id', RegulationStatusEnum::ELIMINATED)
-                ->where('role_id', 6)
-                ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                    $query->whereBetween('regulations.created_at', [$startDate, $endDate]);
-                })
-                ->leftJoin('regulations', 'articles.id', '=', 'regulations.object_id')
-                ->groupBy('articles.region_id')
-                ->pluck('count', 'region_id');
-
-            $customerInProgressRegulations = Article::query()
-                ->selectRaw('region_id, COUNT(regulations.id) as count')
-                ->whereNotIn('regulations.regulation_status_id', [RegulationStatusEnum::ELIMINATED, RegulationStatusEnum::LATE_EXECUTION, RegulationStatusEnum::IN_LAWYER])
-                ->where('role_id', 6)
-                ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                    $query->whereBetween('regulations.created_at', [$startDate, $endDate]);
-                })
-                ->leftJoin('regulations', 'articles.id', '=', 'regulations.object_id')
-                ->groupBy('articles.region_id')
-                ->pluck('count', 'region_id');
-
-            $costumerNotExecutionRegulations = Article::query()
-                ->selectRaw('region_id, COUNT(regulations.id) as count')
-                ->where('regulations.regulation_status_id', RegulationStatusEnum::IN_LAWYER)
-                ->where('regulations.role_id', 6)
-                ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                    $query->whereBetween('regulations.created_at', [$startDate, $endDate]);
-                })
-                ->leftJoin('regulations', 'articles.id', '=', 'regulations.object_id')
-                ->groupBy('articles.region_id')
-                ->pluck('count', 'region_id');
-
-            $manageRegulationsEliminated = Article::query()
-                ->selectRaw('region_id, COUNT(regulations.id) as count')
-                ->where('regulations.regulation_status_id', RegulationStatusEnum::ELIMINATED)
-                ->where('role_id', 5)
-                ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                    $query->whereBetween('regulations.created_at', [$startDate, $endDate]);
-                })
-                ->leftJoin('regulations', 'articles.id', '=', 'regulations.object_id')
-                ->groupBy('articles.region_id')
-                ->pluck('count', 'region_id');
-
-            $manageInProgressRegulations = Article::query()
-                ->selectRaw('region_id, COUNT(regulations.id) as count')
-                ->whereNotIn('regulations.regulation_status_id', [RegulationStatusEnum::ELIMINATED, RegulationStatusEnum::LATE_EXECUTION, RegulationStatusEnum::IN_LAWYER])
-                ->where('role_id', 5)
-                ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                    $query->whereBetween('regulations.created_at', [$startDate, $endDate]);
-                })
-                ->leftJoin('regulations', 'articles.id', '=', 'regulations.object_id')
-                ->groupBy('articles.region_id')
-                ->pluck('count', 'region_id');
-
-            $manageNotExecutionRegulations = Article::query()
-                ->selectRaw('region_id, COUNT(regulations.id) as count')
-                ->where('regulations.regulation_status_id', RegulationStatusEnum::IN_LAWYER)
-                ->where('role_id', 5)
-                ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                    $query->whereBetween('regulations.created_at', [$startDate, $endDate]);
-                })
-                ->leftJoin('regulations', 'articles.id', '=', 'regulations.object_id')
-                ->groupBy('articles.region_id')
-                ->pluck('count', 'region_id');
-
-            $authorRegulationsEliminated = Article::query()
-                ->selectRaw('region_id, COUNT(regulations.id) as count')
-                ->where('regulations.regulation_status_id', RegulationStatusEnum::ELIMINATED)
-                ->where('role_id', 7)
-                ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                    $query->whereBetween('regulations.created_at', [$startDate, $endDate]);
-                })
-                ->leftJoin('regulations', 'articles.id', '=', 'regulations.object_id')
-                ->groupBy('articles.region_id')
-                ->pluck('count', 'region_id');
-
-            $authorInProgressRegulations = Article::query()
-                ->selectRaw('region_id, COUNT(regulations.id) as count')
-                ->whereNotIn('regulations.regulation_status_id', [RegulationStatusEnum::ELIMINATED, RegulationStatusEnum::LATE_EXECUTION, RegulationStatusEnum::IN_LAWYER])
-                ->where('role_id', 7)
-                ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                    $query->whereBetween('regulations.created_at', [$startDate, $endDate]);
-                })
-                ->leftJoin('regulations', 'articles.id', '=', 'regulations.object_id')
-                ->groupBy('articles.region_id')
-                ->pluck('count', 'region_id');
-
-            $authorNotExecutionRegulations = Article::query()
-                ->selectRaw('region_id, COUNT(regulations.id) as count')
-                ->where('regulations.regulation_status_id', RegulationStatusEnum::IN_LAWYER)
-                ->where('role_id', 7)
-                ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                    $query->whereBetween('regulations.created_at', [$startDate, $endDate]);
-                })
-                ->leftJoin('regulations', 'articles.id', '=', 'regulations.object_id')
-                ->groupBy('articles.region_id')
-                ->pluck('count', 'region_id');
+            $authorRegulationsEliminated = $this->getRegulationCounts(relation: 'regulations',  groupBy: $group, roleId: 7, status:[6],  startDate: $startDate, endDate: $endDate);
+            $authorInProgressRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 7, status:[1,2,3,4,5],  startDate: $startDate, endDate: $endDate);
+            $authorNotExecutionRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 7, status:[7],  startDate: $startDate, endDate: $endDate);
 
 
             $data = $regions->map(function ($region) use (
@@ -442,7 +313,7 @@ class StatisticsController extends BaseController
             ->get();
     }
 
-   private function getRegulationCounts($relation, $groupBy, $roleId = null, $startDate = null, $endDate = null)
+   private function getRegulationCounts($relation, $groupBy, $roleId = null, $status = [], $startDate = null, $endDate = null, $lawyerStatus = null)
    {
        return  Article::query()
            ->selectRaw('region_id, COUNT(' . $relation . '.id) as count')
@@ -452,6 +323,9 @@ class StatisticsController extends BaseController
            })
            ->when($roleId, function ($query) use ($roleId) {
                $query->where('role_id', $roleId);
+           })
+           ->when(!empty($status), function ($query) use ($status) {
+               $query->whereIn('status', $status);
            })
            ->groupBy($groupBy)
            ->pluck('count', $groupBy);
