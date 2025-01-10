@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Enums\DifficultyCategoryEnum;
+use App\Enums\LawyerStatusEnum;
 use App\Enums\LogType;
 use App\Enums\ObjectStatusEnum;
 use App\Enums\ObjectTypeEnum;
@@ -87,7 +88,7 @@ class MigrateCommand extends Command
                 $this->syncObjects();
                 break;
             case 7:
-                $this->manualMigrateRegulations('3024-0157204/2');
+                $this->manualMigrateRegulations('0124-0166733/1');
                 break;
             case 8:
                 $this->deletePhaseRegulations();
@@ -110,6 +111,9 @@ class MigrateCommand extends Command
             case 14:
                 $this->migrateActViolations();
                 break;
+            case 15:
+                $this->syncLawyerStatus();
+                break;
             default:
                 echo 'Fuck you!';
                 break;
@@ -124,6 +128,25 @@ class MigrateCommand extends Command
         parent::__construct();
         $this->claimService = $claimService;
         $this->articleService = $articleService;
+    }
+
+    private function syncLawyerStatus()
+    {
+        $regulations = DB::connection('third_pgsql')->table('regulations')
+            ->where('is_administration_closed', true)
+            ->get();
+
+        foreach ($regulations as $regulation) {
+            $regModel = Regulation::query()->where('regulation_number', $regulation->regulation_number)->first();
+            if(!$regModel)
+                continue;
+
+            $regModel->update(
+                [
+                    'lawyer_status_id' => LawyerStatusEnum::ADMINISTRATIVE
+                ]
+            );
+        }
     }
 
     private function migrateActViolations()
@@ -159,7 +182,7 @@ class MigrateCommand extends Command
                     ->whereIn('id', $regulationViolationIds)
                     ->first();
 
-                if(!$violationModel)
+                if (!$violationModel)
                     continue;
 
                 $actViolations = DB::connection('third_pgsql')->table('violation_act')
@@ -173,7 +196,7 @@ class MigrateCommand extends Command
                         ->where('act_violation_type_id', $actViolationTypes[$actViolation->type_id])
                         ->first();
 
-                    if($exists)
+                    if ($exists)
                         continue;
 
                     $actUser = User::query()->where('old_id', $actViolation->user_id)->first();
@@ -468,11 +491,9 @@ class MigrateCommand extends Command
                             ->where('id', $oldNogironAssosatsiya->user_id)
                             ->first();
 
-                        $statusOrg = null;
+                        $statusOrg = false;
                         if ($oldNogironAssosatsiya->status == 'accepted')
                             $statusOrg = true;
-                        elseif ($oldNogironAssosatsiya->status == 'failed')
-                            $statusOrg = false;
 
                         $requestData = [
                             "nogiron_match" => $oldNogironAssosatsiya->status == 'accepted' ? 1 : 2,
@@ -487,9 +508,9 @@ class MigrateCommand extends Command
                                 'claim_id' => $claimModel->id,
                                 'monitoring_id' => $monitoring->id,
                                 'organization_id' => 18,
-                                'answered_at' => ($statusOrg != null) ? Carbon::now() : null,
-                                'status' => ($statusOrg != null) ? $statusOrg : null,
-                                'answer' => ($statusOrg != null) ? base64_encode(gzcompress(json_encode($requestData), 9)) : null,
+                                'answered_at' => ($oldNogironAssosatsiya->status != 'new') ? Carbon::now() : null,
+                                'status' => $statusOrg,
+                                'answer' => ($oldNogironAssosatsiya->status != 'new') ? base64_encode(gzcompress(json_encode($requestData), 9)) : null,
                                 'expiry_date' => $this->claimService->getExpirationDate(Carbon::now(), 3)
                             ]
                         );
