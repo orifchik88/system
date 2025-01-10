@@ -146,6 +146,7 @@ Route::group([
     Route::get('accountant-objects', [ObjectController::class, 'accountObjects']);
     Route::post('rotation', [ObjectController::class, 'rotation']);
     Route::post('object-create-user', [ObjectController::class, 'objectCreateUser']);
+    Route::post('inspector-attachment-object', [ObjectController::class, 'inspectorAttachmentObject']);
 
 
     Route::get('blocks/{id}', [BlockController::class, 'index']);

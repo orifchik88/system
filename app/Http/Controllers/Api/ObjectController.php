@@ -19,6 +19,7 @@ use App\Http\Resources\FundingSourceResource;
 use App\Http\Resources\UserResource;
 use App\Models\Article;
 use App\Models\ArticleHistory;
+use App\Models\ArticleUser;
 use App\Models\DxaResponse;
 use App\Services\ArticleService;
 use App\Services\HistoryService;
@@ -334,6 +335,25 @@ class ObjectController extends BaseController
             ]);
 
             return $this->sendSuccess(null, 'Object location updated');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function inspectorAttachmentObject(): JsonResponse
+    {
+        try {
+            $object = Article::query()->where('task_id', request('task_id'))->first();
+            if(!$object) throw new NotFoundHttpException('Object not found');
+
+            $articleUser = new ArticleUser();
+            $articleUser->article_id = $object->id;
+            $articleUser->user_id = request('user_id');
+            $articleUser->role_id = UserRoleEnum::INSPECTOR->value;
+            $articleUser->save();
+
+            return $this->sendSuccess([], 'data saved');
+
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
