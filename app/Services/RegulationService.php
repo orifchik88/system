@@ -506,8 +506,18 @@ class RegulationService
                     $newDeadline = $regulation->deadline;
                 }
 
+                $regStatus = RegulationStatusEnum::ELIMINATED;
+
+                if ($newDeadline < Carbon::now() ){
+                    $regStatus = RegulationStatusEnum::LATE_EXECUTION;
+                }
+
+                if ($newDeadline){
+                    $regStatus = RegulationStatusEnum::LATE_EXECUTION;
+                }
+
                 $regulation->update([
-                    'regulation_status_id' => RegulationStatusEnum::ELIMINATED,
+                    'regulation_status_id' => $regStatus,
                     'deadline' => $newDeadline,
                     'paused_at' => null,
                 ]);
@@ -569,8 +579,18 @@ class RegulationService
                 $newDeadline = $regulation->deadline;
             }
 
+            $regStatus = RegulationStatusEnum::ELIMINATED;
+
+            if ($newDeadline < Carbon::now() ){
+                $regStatus = RegulationStatusEnum::LATE_EXECUTION;
+            }
+
+            if ($newDeadline){
+                $regStatus = RegulationStatusEnum::LATE_EXECUTION;
+            }
+
             $regulation->update([
-                'regulation_status_id' => RegulationStatusEnum::ELIMINATED,
+                'regulation_status_id' => $re,
                 'deadline' => $newDeadline,
                 'paused_at' => null,
             ]);
