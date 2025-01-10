@@ -300,7 +300,7 @@ class ArticleService
 
         } catch (\Exception $exception) {
             DB::rollBack();
-            throw new NotFoundException($exception->getLine(), $exception->getLine(), );
+            throw new NotFoundException($exception->getMessage(), $exception->getLine(), );
         }
 
     }
@@ -386,7 +386,7 @@ class ArticleService
         $article->deadline = $response->end_term_work;
         $article->gnk_id = $response->gnk_id;
         $article->reestr_number = (int)$response->reestr_number;
-        
+
         $article->save();
 
         return $article;
@@ -681,7 +681,7 @@ class ArticleService
                             "requisites" => $response->rekvizit->name ?? '',
                             "loacation_rep" => $response->region->name_uz . ' ' . $response->district->name_uz . ' ' . $response->location_building,
                             "name_rep" => $response->organization_name,
-                            "amount" => $response->price_supervision_service,
+                            "amount" => $response->price_supervision_service ?? '',
                             "qr_image" => $qrImageTag,
                             "qr_comment" => "Ushbu QR kod obyekt pasporti hisoblanadi. QR kodni obyektning ko‘rinarli joyiga o‘rnatib qo‘yishingiz talab etiladi"
                         ]
