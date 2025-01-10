@@ -21,6 +21,7 @@ use App\Models\Article;
 use App\Models\ArticleHistory;
 use App\Models\ArticleUser;
 use App\Models\DxaResponse;
+use App\Models\User;
 use App\Services\ArticleService;
 use App\Services\HistoryService;
 use Carbon\Carbon;
@@ -344,6 +345,8 @@ class ObjectController extends BaseController
     {
         try {
             $object = Article::query()->where('task_id', request('task_id'))->first();
+
+            $user = User::query()->findOrFail(request('user_id'));
             if(!$object) throw new NotFoundHttpException('Object not found');
 
             $articleUser = new ArticleUser();
@@ -351,8 +354,8 @@ class ObjectController extends BaseController
             $articleUser->user_id = request('user_id');
             $articleUser->role_id = UserRoleEnum::INSPECTOR->value;
             $articleUser->save();
-
-            return $this->sendSuccess([], 'data saved');
+            
+            return $this->sendSuccess(UserResource::make($user), 'data saved');
 
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
