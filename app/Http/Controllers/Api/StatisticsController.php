@@ -353,6 +353,15 @@ class StatisticsController extends BaseController
             ->pluck('count', $groupBy);
     }
 
+    public function reports(): JsonResponse
+    {
+        try{
+
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getLine());
+        }
+    }
+
 
 
 }

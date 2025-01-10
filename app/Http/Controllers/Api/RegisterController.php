@@ -348,7 +348,7 @@ class RegisterController extends BaseController
 
             $response = DxaResponse::query()->where('task_id', $request->post('task_id'))->first();
             $this->service->sendReject($response, $comment);
-            $this->service->sendMyGovReject($response);
+            $this->service->sendMyGovReject($response, $comment);
 
             return $this->sendSuccess([], 'Register successfully.');
         } catch (\Exception $exception) {

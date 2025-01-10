@@ -386,6 +386,7 @@ class ArticleService
         $article->deadline = $response->end_term_work;
         $article->gnk_id = $response->gnk_id;
         $article->reestr_number = (int)$response->reestr_number;
+        $article->created_at = (int)$response->updated_at;
         $article->save();
 
         return $article;

@@ -77,6 +77,7 @@ Route::group([
     Route::get('qr-image/{id}', [InformationController::class, 'qrImage']);
 
     Route::get('statistics', [StatisticsController::class, 'statistics']);
+    Route::get('reports', [StatisticsController::class, 'reports']);
 
 
 

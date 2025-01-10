@@ -501,51 +501,51 @@ class RegulationController extends BaseController
     public function test()
     {
         try {
-            $regulations = Regulation::whereNotNull('regulation_number')
-            ->get()
-                ->groupBy('regulation_number');
+//            $regulations = Regulation::whereNotNull('regulation_number')
+//            ->get()
+//                ->groupBy('regulation_number');
+//
+//            foreach ($regulations as $regulationGroup) {
+//                if ($regulationGroup->count() > 1) {
+//                    $nullMonitoringRegulation = $regulationGroup->firstWhere('monitoring_id', null);
+//
+//                    if ($nullMonitoringRegulation) {
+//                        $nullMonitoringRegulation->delete();
+//                    }
+//                }
+//            }
 
-            foreach ($regulations as $regulationGroup) {
-                if ($regulationGroup->count() > 1) {
-                    $nullMonitoringRegulation = $regulationGroup->firstWhere('monitoring_id', null);
+            $response = DxaResponse::query()->where('task_id', request('task_id'))->first();
+            $authUsername = config('app.mygov.login');
+            $authPassword = config('app.mygov.password');
 
-                    if ($nullMonitoringRegulation) {
-                        $nullMonitoringRegulation->delete();
-                    }
-                }
+            if ($response->object_type_id == 2) {
+                $apiUrl = config('app.mygov.url') . '/update/id/' . $response->task_id . '/action/issue-amount';
+                $formName = 'IssueAmountV4FormNoticeBeginningConstructionWorks';
+            } else {
+                $apiUrl = config('app.mygov.linear') . '/update/id/' . $response->task_id . '/action/issue-amount';
+                $formName = 'IssueAmountFormRegistrationStartLinearObject';
             }
 
-//            $response = DxaResponse::query()->where('task_id', request('task_id'))->first();
-//            $authUsername = config('app.mygov.login');
-//            $authPassword = config('app.mygov.password');
-//
-//            if ($response->object_type_id == 2) {
-//                $apiUrl = config('app.mygov.url') . '/update/id/' . $response->task_id . '/action/issue-amount';
-//                $formName = 'IssueAmountV4FormNoticeBeginningConstructionWorks';
-//            } else {
-//                $apiUrl = config('app.mygov.linear') . '/update/id/' . $response->task_id . '/action/issue-amount';
-//                $formName = 'IssueAmountFormRegistrationStartLinearObject';
-//            }
-//
-//            $domain = URL::to('/object-info').'/'.$response->task_id;
-//
-//            $qrImage = base64_encode(QrCode::format('png')->size(200)->generate($domain));
-//
-//            $qrImageTag = '<img src="data:image/png;base64,' . $qrImage . '" alt="QR Image" />';
-//
-//            $return = Http::withBasicAuth($authUsername, $authPassword)
-//                ->post($apiUrl, [
-//                    $formName => [
-//                        "requisites" => $response->rekvizit->name ?? '',
-//                        "loacation_rep" => $response->region->name_uz . ' ' . $response->district->name_uz . ' ' . $response->location_building,
-//                        "name_rep" => $response->organization_name,
-//                        "amount" => $response->price_supervision_service,
-//                        "qr_image" => $qrImageTag,
-//                        "qr_comment" => "Ushbu QR kod obyekt pasporti hisoblanadi. QR kodni obyektning ko‘rinarli joyiga o‘rnatib qo‘yishingiz talab etiladi"
-//                    ]
-//                ]);
-//
-//            if ($return->failed()) throw new NotFoundException("mygovda xatolik yuz berdi");
+            $domain = URL::to('/object-info').'/'.$response->task_id;
+
+            $qrImage = base64_encode(QrCode::format('png')->size(200)->generate($domain));
+
+            $qrImageTag = '<img src="data:image/png;base64,' . $qrImage . '" alt="QR Image" />';
+
+            $return = Http::withBasicAuth($authUsername, $authPassword)
+                ->post($apiUrl, [
+                    $formName => [
+                        "requisites" => $response->rekvizit->name ?? '',
+                        "loacation_rep" => $response->region->name_uz . ' ' . $response->district->name_uz . ' ' . $response->location_building,
+                        "name_rep" => $response->organization_name,
+                        "amount" => $response->price_supervision_service,
+                        "qr_image" => $qrImageTag,
+                        "qr_comment" => "Ushbu QR kod obyekt pasporti hisoblanadi. QR kodni obyektning ko‘rinarli joyiga o‘rnatib qo‘yishingiz talab etiladi"
+                    ]
+                ]);
+
+            if ($return->failed()) throw new NotFoundException("mygovda xatolik yuz berdi");
         }catch (\Exception $exception){
             throw new NotFoundException($exception->getMessage(), $exception->getCode());
         }

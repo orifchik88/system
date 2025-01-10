@@ -287,24 +287,28 @@ class DxaResponseService
         return $response;
     }
 
-    public function sendMyGovReject($response)
+    public function sendMyGovReject($response, $comment)
     {
-        $authUsername = config('app.mygov.login');
-        $authPassword = config('app.mygov.password');
+        $authCredentials = [
+            'username' => config('app.mygov.login'),
+            'password' => config('app.mygov.password'),
+        ];
 
-        if ($response->object_type_id == 2) {
-            $apiUrl = config('app.mygov.url') . '/update/id/' . $response->task_id . '/action/reject-notice';
-            $formName = 'RejectNoticeV4FormNoticeBeginningConstructionWorks';
-        } else {
-            $apiUrl = config('app.mygov.linear') . '/update/id/' . $response->task_id . '/action/reject-notice';
-            $formName = 'RejectNoticeFormRegistrationStartLinearObject';
-        }
+        $apiDetails = $response->object_type_id == 2
+            ? [
+                'url' => config('app.mygov.url') . '/update/id/' . $response->task_id . '/action/reject-notice',
+                'form' => 'RejectNoticeV4FormNoticeBeginningConstructionWorks',
+            ]
+            : [
+                'url' => config('app.mygov.linear') . '/update/id/' . $response->task_id . '/action/reject-notice',
+                'form' => 'RejectNoticeFormRegistrationStartLinearObject',
+            ];
 
-        return Http::withBasicAuth($authUsername, $authPassword)
-            ->post($apiUrl, [
-                $formName => [
-                    "reject_reason" => $response->rejection_comment,
-                ]
+        return Http::withBasicAuth($authCredentials['username'], $authCredentials['password'])
+            ->post($apiDetails['url'], [
+                $apiDetails['form'] => [
+                    "reject_reason" => $comment,
+                ],
             ]);
 
     }
