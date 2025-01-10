@@ -354,7 +354,7 @@ class ObjectController extends BaseController
             $articleUser->user_id = request('user_id');
             $articleUser->role_id = UserRoleEnum::INSPECTOR->value;
             $articleUser->save();
-            
+
             return $this->sendSuccess(UserResource::make($user), 'data saved');
 
         }catch (\Exception $exception){
