@@ -369,6 +369,14 @@ class StatisticsController extends BaseController
                 unset($selectColumns[$key]);
             }
 
+            if (($key = array_search('blocks', $selectColumns)) !== false) {
+                unset($selectColumns[$key]);
+            }
+
+            if (($key = array_search('status', $selectColumns)) !== false) {
+                unset($selectColumns[$key]);
+            }
+
 
             $query = Article::query()
                 ->select($selectColumns)
@@ -377,11 +385,19 @@ class StatisticsController extends BaseController
                         $query->select('users.name', 'users.id as user_id', 'users.phone')->where('role_id', 3);
                     }]);
                 })
-//                ->when(in_array('sphere', $columns), function($q) {
-//                    $q->with(['sphere' => function ($query) {
-//                        $query->select('sphere.name_uz', 'sphere.id as id');
-//                    }]);
-//                })
+                ->when(in_array('sphere', $columns), function($q) {
+                    $q->with(['sphere' => function ($query) {
+                        $query->select('spheres.name_uz', 'spheres.id as id');
+                    }]);
+                })
+                ->when(in_array('status', $columns), function($q) {
+                    $q->with(['objectStatus' => function ($query) {
+                        $query->select('objectStatus.name', 'objectStatus.id as id');
+                    }]);
+                })
+                ->when(in_array('blocks', $columns), function($q) {
+                    $q->withCount('blocks');
+                })
                 ->when(isset($filters['region']), function ($q) use ($filters) {
                     return $q->where('region_id', $filters['region']);
                 })
