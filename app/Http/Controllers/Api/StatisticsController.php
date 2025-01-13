@@ -377,11 +377,11 @@ class StatisticsController extends BaseController
                         $query->select('users.name', 'users.id as user_id', 'users.phone')->where('role_id', 3);
                     }]);
                 })
-                ->when(in_array('sphere', $columns), function($q) {
-                    $q->with(['sphere' => function ($query) {
-                        $query->select('sphere.name_uz', 'sphere.id as id');
-                    }]);
-                })
+//                ->when(in_array('sphere', $columns), function($q) {
+//                    $q->with(['sphere' => function ($query) {
+//                        $query->select('sphere.name_uz', 'sphere.id as id');
+//                    }]);
+//                })
                 ->when(isset($filters['region']), function ($q) use ($filters) {
                     return $q->where('region_id', $filters['region']);
                 })
