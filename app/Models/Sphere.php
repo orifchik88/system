@@ -10,6 +10,8 @@ class Sphere extends Model
 {
     use HasFactory;
 
+    protected $guarded = false;
+
     public function responses(): HasMany
     {
         return $this->hasMany(DxaResponse::class, 'sphere_id');

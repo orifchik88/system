@@ -355,25 +355,37 @@ class StatisticsController extends BaseController
 
     public function reports(Request $request): JsonResponse
     {
-        try{
-
+        try {
             $columns = $request->input('columns', []);
-            $filters = $request->only(['region', 'inspector', 'date_from', 'date_to', 'object_status']);
+            $filters = $request->only(['region', 'user', 'date_from', 'date_to', 'object_status']);
 
             $selectColumns = array_merge(['articles.id'], $columns);
 
+            if (($key = array_search('inspector', $selectColumns)) !== false) {
+                unset($selectColumns[$key]);
+            }
+
+            if (($key = array_search('sphere', $selectColumns)) !== false) {
+                unset($selectColumns[$key]);
+            }
+
+
             $query = Article::query()
                 ->select($selectColumns)
-                ->with(['users' => function ($query) use ($columns) {
-                    if (in_array('user', $columns)) {
-                        $query->select('users.name', 'users.id as user_id', 'users.phone');
-                    }
-                }])
+                ->when(in_array('inspector', $columns), function($q) use ($columns) {
+                    $q->with(['users' => function ($query) use ($columns) {
+                        $query->select('users.name', 'users.id as user_id', 'users.phone')->where('role_id', 3);
+                    }]);
+                })
+                ->when(in_array('sphere', $columns), function($q) {
+                    $q->with(['sphere' => function ($query) {
+                        $query->select('sphere.name_uz', 'sphere.id as id');
+                    }]);
+                })
                 ->when(isset($filters['region']), function ($q) use ($filters) {
                     return $q->where('region_id', $filters['region']);
                 })
                 ->when(isset($filters['user']), function ($q) use ($filters) {
-                    // 'user' bo'lsa, article_users orqali usersga join qilish
                     return $q->whereHas('users', function ($q) use ($filters) {
                         return $q->where('users.id', $filters['user']);
                     });
@@ -387,10 +399,8 @@ class StatisticsController extends BaseController
 
             $articles = $query->get();
 
-            return  $this->sendSuccess($articles, 'Data retrieved successfully');
-
-
-        }catch (\Exception $exception){
+            return $this->sendSuccess($articles, 'Data retrieved successfully');
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getLine());
         }
     }
