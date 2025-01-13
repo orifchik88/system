@@ -409,7 +409,7 @@ class ClaimService
             19 => 'kvartira',
             34 => 'ekologiya'
         };
-        
+
         $apiUrl = "update/id/" . $reviewObject->monitoring->claim->guid . "/action/conclusion-" . $apiType;
 
         $requestData = [
