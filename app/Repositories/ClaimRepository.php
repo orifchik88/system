@@ -111,6 +111,7 @@ class ClaimRepository implements ClaimRepositoryInterface
             23, 22 => 15,
             24 => 17,
             25 => 18,
+            35 => 34,
             default => $roleId,
         };
 
@@ -456,6 +457,7 @@ class ClaimRepository implements ClaimRepositoryInterface
             23, 22 => 15,
             24 => 17,
             25 => 18,
+            35 => 34,
             default => $role_id,
         };
 

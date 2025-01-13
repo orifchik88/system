@@ -45,7 +45,7 @@ class ClaimController extends BaseController
         $roleId = Auth::user()->getRoleFromToken() ?? null;
 
         $regionId = match ($roleId) {
-            (string)UserRoleEnum::FVB_REG_KADR->value, (string)UserRoleEnum::SEOM_REG_KADR->value,(string)UserRoleEnum::INSPEKSIYA->value,
+            (string)UserRoleEnum::FVB_REG_KADR->value, (string)UserRoleEnum::SEOM_REG_KADR->value, (string)UserRoleEnum::INSPEKSIYA->value, (string)UserRoleEnum::EKOLOGIYA_RES_KADR->value, (string)UserRoleEnum::EKOLOGIYA->value,
             (string)UserRoleEnum::NOGIRONLAR_JAM->value, (string)UserRoleEnum::NOGIRONLAR_ASSOT->value, (string)UserRoleEnum::UY_JOY_INSPEKSIYA->value,
             (string)UserRoleEnum::OPERATOR->value, (string)UserRoleEnum::INSPECTOR->value => Auth::user()->region_id ?? Auth::user()->region_id ?? null,
             default => request()->get('region', null),
@@ -76,7 +76,7 @@ class ClaimController extends BaseController
         $roleId = Auth::user()->getRoleFromToken() ?? null;
 
         $regionId = match ($roleId) {
-            (string)UserRoleEnum::FVB_REG_KADR->value, (string)UserRoleEnum::SEOM_REG_KADR->value,
+            (string)UserRoleEnum::FVB_REG_KADR->value, (string)UserRoleEnum::SEOM_REG_KADR->value, (string)UserRoleEnum::EKOLOGIYA_RES_KADR->value, (string)UserRoleEnum::EKOLOGIYA->value,
             (string)UserRoleEnum::NOGIRONLAR_JAM->value, (string)UserRoleEnum::NOGIRONLAR_ASSOT->value, (string)UserRoleEnum::UY_JOY_INSPEKSIYA->value,
             => Auth::user()->region_id ?? Auth::user()->region_id ?? null,
             default => request()->get('region', null),
@@ -133,7 +133,7 @@ class ClaimController extends BaseController
 
         $data = $this->claimService->getClaimById(
             id: $id,
-            role_id: (in_array($roleId, [15, 16, 17, 18, 19, 3])) ? $roleId : null
+            role_id: (in_array($roleId, [15, 16, 17, 18, 19, 3, 34])) ? $roleId : null
         );
 
         if (!$data) {
@@ -161,8 +161,8 @@ class ClaimController extends BaseController
         $roleId = Auth::user()->getRoleFromToken() ?? null;
 
         $regionId = match ($roleId) {
-            (string)UserRoleEnum::FVB_REG_KADR->value, (string)UserRoleEnum::SEOM_REG_KADR->value,(string)UserRoleEnum::INSPEKSIYA->value,
-            (string)UserRoleEnum::NOGIRONLAR_JAM->value, (string)UserRoleEnum::NOGIRONLAR_ASSOT->value, (string)UserRoleEnum::UY_JOY_INSPEKSIYA->value,
+            (string)UserRoleEnum::FVB_REG_KADR->value, (string)UserRoleEnum::SEOM_REG_KADR->value, (string)UserRoleEnum::INSPEKSIYA->value, (string)UserRoleEnum::EKOLOGIYA_RES_KADR->value,
+            (string)UserRoleEnum::NOGIRONLAR_JAM->value, (string)UserRoleEnum::NOGIRONLAR_ASSOT->value, (string)UserRoleEnum::UY_JOY_INSPEKSIYA->value, (string)UserRoleEnum::EKOLOGIYA->value,
             (string)UserRoleEnum::OPERATOR->value, (string)UserRoleEnum::INSPECTOR->value => Auth::user()->region_id ?? Auth::user()->region_id ?? null,
             default => request()->get('region_id', null),
         };
@@ -183,9 +183,9 @@ class ClaimController extends BaseController
             sortBy: $sortBy,
             status: $status,
             expired: $expired,
-            role_id: (in_array($roleId, [15, 16, 17, 18, 19, 3, 21, 23, 20, 22, 24, 25])) ? $roleId : null,
+            role_id: (in_array($roleId, [15, 16, 17, 18, 19, 3, 21, 23, 20, 22, 24, 25, 34, 35])) ? $roleId : null,
             start_date: $startDate,
-            end_date:$endDate,
+            end_date: $endDate,
         );
 
 
