@@ -353,9 +353,42 @@ class StatisticsController extends BaseController
             ->pluck('count', $groupBy);
     }
 
-    public function reports(): JsonResponse
+    public function reports(Request $request): JsonResponse
     {
         try{
+
+            $columns = $request->input('columns', []);
+            $filters = $request->only(['region', 'inspector', 'date_from', 'date_to', 'object_status']);
+
+            $selectColumns = array_merge(['articles.id'], $columns);
+
+            $query = Article::query()
+                ->select($selectColumns)
+                ->with(['users' => function ($query) use ($columns) {
+                    if (in_array('user', $columns)) {
+                        $query->select('users.name', 'users.id as user_id', 'users.phone');
+                    }
+                }])
+                ->when(isset($filters['region']), function ($q) use ($filters) {
+                    return $q->where('region_id', $filters['region']);
+                })
+                ->when(isset($filters['user']), function ($q) use ($filters) {
+                    // 'user' bo'lsa, article_users orqali usersga join qilish
+                    return $q->whereHas('users', function ($q) use ($filters) {
+                        return $q->where('users.id', $filters['user']);
+                    });
+                })
+                ->when(isset($filters['date_from']) && isset($filters['date_to']), function ($q) use ($filters) {
+                    return $q->whereBetween('created_at', [$filters['date_from'], $filters['date_to']]);
+                })
+                ->when(isset($filters['object_status']), function ($q) use ($filters) {
+                    return $q->where('object_status_id', $filters['object_status']);
+                });
+
+            $articles = $query->get();
+
+            return  $this->sendSuccess($articles, 'Data retrieved successfully');
+
 
         }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getLine());
