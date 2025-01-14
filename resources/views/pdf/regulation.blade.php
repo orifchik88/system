@@ -278,7 +278,7 @@
               padding: 10px;
             "
             >
-                {{ $violation->comment ?? $violation?->bases?->name }}
+                {{ $violation->comment ?? $violation?->title }}
             </td>
             <td
                 style="
