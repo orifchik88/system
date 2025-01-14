@@ -235,19 +235,19 @@ class StatisticsController extends BaseController
             $regulationCounts = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, startDate: $startDate, endDate: $endDate);
 
 
-            $eliminatedRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, status:[6],  startDate: $startDate, endDate: $endDate);
+            $eliminatedRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, status:[6, 8],  startDate: $startDate, endDate: $endDate);
             $inProgressRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, status:[1,2,3,4,5],  startDate: $startDate, endDate: $endDate);
             $notExecutionRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, status:[7],  startDate: $startDate, endDate: $endDate);
 
-            $costumerRegulationsEliminated = $this->getRegulationCounts(relation: 'regulations',  groupBy: $group, roleId: 6, status:[6],  startDate: $startDate, endDate: $endDate);
+            $costumerRegulationsEliminated = $this->getRegulationCounts(relation: 'regulations',  groupBy: $group, roleId: 6, status:[6, 8],  startDate: $startDate, endDate: $endDate);
             $customerInProgressRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 6, status:[1,2,3,4,5],  startDate: $startDate, endDate: $endDate);
             $costumerNotExecutionRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 6, status:[7],  startDate: $startDate, endDate: $endDate);
 
-            $manageRegulationsEliminated = $this->getRegulationCounts(relation: 'regulations',  groupBy: $group, roleId: 5, status:[6],  startDate: $startDate, endDate: $endDate);
+            $manageRegulationsEliminated = $this->getRegulationCounts(relation: 'regulations',  groupBy: $group, roleId: 5, status:[6, 8],  startDate: $startDate, endDate: $endDate);
             $manageInProgressRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 5, status:[1,2,3,4,5],  startDate: $startDate, endDate: $endDate);
             $manageNotExecutionRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 5, status:[7],  startDate: $startDate, endDate: $endDate);
 
-            $authorRegulationsEliminated = $this->getRegulationCounts(relation: 'regulations',  groupBy: $group, roleId: 7, status:[6],  startDate: $startDate, endDate: $endDate);
+            $authorRegulationsEliminated = $this->getRegulationCounts(relation: 'regulations',  groupBy: $group, roleId: 7, status:[6, 8],  startDate: $startDate, endDate: $endDate);
             $authorInProgressRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 7, status:[1,2,3,4,5],  startDate: $startDate, endDate: $endDate);
             $authorNotExecutionRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 7, status:[7],  startDate: $startDate, endDate: $endDate);
             $administratively = $this->getRegulationCounts(relation: 'regulations', groupBy: $group,  startDate: $startDate, endDate: $endDate, lawyerStatus: 3);
@@ -283,10 +283,10 @@ class StatisticsController extends BaseController
                     'suspended' => $regionArticles->where('object_status_id', ObjectStatusEnum::SUSPENDED)->sum('count'),
                     'frozen' => $regionArticles->where('object_status_id', ObjectStatusEnum::FROZEN)->sum('count'),
                     'progress' => $regionArticles->where('object_status_id', ObjectStatusEnum::PROGRESS)->sum('count'),
-                    'category_1' => $regionArticles->where('difficulty_category_id', 1)->sum('count'),
-                    'category_2' => $regionArticles->where('difficulty_category_id', 2)->sum('count'),
-                    'category_3' => $regionArticles->where('difficulty_category_id', 3)->sum('count'),
-                    'category_4' => $regionArticles->where('difficulty_category_id', 4)->sum('count'),
+                    'category_1' => $regionArticles->where('difficulty_category_id', 1)->where('object_status_id', ObjectStatusEnum::PROGRESS)->sum('count'),
+                    'category_2' => $regionArticles->where('difficulty_category_id', 2)->where('object_status_id', ObjectStatusEnum::PROGRESS)->sum('count'),
+                    'category_3' => $regionArticles->where('difficulty_category_id', 3)->where('object_status_id', ObjectStatusEnum::PROGRESS)->sum('count'),
+                    'category_4' => $regionArticles->where('difficulty_category_id', 4)->where('object_status_id', ObjectStatusEnum::PROGRESS)->sum('count'),
                     'monitoring_count' => $monitoringCounts->get($regionId, 0),
                     'regulation_count' => $regulationCounts->get($regionId, 0),
                     'regulation_eliminated' => $eliminatedRegulations->get($regionId, 0),
