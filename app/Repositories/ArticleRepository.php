@@ -83,14 +83,16 @@ class ArticleRepository implements ArticleRepositoryInterface
                 $query->where('articles.object_status_id', $filters['status']);
             })
             ->when(isset($filters['inspector_id']), function ($query) use ($filters) {
-                $query->whereHas('users', function ($query) use ($filters) {
-                    if ($filters['inspector_id'] == 'not_inspector')
-                        $query->whereNull('user_id')
+                if ($filters['inspector_id'] == 'not_inspector')
+                    $query->whereDoesntHave('users', function ($query) use ($filters) {
+                        $query
                             ->where('role_id', UserRoleEnum::INSPECTOR->value);
-                    else
+                    });
+                else
+                    $query->whereHas('users', function ($query) use ($filters) {
                         $query->where('user_id', $filters['inspector_id'])
                             ->where('role_id', UserRoleEnum::INSPECTOR->value);
-                });
+                    });
             })
 //            ->when(isset($filters['name']), function ($query) use ($filters) {
 //                $query->searchByName($filters['name']);
