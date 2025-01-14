@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\ObjectStatusEnum;
 use App\Enums\RegulationStatusEnum;
+use App\Enums\UserRoleEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ArticlePalataResource;
 use App\Models\Article;
@@ -357,7 +358,7 @@ class StatisticsController extends BaseController
     {
         try {
             $columns = $request->input('columns', []);
-            $filters = $request->only(['region', 'user', 'date_from', 'date_to', 'object_status']);
+            $filters = $request->only(['region', 'user', 'date_from', 'date_to', 'object_status', 'inspector']);
 
             $selectColumns = array_merge(['articles.id'], $columns);
 
@@ -396,8 +397,8 @@ class StatisticsController extends BaseController
             $query = Article::query()
                 ->select($selectColumns)
                 ->when(in_array('inspector', $columns), function($q) use ($columns) {
-                    $q->with(['users' => function ($query) use ($columns) {
-                        $query->select('users.name', 'users.id as user_id', 'users.phone')->where('role_id', 3);
+                    $q->with(['inspector' => function ($query) use ($columns) {
+                        $query->select('users.name', 'users.id as user_id', 'users.phone');
                     }]);
                 })
                 ->when(in_array('participants', $columns), function($q) use ($columns) {
@@ -434,6 +435,12 @@ class StatisticsController extends BaseController
                 ->when(isset($filters['date_from']) && isset($filters['date_to']), function ($q) use ($filters) {
                     return $q->whereBetween('created_at', [$filters['date_from'], $filters['date_to']]);
                 })
+                ->when(isset($filters['inspector']), function ($q) use ($filters) {
+                    $q->whereHas('users', function ($query) use ($filters) {
+                        $query->where('user_id', $filters['inspector_id'])
+                            ->where('role_id', UserRoleEnum::INSPECTOR->value);
+                    });
+                })
                 ->when(isset($filters['object_status']), function ($q) use ($filters) {
                     return $q->where('object_status_id', $filters['object_status']);
                 });
@@ -445,7 +452,6 @@ class StatisticsController extends BaseController
             return $this->sendError($exception->getMessage(), $exception->getLine());
         }
     }
-
 
 
 }
