@@ -367,10 +367,14 @@ class StatisticsController extends BaseController
 
             if (($key = array_search('sphere', $selectColumns)) !== false) {
                 unset($selectColumns[$key]);
-                $columns = array_merge(['sphere_id'], $columns);
+                $selectColumns = array_merge(['sphere_id'], $selectColumns);
             }
 
             if (($key = array_search('blocks', $selectColumns)) !== false) {
+                unset($selectColumns[$key]);
+            }
+
+            if (($key = array_search('monitorings', $selectColumns)) !== false) {
                 unset($selectColumns[$key]);
             }
 
@@ -383,6 +387,11 @@ class StatisticsController extends BaseController
                 unset($selectColumns[$key]);
             }
 
+            if (($key = array_search('participants', $selectColumns)) !== false) {
+                unset($selectColumns[$key]);
+            }
+
+
 
             $query = Article::query()
                 ->select($selectColumns)
@@ -391,6 +400,12 @@ class StatisticsController extends BaseController
                         $query->select('users.name', 'users.id as user_id', 'users.phone')->where('role_id', 3);
                     }]);
                 })
+                ->when(in_array('participants', $columns), function($q) use ($columns) {
+                    $q->with(['users' => function ($query) use ($columns) {
+                        $query->select('users.name', 'users.id as user_id', 'users.phone')->whereIn('role_id', [5,7, 6]);
+                    }]);
+                })
+
                 ->when(in_array('sphere', $columns), function($q) {
                     $q->with(['sphere' => function ($query) {
                         $query->select('spheres.name_uz', 'spheres.id as id');
@@ -398,17 +413,15 @@ class StatisticsController extends BaseController
                 })
                 ->when(in_array('status', $columns), function($q) {
                     $q->with(['objectStatus' => function ($query) {
-                        $query->select('objectStatus.name', 'objectStatus.id as id');
-                    }]);
-                })
-                ->when(in_array('regulations', $columns), function($q) {
-                    $q->with(['regulations' => function ($query) {
-                        $query->select('regulations.regulation_number', 'regulations.id as id');
+                        $query->select('object_statuses.name', 'object_statuses.id as id');
                     }]);
                 })
 
                 ->when(in_array('blocks', $columns), function($q) {
                     $q->withCount('blocks');
+                })
+                ->when(in_array('monitorings', $columns), function($q) {
+                    $q->withCount('monitorings');
                 })
                 ->when(isset($filters['region']), function ($q) use ($filters) {
                     return $q->where('region_id', $filters['region']);

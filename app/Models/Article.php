@@ -34,6 +34,11 @@ class Article extends Model
         return $this->hasMany(Block::class);
     }
 
+    public function inspector(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'article_users', 'article_id', 'user_id')->withPivot('role_id')->wherePivot('role_id', 3);
+    }
+
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'article_users', 'article_id', 'user_id')->withPivot('role_id');
