@@ -367,6 +367,7 @@ class StatisticsController extends BaseController
 
             if (($key = array_search('sphere', $selectColumns)) !== false) {
                 unset($selectColumns[$key]);
+                $columns = array_merge(['sphere_id'], $columns);
             }
 
             if (($key = array_search('blocks', $selectColumns)) !== false) {
@@ -374,6 +375,11 @@ class StatisticsController extends BaseController
             }
 
             if (($key = array_search('status', $selectColumns)) !== false) {
+                unset($selectColumns[$key]);
+                $columns = array_merge(['object_status_id'], $columns);
+            }
+
+            if (($key = array_search('regulations', $selectColumns)) !== false) {
                 unset($selectColumns[$key]);
             }
 
@@ -395,6 +401,12 @@ class StatisticsController extends BaseController
                         $query->select('objectStatus.name', 'objectStatus.id as id');
                     }]);
                 })
+                ->when(in_array('regulations', $columns), function($q) {
+                    $q->with(['regulations' => function ($query) {
+                        $query->select('regulations.regulation_number', 'regulations.id as id');
+                    }]);
+                })
+
                 ->when(in_array('blocks', $columns), function($q) {
                     $q->withCount('blocks');
                 })
