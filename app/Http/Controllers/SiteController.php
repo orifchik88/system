@@ -63,7 +63,7 @@ class SiteController extends Controller
 
             $qrImage = base64_encode(QrCode::format('png')->size(200)->generate($domain));
 
-            $pdf = Pdf::loadView('pdf.reg', compact(
+            $pdf = Pdf::loadView('pdf.regulation', compact(
                 'regulation',
                 'object',
                 'responsibleUser',
@@ -93,7 +93,7 @@ class SiteController extends Controller
 
             $qrImage = base64_encode(QrCode::format('png')->size(200)->generate($domain));
 
-            $pdf = Pdf::loadView('pdf.reg', compact(
+            $pdf = Pdf::loadView('pdf.regulation', compact(
                 'regulation',
                 'object',
                 'responsibleUser',
@@ -103,7 +103,7 @@ class SiteController extends Controller
                 'qrImage'
             ));
 
-            return view('pdf.reg', compact(
+            return view('pdf.regulation', compact(
                 'regulation',
                 'object',
                 'responsibleUser',

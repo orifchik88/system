@@ -31,7 +31,7 @@ class PdfController extends BaseController
             $qrImage = base64_encode(QrCode::format('png')->size(200)->generate($domain));
 
 //            $qrImageTag = '<img src="data:image/png;base64,' . $qrImage . '" alt="QR Image" />';
-            $pdf = Pdf::loadView('pdf.reg', compact(
+            $pdf = Pdf::loadView('pdf.regulation', compact(
                 'regulation',
                 'object',
                 'responsibleUser',
