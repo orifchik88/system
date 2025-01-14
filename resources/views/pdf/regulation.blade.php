@@ -317,6 +317,7 @@
                 {{ $regulation->regulationStatus->status }}
             </td>
         </tr>
+        @empty
         @endforelse
         </tbody>
     </table>
