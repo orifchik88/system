@@ -269,7 +269,7 @@
               padding: 10px;
             "
             >
-                {{ $key }}
+                {{ $key + 1 }}
             </td>
             <td
                 style="
