@@ -590,7 +590,7 @@ class RegulationService
             }
 
             $regulation->update([
-                'regulation_status_id' => $re,
+                'regulation_status_id' => $regStatus,
                 'deadline' => $newDeadline,
                 'paused_at' => null,
             ]);
