@@ -83,10 +83,16 @@ class ArticleRepository implements ArticleRepositoryInterface
                 $query->where('articles.object_status_id', $filters['status']);
             })
             ->when(isset($filters['inspector_id']), function ($query) use ($filters) {
-                $query->whereHas('users', function ($query) use ($filters) {
-                    $query->where('user_id', $filters['inspector_id'])
-                        ->where('role_id', UserRoleEnum::INSPECTOR->value);
-                });
+                if ($filters['inspector_id'] == 'not_inspector')
+                    $query->whereDoesntHave('users', function ($query) use ($filters) {
+                        $query
+                            ->where('role_id', UserRoleEnum::INSPECTOR->value);
+                    });
+                else
+                    $query->whereHas('users', function ($query) use ($filters) {
+                        $query->where('user_id', $filters['inspector_id'])
+                            ->where('role_id', UserRoleEnum::INSPECTOR->value);
+                    });
             })
 //            ->when(isset($filters['name']), function ($query) use ($filters) {
 //                $query->searchByName($filters['name']);
@@ -249,15 +255,13 @@ class ArticleRepository implements ArticleRepositoryInterface
             $firstUser = User::query()->find($firstUserId);
             $secondUser = User::query()->find($secondUserId);
             $role = Role::query()->find($roleId);
-            $message = MessageTemplate::ratationInspector($firstUser->full_name, $secondUser->full_name,  $user->full_name, $role->name, now());
+            $message = MessageTemplate::ratationInspector($firstUser->full_name, $secondUser->full_name, $user->full_name, $role->name, now());
             $firstUser->notify(new InspectorNotification(title: "Rotatsiya", message: $message, url: null, additionalInfo: null));
 
         } catch (\Exception $exception) {
 
         }
     }
-
-
 
 
     public function getTotalPaymentStatistics($regionId)

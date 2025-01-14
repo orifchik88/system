@@ -37,8 +37,11 @@ class ApiController extends Controller
     {
         $objectModel = $this->articleRepository->findByTaskId($request['task_id']);
 
+        if(!$objectModel)
+            return ['success' =>  false, 'message' => "Obyekt Topilmadi!"];
+
         if ($objectModel->object_status_id != ObjectStatusEnum::PROGRESS)
-            return ['success' =>  false, 'message' => "Bu obyekt yakunlangan"];
+            return ['success' =>  false, 'message' => "Bu obyekt yakunlangan!"];
 
 //        $files = [];
 //        foreach ($request->files as $document) {
