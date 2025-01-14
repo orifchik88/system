@@ -494,7 +494,8 @@ class QuestionService
         return Violation::create([
             'question_id' => $question->id,
             'title' => $question->name,
-            'description' => $violationData['comment'],
+            'description' => $violationData['description'],
+            'comment' => $violationData['comment'],
             'bases_id' => $violationData['basis_id'],
             'checklist_id' => $checklist->id,
         ]);
