@@ -33,6 +33,8 @@ enum UserRoleEnum: int
     case NOGIRONLAR_ASSOT_KADR = 25;
     case YURIST = 27;
     case BUXGALTER = 28;
+    case EKOLOGIYA = 34;
+    case EKOLOGIYA_RES_KADR = 35;
 
     case ADMIN = 29;
 }

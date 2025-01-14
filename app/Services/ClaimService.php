@@ -407,8 +407,8 @@ class ClaimService
             16 => 'ses',
             17, 18 => 'nogiron',
             19 => 'kvartira',
+            34 => 'ekologiya'
         };
-
 
         $apiUrl = "update/id/" . $reviewObject->monitoring->claim->guid . "/action/conclusion-" . $apiType;
 
@@ -727,7 +727,7 @@ class ClaimService
             $lastInspectorConclusion = json_decode($historiesNew[0]->content, true);
         else
             $lastInspectorConclusion['comment'] = '  ';
-        
+
         $dataArray['SendToStepConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
             'comment_gasn' => $lastInspectorConclusion['comment'],
         ];
