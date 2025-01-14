@@ -375,7 +375,7 @@
                 <div
                     style="width: 100px; height: 100px; border: 1px solid #687196"
                 >
-                    <img src="data:image/png;base64, {{$qrImage}}" alt="">
+                    <img src="data:image/png;base64, {{$qrImage}}" alt="" style="width: 100px; height: 100px;">
                 </div>
             </td>
         </tr>
