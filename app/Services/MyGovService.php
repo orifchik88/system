@@ -49,11 +49,11 @@ class MyGovService
         $vendor_name = "";
 
         foreach ($object->users as $user) {
-            if($user->pivot->role_id == 8){
+            if ($user->pivot->role_id == 8) {
                 $customer_inn = $user->identification_number;
                 $customer_name = $user->organization_name;
             }
-            if($user->pivot->role_id == 10){
+            if ($user->pivot->role_id == 10) {
                 $vendor_inn = $user->identification_number;
                 $vendor_name = $user->organization_name;
             }
@@ -157,9 +157,7 @@ class MyGovService
             return null;
 
         $response = [
-            'result' => [
-                'data' => ArticlePalataResource::collection($objects),
-            ],
+            'objects' => ArticlePalataResource::collection($objects),
             'meta' => pagination($objects)
         ];
 
