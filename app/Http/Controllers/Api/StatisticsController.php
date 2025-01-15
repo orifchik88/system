@@ -435,7 +435,7 @@ class StatisticsController extends BaseController
                 })
                 ->when(in_array('status', $columns), function($q) {
                     $q->with(['objectStatus' => function ($query) {
-                        $query->select('object_statuses.name', 'object_statuses.id as id');
+                        $query->select('object_id', 'object_statuses.name', 'object_statuses.id as id');
                     }]);
                 })
 
