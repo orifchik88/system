@@ -571,17 +571,17 @@ class ClaimService
             return false;
 
         $blocks = $objectModel->blocks()->get();
-        $blockError = 0;
-        foreach ($blocks as $val) {
-            $block = Block::find($val->id);
-
-            if ($block->status) {
-                $blockError++;
-            }
-        }
-
-        if ($blockError > 0)
-            return false;
+//        $blockError = 0;
+//        foreach ($blocks as $val) {
+//            $block = Block::find($val->id);
+//
+//            if ($block->status) {
+//                $blockError++;
+//            }
+//        }
+//
+//        if ($blockError > 0)
+//            return false;
 
         $path = $request->file->store('documents/object', 'public');
 
