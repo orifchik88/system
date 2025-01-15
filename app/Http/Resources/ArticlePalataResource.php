@@ -23,7 +23,7 @@ class ArticlePalataResource extends JsonResource
             'district_id' => $this->district_id,
             'address' => $this->address,
             'difficulty_category_id' => $this->difficulty_category_id,
-            'construction_type_id' => ConstructionWork::fromString($this?->response->construction_works)->value,
+            'construction_type_id' =>  $this->response ? ConstructionWork::fromString($this->response->construction_works)->value : 0,
             'construction_cost' => $this->cost,
             'object_images' => [],
             'blocks' => $this?->blocks()->pluck('id'),
