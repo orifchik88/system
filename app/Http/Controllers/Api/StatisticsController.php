@@ -15,6 +15,7 @@ use App\Models\Regulation;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StatisticsController extends BaseController
 {
@@ -398,12 +399,12 @@ class StatisticsController extends BaseController
                 ->select($selectColumns)
                 ->when(in_array('inspector', $columns), function($q) use ($columns) {
                     $q->with(['inspector' => function ($query) use ($columns) {
-                        $query->select('users.name', 'users.id as user_id', 'users.phone');
+                        $query->select(DB::raw("CONCAT(users.surname, ' ', users.name, ' ', users.middle_name) AS full_name"), 'users.id as user_id', 'users.phone');
                     }]);
                 })
                 ->when(in_array('participants', $columns), function($q) use ($columns) {
                     $q->with(['users' => function ($query) use ($columns) {
-                        $query->select('users.name', 'users.id as user_id', 'users.phone')->whereIn('role_id', [5,7, 6]);
+                        $query->select(DB::raw("CONCAT(users.surname, ' ', users.name, ' ', users.middle_name) AS full_name"), 'users.id as user_id', 'users.phone')->whereIn('role_id', [5,7, 6]);
                     }]);
                 })
 
@@ -426,7 +427,8 @@ class StatisticsController extends BaseController
 							SUM(CASE WHEN regulation_status_id = 7 AND role_id = 5 THEN 1 ELSE 0 END) as manage_not_execution_count,
 							SUM(CASE WHEN regulation_status_id IN (6, 8) AND role_id = 7  THEN 1 ELSE 0 END) as author_eliminated_count,
 							SUM(CASE WHEN regulation_status_id IN (1, 2, 3, 4, 5) AND role_id = 7 THEN 1 ELSE 0 END) as author_progress_count,
-							SUM(CASE WHEN regulation_status_id = 7 AND role_id = 7 THEN 1 ELSE 0 END) as author_not_execution_count'
+							SUM(CASE WHEN regulation_status_id = 7 AND role_id = 7 THEN 1 ELSE 0 END) as author_not_execution_count,
+                            SUM(CASE WHEN lawyer_status_id = 3 THEN 1 ELSE 0 END) as administratively'
                         )
                             ->groupBy('object_id');
                     }]);
