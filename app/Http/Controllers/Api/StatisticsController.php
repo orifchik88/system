@@ -412,6 +412,25 @@ class StatisticsController extends BaseController
                         $query->select('spheres.name_uz', 'spheres.id as id');
                     }]);
                 })
+                ->when(in_array('regulations', $columns), function($q) {
+                    $q->with(['regulations' => function ($query) {
+                        $query->selectRaw('object_id, COUNT(id) as all_count,
+							SUM(CASE WHEN regulation_status_id IN (6, 8) THEN 1 ELSE 0 END) as eliminated_count,
+							SUM(CASE WHEN regulation_status_id IN (1, 2, 3, 4, 5) THEN 1 ELSE 0 END) as progress_count,
+							SUM(CASE WHEN regulation_status_id = 7 THEN 1 ELSE 0 END) as not_execution_count,
+							SUM(CASE WHEN regulation_status_id IN (6, 8) AND role_id = 6  THEN 1 ELSE 0 END) as costumer_eliminated_count,
+							SUM(CASE WHEN regulation_status_id IN (1, 2, 3, 4, 5) AND role_id = 6 THEN 1 ELSE 0 END) as costumer_progress_count,
+							SUM(CASE WHEN regulation_status_id = 7 AND role_id = 6 THEN 1 ELSE 0 END) as costumer_not_execution_count,
+							SUM(CASE WHEN regulation_status_id IN (6, 8) AND role_id = 5  THEN 1 ELSE 0 END) as manage_eliminated_count,
+							SUM(CASE WHEN regulation_status_id IN (1, 2, 3, 4, 5) AND role_id = 5 THEN 1 ELSE 0 END) as manage_progress_count,
+							SUM(CASE WHEN regulation_status_id = 7 AND role_id = 5 THEN 1 ELSE 0 END) as manage_not_execution_count,
+							SUM(CASE WHEN regulation_status_id IN (6, 8) AND role_id = 7  THEN 1 ELSE 0 END) as author_eliminated_count,
+							SUM(CASE WHEN regulation_status_id IN (1, 2, 3, 4, 5) AND role_id = 7 THEN 1 ELSE 0 END) as author_progress_count,
+							SUM(CASE WHEN regulation_status_id = 7 AND role_id = 7 THEN 1 ELSE 0 END) as author_not_execution_count'
+                        )
+                            ->groupBy('object_id');
+                    }]);
+                })
                 ->when(in_array('status', $columns), function($q) {
                     $q->with(['objectStatus' => function ($query) {
                         $query->select('object_statuses.name', 'object_statuses.id as id');
