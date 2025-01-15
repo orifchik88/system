@@ -382,7 +382,7 @@ class StatisticsController extends BaseController
 
             if (($key = array_search('status', $selectColumns)) !== false) {
                 unset($selectColumns[$key]);
-                $columns = array_merge(['object_status_id'], $columns);
+                $selectColumns = array_merge(['object_status_id'], $selectColumns);
             }
 
             if (($key = array_search('regulations', $selectColumns)) !== false) {
@@ -392,6 +392,7 @@ class StatisticsController extends BaseController
             if (($key = array_search('participants', $selectColumns)) !== false) {
                 unset($selectColumns[$key]);
             }
+
 
 
 
@@ -435,7 +436,7 @@ class StatisticsController extends BaseController
                 })
                 ->when(in_array('status', $columns), function($q) {
                     $q->with(['objectStatus' => function ($query) {
-                        $query->select('object_id', 'object_statuses.name', 'object_statuses.id as id');
+                        $query->select('object_statuses.name', 'object_statuses.id as id');
                     }]);
                 })
 
