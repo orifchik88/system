@@ -8,7 +8,7 @@ enum ConstructionWork: int
     case RECONSTRUCTION = 2;
     case OTHER = 3;
 
-    public static function fromString(string $difficulty): ?self
+    public static function fromString(?string $difficulty = null): ?self
     {
         return match ($difficulty) {
             'Yangi qurilish' => self::NEW,
