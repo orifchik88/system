@@ -281,6 +281,7 @@ class StatisticsController extends BaseController
                     'inspector_count' => $userCounts->get($regionId, 0),
                     'object_count' => $regionArticles->sum('count'),
                     'suspended' => $regionArticles->where('object_status_id', ObjectStatusEnum::SUSPENDED)->sum('count'),
+                    'submitted' => $regionArticles->where('object_status_id', ObjectStatusEnum::SUBMITTED)->sum('count'),
                     'frozen' => $regionArticles->where('object_status_id', ObjectStatusEnum::FROZEN)->sum('count'),
                     'progress' => $regionArticles->where('object_status_id', ObjectStatusEnum::PROGRESS)->sum('count'),
                     'category_1' => $regionArticles->where('difficulty_category_id', 1)->where('object_status_id', ObjectStatusEnum::PROGRESS)->sum('count'),
