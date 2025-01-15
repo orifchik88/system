@@ -48,11 +48,11 @@
         <tbody>
         <tr>
             <td
-                style="width: 30%; text-align: center; text-transform: uppercase"
+                style="width: 32%; text-align: center; text-transform: uppercase; font-weight:700; font-size:12px"
             >
-                {{ $object?->region->name_uz }} Qurilish va <br />
-                uy-joy kommunal xo'jaligi <br />
-                sohasida HUDUDIY NAZORAT <br />
+                {{ $object?->region->name_uz }} Qurilish <br /> va
+                uy-joy kommunal  <br />xo'jaligi
+                sohasida <br />HUDUDIY NAZORAT
                 INSPEKSIYASI
             </td>
             <td style="text-align: center; padding-bottom: 8px">
@@ -63,7 +63,7 @@
                 />
             </td>
             <td
-                style="width: 30%; text-align: center; text-transform: uppercase"
+                style="width: 38%; text-align: center; text-transform: uppercase; font-weight:700; font-size:12px"
             >
                 Территориальная контрольная <br />
                 инспекция в сфере строительства <br />
@@ -111,8 +111,8 @@
     >
         <tbody>
         <tr>
-            <td style="text-align: center; font-weight: 500">
-                <div style="margin-bottom: 8px">
+            <td style="text-align: center; font-weight: 500;">
+                <div style="margin-bottom: 8px;  font-size: 18px">
                     Qurilish nizomi va qoidalari talablarining bajarilishida
                     aniqlangan <br />
                     kamchiliklarni bartaraf qilish bo'yicha
@@ -228,7 +228,7 @@
                 text-align: center;
               "
                 >
-                    {{ $regulation?->checklist?->workType->name }}
+                    {{ $regulation?->checklist?->question->name }}
                 </p>
             </td>
         </tr>
@@ -261,62 +261,62 @@
         </thead>
         <tbody>
         @forelse($regulation->violations  as $key=>$violation)
-        <tr>
-            <td
-                style="
+            <tr>
+                <td
+                    style="
               border: 1px solid #bfbfbf;
               text-align: center;
               padding: 10px;
             "
-            >
-                {{ $key + 1 }}
-            </td>
-            <td
-                style="
+                >
+                    {{ $key + 1 }}
+                </td>
+                <td
+                    style="
               border: 1px solid #bfbfbf;
               text-align: center;
               padding: 10px;
             "
-            >
-                {{ $violation->comment ?? $violation?->title }}
-            </td>
-            <td
-                style="
+                >
+                    {{ $violation->comment ?? $violation?->title }}
+                </td>
+                <td
+                    style="
               border: 1px solid #bfbfbf;
               text-align: center;
               padding: 10px;
             "
-            >
-                {{ $violation->description }}
-            </td>
-            <td
-                style="
+                >
+                    {{ $violation->description }}
+                </td>
+                <td
+                    style="
               border: 1px solid #bfbfbf;
               text-align: center;
               padding: 10px;
             "
-            >
-                {{ $regulation?->monitoring?->block?->name }}
-            </td>
-            <td
-                style="
+                >
+                    {{ $regulation?->monitoring?->block?->name }}
+                </td>
+                <td
+                    style="
               border: 1px solid #bfbfbf;
               text-align: center;
               padding: 10px;
             "
-            >
-               {{ $regulation->deadline }}
-            </td>
-            <td
-                style="
+                >
+                    {{ $regulation->deadline }}
+                </td>
+                <td
+                    style="
               border: 1px solid #bfbfbf;
               text-align: center;
               padding: 10px;
             "
-            >
-                {{ $regulation->regulationStatus->status }}
-            </td>
-        </tr>
+                >
+                    {{ $regulation->regulationStatus->status }}
+                </td>
+            </tr>
         @empty
         @endforelse
         </tbody>

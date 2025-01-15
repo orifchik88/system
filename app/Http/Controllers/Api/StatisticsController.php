@@ -471,6 +471,4 @@ class StatisticsController extends BaseController
             return $this->sendError($exception->getMessage(), $exception->getLine());
         }
     }
-
-
 }
