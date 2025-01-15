@@ -398,12 +398,12 @@ class StatisticsController extends BaseController
                 ->select($selectColumns)
                 ->when(in_array('inspector', $columns), function($q) use ($columns) {
                     $q->with(['inspector' => function ($query) use ($columns) {
-                        $query->select('users.surname ','users.name', 'users.middle_name', 'users.id as user_id', 'users.phone');
+                        $query->select('users.surname','users.name', 'users.middle_name', 'users.id as user_id', 'users.phone');
                     }]);
                 })
                 ->when(in_array('participants', $columns), function($q) use ($columns) {
                     $q->with(['users' => function ($query) use ($columns) {
-                        $query->select('users.surname ','users.name', 'users.middle_name', 'users.id as user_id', 'users.phone')->whereIn('role_id', [5,7, 6]);
+                        $query->select('users.surname','users.name', 'users.middle_name', 'users.id as user_id', 'users.phone')->whereIn('role_id', [5,7, 6]);
                     }]);
                 })
 

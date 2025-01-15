@@ -17,8 +17,8 @@ class RegulationViolationResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this?->violation?->title,
-            'comment' => $this?->violation?->description,
-           // 'comment' => $this?->violation?->comment,
+            'description' => $this?->violation?->description,
+            'comment' => $this?->violation?->comment,
             'block_name' => $this?->regulation?->monitoring?->block?->name,
             'normative_doc_name' => $this?->violation?->bases?->topic?->normative?->name,
             'topic_name' => $this?->violation?->bases?->topic?->name,
