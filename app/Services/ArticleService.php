@@ -191,7 +191,7 @@ class ArticleService
                     });
             });
 
-        $totalAmount = $this->getArticlesByRegion($regionId)->get()->sum('price_supervision_service');
+        $totalAmount = $this->getArticlesByRegion($regionId)->where('created_at', '>=', '2024-01-01')->get()->sum('price_supervision_service');
 
         return [
             'totalAmount' => $totalAmount,

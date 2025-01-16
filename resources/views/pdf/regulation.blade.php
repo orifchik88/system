@@ -255,7 +255,7 @@
                 Bajarilish muddati
             </th>
             <th style="border: 1px solid #bfbfbf; padding: 10px">
-                Bajarilishi haqida belgilar
+                Bajarilishi haqida belgilar (holati)
             </th>
         </tr>
         </thead>
