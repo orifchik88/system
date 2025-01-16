@@ -206,19 +206,32 @@ class ArticleService
         return [
             'all' => $articles->count(),
             'paid' => $articles->filter(function ($article) {
+                if (trim($article->price_supervision_service) === '0.00') {
+                    return false;
+                }
+
                 $totalPaid = $article->paymentLogs->sum('content->additionalInfo->amount');
                 return $totalPaid >= $article->price_supervision_service;
             })->count(),
             'partiallyPaid' => $articles->filter(function ($article) {
+                if (trim($article->price_supervision_service) === '0.00') {
+                    return false;
+                }
+
                 $totalPaid = $article->paymentLogs->sum('content->additionalInfo->amount');
                 return $totalPaid < $article->price_supervision_service && $totalPaid > 0;
             })->count(),
             'notPaid' => $articles->filter(function ($article) {
+                if (trim($article->price_supervision_service) === '0.00') {
+                    return false;
+                }
+
                 $totalPaid = $article->paymentLogs->sum('content->additionalInfo->amount');
                 return $totalPaid == 0;
             })->count(),
         ];
     }
+
 
     public function createPayment($user, $roleId, $objectId)
     {
