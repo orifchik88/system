@@ -227,6 +227,7 @@ class StatisticsController extends BaseController
                 ->when(\request('program_id'), function ($query) {
                     $query->where('articles.program_id', \request('program_id'));
                 })
+                ->where('created_by_role', UserRoleEnum::INSPECTOR->value)
                 ->groupBy('articles.'.$group)
                 ->pluck('count', $group);
 
@@ -350,7 +351,7 @@ class StatisticsController extends BaseController
             ->when(\request('program_id'), function ($query)  {
                 $query->where('articles.program_id', \request('program_id'));
             })
-
+            ->where('created_by_role_id', 3)
             ->groupBy($groupBy)
             ->pluck('count', $groupBy);
     }
@@ -417,19 +418,19 @@ class StatisticsController extends BaseController
                 ->when(in_array('regulations', $columns), function($q) {
                     $q->with(['regulations' => function ($query) {
                         $query->selectRaw('object_id, COUNT(id) as all_count,
-							SUM(CASE WHEN regulation_status_id IN (6, 8) THEN 1 ELSE 0 END) as eliminated_count,
-							SUM(CASE WHEN regulation_status_id IN (1, 2, 3, 4, 5) THEN 1 ELSE 0 END) as progress_count,
-							SUM(CASE WHEN regulation_status_id = 7 THEN 1 ELSE 0 END) as not_execution_count,
-							SUM(CASE WHEN regulation_status_id IN (6, 8) AND role_id = 6  THEN 1 ELSE 0 END) as costumer_eliminated_count,
-							SUM(CASE WHEN regulation_status_id IN (1, 2, 3, 4, 5) AND role_id = 6 THEN 1 ELSE 0 END) as costumer_progress_count,
-							SUM(CASE WHEN regulation_status_id = 7 AND role_id = 6 THEN 1 ELSE 0 END) as costumer_not_execution_count,
-							SUM(CASE WHEN regulation_status_id IN (6, 8) AND role_id = 5  THEN 1 ELSE 0 END) as manage_eliminated_count,
-							SUM(CASE WHEN regulation_status_id IN (1, 2, 3, 4, 5) AND role_id = 5 THEN 1 ELSE 0 END) as manage_progress_count,
-							SUM(CASE WHEN regulation_status_id = 7 AND role_id = 5 THEN 1 ELSE 0 END) as manage_not_execution_count,
-							SUM(CASE WHEN regulation_status_id IN (6, 8) AND role_id = 7  THEN 1 ELSE 0 END) as author_eliminated_count,
-							SUM(CASE WHEN regulation_status_id IN (1, 2, 3, 4, 5) AND role_id = 7 THEN 1 ELSE 0 END) as author_progress_count,
-							SUM(CASE WHEN regulation_status_id = 7 AND role_id = 7 THEN 1 ELSE 0 END) as author_not_execution_count,
-                            SUM(CASE WHEN lawyer_status_id = 3 THEN 1 ELSE 0 END) as administratively'
+							SUM(CASE WHEN regulation_status_id IN (6, 8) AND created_by_role_id = 3 THEN 1 ELSE 0 END) as eliminated_count,
+							SUM(CASE WHEN regulation_status_id IN (1, 2, 3, 4, 5)  AND created_by_role_id = 3 THEN 1 ELSE 0 END) as progress_count,
+							SUM(CASE WHEN regulation_status_id = 7 AND created_by_role_id = 3 THEN 1 ELSE 0 END) as not_execution_count,
+							SUM(CASE WHEN regulation_status_id IN (6, 8) AND role_id = 6  AND created_by_role_id = 3 THEN 1 ELSE 0 END) as costumer_eliminated_count,
+							SUM(CASE WHEN regulation_status_id IN (1, 2, 3, 4, 5) AND role_id = 6 AND created_by_role_id = 3 THEN 1 ELSE 0 END) as costumer_progress_count,
+							SUM(CASE WHEN regulation_status_id = 7 AND role_id = 6 AND created_by_role_id = 3 THEN 1 ELSE 0 END) as costumer_not_execution_count,
+							SUM(CASE WHEN regulation_status_id IN (6, 8) AND role_id = 5  AND created_by_role_id = 3 THEN 1 ELSE 0 END) as manage_eliminated_count,
+							SUM(CASE WHEN regulation_status_id IN (1, 2, 3, 4, 5) AND role_id = 5 AND created_by_role_id = 3 THEN 1 ELSE 0 END) as manage_progress_count,
+							SUM(CASE WHEN regulation_status_id = 7 AND role_id = 5 AND created_by_role_id = 3 THEN 1 ELSE 0 END) as manage_not_execution_count,
+							SUM(CASE WHEN regulation_status_id IN (6, 8) AND role_id = 7  AND created_by_role_id = 3 THEN 1 ELSE 0 END) as author_eliminated_count,
+							SUM(CASE WHEN regulation_status_id IN (1, 2, 3, 4, 5) AND role_id = 7 AND created_by_role_id = 3 THEN 1 ELSE 0 END) as author_progress_count,
+							SUM(CASE WHEN regulation_status_id = 7 AND role_id = 7  AND created_by_role_id = 3 THEN 1 ELSE 0 END) as author_not_execution_count,
+                            SUM(CASE WHEN lawyer_status_id = 3 AND created_by_role_id = 3 THEN 1 ELSE 0 END) as administratively'
                         )
                             ->groupBy('object_id');
                     }]);
@@ -443,8 +444,10 @@ class StatisticsController extends BaseController
                 ->when(in_array('blocks', $columns), function($q) {
                     $q->withCount('blocks');
                 })
-                ->when(in_array('monitorings', $columns), function($q) {
-                    $q->withCount('monitorings');
+                ->when(in_array('monitorings', $columns), function ($q) {
+                    $q->withCount(['monitorings as monitoring_count' => function ($query) {
+                        $query->where('created_by_role', UserRoleEnum::INSPECTOR->value);
+                    }]);
                 })
                 ->when(isset($filters['region']), function ($q) use ($filters) {
                     return $q->where('region_id', $filters['region']);

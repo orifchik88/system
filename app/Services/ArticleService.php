@@ -208,7 +208,7 @@ class ArticleService
         });
 
         return [
-            'all' => $filteredArticles->count(), 
+            'all' => $filteredArticles->count(),
             'paid' => $filteredArticles->filter(function ($article) {
                 $totalPaid = $article->paymentLogs->sum('content->additionalInfo->amount');
                 return $totalPaid >= $article->price_supervision_service;
