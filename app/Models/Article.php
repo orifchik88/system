@@ -50,12 +50,8 @@ class Article extends Model
         if (trim($this->price_supervision_service) === '0.00') {
             return 'no_value';
         }
-
-        if ($notPaid > 0) {
-            return (string) number_format($notPaid, 2, '.', '');
-        }
-
-        return 'paid';
+        
+        return $notPaid;
     }
 
     public function inspector(): BelongsToMany
