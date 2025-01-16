@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
+use function Laravel\Prompts\select;
 
 class Article extends Model
 {
@@ -43,12 +44,18 @@ class Article extends Model
         });
 
         $totalAmount = (float) $this->price_supervision_service;
+        $notPaid =  $totalAmount - $totalPaid;
 
-        return [
-            'totalAmount' => $totalAmount,
-            'totalPaid' => $totalPaid,
-            'notPaid' => $totalAmount - $totalPaid,
-        ];
+
+        if ($this->price_supervision_service == '0.00') return 'no_value';
+
+        if ($notPaid > 0)
+        {
+            return (string)$notPaid;
+        }else{
+            return 'paid';
+        }
+
     }
 
     public function inspector(): BelongsToMany
