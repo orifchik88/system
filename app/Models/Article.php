@@ -34,6 +34,23 @@ class Article extends Model
         return $this->hasMany(Block::class);
     }
 
+    public function getCostAttribute()
+    {
+        $totalPaid = $this->paymentLogs->sum(function ($log) {
+            return isset($log->content->additionalInfo->amount)
+                ? (float)$log->content->additionalInfo->amount
+                : 0;
+        });
+
+        $totalAmount = (float) $this->price_supervision_service;
+
+        return [
+            'totalAmount' => $totalAmount,
+            'totalPaid' => $totalPaid,
+            'notPaid' => $totalAmount - $totalPaid,
+        ];
+    }
+
     public function inspector(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'article_users', 'article_id', 'user_id')->withPivot('role_id')->wherePivot('role_id', 3);

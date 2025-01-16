@@ -501,6 +501,10 @@ class RegulationController extends BaseController
     public function test()
     {
         try {
+            $article = Article::find(53489);
+            $cost = $article->cost;
+
+            dd($cost);
 //            $regulations = Regulation::whereNotNull('regulation_number')
 //            ->get()
 //                ->groupBy('regulation_number');
