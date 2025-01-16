@@ -181,7 +181,6 @@ class ArticleService
     {
         $totalPaid = Article::with('paymentLogs')
             ->where('region_id', $regionId)
-            ->whereNull('old_id')
             ->get()
             ->reduce(function ($carry, $article) {
                 return $carry + $article->paymentLogs->sum(function ($log) {
