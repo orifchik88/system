@@ -20,6 +20,7 @@ class Article extends Model
     use HasFactory, SoftDeletes;
 
     protected $guarded = [];
+    protected $appends = ['cost'];
 
     public function documents(): MorphMany
     {
@@ -50,7 +51,7 @@ class Article extends Model
         if (trim($this->price_supervision_service) === '0.00') {
             return 'no_value';
         }
-        
+
         return $notPaid;
     }
 
