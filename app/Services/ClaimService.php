@@ -118,6 +118,11 @@ class ClaimService
         return $this->claimRepository->getStatisticsRepeated($region);
     }
 
+    public function getStatisticsForInspector()
+    {
+        return $this->claimRepository->getStatisticsForInspector();
+    }
+
     public function getStatisticsCount(
         ?int    $regionId,
         ?int    $districtId,

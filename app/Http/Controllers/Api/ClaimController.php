@@ -56,14 +56,16 @@ class ClaimController extends BaseController
             default => request()->get('district', null),
         };
 
-
-        $data = $this->claimService->getStatisticsCount(
-            regionId: $regionId,
-            districtId: $districtId,
-            expired: null,
-            dateFrom: $dateFrom,
-            dateTo: $dateTo
-        );
+        if ($roleId == (string)UserRoleEnum::INSPECTOR->value)
+            $data = $this->claimService->getStatisticsForInspector();
+        else
+            $data = $this->claimService->getStatisticsCount(
+                regionId: $regionId,
+                districtId: $districtId,
+                expired: null,
+                dateFrom: $dateFrom,
+                dateTo: $dateTo
+            );
 
         return $this->sendSuccess($data, 'Successfully sent!');
     }

@@ -20,6 +20,8 @@ interface ClaimRepositoryInterface
 
     public function updateClaim(int $guId, array $data): bool;
 
+    public function getStatisticsForInspector();
+
     public function getStatisticsCount(
         ?int    $regionId,
         ?int    $districtId,

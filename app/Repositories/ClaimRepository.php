@@ -143,6 +143,32 @@ class ClaimRepository implements ClaimRepositoryInterface
             ->setAppends([]);
     }
 
+    public function getStatisticsForInspector()
+    {
+        return $this->claim->query()
+            ->join('article_users', 'article_users.article_id', '=', 'claims.object_id')
+            ->join('articles', 'articles.id', '=', 'claims.object_id')
+            ->select(DB::raw("
+                COUNT(CASE WHEN claims.status = " . ClaimStatuses::TASK_STATUS_ACCEPTANCE . " THEN 1 ELSE null END) as in_process,
+                COUNT(CASE WHEN claims.status = " . ClaimStatuses::TASK_STATUS_ATTACH_OBJECT . " THEN 1 ELSE null END) as attach_object,
+                COUNT(CASE WHEN claims.status = " . ClaimStatuses::TASK_STATUS_INSPECTOR . " THEN 1 ELSE null END) as inspector,
+                COUNT(CASE WHEN claims.status = " . ClaimStatuses::TASK_STATUS_SENT_ORGANIZATION . " THEN 1 ELSE null END) as sent_organization,
+                COUNT(CASE WHEN claims.status = " . ClaimStatuses::TASK_STATUS_DIRECTOR . " THEN 1 ELSE null END) as director,
+                COUNT(CASE WHEN claims.status = " . ClaimStatuses::TASK_STATUS_OPERATOR . " THEN 1 ELSE null END) as operator,
+                COUNT(CASE WHEN claims.status = " . ClaimStatuses::TASK_STATUS_SENT_ANOTHER_ORG . " THEN 1 ELSE null END) as minstroy,
+                COUNT(CASE WHEN claims.status = " . ClaimStatuses::TASK_STATUS_ORGANIZATION_REJECTED . " THEN 1 ELSE null END) as organization_rejected,
+                COUNT(CASE WHEN claims.status = " . ClaimStatuses::TASK_STATUS_CONFIRMED . " THEN 1 ELSE null END) as confirmed,
+                COUNT(CASE WHEN claims.status = " . ClaimStatuses::TASK_STATUS_REJECTED . " THEN 1 ELSE null END) as rejected,
+                COUNT(CASE WHEN claims.status = " . ClaimStatuses::TASK_STATUS_CANCELLED . " THEN 1 ELSE null END) as cancelled,
+                COUNT(CASE WHEN claims.status <> " . ClaimStatuses::TASK_STATUS_ANOTHER . " THEN 1 ELSE null END) as total,
+                COUNT(CASE WHEN claims.expired = 1 THEN 1 ELSE null END) as total_expired
+            "))
+            ->where('article_users.role_id', UserRoleEnum::INSPECTOR)
+            ->where('article_users.user_id', Auth::user()->id)
+            ->first()
+            ->setAppends([]);
+    }
+
     public function getStatisticsCount(
         ?int    $regionId,
         ?int    $districtId,
