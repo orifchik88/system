@@ -41,7 +41,7 @@ class Claim extends Model
     public function object(): BelongsTo
     {
         return $this->belongsTo(Article::class, 'object_id', 'id')->with(['region', 'district', 'users'])
-            ->select('id', 'name', 'location_building', 'region_id', 'district_id', 'lat', 'long', 'object_type_id', 'cost');
+            ->select('id', 'name', 'location_building', 'region_id', 'district_id', 'lat', 'long', 'object_type_id');
     }
 
     public function reviews(): HasMany
