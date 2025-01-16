@@ -203,29 +203,21 @@ class ArticleService
     {
         $articles = Article::with('paymentLogs')->where('region_id', $regionId)->get();
 
-        return [
-            'all' => $articles->count(),
-            'paid' => $articles->filter(function ($article) {
-                if (trim($article->price_supervision_service) === '0.00') {
-                    return false;
-                }
+        $filteredArticles = $articles->filter(function ($article) {
+            return trim($article->price_supervision_service) !== '0.00';
+        });
 
+        return [
+            'all' => $filteredArticles->count(), 
+            'paid' => $filteredArticles->filter(function ($article) {
                 $totalPaid = $article->paymentLogs->sum('content->additionalInfo->amount');
                 return $totalPaid >= $article->price_supervision_service;
             })->count(),
-            'partiallyPaid' => $articles->filter(function ($article) {
-                if (trim($article->price_supervision_service) === '0.00') {
-                    return false;
-                }
-
+            'partiallyPaid' => $filteredArticles->filter(function ($article) {
                 $totalPaid = $article->paymentLogs->sum('content->additionalInfo->amount');
                 return $totalPaid < $article->price_supervision_service && $totalPaid > 0;
             })->count(),
-            'notPaid' => $articles->filter(function ($article) {
-                if (trim($article->price_supervision_service) === '0.00') {
-                    return false;
-                }
-
+            'notPaid' => $filteredArticles->filter(function ($article) {
                 $totalPaid = $article->paymentLogs->sum('content->additionalInfo->amount');
                 return $totalPaid == 0;
             })->count(),
