@@ -519,8 +519,8 @@ class ClaimRepository implements ClaimRepositoryInterface
                     $q->where('claims.status', $status);
                 })
                 ->when($start_date || $end_date, function ($query) use ($start_date, $end_date) {
-                    $startDate = isset($filters['start_date']) ? $filters['start_date'] . ' 00:00:00' : null;
-                    $endDate = isset($filters['end_date']) ? $filters['end_date'] . ' 23:59:59' : null;
+                    $startDate = $start_date . ' 00:00:00';
+                    $endDate = $end_date . ' 23:59:59';
 
                     if ($startDate && $endDate) {
                         $query->whereBetween('claims.created_at', [$startDate, $endDate]);
