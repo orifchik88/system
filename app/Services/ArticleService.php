@@ -181,7 +181,7 @@ class ArticleService
     {
         $totalPaid = Article::with('paymentLogs')
             ->where('region_id', $regionId)
-            ->where('created_at', '>=' ,  '2024-01-01')
+            ->where('articles.created_at', '>=' ,  '2024-01-01')
             ->get()
             ->reduce(function ($carry, $article) {
                 return $carry + $article->paymentLogs->sum(function ($log) {
