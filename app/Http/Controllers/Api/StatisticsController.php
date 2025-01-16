@@ -459,7 +459,7 @@ class StatisticsController extends BaseController
                 })
                 ->when(isset($filters['inspector']), function ($q) use ($filters) {
                     $q->whereHas('users', function ($query) use ($filters) {
-                        $query->where('user_id', $filters['inspector_id'])
+                        $query->where('user_id', $filters['inspector'])
                             ->where('role_id', UserRoleEnum::INSPECTOR->value);
                     });
                 })
