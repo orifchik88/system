@@ -44,18 +44,18 @@ class Article extends Model
         });
 
         $totalAmount = (float) $this->price_supervision_service;
-        $notPaid =  $totalAmount - $totalPaid;
 
+        $notPaid = $totalAmount - $totalPaid;
 
-        if ($this->price_supervision_service == '0.00') return 'no_value';
-
-        if ($notPaid > 0)
-        {
-            return (string)$notPaid;
-        }else{
-            return 'paid';
+        if (trim($this->price_supervision_service) === '0.00') {
+            return 'no_value';
         }
 
+        if ($notPaid > 0) {
+            return (string) number_format($notPaid, 2, '.', '');
+        }
+
+        return 'paid';
     }
 
     public function inspector(): BelongsToMany
