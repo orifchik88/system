@@ -105,8 +105,10 @@ class MonitoringController extends BaseController
     {
         try {
             $checklist = CheckListAnswer::query()->findOrFail(request('checklist_id'));
-            return $this->sendSuccess(CheckListHistoryResource::collection($checklist->logs), 'Checklist logs');
-        }catch (\Exception $exception){
+            $logs = CheckListHistoryResource::collection($checklist->logs()->orderBy('created_at')->get());
+
+            return $this->sendSuccess($logs, 'Checklist logs');
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -118,7 +120,7 @@ class MonitoringController extends BaseController
 
             return $this->sendSuccess(CheckListHistoryFileResource::make($history), 'Files');
 
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
