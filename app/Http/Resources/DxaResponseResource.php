@@ -91,6 +91,7 @@ class DxaResponseResource extends JsonResource
             'industrial_security_date' => $this->industrial_security_date,
             'confirming_laboratory' => $this->confirming_laboratory,
             'specialists_certificates' => $this->specialists_certificates,
+            'rejection_comment' => $this->rejection_comment,
             'contract_file' => $this->contract_file,
             'organization_projects' => $this->organization_projects,
             'file_energy_efficiency' => $this->file_energy_efficiency,

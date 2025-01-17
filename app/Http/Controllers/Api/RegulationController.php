@@ -228,6 +228,7 @@ class RegulationController extends BaseController
         DB::beginTransaction();
         try {
             $regulation = Regulation::query()->findOrFaiL($request->regulation_id);
+
             $event = new RegulationEvent();
             $event->regulation_id = $regulation->id;
             $event->status = $request->status;
