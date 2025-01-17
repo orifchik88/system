@@ -17,22 +17,11 @@ class MonitoringResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        //$regulations = $this->regulations()->with('regulationViolations')->get();
-        $regulations = $this->regulations()
-            ->with(['regulationViolations:regulation_id,violation_id'])
-            ->get();
+        $regulations = $this->regulations()->with('regulationViolations')->get();
 
-
-//        $violationCount = $regulations->flatMap(function ($regulation) {
-//            return $regulation->regulationViolations->pluck('violation_id');
-//        })->unique()->count();
-
-        $violationCount = $regulations
-            ->pluck('regulationViolations.*.violation_id')
-            ->flatten()
-            ->unique()
-            ->count();
-
+        $violationCount = $regulations->flatMap(function ($regulation) {
+            return $regulation->regulationViolations->pluck('violation_id');
+        })->unique()->count();
 
         return [
             'id' => $this->id,
