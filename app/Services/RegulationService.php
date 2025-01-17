@@ -498,7 +498,7 @@ class RegulationService
                     throw new NotFoundException('Dalolatnoma topilmadi');
                 }
             }
-            
+
             if ($regulation->created_by_role_id  != 3){
                 if ($regulation->paused_at) {
                     $pausedAt = Carbon::parse($regulation->paused_at);

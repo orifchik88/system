@@ -307,7 +307,7 @@ class RegulationController extends BaseController
 
             return $this->sendSuccess([], 'Data saved successfully');
         } catch (\Exception $exception) {
-            return $this->sendError($exception->getMessage(), $exception->getCode());
+            return $this->sendError('xatolik aniqlandi', $exception->getCode());
         }
     }
 
@@ -334,7 +334,7 @@ class RegulationController extends BaseController
             return $this->sendSuccess([], 'Data saved successfully');
 
         } catch (\Exception $exception) {
-            return $this->sendError($exception->getMessage(), $exception->getCode());
+            return $this->sendError('xatolik aniqlandi', $exception->getCode());
         }
     }
 
@@ -351,7 +351,7 @@ class RegulationController extends BaseController
 
             return $this->sendSuccess([], 'Data saved successfully');
         } catch (\Exception $exception) {
-            return $this->sendError($exception->getMessage(), $exception->getCode());
+            return $this->sendError('xatolik aniqlandi', $exception->getCode());
         }
 
     }
@@ -369,7 +369,7 @@ class RegulationController extends BaseController
 
             return $this->sendSuccess([], 'Data saved successfully');
         } catch (\Exception $exception) {
-            return $this->sendError($exception->getMessage(), $exception->getCode());
+            return $this->sendError('xatolik aniqlandi', $exception->getCode());
         }
     }
 
@@ -384,7 +384,7 @@ class RegulationController extends BaseController
 
             return $this->sendSuccess([], 'Data saved successfully');
         } catch (\Exception $exception) {
-            return $this->sendError($exception->getMessage(), $exception->getCode());
+            return $this->sendError('xatolik aniqlandi', $exception->getCode());
         }
     }
 
@@ -399,7 +399,7 @@ class RegulationController extends BaseController
 
             return $this->sendSuccess([], 'Data saved successfully');
         } catch (\Exception $exception) {
-            return $this->sendError($exception->getMessage(), $exception->getCode());
+            return $this->sendError('xatolik aniqlandi', $exception->getCode());
         }
     }
 
@@ -461,7 +461,7 @@ class RegulationController extends BaseController
 
             return $this->sendSuccess([], 'Data saved successfully');
         } catch (\Exception $exception) {
-            return $this->sendError($exception->getMessage(), $exception->getCode());
+            return $this->sendError('xatolik aniqlandi', $exception->getCode());
         }
     }
 
