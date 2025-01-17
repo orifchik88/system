@@ -923,7 +923,7 @@ class MigrateCommand extends Command
         $regulations = DB::connection('third_pgsql')->table('regulations')
             ->where(DB::raw('phase::int'), '>', 0)
             ->where('is_migrated', false)
-            ->where('created_at', '>=', '2024-12-10')
+            ->where('created_at', '>=', '2024-12-05')
             ->where('deadline', '<', '2025-01-18')
             ->limit(30)
             ->get();
