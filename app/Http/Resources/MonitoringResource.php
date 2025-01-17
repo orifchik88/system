@@ -17,21 +17,27 @@ class MonitoringResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $regulations = $this->regulations()->with('regulationViolations')->get();
+        //$regulations = $this->regulations()->with('regulationViolations')->get();
+        $regulations = $this->regulations()
+            ->with(['regulationViolations:regulation_id,violation_id'])
+            ->get();
 
-        $violationCount = $regulations->flatMap(function ($regulation) {
-            return $regulation->regulationViolations->pluck('violation_id');
-        })->unique()->count();
-//        $violationCount = [];
-//        foreach ($this->regulations as $regulation) {
-//            $regViolation = RegulationViolation::query()->where('regulation_id', $regulation->id)->get();
-//            foreach($regViolation as $violation) {
-//                $violationCount[] = $violation->violation_id;
-//            }
-//        }
-//        $uniqueViolationCount = array_unique($violationCount);
 
-        $user = User::find($this->created_by);
+//        $violationCount = $regulations->flatMap(function ($regulation) {
+//            return $regulation->regulationViolations->pluck('violation_id');
+//        })->unique()->count();
+
+        $violationCount = $regulations
+            ->pluck('regulationViolations.*.violation_id')
+            ->flatten()
+            ->unique()
+            ->count();
+
+        $user = User::query()->select(['id', 'surname', 'name', 'middle_name', 'phone'])
+            ->find($this->created_by);
+
+        $role = Role::query()->select(['id', 'name'])
+            ->find($this->created_by_role);
 
 
         return [
@@ -51,13 +57,13 @@ class MonitoringResource extends JsonResource
             'created_at' => $this->created_at,
             'role' => [
                 'id' => $this->created_by_role,
-                'name' => Role::query()->find($this->created_by_role)->name,
+                'name' => $role?->name,
             ],
             'user' => [
                 'id' => $this->created_by,
-                'name' =>  $user ? "{$user->surname} {$user->name} {$user->middle_name}" : null,
-                'phone' =>  $user ? $user->phone : null,
-            ]
+                'name' => $user ? "{$user->surname} {$user->name} {$user->middle_name}" : null,
+                'phone' => $user?->phone,
+            ],
 
         ];
     }
