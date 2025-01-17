@@ -10,6 +10,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\MonitoringRequest;
 use App\Http\Resources\CheckListAnswerFilesResource;
 use App\Http\Resources\CheckListAnswerResource;
+use App\Http\Resources\CheckListHistoryFileResource;
+use App\Http\Resources\CheckListHistoryResource;
 use App\Http\Resources\LevelResource;
 use App\Http\Resources\MonitoringResource;
 use App\Models\Article;
@@ -95,6 +97,28 @@ class MonitoringController extends BaseController
             $blockId = request('block_id');
             return $this->sendSuccess($this->questionService->getQuestionList(blockId: $blockId, type: null, block_type: request('block_type')), 'Checklist');
         } catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function getChecklistLog(): JsonResponse
+    {
+        try {
+            $checklist = CheckListAnswer::query()->findOrFail(request('checklist_id'));
+            return $this->sendSuccess(CheckListHistoryResource::collection($checklist->logs), 'Checklist logs');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function getChecklistLogFile(): JsonResponse
+    {
+        try {
+            $history = CheckListHistory::query()->findOrFail(request('history_id'));
+
+            return $this->sendSuccess(CheckListHistoryFileResource::make($history), 'Files');
+
+        }catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
