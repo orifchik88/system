@@ -42,7 +42,12 @@ class MonitoringResource extends JsonResource
             'regulation_count' => $this->regulations()->count(),
             'active_regulation_count' => $this->regulations()->where('regulation_status_id', '!=', 6)->count(),
             'violation_count' =>  $violationCount ?? 0,
-            'checklists' => ChecklistResource::collection($this->checklists),
+            'checklists' => $this->checklists->map(function ($checklist) {
+                return [
+                    'status' => $checklist->status,
+                    'question_id' => $checklist->question ? $checklist->question->id : null,
+                ];
+            }),
             'created_at' => $this->created_at,
             'role' => [
                 'id' => $this->created_by_role,
