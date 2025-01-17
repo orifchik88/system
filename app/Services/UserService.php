@@ -88,6 +88,10 @@ class UserService
                 return User::query()->whereNot('user_status_id', UserStatusEnum::RELEASED)->whereHas('roles', function ($query) {
                     $query->where('role_id', UserRoleEnum::NOGIRONLAR_ASSOT->value);
                 });
+            case UserRoleEnum::EKOLOGIYA_RES_KADR->value:
+                return User::query()->whereNot('user_status_id', UserStatusEnum::RELEASED)->whereHas('roles', function ($query) {
+                    $query->where('role_id', UserRoleEnum::EKOLOGIYA->value);
+                });
 
             default:
                 return User::query()->whereRaw('1 = 0');
