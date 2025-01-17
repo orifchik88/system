@@ -114,6 +114,9 @@ class MigrateCommand extends Command
             case 15:
                 $this->syncLawyerStatus();
                 break;
+            case 16:
+                $this->migrateNewRegulations();
+                break;
             default:
                 echo 'Fuck you!';
                 break;
@@ -832,7 +835,7 @@ class MigrateCommand extends Command
             ->where('is_monitoring_get', false)
             ->where('is_regulation_get', true)
             ->whereNotNull('old_id')
-            ->limit(20)
+            ->limit(50)
             ->get();
 
         $monitoringTypes = [
@@ -913,6 +916,181 @@ class MigrateCommand extends Command
             ]);
         }
 
+    }
+
+    private function migrateNewRegulations()
+    {
+        $regulations = DB::connection('third_pgsql')->table('regulations')
+            ->where(DB::raw('phase::int'), '>', 0)
+            ->where('is_migrated', false)
+            ->where('created_at', '>=', '2024-12-10')
+            ->where('deadline', '<', '2025-01-18')
+            ->limit(30)
+            ->get();
+
+        $regulationStatuses = [
+            0 => RegulationStatusEnum::PROVIDE_REMEDY,
+            1 => RegulationStatusEnum::PROVIDE_REMEDY,
+            2 => RegulationStatusEnum::CONFIRM_REMEDY,
+            3 => RegulationStatusEnum::ATTACH_DEED,
+            4 => RegulationStatusEnum::CONFIRM_DEED,
+            5 => RegulationStatusEnum::CONFIRM_DEED_CMR,
+            6 => RegulationStatusEnum::CONFIRM_DEED_CMR,
+            7 => RegulationStatusEnum::ELIMINATED,
+            8 => RegulationStatusEnum::IN_LAWYER
+        ];
+
+        $actStatuses = [
+            '78f19080-d9b6-4e8d-887f-03055130e213' => 1,
+            '2ed33411-2930-413d-8833-3af9d0fc5de4' => 2,
+            'e6c61e8f-daea-4716-81d0-4be120264e15' => 3,
+            '36c43564-1861-48f9-bdfe-9158289ed94c' => 4,
+            'b4e1ed17-239a-4422-b671-14551d4aca39' => 5,
+            '26c0338a-b18b-4ae4-9eb2-4a9ace9a65a1' => 6,
+            '6b483bf3-100c-4086-b421-1e329a00c0b6' => 10,
+            '90966d39-154a-4bec-9903-506f97eb6156' => 11,
+            'd042d139-f8a3-4f3d-ada2-f5d179a811b2' => 12,
+            '97f99deb-0807-48d3-9eea-b2cfda114137' => 8,
+        ];
+
+        $actViolationTypes = [
+            '41a6378c-b3f1-453b-bb4f-9538c2309348' => 1,
+            '53485e56-899c-4615-bc6e-4ec76a9bfaca' => 2,
+            'b8f8f00d-4c3d-48d6-800c-9fffd2394777' => 3,
+        ];
+
+        $inspectorRoles = [
+            '80b740c4-79ef-4c45-a76a-926f90fa3780' => UserRoleEnum::INSPECTOR,
+            '2316d2ab-ae0b-497b-9175-642b414c1886' => UserRoleEnum::INSPECTOR,
+            'db60cbca-8d2f-4911-9fdc-6fc30102c669' => UserRoleEnum::INSPECTOR
+        ];
+
+        foreach ($regulations as $regulation) {
+            $role = Role::query()->where('old_id', $regulation->created_by_role_id)->first();
+            $article = Article::query()->where('old_id', $regulation->object_id)->first();
+            $user = User::query()->where('old_id', $regulation->created_by)->first();
+
+            if(!$article || $article->object_status_id == ObjectStatusEnum::SUBMITTED)
+                continue;
+
+            if ($user == null)
+                continue;
+
+            $violations = DB::connection('third_pgsql')->table('violations')
+                ->where('regulation_id', $regulation->id)
+                ->where('is_migrated', false)
+                ->get();
+
+            if ($regulation->phase == null || $regulation->phase == '0')
+                continue;
+
+            $regulationStatus = $regulationStatuses[$regulation->phase];
+//            if ($regulation->is_administrative && in_array((int)$regulation->phase, [1, 2, 3, 4, 8]))
+//                $regulationStatus = RegulationStatusEnum::IN_LAWYER;
+
+            if ($regulation->is_administration_closed && (int)$regulation->phase == 7)
+                $regulationStatus = RegulationStatusEnum::LATE_EXECUTION;
+
+            $toUserRoleId = [
+                3 => UserRoleEnum::ICHKI,
+                2 => UserRoleEnum::MUALLIF,
+                1 => UserRoleEnum::TEXNIK
+            ];
+            $toUserRole = explode('/', $regulation->regulation_number)[1];
+
+            if (User::query()->where('old_id', $regulation->user_id)->first() == null)
+                continue;
+
+            $newRegulation = Regulation::create([
+                'object_id' => $article->id,
+                'deadline' => '2025-02-01',
+                'checklist_id' => null,
+                'question_id' => null,
+                'regulation_status_id' => $regulationStatus,
+                'regulation_number' => $regulation->regulation_number,
+                'act_status_id' => ($regulation->act_status_id != null) ? $actStatuses[$regulation->act_status_id] : null,
+                'regulation_type_id' => 1,
+                'created_by_role_id' => (isset($inspectorRoles[$regulation->created_by_role_id])) ? $inspectorRoles[$regulation->created_by_role_id] : $role->id,
+                'created_by_user_id' => $user->id,
+                'user_id' => User::query()->where('old_id', $regulation->user_id)->first()->id,
+                'monitoring_id' => null,
+                'deadline_asked' => $regulation->deadline_asked,
+                'created_at' => $regulation->created_at,
+                'role_id' => $toUserRoleId[$toUserRole],
+                'lawyer_status_id' => ($regulation->is_administration_closed) ? 3 : null
+            ]);
+            RegulationUser::create([
+                'regulation_id' => $newRegulation->id,
+                'from_user_id' => $newRegulation->created_by_user_id,
+                'from_role_id' => $newRegulation->created_by_role_id,
+                'to_user_id' => $newRegulation->user_id,
+                'to_role_id' => $newRegulation->role_id,
+            ]);
+
+            foreach ($violations as $violation) {
+                $actViolations = DB::connection('third_pgsql')->table('violation_act')
+                    ->where('violation_id', $violation->id)
+                    ->get();
+
+                $newViolation = Violation::create([
+                    'question_id' => null,
+                    'title' => $violation->title,
+                    'description' => $violation->description,
+                    'bases_id' => null,
+                    'checklist_id' => null,
+                    'created_at' => $violation->created_at,
+                ]);
+
+                $regulation_violation = RegulationViolation::create([
+                    'regulation_id' => $newRegulation->id,
+                    'violation_id' => $newViolation->id
+                ]);
+
+                foreach ($actViolations as $actViolation) {
+                    $actUser = User::query()->where('old_id', $actViolation->user_id)->first();
+                    if ($actUser == null)
+                        continue;
+
+                    $articleUserRole = ArticleUser::query()->where('article_id', $article->id)->where('user_id', $actUser->id)->first();
+                    if ($articleUserRole == null)
+                        continue;
+
+                    $actViolationStatus = ActViolation::PROGRESS;
+                    if (in_array($newRegulation->act_status_id, [2, 5, 8, 11, 13]))
+                        $actViolationStatus = ActViolation::ACCEPTED;
+                    if (in_array($newRegulation->act_status_id, [3, 6, 9, 12]))
+                        $actViolationStatus = ActViolation::REJECTED;
+
+                    ActViolation::create([
+                        'regulation_id' => $newRegulation->id,
+                        'regulation_violation_id' => $regulation_violation->id,
+                        'user_id' => $actUser->id,
+                        'act_status_id' => $newRegulation->act_status_id,
+                        'comment' => $actViolation->comment,
+                        'role_id' => $articleUserRole->role_id,
+                        'created_at' => $actViolation->created_at,
+                        'act_violation_type_id' => $actViolationTypes[$actViolation->type_id],
+                        'status' => $actViolationStatus,
+                    ]);
+                }
+
+                DB::connection('third_pgsql')->table('violations')
+                    ->where('id', $violation->id)
+                    ->update(
+                        [
+                            'is_migrated' => true
+                        ]
+                    );
+            }
+
+            DB::connection('third_pgsql')->table('regulations')
+                ->where('id', $regulation->id)
+                ->update(
+                    [
+                        'is_migrated' => true
+                    ]
+                );
+        }
     }
 
     private function migrateRegulations()
