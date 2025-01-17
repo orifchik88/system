@@ -492,10 +492,13 @@ class RegulationService
 
             $actViolations = $regulation->actViolations()->whereStatus(ActViolation::PROGRESS)->whereActViolationTypeId(2)->get();
 
-            if ($actViolations->isEmpty()) {
-                throw new NotFoundException('Dalolatnoma topilmadi');
+            if (!$regulation->is_sync)
+            {
+                if ($actViolations->isEmpty()) {
+                    throw new NotFoundException('Dalolatnoma topilmadi');
+                }
             }
-
+            
             if ($regulation->created_by_role_id  != 3){
                 if ($regulation->paused_at) {
                     $pausedAt = Carbon::parse($regulation->paused_at);
@@ -530,24 +533,27 @@ class RegulationService
                 $status = 7;
             }
 
-            foreach ($actViolations as $actViolation) {
-                RegulationDemand::create([
-                    'regulation_id' => $dto->regulationId,
-                    'user_id' => Auth::id(),
-                    'role_id' => $roleId,
-                    'act_status_id' => $status,
-                    'act_violation_type_id' => 2,
-                    'comment' => 'Dalolatnoma ma\'qullandi',
-                    'act_violation_id' => $actViolation->id,
-                    'status' => ActViolation::ACCEPTED
-                ]);
+            if ($actViolations->isNotEmpty()){
+                foreach ($actViolations as $actViolation) {
+                    RegulationDemand::create([
+                        'regulation_id' => $dto->regulationId,
+                        'user_id' => Auth::id(),
+                        'role_id' => $roleId,
+                        'act_status_id' => $status,
+                        'act_violation_type_id' => 2,
+                        'comment' => 'Dalolatnoma ma\'qullandi',
+                        'act_violation_id' => $actViolation->id,
+                        'status' => ActViolation::ACCEPTED
+                    ]);
 
-                $actViolation->update([
-                    'status' => ActViolation::ACCEPTED,
-                    'act_status_id' => $status,
-                ]);
-                $actViolation->demands()->update(['status' => ActViolation::ACCEPTED]);
+                    $actViolation->update([
+                        'status' => ActViolation::ACCEPTED,
+                        'act_status_id' => $status,
+                    ]);
+                    $actViolation->demands()->update(['status' => ActViolation::ACCEPTED]);
+                }
             }
+
             $this->sendSms($regulation, 1);
             DB::commit();
         }catch (\Exception $exception){
@@ -566,11 +572,14 @@ class RegulationService
 
             $actViolations = $regulation->actViolations()->whereStatus(ActViolation::ACCEPTED)->whereActViolationTypeId(2)->get();
 
-            if ($actViolations->isEmpty()) {
-                throw new NotFoundException('Dalolatnoma topilmadi');
+            if(!$regulation->is_sync)
+            {
+                if ($actViolations->isEmpty()) {
+                    throw new NotFoundException('Dalolatnoma topilmadi');
+                }
             }
 
-            if ($regulation->paused_at) {
+            if ($regulation->paused_at){
                 $pausedAt = Carbon::parse($regulation->paused_at);
                 $deadline = Carbon::parse($regulation->deadline);
                 $differenceInSeconds = $pausedAt->diffInSeconds(Carbon::now());
@@ -595,24 +604,29 @@ class RegulationService
                 'paused_at' => null,
             ]);
 
-            foreach ($actViolations as $actViolation) {
-                RegulationDemand::create([
-                    'regulation_id' => $dto->regulationId,
-                    'user_id' => Auth::id(),
-                    'role_id' => $roleId,
-                    'act_status_id' => 13,
-                    'act_violation_type_id' => 2,
-                    'comment' => 'Dalolatnoma ma\'qullandi(SMR)',
-                    'act_violation_id' => $actViolation->id,
-                    'status' => ActViolation::ACCEPTED
-                ]);
+            if ($actViolations->isNotEmpty())
+            {
+                foreach ($actViolations as $actViolation) {
+                    RegulationDemand::create([
+                        'regulation_id' => $dto->regulationId,
+                        'user_id' => Auth::id(),
+                        'role_id' => $roleId,
+                        'act_status_id' => 13,
+                        'act_violation_type_id' => 2,
+                        'comment' => 'Dalolatnoma ma\'qullandi(SMR)',
+                        'act_violation_id' => $actViolation->id,
+                        'status' => ActViolation::ACCEPTED
+                    ]);
 
-                $actViolation->update([
-                    'status' => ActViolation::ACCEPTED,
-                    'act_status_id' => 13,
-                ]);
-                $actViolation->demands()->update(['status' => ActViolation::ACCEPTED]);
+                    $actViolation->update([
+                        'status' => ActViolation::ACCEPTED,
+                        'act_status_id' => 13,
+                    ]);
+                    $actViolation->demands()->update(['status' => ActViolation::ACCEPTED]);
+                }
             }
+
+
             $this->sendSms($regulation, 1);
             DB::commit();
         }catch (\Exception $exception){
