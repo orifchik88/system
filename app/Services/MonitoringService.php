@@ -32,7 +32,7 @@ class MonitoringService
             case UserRoleEnum::OPERATOR->value:
                 return $this->getMonitoringByRegion($user->region_id);
             case UserRoleEnum::RESPUBLIKA_KUZATUVCHI->value:
-                return Monitoring::query()->with(['regulations', 'checklists', 'regulationType']);
+                return Monitoring::query()->with(['regulations', 'checklists', 'regulationType', 'role', 'user']);
             default:
                 return Monitoring::query()->whereRaw('1 = 0');
 

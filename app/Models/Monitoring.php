@@ -51,6 +51,16 @@ class Monitoring extends Model
         return $this->belongsTo(Block::class, 'block_id');
     }
 
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class, 'created_by_role');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
     public function article(): BelongsTo
     {
         return $this->belongsTo(Article::class, 'object_id');

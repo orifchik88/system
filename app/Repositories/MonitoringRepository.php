@@ -23,7 +23,7 @@ class MonitoringRepository implements MonitoringRepositoryInterface
 
     private function getMonitoringByObjects($objectIds)
     {
-        return Monitoring::query()->with(['regulations', 'checklists', 'regulationType'])->whereIn('object_id', $objectIds);
+        return Monitoring::query()->with(['regulations', 'checklists', 'regulationType', 'role', 'user'])->whereIn('object_id', $objectIds);
     }
 
     public function searchMonitorings($query, $filters)

@@ -33,12 +33,6 @@ class MonitoringResource extends JsonResource
             ->unique()
             ->count();
 
-        $user = User::query()->select(['id', 'surname', 'name', 'middle_name', 'phone'])
-            ->find($this->created_by);
-
-        $role = Role::query()->select(['id', 'name'])
-            ->find($this->created_by_role);
-
 
         return [
             'id' => $this->id,
@@ -56,13 +50,13 @@ class MonitoringResource extends JsonResource
             }),
             'created_at' => $this->created_at,
             'role' => [
-                'id' => $this->created_by_role,
-                'name' => $role?->name,
+                'id' => $this->role->id,
+                'name' => $this->role->name,
             ],
             'user' => [
-                'id' => $this->created_by,
-                'name' => $user ? "{$user->surname} {$user->name} {$user->middle_name}" : null,
-                'phone' => $user?->phone,
+                'id' => $this->user->id,
+                'name' => $this->user ? "{$this->user->surname} {$this->user->name} {$this->user->middle_name}" : null,
+                'phone' => $this->user->phone,
             ],
 
         ];
