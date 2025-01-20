@@ -39,7 +39,7 @@ class MonitoringController extends BaseController
     private HistoryService $historyService;
 
     public function __construct(
-        protected  QuestionService $questionService,
+        protected QuestionService   $questionService,
         protected MonitoringService $monitoringService)
     {
         $this->middleware('auth');
@@ -50,11 +50,11 @@ class MonitoringController extends BaseController
     public function monitoringList()
     {
         try {
-            $filters = request()->only(['funding_source_id','inspector_id', 'year', 'month', 'own']);
+            $filters = request()->only(['funding_source_id', 'difficulty_category_id', 'inspector_id', 'year', 'month', 'own']);
             $monitorings = $this->monitoringService->getMonitoringList(filters: $filters);
 
             return $this->sendSuccess($monitorings, 'Monitorings');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage());
         }
     }
@@ -70,7 +70,7 @@ class MonitoringController extends BaseController
                 ->paginate(request('per_page', 10));
 
             return $this->sendSuccess(MonitoringResource::collection($monitorings), 'Monitorings', pagination($monitorings));
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage());
         }
 
@@ -157,11 +157,10 @@ class MonitoringController extends BaseController
 
             $object = Article::query()->findOrFail($data['object_id']);
             foreach ($data['regular_checklist'] as $item) {
-                if (isset($item['status']))
-                {
+                if (isset($item['status'])) {
                     $status = CheckListStatusEnum::SECOND;
                     $inspectorAnswered = now()->addDays(3)->setTime(23, 59, 59);
-                }else{
+                } else {
                     $status = CheckListStatusEnum::FIRST;
                     $technicAnswered = now()->addDays(3)->setTime(23, 59, 59);
                 }
@@ -322,7 +321,8 @@ class MonitoringController extends BaseController
         try {
             $message = MessageTemplate::checklistCreated($object->task_id);
             (new SmsService($user->phone, $message))->sendSms();
-        }catch (\Exception $exception) {}
+        } catch (\Exception $exception) {
+        }
 
     }
 
