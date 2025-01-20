@@ -117,6 +117,9 @@ class MigrateCommand extends Command
             case 16:
                 $this->migrateNewRegulations();
                 break;
+            case 17:
+                $this->migratePayments();
+                break;
             default:
                 echo 'Fuck you!';
                 break;
@@ -133,6 +136,49 @@ class MigrateCommand extends Command
         $this->articleService = $articleService;
     }
 
+    private function migratePayments()
+    {
+        $objects = DB::connection('third_pgsql')->table('objects')
+            ->where('paid', '>', 0)
+            ->where('is_payment_sync', false)
+            ->limit(100)
+            ->get();
+
+        foreach ($objects as $object) {
+            $article = Article::query()->where('old_id', $object->id)->first();
+
+            if (!$article)
+                continue;
+
+            $paid = $article->paymentLogs()
+                ->get()
+                ->sum(function ($log) {
+                    return $log->content->additionalInfo->amount ?? 0;
+                });
+
+            $cost = (float)$article->price_supervision_service - ($object->paid + $paid);
+
+            $meta = ['amount' => $object->paid, 'cost' => $cost];
+
+            (new HistoryService('article_payment_logs'))->createHistory(
+                guId: $article->id,
+                status: $article->object_status_id->value,
+                type: LogType::TASK_HISTORY,
+                date: null,
+                comment: "",
+                additionalInfo: $meta
+            );
+
+            DB::connection('third_pgsql')->table('objects')
+                ->where('id', $object->id)
+                ->update(
+                    [
+                        'is_payment_sync' => true
+                    ]
+                );
+        }
+    }
+
     private function syncLawyerStatus()
     {
         $regulations = DB::connection('third_pgsql')->table('regulations')
@@ -141,7 +187,7 @@ class MigrateCommand extends Command
 
         foreach ($regulations as $regulation) {
             $regModel = Regulation::query()->where('regulation_number', $regulation->regulation_number)->first();
-            if(!$regModel)
+            if (!$regModel)
                 continue;
 
             $regModel->update(
@@ -970,7 +1016,7 @@ class MigrateCommand extends Command
             $article = Article::query()->where('old_id', $regulation->object_id)->first();
             $user = User::query()->where('old_id', $regulation->created_by)->first();
 
-            if(!$article || $article->object_status_id == ObjectStatusEnum::SUBMITTED)
+            if (!$article || $article->object_status_id == ObjectStatusEnum::SUBMITTED)
                 continue;
 
             if ($user == null)
