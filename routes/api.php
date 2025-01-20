@@ -58,6 +58,7 @@ Route::group([
     Route::post('user-type/edit/{id}', [UserTypeController::class, 'edit']);
 
     Route::get('monitoring-objects', [InformationController::class, 'monitoringObjects']);
+    Route::get('monitoring-list', [MonitoringController::class, 'monitoringList']);
     Route::get('monitoring-gnk', [InformationController::class, 'monitoringGNK']);
     Route::get('monitoring-customer', [InformationController::class, 'monitoringCustomer']);
     Route::get('reestr', [InformationController::class, 'reestr']);

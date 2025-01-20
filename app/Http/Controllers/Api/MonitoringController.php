@@ -46,6 +46,18 @@ class MonitoringController extends BaseController
         $this->historyService = new HistoryService('check_list_histories');
     }
 
+    public function monitoringList()
+    {
+        try {
+            $filters = request()->only(['funding_source_id','inspector_id', 'year', 'month', 'own']);
+            $monitorings = $this->monitoringService->getMonitoringList(filters: $filters);
+
+            return $this->sendSuccess($monitorings, 'Monitorings');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage());
+        }
+    }
+
     public function monitoring(): JsonResponse
     {
         try {
