@@ -6,6 +6,7 @@ use App\Enums\CheckListStatusEnum;
 use App\Enums\LogType;
 use App\Enums\QuestionTypeEnum;
 use App\Enums\UserRoleEnum;
+use App\Enums\WorkTypeStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MonitoringRequest;
 use App\Http\Resources\CheckListAnswerFilesResource;
@@ -239,7 +240,28 @@ class MonitoringController extends BaseController
         try {
             $data = request()->all();
             $object = Article::query()->findOrFail($data['object_id']);
+            $block = Block::query()->findOrFail($data['block_id']);
+
+            $block->update([
+                'selected_work_type' => true
+            ]);
             foreach ($data['regular_checklist'] as $item) {
+
+                $answer = CheckListAnswer::query()
+                    ->where('work_type_id', $item['work_type_id'])
+                    ->where('question_id', $item['question_id'])
+                    ->where('floor', $item['floor'])
+                    ->where('block_id', $data['block_id'])
+                    ->first();
+
+                if ($answer) {
+                    $answer->update([
+                        'comment' => $item['comment'] ?? null,
+                        'status' => CheckListStatusEnum::CONFIRMED,
+                        'type' => isset($data['type']) ? 2 : 1,
+                        'inspector_answered' => 1
+                    ]);
+                } else {
                     $answer = new CheckListAnswer();
                     $answer->question_id = $item['question_id'];
                     $answer->comment = $item['comment'] ?? null;
@@ -252,13 +274,29 @@ class MonitoringController extends BaseController
                     $answer->type = isset($data['type']) ? 2 : 1;
                     $answer->inspector_answered = 1;
                     $answer->save();
+                }
 
-                     $this->historyService->createHistory(guId: $answer->id,
-                        status: $answer->status->value,
-                        type: isset($data['type']) ? LogType::CLAIM_HISTORY : LogType::TASK_HISTORY,
-                        date: null,
-                        comment: $item['comment'] ?? ""
+
+                $this->historyService->createHistory(guId: $answer->id,
+                    status: $answer->status->value,
+                    type: isset($data['type']) ? LogType::CLAIM_HISTORY : LogType::TASK_HISTORY,
+                    date: null,
+                    comment: $item['comment'] ?? ""
                 );
+            }
+
+            $workTypes = $this->questionService->getQuestionList($data['block_id']);
+            $block = Block::query()->find($data['block_id']);
+            $count = 0;
+            foreach ($workTypes as $workType) {
+                if ($workType['questions'][0]['work_type_status'] == WorkTypeStatusEnum::CONFIRMED) {
+                    $count += 1;
+                }
+            }
+            if ($count == count($workTypes)) {
+                $block->update([
+                    'status' => false
+                ]);
             }
             DB::commit();
             return $this->sendSuccess([], 'Check accepted');

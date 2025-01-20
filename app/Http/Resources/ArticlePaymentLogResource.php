@@ -17,8 +17,8 @@ class ArticlePaymentLogResource extends JsonResource
     {
         return [
             'id'=> $this->id,
-            'user' => UserResource::make($this->user),
-            'role' => RoleResource::make($this->role),
+            'user' => $this->user ? UserResource::make($this->user) : null,
+            'role' =>  $this->role ? RoleResource::make($this->role),
             'comment' => $this->content->comment ?? '',
             'date' => $this->content->date ?? '',
             'status' => $this->content->status ?? '',
