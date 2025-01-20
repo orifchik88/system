@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Enums\ObjectStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Models\Article;
 use App\Models\ArticleUser;
@@ -43,6 +44,7 @@ class MonitoringRepository implements MonitoringRepositoryInterface
                 $q->where('articles.difficulty_category_id', $filters['difficulty_category_id']);
             })
             ->where('article_users.user_id', isset($filters['inspector_id']) ? $filters['inspector_id'] : Auth::user()->id)
+            ->where('articles.object_status_id', ObjectStatusEnum::PROGRESS)
             ->groupBy('article_users.article_id', 'articles.funding_source_id', 'articles.difficulty_category_id', 'articles.task_id')
             ->select([
                 'article_users.article_id as object_id',
