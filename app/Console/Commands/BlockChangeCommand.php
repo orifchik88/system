@@ -46,5 +46,9 @@ class BlockChangeCommand extends Command
             ]);
         }
 
+        $block->update([
+            'is_changed' => true
+        ]);
+
     }
 }
