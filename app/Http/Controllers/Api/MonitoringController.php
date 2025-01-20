@@ -308,7 +308,10 @@ class MonitoringController extends BaseController
 
     public function acceptBlocks(): JsonResponse
     {
-
+        $blocks = Block::whereIn('id', function ($query) {
+            $query->select('block_id')
+                ->from('check_list_answers');
+        })->get();
     }
 
     public function getChecklistAnswer(): JsonResponse
