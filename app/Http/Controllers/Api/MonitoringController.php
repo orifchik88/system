@@ -281,7 +281,7 @@ class MonitoringController extends BaseController
                     $count += 1;
                 }
             }
-            if ($count == count($workTypes)) {
+            if ($count >= count($workTypes)) {
                 $block->update([
                     'status' => false
                 ]);
@@ -293,6 +293,11 @@ class MonitoringController extends BaseController
             DB::rollBack();
             return $this->sendError($exception->getMessage(), $exception->getLine());
         }
+    }
+
+    public function acceptBlocks(): JsonResponse
+    {
+
     }
 
     public function getChecklistAnswer(): JsonResponse
