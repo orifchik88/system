@@ -12,7 +12,7 @@ use Illuminate\Console\Command;
 class BlockChangeCommand extends Command
 {
 
-    protected $signature = 'app:block-change {id}';
+    protected $signature = 'app:block-change';
 
     protected $description = 'Command description';
 
@@ -29,26 +29,30 @@ class BlockChangeCommand extends Command
     public function handle()
     {
 
-        $block = Block::query()->where('id', $this->argument('id'))->first();
-
-        $workTypes = $this->questionService->getQuestionList($block->id);
-        $block = Block::query()->find($block->id);
-        $count = 0;
-        foreach ($workTypes as $workType) {
-            if ($workType['questions'][0]['work_type_status'] == WorkTypeStatusEnum::CONFIRMED) {
-                $count += 1;
-            }
-        }
-        if ($count >= count($workTypes)) {
-            $block->update([
-                'status' => false,
-                'is_changed' => true
-            ]);
-        }
-
-        $block->update([
-            'is_changed' => true
-        ]);
+        $blocks = Block::whereIn('id', function ($query) {
+            $query->select('block_id')
+                ->from('check_list_answers');
+        })
+            ->where('status', true)
+            ->where('selected_work_type', true)
+            ->chunk(10, function ($blocks) {
+                foreach ($blocks as $block) {
+                    $workTypes = $this->questionService->getQuestionList($block->id);
+                    $block = Block::query()->find($block->id);
+                    $count = 0;
+                    foreach ($workTypes as $workType) {
+                        if ($workType['questions'][0]['work_type_status'] == WorkTypeStatusEnum::CONFIRMED) {
+                            $count += 1;
+                        }
+                    }
+                    if ($count >= count($workTypes)) {
+                        $block->update([
+                            'status' => false,
+                            'is_changed' => true
+                        ]);
+                    }
+                }
+            });
 
     }
 }

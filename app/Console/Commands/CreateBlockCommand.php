@@ -23,7 +23,7 @@ class CreateBlockCommand extends Command
         parent::__construct();
         $this->historyService = new HistoryService('check_list_histories');
     }
-    protected $signature = 'app:create-block-command {block_id}';
+    protected $signature = 'app:create-block-command';
 
 
     protected $description = 'Command description';
@@ -32,30 +32,32 @@ class CreateBlockCommand extends Command
     public function handle()
     {
 
-//        $blocks = Block::whereIn('id', function ($query) {
-//            $query->select('block_id')
-//                ->from('check_list_answers');
-//        })
-//            ->where('status', true)
-//            ->where('selected_work_type', false)
-//            ->chunk(10, function ($blocks) {
-//                foreach ($blocks as $block) {
-//                    $workTypes = $this->questionService->getQuestionList($block->id);
-//                    $block = Block::query()->find($block->id);
-//                    $count = 0;
-//                    foreach ($workTypes as $workType) {
-//                        if ($workType['questions'][0]['work_type_status'] == WorkTypeStatusEnum::CONFIRMED) {
-//                            $count += 1;
-//                        }
-//                    }
-//                    if ($count >= count($workTypes)) {
-//                        $block->update([
-//                            'status' => false,
-//                            'is_changed' => true
-//                        ]);
-//                    }
-//                }
-//            });
+        $blocks = Block::whereIn('id', function ($query) {
+            $query->select('block_id')
+                ->from('check_list_answers');
+        })
+            ->where('status', true)
+            ->where('selected_work_type', false)
+            ->chunk(10, function ($blocks) {
+                foreach ($blocks as $block) {
+                    $workTypes = $this->questionService->getQuestionList($block->id);
+                    $block = Block::query()->find($block->id);
+                    $count = 0;
+                    foreach ($workTypes as $workType) {
+                        if ($workType['questions'][0]['work_type_status'] == WorkTypeStatusEnum::CONFIRMED) {
+                            $count += 1;
+                        }
+                    }
+                    if ($count >= count($workTypes)) {
+                        $block->update([
+                            'status' => false,
+                            'selected_work_type' => true,
+                            'is_changed' => true
+                        ]);
+                    }
+                }
+            });
+
 
 //        Article::query()
 //            ->whereDoesntHave('blocks')
