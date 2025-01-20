@@ -39,6 +39,16 @@ class MonitoringService
         }
     }
 
+    public function getMonitoringList(array $filters)
+    {
+        if(!isset($filters['year']))
+            $filters['year'] = date('Y');
+        if(!isset($filters['month']))
+            $filters['month'] = date('m');
+
+        return $this->monitoringRepository->getMonitoringList(filters: $filters);
+    }
+
     public function getMonitoringByRegion($regionId)
     {
         return $this->monitoringRepository->getMonitoringByRegion($regionId);
