@@ -28,7 +28,8 @@ class MyGovService
     public function getDxaTaskById(int $task_id)
     {
         $object = $this->articleRepository->findByTaskId($task_id);
-        if (!$object)
+
+        if (!$object || $object->object_status_id == ObjectStatusEnum::SUBMITTED)
             return null;
 
         return [
