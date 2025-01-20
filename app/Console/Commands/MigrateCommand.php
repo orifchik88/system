@@ -141,7 +141,7 @@ class MigrateCommand extends Command
         $objects = DB::connection('third_pgsql')->table('objects')
             ->where('paid', '>', 0)
             ->where('is_payment_sync', false)
-            ->limit(20)
+            ->limit(100)
             ->get();
 
         foreach ($objects as $object) {
