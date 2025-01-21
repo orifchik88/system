@@ -35,7 +35,7 @@ Route::post('check-user', [InformationController::class, 'checkUser']);
 Route::get('objects-by-pinfl', [InformationController::class, 'userObjects']);
 Route::get('regulation-excel', [InformationController::class, 'regulationExcel']);
 Route::get('version/{type}', [VersionController::class, 'index']);
-Route::get('version-update', [VersionController::class, 'update']);
+Route::post('version-update', [VersionController::class, 'update']);
 
 
 
