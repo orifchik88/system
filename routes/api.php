@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\MonitoringController;
 use App\Http\Controllers\Api\InformationController;
 use App\Http\Controllers\Api\SphereController;
 use App\Http\Controllers\Api\ProgramController;
+use App\Http\Controllers\Api\VersionController;
 
 use App\Http\Controllers\Api\StatisticsController;
 
@@ -33,6 +34,8 @@ Route::post('auth', [LoginController::class, 'auth']);
 Route::post('check-user', [InformationController::class, 'checkUser']);
 Route::get('objects-by-pinfl', [InformationController::class, 'userObjects']);
 Route::get('regulation-excel', [InformationController::class, 'regulationExcel']);
+Route::get('version/{type}', [VersionController::class, 'index']);
+Route::get('version-update', [VersionController::class, 'update']);
 
 
 
