@@ -112,7 +112,7 @@ class ObjectController extends BaseController
 
     public function accountObjects(): JsonResponse
     {
-        $filters = request()->only(['status', 'name', 'customer', 'funding_source', 'object_type', 'task_id', 'region_id', 'district_id', 'user_search']);
+        $filters = request()->only(['status', 'customer_name', 'funding_source', 'object_type', 'task_id', 'region_id', 'district_id', 'user_search']);
 
         $query = $this->service->getObjects($this->user, $this->roleId);
         $query = $this->service->getAccountObjectsQuery($query, request('status'));
