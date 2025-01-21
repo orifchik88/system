@@ -7,11 +7,6 @@ use Illuminate\Foundation\Http\FormRequest;
 class VersionRequest extends FormRequest
 {
 
-    public function authorize(): bool
-    {
-        return false;
-    }
-
 
     public function rules(): array
     {
