@@ -572,7 +572,7 @@ class RegulationService
 
             $actViolations = $regulation->actViolations()->whereStatus(ActViolation::ACCEPTED)->whereActViolationTypeId(2)->get();
 
-            if(!$regulation->is_sync)
+            if(!$regulation->is_old)
             {
                 if ($actViolations->isEmpty()) {
                     throw new NotFoundException('Dalolatnoma topilmadi');
