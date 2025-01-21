@@ -516,9 +516,6 @@ class RegulationController extends BaseController
 //                }
 //            }
 
-            $regulation = Regulation::find();
-
-            dd($regulation->is_old);
 
             $response = DxaResponse::query()->where('task_id', request('task_id'))->first();
             $authUsername = config('app.mygov.login');
