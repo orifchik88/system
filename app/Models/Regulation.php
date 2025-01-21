@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Regulation extends Model
 {
@@ -51,6 +52,13 @@ class Regulation extends Model
     public function object(): BelongsTo
     {
         return  $this->belongsTo(Article::class, 'object_id');
+    }
+
+    protected function isOld(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => strpos($this->regulation_number, '-') !== false || strpos($this->regulation_number, '/') !== false,
+        );
     }
 
     public function demands() : HasMany
