@@ -196,8 +196,8 @@ class StatisticsController extends BaseController
     public function statistics(Request $request): JsonResponse
     {
         try {
-            $startDate = $request->get('start_date');
-            $endDate = $request->get('end_date');
+            $startDate = $request->get('date_to');
+            $endDate = $request->get('date_from');
 
             $regionId = $request->get('region_id');
 
