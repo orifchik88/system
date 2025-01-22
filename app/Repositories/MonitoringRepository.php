@@ -57,6 +57,9 @@ class MonitoringRepository implements MonitoringRepositoryInterface
             ->when(isset($filters['funding_source_id']), function ($q) use ($filters) {
                 $q->where('articles.funding_source_id', $filters['funding_source_id']);
             })
+            ->when(isset($filters['region_id']), function ($q) use ($filters) {
+                $q->where('articles.region_id', $filters['region_id']);
+            })
             ->when(isset($filters['difficulty_category_id']), function ($q) use ($filters) {
                 $q->where('articles.difficulty_category_id', $filters['difficulty_category_id']);
             })
