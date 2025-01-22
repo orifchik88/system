@@ -128,7 +128,7 @@ class DxaResponseService
             $response->sphere_id = $this->data['sphere_id'];
             $response->program_id = $this->data['program_id'];
             $response->end_term_work = $this->data['end_term_work'];
-            if ($this->data['funding_source_id'] == 2) {
+            if ($this->data['funding_source_id'] == 1) {
                 $monitoring = $this->saveMonitoringObject($this->data['gnk_id']);
                 $response->monitoring_object_id = $monitoring->id;
             }
