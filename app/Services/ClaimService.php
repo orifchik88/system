@@ -321,12 +321,13 @@ class ClaimService
                         ]
                     );
                 } else {
-                    $this->claimRepository->createOrganizationReview(
-                        claim_id: $request['id'],
-                        monitoring_id: $monitoring->id,
-                        organization_id: $review->organization_id,
-                        expiry_date: $this->getExpirationDate(Carbon::now(), 3)
-                    );
+                    if (in_array($review->organization_id, $request['organizations']))
+                        $this->claimRepository->createOrganizationReview(
+                            claim_id: $request['id'],
+                            monitoring_id: $monitoring->id,
+                            organization_id: $review->organization_id,
+                            expiry_date: $this->getExpirationDate(Carbon::now(), 3)
+                        );
                 }
             }
             if ($countReviewAnswers == count($request['organizations'])) {
@@ -728,7 +729,7 @@ class ClaimService
         $historiesNew = $this->historyService->getFilteredList(guId: $claimObject->gu_id, jsonColumn: 'status', needle: 12);
         if (isset($histories[0]))
             $lastInspectorConclusion = json_decode($histories[0]->content, true);
-        elseif(isset($historiesNew[0]))
+        elseif (isset($historiesNew[0]))
             $lastInspectorConclusion = json_decode($historiesNew[0]->content, true);
         else
             $lastInspectorConclusion['comment'] = '  ';
