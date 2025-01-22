@@ -62,6 +62,11 @@ class ActViolation extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function regulation(): BelongsTo
+    {
+        return $this->belongsTo(Regulation::class, 'regulation_id');
+    }
+
     public function actStatus(): BelongsTo
     {
         return $this->belongsTo(ActStatus::class, 'act_status_id');
