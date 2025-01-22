@@ -34,10 +34,10 @@ class CreateBlockCommand extends Command
     public function handle()
     {
 
-        DxaResponse::query()->where('funding_source_id', 1)
+        $dxaResponses = DxaResponse::query()->where('funding_source_id', 1)
             ->whereNotNull('gnk_id')
             ->whereNull('monitoring_object_id')
-            ->chunk(10, function (DxaResponse $dxaResponse) {
+            ->chunk(10, function ($dxaResponse) {
                $object =  $this->saveMonitoringObject($dxaResponse->gnk_id);
                if ($object){
                    $dxaResponse->moniting_object_id = $object->id;
