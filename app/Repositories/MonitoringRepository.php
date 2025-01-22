@@ -21,6 +21,13 @@ class MonitoringRepository implements MonitoringRepositoryInterface
                 $join->on('monitorings.object_id', '=', 'article_users.article_id')
                     ->where('monitorings.created_by_role', UserRoleEnum::INSPECTOR);
 
+                $join->whereExists(function ($query) {
+                    $query->select(DB::raw(1))
+                        ->from('check_list_answers')
+                        ->whereRaw('check_list_answers.monitoring_id = monitorings.id')
+                        ->groupBy('check_list_answers.question_id');
+                });
+
                 // Faqat kerakli foydalanuvchi uchun monitoringlarni cheklash
                 if (isset($filters['inspector_id'])) {
                     $join->where('monitorings.created_by', $filters['inspector_id']);
@@ -36,15 +43,16 @@ class MonitoringRepository implements MonitoringRepositoryInterface
                     $join->whereMonth('monitorings.created_at', $filters['month']);
                 }
             })
-            ->leftJoin('check_list_answers', function ($join) {
-                $join->on('check_list_answers.monitoring_id', '=', 'monitorings.id')
-                    ->whereNotNull('check_list_answers.monitoring_id');
-//                    ->whereExists(function ($query) {
-//                        $query->select(DB::raw(1))
-//                            ->from('check_list_answers')
-//                            ->whereRaw('check_list_answers.monitoring_id = monitorings.id');
-//                    });
-            })
+//            ->leftJoin('check_list_answers', function ($join) {
+//                $join->on('check_list_answers.monitoring_id', '=', 'monitorings.id');
+//                //->whereNotNull('check_list_answers.monitoring_id')
+////                    ->whereExists(function ($query) {
+////                        $query->select(DB::raw(1))
+////                            ->from('check_list_answers')
+////                            ->whereRaw('check_list_answers.monitoring_id = monitorings.id')
+////                            ;
+////                    });
+//            })
             ->join('articles', 'articles.id', '=', 'article_users.article_id')
             ->when(isset($filters['funding_source_id']), function ($q) use ($filters) {
                 $q->where('articles.funding_source_id', $filters['funding_source_id']);
@@ -54,14 +62,14 @@ class MonitoringRepository implements MonitoringRepositoryInterface
             })
             ->where('article_users.user_id', isset($filters['inspector_id']) ? $filters['inspector_id'] : Auth::user()->id)
             ->whereIn('articles.object_status_id', [ObjectStatusEnum::PROGRESS, ObjectStatusEnum::FROZEN, ObjectStatusEnum::SUSPENDED])
-            ->groupBy('article_users.article_id', 'articles.funding_source_id', 'articles.difficulty_category_id', 'articles.task_id', 'articles.object_status_id', 'check_list_answers.question_id')
+            ->groupBy('articles.id', 'articles.funding_source_id', 'articles.difficulty_category_id', 'articles.task_id', 'articles.object_status_id')
             ->select([
-                'article_users.article_id as object_id',
+                'articles.id as object_id',
                 'articles.task_id as task_id',
                 'articles.object_status_id as status',
                 'articles.funding_source_id',
                 'articles.difficulty_category_id',
-                DB::raw('COUNT(monitorings.id)  as count'),
+                DB::raw('COUNT(monitorings.id) as count'),
                 DB::raw('CASE
                     WHEN COUNT(monitorings.id) > 0 THEN true
                     ELSE false
