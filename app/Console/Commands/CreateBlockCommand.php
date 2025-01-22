@@ -41,7 +41,7 @@ class CreateBlockCommand extends Command
                 foreach ($dxaResponses as $dxaResponse) {
                     $object =  $this->saveMonitoringObject($dxaResponse->gnk_id);
                     if ($object){
-                        $dxaResponse->moniting_object_id = $object->id;
+                        $dxaResponse->monitoring_object_id = $object->id;
                     }
                 }
 
