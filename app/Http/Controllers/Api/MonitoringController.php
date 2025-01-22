@@ -297,36 +297,7 @@ class MonitoringController extends BaseController
             return $this->sendError($exception->getMessage(), $exception->getLine());
         }
     }
-
-    public function acceptBlocks(): JsonResponse
-    {
-        $blocks = Block::whereIn('id', function ($query) {
-            $query->select('block_id')
-                ->from('check_list_answers');
-        })
-            ->where('status', true)
-            ->where('selected_work_type', true)
-            ->chunk(100, function ($blocks) {
-                foreach ($blocks as $block) {
-                    $workTypes = $this->questionService->getQuestionList($block);
-                    $block = Block::query()->find($data['block_id']);
-                    $count = 0;
-                    foreach ($workTypes as $workType) {
-                        if ($workType['questions'][0]['work_type_status'] == WorkTypeStatusEnum::CONFIRMED) {
-                            $count += 1;
-                        }
-                    }
-                    if ($count >= count($workTypes)) {
-                        $block->update([
-                            'status' => false
-                        ]);
-                    }
-                }
-            });
-
-        return $this->sendSuccess([], 'adsf');
-    }
-
+    
     public function getChecklistAnswer(): JsonResponse
     {
         try {
