@@ -164,20 +164,23 @@ class DxaResponseService
     }
 
 
-    private function saveMonitoringObject($gnkId): MonitoringObject
+    private function saveMonitoringObject($gnkId)
     {
         $data = getData(config('app.gasn.get_monitoring'), $gnkId);
         $monitoring = $data['data']['result']['data'][0];
 
-        $object = new MonitoringObject();
-        $object->monitoring_object_id = $monitoring['id'];
-        $object->project_type_id = $monitoring['project_type_id'];
-        $object->name = $monitoring['name'];
-        $object->gnk_id = $monitoring['gnk_id'];
-        $object->end_term_work_days = $monitoring['end_term_work_days'];
-        $object->save();
+        if(!MonitoringObject::query()->where('monitoring_object_id', $monitoring['id'])->exists()) {
+            $object = new MonitoringObject();
+            $object->monitoring_object_id = $monitoring['id'];
+            $object->project_type_id = $monitoring['project_type_id'];
+            $object->name = $monitoring['name'];
+            $object->gnk_id = $monitoring['gnk_id'];
+            $object->end_term_work_days = $monitoring['end_term_work_days'];
+            $object->save();
+            return $object;
 
-        return $object;
+        }
+
     }
 
     public function sendRegister(): DxaResponse

@@ -7,6 +7,8 @@ use App\Enums\ObjectStatusEnum;
 use App\Enums\WorkTypeStatusEnum;
 use App\Models\Article;
 use App\Models\Block;
+use App\Models\DxaResponse;
+use App\Models\MonitoringObject;
 use App\Services\HistoryService;
 use App\Services\MonitoringService;
 use App\Services\QuestionService;
@@ -23,7 +25,7 @@ class CreateBlockCommand extends Command
         parent::__construct();
         $this->historyService = new HistoryService('check_list_histories');
     }
-    protected $signature = 'app:create-block-command';
+    protected $signature = 'app:monitoring-create';
 
 
     protected $description = 'Command description';
@@ -32,55 +34,35 @@ class CreateBlockCommand extends Command
     public function handle()
     {
 
-        $blocks = Block::whereIn('id', function ($query) {
-            $query->select('block_id')
-                ->from('check_list_answers');
-        })
-            ->where('status', true)
-            ->where('selected_work_type', false)
-            ->chunk(10, function ($blocks) {
-                foreach ($blocks as $block) {
-                    $workTypes = $this->questionService->getQuestionList($block->id);
-                    $block = Block::query()->find($block->id);
-                    $count = 0;
-                    foreach ($workTypes as $workType) {
-                        if ($workType['questions'][0]['work_type_status'] == WorkTypeStatusEnum::CONFIRMED) {
-                            $count += 1;
-                        }
-                    }
-                    if ($count >= count($workTypes)) {
-                        $block->update([
-                            'status' => false,
-                            'selected_work_type' => true,
-                            'is_changed' => true
-                        ]);
-                    }
-                }
+        DxaResponse::query()->where('funding_source_id', 1)
+            ->whereNotNull('gnk_id')
+            ->whereNull('monitoring_object_id')
+            ->chunk(10, function (DxaResponse $dxaResponse) {
+               $object =  $this->saveMonitoringObject($dxaResponse->gnk_id);
+               if ($object){
+                   $dxaResponse->moniting_object_id = $object->id;
+               }
             });
 
+    }
 
-//        Article::query()
-//            ->whereDoesntHave('blocks')
-////            ->where('region_id', 1)
-//            ->whereIn('object_status_id', [
-//                ObjectStatusEnum::SUSPENDED,
-//                ObjectStatusEnum::FROZEN,
-//                ObjectStatusEnum::PROGRESS
-//            ])
-//            ->chunk(100, function ($objects) {
-//                foreach ($objects as $object) {
-//                    Block::create([
-//                        'name' => 'A',
-//                        'block_mode_id' => $object->object_type_id == 1
-//                            ? BlockModeEnum::TARMOQ
-//                            : BlockModeEnum::BINO,
-//                        'article_id' => $object->id,
-//                        'status' => true,
-//                        'accepted' => false,
-//                        'selected_work_type' => false
-//                    ]);
-//                }
-//            });
+    private function saveMonitoringObject($gnkId)
+    {
+        $data = getData(config('app.gasn.get_monitoring'), $gnkId);
+        $monitoring = $data['data']['result']['data'][0];
+
+        if(!MonitoringObject::query()->where('monitoring_object_id', $monitoring['id'])->exists()) {
+            $object = new MonitoringObject();
+            $object->monitoring_object_id = $monitoring['id'];
+            $object->project_type_id = $monitoring['project_type_id'];
+            $object->name = $monitoring['name'];
+            $object->gnk_id = $monitoring['gnk_id'];
+            $object->end_term_work_days = $monitoring['end_term_work_days'];
+            $object->save();
+            return $object;
+
+        }
+
     }
 
 }
