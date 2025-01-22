@@ -302,31 +302,58 @@ class ClaimService
             $countReviewAnswers = 0;
             $addedOrganizations = [];
             foreach ($reviews as $review) {
-                $addedOrganizations[] = $review->organization_id;
                 if ($review->status) {
-                    $jsonTable = DB::table('claim_organization_reviews')->where('id', $review->id)->first();
-                    $countReviewAnswers++;
-                    ClaimOrganizationReview::query()->create(
-                        [
-                            'claim_id' => $request['id'],
-                            'monitoring_id' => $monitoring->id,
-                            'organization_id' => $review->organization_id,
-                            'expiry_date' => $review->expiry_date,
-                            'expired' => $review->expired,
-                            'answer' => $jsonTable->answer,
-                            'status' => $review->status,
-                            'created_at' => $review->created_at,
-                            'updated_at' => $review->updated_at,
-                            'answered_at' => $review->answered_at
-                        ]
-                    );
+                    if (in_array($review->organization_id, $request['organizations'])) {
+                        $jsonTable = DB::table('claim_organization_reviews')->where('id', $review->id)->first();
+                        $countReviewAnswers++;
+                        ClaimOrganizationReview::query()->create(
+                            [
+                                'claim_id' => $request['id'],
+                                'monitoring_id' => $monitoring->id,
+                                'organization_id' => $review->organization_id,
+                                'expiry_date' => $review->expiry_date,
+                                'expired' => $review->expired,
+                                'answer' => $jsonTable->answer,
+                                'status' => $review->status,
+                                'created_at' => $review->created_at,
+                                'updated_at' => $review->updated_at,
+                                'answered_at' => $review->answered_at
+                            ]
+                        );
+
+                        $jsonData = json_decode(gzuncompress(base64_decode($jsonTable->answer)), true);
+
+                        $apiType = match ($review->organization_id) {
+                            15 => 'mchs',
+                            16 => 'ses',
+                            17 => 'nogiron',
+                            18 => 'nogiron2',
+                            19 => 'kvartira',
+                            34 => 'ekologiya'
+                        };
+                        $apiUrl = "update/id/" . $claimObject->gu_id . "/action/conclusion-" . $apiType;
+
+                        $dataArray['Conclusion' . ucfirst($apiType) . 'V2FormCompletedBuildingsRegistrationCadastral'] = $jsonData;
+                        $response = $this->PostRequest($apiUrl, $dataArray);
+
+                        if ($response->status() != 200) {
+                            return false;
+                        }
+
+                        $addedOrganizations[] = $review->organization_id;
+                    }
                 } else {
-                    $this->claimRepository->createOrganizationReview(
-                        claim_id: $request['id'],
-                        monitoring_id: $monitoring->id,
-                        organization_id: $review->organization_id,
-                        expiry_date: $this->getExpirationDate(Carbon::now(), 3)
-                    );
+                    if (in_array($review->organization_id, $request['organizations'])) {
+                        $this->claimRepository->createOrganizationReview(
+                            claim_id: $request['id'],
+                            monitoring_id: $monitoring->id,
+                            organization_id: $review->organization_id,
+                            expiry_date: $this->getExpirationDate(Carbon::now(), 3)
+                        );
+
+                        $addedOrganizations[] = $review->organization_id;
+                    }
+
                 }
             }
             if ($countReviewAnswers == count($request['organizations'])) {
@@ -410,7 +437,8 @@ class ClaimService
         $apiType = match ($reviewObject->organization_id) {
             15 => 'mchs',
             16 => 'ses',
-            17, 18 => 'nogiron',
+            17 => 'nogiron',
+            18 => 'nogiron2',
             19 => 'kvartira',
             34 => 'ekologiya'
         };
@@ -427,13 +455,11 @@ class ClaimService
 
         $statusReview = $request['answer_type'] == 1;
 
-        if ($reviewObject->organization_id != 18) {
-            $dataArray['Conclusion' . ucfirst($apiType) . 'V2FormCompletedBuildingsRegistrationCadastral'] = $requestData;
-            $response = $this->PostRequest($apiUrl, $dataArray);
+        $dataArray['Conclusion' . ucfirst($apiType) . 'V2FormCompletedBuildingsRegistrationCadastral'] = $requestData;
+        $response = $this->PostRequest($apiUrl, $dataArray);
 
-            if ($response->status() != 200) {
-                return false;
-            }
+        if ($response->status() != 200) {
+            return false;
         }
 
         $this->claimRepository->updateConclusionOrganization(data: $requestData, id: $reviewObject->id, status: $statusReview);
@@ -728,7 +754,7 @@ class ClaimService
         $historiesNew = $this->historyService->getFilteredList(guId: $claimObject->gu_id, jsonColumn: 'status', needle: 12);
         if (isset($histories[0]))
             $lastInspectorConclusion = json_decode($histories[0]->content, true);
-        elseif(isset($historiesNew[0]))
+        elseif (isset($historiesNew[0]))
             $lastInspectorConclusion = json_decode($historiesNew[0]->content, true);
         else
             $lastInspectorConclusion['comment'] = '  ';
