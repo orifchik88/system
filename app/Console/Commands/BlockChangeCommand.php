@@ -31,9 +31,9 @@ class BlockChangeCommand extends Command
     {
 
         ActViolation::query()
-            ->where('act_violation_type_id', 1)
+            ->whereIn('act_violation_type_id', [1])
             ->whereHas('regulation', function ($query) {
-                $query->whereIn('regulation_status_id', [1, 2]);
+                $query->where('regulation_status_id', 1);
             })
             ->delete();
 
