@@ -178,8 +178,8 @@ class DxaResponseService
             $object->end_term_work_days = $monitoring['end_term_work_days'];
             $object->save();
             return $object;
-
         }
+        return MonitoringObject::query()->where('monitoring_object_id', $monitoring['id'])->first();
 
     }
 

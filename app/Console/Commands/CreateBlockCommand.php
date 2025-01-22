@@ -42,6 +42,7 @@ class CreateBlockCommand extends Command
                     $object =  $this->saveMonitoringObject($dxaResponse->gnk_id);
                     if ($object){
                         $dxaResponse->monitoring_object_id = $object->id;
+                        $dxaResponse->save();
                     }
                 }
 
