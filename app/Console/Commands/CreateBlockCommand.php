@@ -61,6 +61,8 @@ class CreateBlockCommand extends Command
             $object->save();
             return $object;
 
+        }else{
+            return MonitoringObject::query()->where('monitoring_object_id', $monitoring['id'])->first();
         }
 
     }
