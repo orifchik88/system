@@ -36,6 +36,7 @@ class MonitoringRepository implements MonitoringRepositoryInterface
                     $join->whereMonth('monitorings.created_at', $filters['month']);
                 }
             })
+            ->join('check_list_answers', 'check_list_answers.monitoring_id', '=', 'monitorings.id')
             ->join('articles', 'articles.id', '=', 'article_users.article_id')
             ->when(isset($filters['funding_source_id']), function ($q) use ($filters) {
                 $q->where('articles.funding_source_id', $filters['funding_source_id']);
