@@ -297,7 +297,7 @@ class MonitoringController extends BaseController
             return $this->sendError($exception->getMessage(), $exception->getLine());
         }
     }
-    
+
     public function getChecklistAnswer(): JsonResponse
     {
         try {
