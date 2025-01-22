@@ -331,7 +331,7 @@ class ClaimService
                             19 => 'kvartira',
                             34 => 'ekologiya'
                         };
-                        $apiUrl = "update/id/" . $review->monitoring->claim->guid . "/action/conclusion-" . $apiType;
+                        $apiUrl = "update/id/" . $claimObject->gu_id . "/action/conclusion-" . $apiType;
 
                         $dataArray['Conclusion' . ucfirst($apiType) . 'V2FormCompletedBuildingsRegistrationCadastral'] = $jsonData;
                         $response = $this->PostRequest($apiUrl, $dataArray);
