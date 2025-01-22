@@ -256,6 +256,8 @@ Route::middleware('auth.custom_basic')->prefix('internal')->group(function () {
     Route::post('update-deadline', [ApiController::class, 'updateDeadline']);
     Route::get('get-objects-by-cadasr', [MyGovController::class, 'getObjectsByCadastr']);
     Route::get('get-objects-list', [MyGovController::class, 'getObjectsList']);
+    Route::get('get-objects-by-organization', [MyGovController::class, 'getObjectsByOrganization']);
+    Route::get('get-objects-by-design', [MyGovController::class, 'getObjectsByDesign']);
 });
 
 

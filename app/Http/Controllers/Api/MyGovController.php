@@ -72,6 +72,29 @@ class MyGovController extends Controller
         return $data;
     }
 
+    public function getObjectsByOrganization()
+    {
+
+        $data = $this->myGovService->getObjectOrganization();
+
+        if (!$data) {
+            return ['success' =>  false, 'message' => "Ma'lumot topilmadi"];
+        }
+
+        return $data;
+    }
+
+    public function getObjectsByDesign()
+    {
+        $data = $this->myGovService->getObjectDesign();
+
+        if (!$data) {
+            return ['success' =>  false, 'message' => "Ma'lumot topilmadi"];
+        }
+
+        return $data;
+    }
+
 
 
 }

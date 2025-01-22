@@ -214,15 +214,10 @@ class ObjectController extends BaseController
             $object = Article::findOrFail(request()->get('id'));
 
             $missingRoles = $this->checkUsers($object);
-//            $blocks = $this->checkBlocks($object);
 
             if (!empty($missingRoles)) {
                 return $this->sendError('Obyekt qatnashchilari yetarli emas ' . implode(', ', $missingRoles));
             }
-
-//            if (!empty($blocks)) {
-//                return $this->sendError('Obyekt bloklar foydalanishga topshirilgan ' . implode(', ', $blocks));
-//            }
 
             return $this->sendSuccess(true, 'Article retrieved successfully.');
 
