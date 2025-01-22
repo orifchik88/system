@@ -36,7 +36,7 @@ class MonitoringRepository implements MonitoringRepositoryInterface
                     $join->whereMonth('monitorings.created_at', $filters['month']);
                 }
             })
-            ->join('check_list_answers', 'check_list_answers.monitoring_id', '=', 'monitorings.id')
+            ->leftJoin('check_list_answers', 'check_list_answers.monitoring_id', '=', 'monitorings.id')
             ->join('articles', 'articles.id', '=', 'article_users.article_id')
             ->when(isset($filters['funding_source_id']), function ($q) use ($filters) {
                 $q->where('articles.funding_source_id', $filters['funding_source_id']);
@@ -52,9 +52,9 @@ class MonitoringRepository implements MonitoringRepositoryInterface
                 'articles.task_id as task_id',
                 'articles.funding_source_id',
                 'articles.difficulty_category_id',
-                DB::raw('COUNT(monitorings.id) as count'),
+                DB::raw('COUNT(monitorings.id) FILTER(where check_list_answers.monitoring_id is not null) as count'),
                 DB::raw('CASE
-                    WHEN COUNT(monitorings.id) > 0 THEN true
+                    WHEN COUNT(monitorings.id) FILTER(where check_list_answers.monitoring_id is not null) > 0 THEN true
                     ELSE false
                 END as is_monitored'),
             ])
