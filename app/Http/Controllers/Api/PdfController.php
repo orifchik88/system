@@ -2,12 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\NotFoundException;
+use App\Helpers\ClaimStatuses;
 use App\Helpers\OrganizationNames;
 use App\Http\Resources\UserResource;
+use App\Models\Claim;
 use App\Models\ClaimOrganizationReview;
 use App\Models\Regulation;
+use App\Models\Response;
 use App\Models\Role;
 use App\Models\User;
+use App\Repositories\ArticleRepository;
+use App\Repositories\ClaimRepository;
+use App\Services\ClaimService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -48,6 +55,21 @@ class PdfController extends BaseController
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getLine());
         }
+    }
+
+    public function pdfClaim($id)
+    {
+        $claim = Claim::query()->where(['status' => ClaimStatuses::TASK_STATUS_CONFIRMED, 'object_id' => $id])->first();
+
+        $result = (new ClaimService(new ClaimRepository(new Response(), new Claim()), new ArticleRepository()))->getConclusionPDF($claim->guid);
+
+        if (isset($result['status']))
+            throw new NotFoundException('Hatolik!', 404);
+
+        $bin = base64_decode($result['file'], true);
+
+        return response($bin)
+            ->header('Content-Type', 'application/pdf');
     }
 
     public function pdfOrganization($id)

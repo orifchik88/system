@@ -47,6 +47,8 @@ class ArticleResource extends JsonResource
             'funding_source' => FundingSourceResource::make($this->fundingSource),
             'payment_deadline' => $this->payment_deadline,
             'closed_at' => $this->closed_at,
+            'closed_type' => $this->closed_type,
+            'closed_file' => $this->closed_file,
             'object_sector' => ObjectSectorResource::make($this->objectSector),
             'deadline' => $this->deadline,
             'reestr_number' => $this->reestr_number,
