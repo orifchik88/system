@@ -118,6 +118,8 @@ class ObjectController extends BaseController
         $query = $this->service->getAccountObjectsQuery($query, request('status'));
         $query = $this->service->searchObjects($query, $filters);
 
+        $query->where('price_supervision_service', '!=', '0.00');
+
         $objects = $query->orderBy('created_at', request('sort_by_date', 'DESC'))
                         ->paginate(\request('per_page', 10));
 
