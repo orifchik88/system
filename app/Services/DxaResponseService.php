@@ -247,7 +247,7 @@ class DxaResponseService
                     'selected_work_type' => $response->administrative_status_id == 8 ? false : true,
                 ];
 
-                if ($blockData['block_id']){
+                if (isset($blockData['block_id'])){
                     Block::query()->find($blockData['block_id'])->update($blockAttributes);
                 }else{
                     Block::create($blockAttributes);
