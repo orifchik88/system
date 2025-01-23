@@ -103,6 +103,9 @@ class ArticleRepository implements ArticleRepositoryInterface
             ->when(isset($filters['funding_source']), function ($query) use ($filters) {
                 $query->where('funding_source_id', $filters['funding_source']);
             })
+            ->when(isset($filters['sphere_id']), function ($query) use ($filters) {
+                $query->where('sphere_id', $filters['sphere_id']);
+            })
             ->when(isset($filters['object_type']), function ($query) use ($filters) {
                 $query->where('object_type_id', $filters['object_type']);
             })

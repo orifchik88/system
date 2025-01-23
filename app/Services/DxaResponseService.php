@@ -232,6 +232,7 @@ class DxaResponseService
         if (isset($this->data['blocks'])) {
             foreach ($this->data['blocks'] as $blockData) {
                 $blockAttributes = [
+                    'block_id' => $blockData['block_id'] ?? null,
                     'name' => $blockData['name'],
                     'dxa_response_id' => $response->id,
                     'floor' => $blockData['floor'] ?? null,
