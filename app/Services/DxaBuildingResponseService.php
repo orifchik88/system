@@ -322,18 +322,17 @@ class DxaBuildingResponseService
                 $response = DxaResponse::query()->where('task_id', $dxa->old_task_id)->first();
                 if ($response)
                 {
-                    $reestrNumber = isset($dxa->reestr_number) ? $response->reestr_number : $dxa->reestr_number;
+                    $reestrNumber =  $dxa->reestr_number ?? $response->reestr_number;
                     $dxa->update([
                         'reestr_number' => $reestrNumber,
                         'sphere_id' => $response->sphere_id,
                         'monitoring_object_id' => $response->monitoring_object_id,
                         'end_term_work' => $response->end_term_work,
                         'administrative_status_id' => $response->administrative_status_id,
+                        'inspector_id' => $response->inspector_id,
                     ]);
                 }
 
-            }else{
-                $reestrNumber = $dxa->reestr_number;
             }
             $data = getData(config('app.gasn.tender'),$reestrNumber);
             $dxa->update([
