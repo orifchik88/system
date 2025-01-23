@@ -119,7 +119,7 @@ class ObjectController extends BaseController
         $query = $this->service->searchObjects($query, $filters);
 
         $objects = $query->orderBy('created_at', request('sort_by_date', 'DESC'))
-                        ->paginate(\request('perPage', 10));
+                        ->paginate(\request('per_page', 10));
 
         return $this->sendSuccess(ArticleListResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
     }
