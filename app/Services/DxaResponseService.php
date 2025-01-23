@@ -248,7 +248,7 @@ class DxaResponseService
                 ];
 
                 if ($blockData['block_id']){
-                    Block::query()->where($blockData['block_id'])->update($blockAttributes);
+                    Block::query()->find($blockData['block_id'])->update($blockAttributes);
                 }else{
                     Block::create($blockAttributes);
                 }
