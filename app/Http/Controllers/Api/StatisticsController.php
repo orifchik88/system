@@ -8,6 +8,7 @@ use App\Enums\UserRoleEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ArticlePalataResource;
 use App\Models\Article;
+use App\Models\Block;
 use App\Models\Claim;
 use App\Models\ClaimMonitoring;
 use App\Models\District;
@@ -314,8 +315,45 @@ class StatisticsController extends BaseController
     {
         $claims = ClaimMonitoring::query()
             ->join('claims as c', 'c.id', '=', 'claim_monitoring.claim_id')
-            ->where('c.status', 20)->whereNotNull('c.object_id')
+            ->join('articles as a', 'a.id', '=', 'c.object_id')
+            ->join('regions as r', 'r.id', '=', 'a.region_id')
+            ->join('districts as d', 'd.id', '=', 'a.district_id')
+            ->where('c.status', 20)
+            ->whereNotNull('c.object_id')
             ->get();
+
+        $array = [];
+
+        foreach ($claims as $claim) {
+            $meta = [];
+
+            $operator = base64_decode($claim->operator_answer);
+
+            $uncompressed = @gzuncompress($operator);
+            if ($uncompressed === false) {
+                $uncompressed = $operator;
+            }
+
+            $blocks = json_decode($claim->blocks, true);
+            if (is_array($blocks)) {
+                foreach ($blocks as $item) {
+                    $block = Block::query()->find($item);
+                    if ($block) {
+                        $meta[] = [
+                            'type' => optional($block->type)->name,
+                            'count_apartments' => $block->count_apartments,
+                        ];
+                    }
+                }
+            }
+
+            $array[] = [
+                'blocks' => $meta,
+                'json' => json_decode($uncompressed, true),
+            ];
+        }
+
+        return response()->json($array);
     }
 
 
