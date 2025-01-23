@@ -8,6 +8,8 @@ use App\Enums\UserRoleEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ArticlePalataResource;
 use App\Models\Article;
+use App\Models\Claim;
+use App\Models\ClaimMonitoring;
 use App\Models\District;
 use App\Models\Monitoring;
 use App\Models\Region;
@@ -306,6 +308,14 @@ class StatisticsController extends BaseController
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getLine());
         }
+    }
+
+    public function excel()
+    {
+        $claims = ClaimMonitoring::query()
+            ->join('claims as c', 'c.id', '=', 'claim_monitoring.claim_id')
+            ->where('c.status', 20)->whereNotNull('c.object_id')
+            ->get();
     }
 
 
