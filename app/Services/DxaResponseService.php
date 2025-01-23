@@ -232,7 +232,6 @@ class DxaResponseService
         if (isset($this->data['blocks'])) {
             foreach ($this->data['blocks'] as $blockData) {
                 $blockAttributes = [
-                    'block_id' => $blockData['block_id'] ?? null,
                     'name' => $blockData['name'],
                     'dxa_response_id' => $response->id,
                     'floor' => $blockData['floor'] ?? null,
@@ -241,6 +240,7 @@ class DxaResponseService
                     'height' => $blockData['height'] ?? null,
                     'length' => $blockData['length'] ?? null,
                     'block_mode_id' => $blockData['block_mode_id'] ?? null,
+                    'block_id' => $blockData['block_id'] ?? null,
                     'block_type_id' => $blockData['block_type_id'] ?? null,
                     'appearance_type' => $blockData['appearance_type'] ?? null,
                     'created_by' => Auth::id(),
@@ -248,14 +248,12 @@ class DxaResponseService
                     'selected_work_type' => $response->administrative_status_id == 8 ? false : true,
                 ];
                 $blockAttributes['block_number'] = $this->determineBlockNumber($blockData, $response);
-                $articleBlock = Block::query()->where('block_number', $blockAttributes['block_number'])->first();
 
-                Block::create($blockAttributes);
-//                if ($articleBlock) {
-//                    //$articleBlock->update($blockAttributes);
-//                } else {
-//
-//                }
+                if ($blockAttributes['block_id']){
+                    Block::query()->find($blockAttributes['block_id'])->update($blockAttributes);
+                }else{
+                    Block::create($blockAttributes);
+                }
             }
         }
     }
