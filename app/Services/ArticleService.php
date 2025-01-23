@@ -328,8 +328,8 @@ class ArticleService
             }else{
                 $article = $this->saveResponse($response);
                 $this->saveResponseUser($response, $article);
-                $this->saveBlocks($response, $article);
             }
+            $this->saveBlocks($response, $article);
 
             $this->saveEmployee($article);
             $this->acceptResponse($response);
@@ -368,8 +368,8 @@ class ArticleService
             'confirming_laboratory' => $response->confirming_laboratory,
             'file_energy_efficiency' => $response->file_energy_efficiency,
             'legal_opf' => $response->legal_opf,
-//            'sphere_id' => $response->sphere_id,
-//            'program_id' => $response->program_id,
+            'sphere_id' => $response->sphere_id ?? $article->sphere_id,
+            'program_id' => $response->program_id ?? $article->program_id,
             'linear_type' => $response->linear_type,
             'dxa_response_id' => $response->id,
             'price_supervision_service' => price_supervision($response->cost),
@@ -377,7 +377,7 @@ class ArticleService
             'number_protocol' => $response->number_protocol,
             'positive_opinion_number' => $response->positive_opinion_number,
             'date_protocol' =>$response->date_protocol,
-            'funding_source_id' => $response->funding_source_id,
+            'funding_source_id' => $response->funding_source_id ?? $article->funding_source_id,
             //'deadline' => $response->end_term_work,
             'gnk_id' => $response->gnk_id,
             'reestr_number' => (int)$response->reestr_number,
@@ -438,6 +438,8 @@ class ArticleService
             $fish = $this->generateFish($supervisor->fish);
             $articleUser = $article->users()->wherePivot('role_id', $supervisor->role_id)->first();
             $user = User::where('pinfl', $supervisor->stir_or_pinfl)->first();
+
+
             if ($user) {
                 $user->update([
                     'name' => $fish ? $fish[1] : null,
@@ -511,21 +513,21 @@ class ArticleService
             }
         }
 
-//        $articleInspector = $article->users()->wherePivot('role_id', UserRoleEnum::INSPECTOR->value)->first();
-//        $inspector = User::query()->find($response->inspector_id);
-//        if ($articleInspector){
-//            if ($articleInspector->pinfl != $inspector->pinfl)
-//            {
-//                ArticleUser::query()
-//                    ->where('article_id', $article->id)
-//                    ->where('role_id', UserRoleEnum::INSPECTOR->value)
-//                    ->where('user_id', $articleInspector->id)
-//                    ->delete();
-//                $article->users()->attach($inspector->id, ['role_id' => UserRoleEnum::INSPECTOR->value]);
-//            }
-//        }else{
-//            $article->users()->attach($inspector->id, ['role_id' => UserRoleEnum::INSPECTOR->value]);
-//        }
+        $articleInspector = $article->users()->wherePivot('role_id', UserRoleEnum::INSPECTOR->value)->first();
+        $inspector = User::query()->find($response->inspector_id);
+        if ($articleInspector){
+            if ($articleInspector->pinfl != $inspector->pinfl)
+            {
+                ArticleUser::query()
+                    ->where('article_id', $article->id)
+                    ->where('role_id', UserRoleEnum::INSPECTOR->value)
+                    ->where('user_id', $articleInspector->id)
+                    ->delete();
+                $article->users()->attach($inspector->id, ['role_id' => UserRoleEnum::INSPECTOR->value]);
+            }
+        }else{
+            $article->users()->attach($inspector->id, ['role_id' => UserRoleEnum::INSPECTOR->value]);
+        }
     }
 
     private function changeRegulations($objectId, $oldUserId, $newUserId, $roleId)
@@ -642,7 +644,7 @@ class ArticleService
 
     private function saveBlocks(DxaResponse $response, Article $article): void
     {
-        $isAccepted = !($response->administrative_status_id == 8 && $response->notification_type == 1);
+        $isAccepted = !($response->administrative_status_id == 8);
         foreach ($response->blocks as $block) {
             $this->blockRepository->updateBlockByArticle($block->id, $article, $isAccepted);
         }
