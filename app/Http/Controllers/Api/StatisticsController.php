@@ -320,6 +320,13 @@ class StatisticsController extends BaseController
             ->join('districts as d', 'd.id', '=', 'a.district_id')
             ->where('c.status', 20)
             ->whereNotNull('c.object_id')
+            ->select(
+                'claim_monitoring.*',
+                'c.guid as ariza_raqami',
+                'a.task_id as obyekt_raqami',
+                'r.name_uz as region_name',
+                'd.name_uz as district_name'
+            )
             ->get();
 
         $array = [];
@@ -349,6 +356,10 @@ class StatisticsController extends BaseController
 
             $array[] = [
                 'blocks' => $meta,
+                'obyekt_raqami' => $claim->obyekt_raqami,
+                'ariza_raqami' => $claim->ariza_raqami,
+                'region_name' => $claim->region_name,
+                'district_name' => $claim->district_name,
                 'json' => json_decode($uncompressed, true),
             ];
         }
