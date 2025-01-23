@@ -118,11 +118,7 @@ class ObjectController extends BaseController
         $query = $this->service->getAccountObjectsQuery($query, request('status'));
         $query = $this->service->searchObjects($query, $filters);
 
-        $filteredArticles = $query->filter(function ($article) {
-            return trim($article->price_supervision_service) !== '0.00';
-        });
-
-        $objects = $filteredArticles->orderBy('created_at', request('sort_by_date', 'DESC'))
+        $objects = $query->orderBy('created_at', request('sort_by_date', 'DESC'))
                         ->paginate(\request('per_page', 10));
 
         return $this->sendSuccess(ArticleListResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
