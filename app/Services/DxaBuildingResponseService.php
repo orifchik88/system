@@ -77,12 +77,7 @@ class DxaBuildingResponseService
                 $status = DxaResponseStatusEnum::REJECTED;
             }
         }else{
-            if ($data['notification_type']['real_value'] == 1)
-            {
-                $status = DxaResponseStatusEnum::NEW;
-            }else{
-                $status = DxaResponseStatusEnum::IN_REGISTER;
-            }
+            $status = DxaResponseStatusEnum::NEW;
         }
 
 
