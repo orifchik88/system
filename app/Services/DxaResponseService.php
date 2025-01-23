@@ -240,7 +240,6 @@ class DxaResponseService
                     'height' => $blockData['height'] ?? null,
                     'length' => $blockData['length'] ?? null,
                     'block_mode_id' => $blockData['block_mode_id'] ?? null,
-                    'block_id' => $blockData['block_id'] ?? null,
                     'block_type_id' => $blockData['block_type_id'] ?? null,
                     'appearance_type' => $blockData['appearance_type'] ?? null,
                     'created_by' => Auth::id(),
@@ -249,8 +248,8 @@ class DxaResponseService
                 ];
                 $blockAttributes['block_number'] = $this->determineBlockNumber($blockData, $response);
 
-                if ($blockAttributes['block_id']){
-                    Block::query()->find($blockAttributes['block_id'])->update($blockAttributes);
+                if ($blockData['block_id']){
+                    Block::query()->where($blockData['block_id'])->update($blockAttributes);
                 }else{
                     Block::create($blockAttributes);
                 }
