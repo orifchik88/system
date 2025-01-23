@@ -645,9 +645,12 @@ class ArticleService
     private function saveBlocks(DxaResponse $response, Article $article): void
     {
         $isAccepted = !($response->administrative_status_id == 8);
-        foreach ($response->blocks as $block) {
-            $this->blockRepository->updateBlockByArticle($block->id, $article, $isAccepted);
+        if ($response->blocks){
+            foreach ($response->blocks as $block) {
+                $this->blockRepository->updateBlockByArticle($block->id, $article, $isAccepted);
+            }
         }
+
     }
 
     private function saveEmployee(Article $article): void
