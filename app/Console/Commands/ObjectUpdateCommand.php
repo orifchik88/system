@@ -51,23 +51,33 @@ class ObjectUpdateCommand extends Command
                             }
 
                             $article->update([
-                                'gnk_id' => $tenderData['data']['result']['data']['gnk_id'] ?? $article->gnk_id,
-                                'funding_source_id' => $tenderData['data']['result']['data']['finance_source'] ?? $article->funding_source_id,
+                                'gnk_id' => $tenderData['data']['result']['data']['gnk_id'],
+                                'funding_source_id' => $tenderData['data']['result']['data']['finance_source'] ,
                                 'is_change' => true,
                             ]);
 
-                            $monitoringData = getData(config('app.gasn.get_monitoring'), $article->gnk_id);
-                            if (!$monitoringData || !isset($monitoringData['data']['result']['data'][0])) {
-                                $article->update(['is_change' => true]);
-                                Log::warning('Monitoring maʼlumotlari topilmadi', ['gnk_id' => $article->gnk_id]);
-                                continue;
+                            if ($article->gnk_id) {
+                                $monitoringData = getData(config('app.gasn.get_monitoring'), $article->gnk_id);
+                                if (!$monitoringData || !isset($monitoringData['data']['result']['data'][0])) {
+                                    $article->update(['is_change' => true]);
+                                    Log::warning('Monitoring maʼlumotlari topilmadi', ['gnk_id' => $article->gnk_id]);
+                                    continue;
+                                }
+
+                                $article->update([
+                                    'program_id' => $monitoringData['data']['result']['data'][0]['project_type_id'],
+                                    'sphere_id' => $monitoringData['data']['result']['data'][0]['object_types_id'],
+                                    'is_change' => true,
+                                ]);
+                            }else{
+                                $article->update([
+                                    'program_id' => null,
+                                    'sphere_id' => null,
+                                    'is_change' => true,
+                                ]);
                             }
 
-                            $article->update([
-                                'program_id' => $monitoringData['data']['result']['data'][0]['project_type_id'] ?? $article->program_id,
-                                'sphere_id' => $monitoringData['data']['result']['data'][0]['object_types_id'] ?? $article->sphere_id,
-                                'is_change' => true,
-                            ]);
+
                             sleep(5);
                         }
                     });
