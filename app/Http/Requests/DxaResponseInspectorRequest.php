@@ -29,7 +29,7 @@ class DxaResponseInspectorRequest extends FormRequest
             'funding_source_id' => 'required|string|exists:funding_sources,id',
             'sphere_id' => 'required|integer',
             'program_id' => 'sometimes|integer',
-            'end_term_work' => 'required|string',
+            'end_term_work' => 'required_if:notification_type,1|string',
             'gnk_id' => 'sometimes|integer',
         ];
     }
