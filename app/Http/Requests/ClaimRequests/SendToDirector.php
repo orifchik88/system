@@ -31,6 +31,7 @@ class SendToDirector extends FormRequest
             'buildings.*.total_use_area' => 'required',
             'buildings.*.living_area' => 'required',
             'buildings.*.area' => 'required',
+            'buildings.*.type' => 'required'
         ];
     }
 }
