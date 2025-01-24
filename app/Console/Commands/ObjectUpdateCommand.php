@@ -37,6 +37,7 @@ class ObjectUpdateCommand extends Command
                 ->whereRaw("CAST(reestr_number AS BIGINT) > 200000")
                 ->whereRaw("CAST(reestr_number AS BIGINT) < 300000")
                 ->where('created_at', '>=', '2024-01-01 00:00:00')
+                 ->where('funding_source_id', 1)
                 ->whereNotNull('old_id')
                 ->where('is_change', false)
                 ->chunk(5, function ($articles) {
@@ -45,7 +46,6 @@ class ObjectUpdateCommand extends Command
                             if (!$tenderData || !isset($tenderData['data']['result']['data'])) {
                                 $article->update(['is_change' => true]);
                                 Log::warning('Tender maʼlumotlari topilmadi', ['reestr_number' => $article->reestr_number]);
-                                continue;
                             }
 
                             $article->update([
@@ -59,18 +59,11 @@ class ObjectUpdateCommand extends Command
                                 if (!$monitoringData || !isset($monitoringData['data']['result']['data'][0])) {
                                     $article->update(['is_change' => true]);
                                     Log::warning('Monitoring maʼlumotlari topilmadi', ['gnk_id' => $article->gnk_id]);
-                                    continue;
                                 }
 
                                 $article->update([
                                     'program_id' => $monitoringData['data']['result']['data'][0]['project_type_id'],
                                     'sphere_id' => $monitoringData['data']['result']['data'][0]['object_types_id'],
-                                    'is_change' => true,
-                                ]);
-                            }else{
-                                $article->update([
-                                    'program_id' => null,
-                                    'sphere_id' => null,
                                     'is_change' => true,
                                 ]);
                             }
