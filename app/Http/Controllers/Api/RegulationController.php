@@ -505,6 +505,7 @@ class RegulationController extends BaseController
             $articles = Article::query()
                 ->select('id', 'task_id')
                 ->whereRaw('gnk_id REGEXP "^[0-9]+$"')
+                ->whereBetween('gnk_id', [200000, 300000])
                 ->where('created_at', '>=', '2024-01-01 00:00:00')
                 ->whereNotNull('old_id')
                 ->where('is_changed', false)
