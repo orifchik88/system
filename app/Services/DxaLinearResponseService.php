@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\DxaResponseStatusEnum;
+use App\Enums\UserRoleEnum;
 use App\Models\Article;
 use App\Models\District;
 use App\Models\DxaResponse;
@@ -166,12 +167,14 @@ class DxaLinearResponseService
                 if ($response)
                 {
                     $reestrNumber = isset($dxa->reestr_number) ? $response->reestr_number : $dxa->reestr_number;
+                    $article = Article::query()->where('task_id', $dxa->old_task_id)->first();
                     $dxa->update([
                         'reestr_number' => $reestrNumber,
                         'sphere_id' => $response->sphere_id,
                         'monitoring_object_id' => $response->monitoring_object_id,
                         'end_term_work' => $response->end_term_work,
                         'administrative_status_id' => $response->administrative_status_id,
+                        'inspector_id' => $article ? $article?->users()->where('role_id', UserRoleEnum::INSPECTOR->value)?->id : null,
                     ]);
                 }
 
