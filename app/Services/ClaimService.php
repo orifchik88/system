@@ -933,11 +933,12 @@ class ClaimService
             );
         }
 
-        $claimObject->monitoring->update(
-            [
-                'director_answer' => $request['type']
-            ]
-        );
+        if ($claimObject->monitoring != null)
+            $claimObject->monitoring->update(
+                [
+                    'director_answer' => $request['type']
+                ]
+            );
 
         return true;
     }
