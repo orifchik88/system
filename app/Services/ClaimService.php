@@ -336,9 +336,9 @@ class ClaimService
                         $dataArray['Conclusion' . ucfirst($apiType) . 'V2FormCompletedBuildingsRegistrationCadastral'] = $jsonData;
                         $response = $this->PostRequest($apiUrl, $dataArray);
 
-                        if ($response->status() != 200) {
-                            return false;
-                        }
+//                        if ($response->status() != 200) {
+//                            return false;
+//                        }
 
                         $addedOrganizations[] = $review->organization_id;
                     }
@@ -1088,6 +1088,7 @@ class ClaimService
                                     $status = ClaimStatuses::TASK_STATUS_INSPECTOR;
                                 } else {
                                     $this->autoRejectByOrganization($reviews->first());
+                                    $status = ClaimStatuses::TASK_STATUS_ORGANIZATION_REJECTED;
                                 }
                             }
 
