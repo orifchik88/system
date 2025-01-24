@@ -2,6 +2,7 @@
 
 namespace App\Models\Traits;
 
+use App\Models\Article;
 use App\Models\DxaResponse;
 
 trait DxaResponseTrait
@@ -9,6 +10,11 @@ trait DxaResponseTrait
     public static function getResponse($taskId)
     {
         return self::where('task_id', $taskId)->first() ?? null;
+    }
+
+    public function getObject($task_id)
+    {
+       return Article::query()->where('task_id', $task_id)->first() ?? null;
     }
 
     public function getOldTaskIds($taskId): ?array

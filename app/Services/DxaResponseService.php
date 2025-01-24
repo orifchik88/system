@@ -51,7 +51,8 @@ class DxaResponseService
         switch ($roleId) {
             case UserRoleEnum::INSPECTOR->value:
                 return $response
-                    ->where('inspector_id', $user->id);
+                    ->where('inspector_id', $user->id)
+                    ->where('dxa_response_status_id', DxaResponseStatusEnum::SEND_INSPECTOR);
             case UserRoleEnum::INSPEKSIYA->value:
             case UserRoleEnum::HUDUDIY_KUZATUVCHI->value:
             case UserRoleEnum::REGISTRATOR->value:
@@ -244,12 +245,16 @@ class DxaResponseService
                     'appearance_type' => $blockData['appearance_type'] ?? null,
                     'created_by' => Auth::id(),
                     'status' => true,
-                    'selected_work_type' => $response->administrative_status_id == 8 ? false : true,
                 ];
 
                 if (isset($blockData['block_id'])){
-                    Block::query()->find($blockData['block_id'])->update($blockAttributes);
+                    $block = Block::query()->find($blockData['block_id']);
+                    if ($block) {
+                        $blockAttributes['selected_work_type'] = $block->selected_work_type;
+                        $block->update($blockAttributes);
+                    }
                 }else{
+                    $blockAttributes['selected_work_type'] = $response->administrative_status_id != 8;
                     Block::create($blockAttributes);
                 }
             }
