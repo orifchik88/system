@@ -15,7 +15,7 @@ class ObjectUpdateCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:object-update-command {task_id}';
+    protected $signature = 'app:object-update-command';
 
     /**
      * The console command description.
@@ -31,17 +31,15 @@ class ObjectUpdateCommand extends Command
     {
         try {
              Article::query()
-                 ->where('task_id', $this->argument('task_id'))
-//                ->select('id', 'task_id', 'reestr_number')
-//                ->whereNotNull('reestr_number')
-//                ->whereRaw("reestr_number ~ '^[0-9]+$'")
-//                ->whereRaw("CAST(reestr_number AS BIGINT) > 200000")
-//                ->whereRaw("CAST(reestr_number AS BIGINT) < 300000")
-//                ->where('created_at', '>=', '2024-01-01 00:00:00')
-//                ->whereNotNull('old_id')
-//                ->where('is_change', false)
-                ->chunk(10, function ($articles) {
-                    DB::transaction(function () use ($articles) {
+                ->select('id', 'task_id', 'reestr_number')
+                ->whereNotNull('reestr_number')
+                ->whereRaw("reestr_number ~ '^[0-9]+$'")
+                ->whereRaw("CAST(reestr_number AS BIGINT) > 200000")
+                ->whereRaw("CAST(reestr_number AS BIGINT) < 300000")
+                ->where('created_at', '>=', '2024-01-01 00:00:00')
+                ->whereNotNull('old_id')
+                ->where('is_change', false)
+                ->chunk(5, function ($articles) {
                         foreach ($articles as $article) {
                             $tenderData = getData(config('app.gasn.tender'), $article->reestr_number);
                             if (!$tenderData || !isset($tenderData['data']['result']['data'])) {
@@ -80,7 +78,6 @@ class ObjectUpdateCommand extends Command
 
                             sleep(5);
                         }
-                    });
                 });
 
         }catch (\Exception $exception){
