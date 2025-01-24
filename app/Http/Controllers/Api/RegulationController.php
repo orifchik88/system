@@ -502,6 +502,14 @@ class RegulationController extends BaseController
     public function test()
     {
         try {
+            $articles = Article::query()
+                ->select('id', 'task_id')
+                ->whereRaw('gnk_id REGEXP "^[0-9]+$"')
+                ->where('created_at', '>=', '2024-01-01 00:00:00')
+                ->whereNotNull('old_id')
+                ->where('is_changed', false)
+                ->get();
+
 //            $regulations = Regulation::whereNotNull('regulation_number')
 //            ->get()
 //                ->groupBy('regulation_number');
