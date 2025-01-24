@@ -336,9 +336,9 @@ class ClaimService
                         $dataArray['Conclusion' . ucfirst($apiType) . 'V2FormCompletedBuildingsRegistrationCadastral'] = $jsonData;
                         $response = $this->PostRequest($apiUrl, $dataArray);
 
-                        if ($response->status() != 200) {
-                            return false;
-                        }
+//                        if ($response->status() != 200) {
+//                            return false;
+//                        }
 
                         $addedOrganizations[] = $review->organization_id;
                     }
