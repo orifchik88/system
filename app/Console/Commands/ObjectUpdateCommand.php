@@ -49,8 +49,8 @@ class ObjectUpdateCommand extends Command
                             }
 
                             $article->update([
-                                'gnk_id' => $tenderData['data']['result']['data']['gnk_id'],
-                                'funding_source_id' => $tenderData['data']['result']['data']['finance_source'],
+                                'gnk_id' => $tenderData['data']['result']['data']['gnk_id'] ?? null,
+                                'funding_source_id' => $tenderData['data']['result']['data']['finance_source'] ?? null,
                                 'is_change' => true,
                             ]);
 
@@ -62,8 +62,8 @@ class ObjectUpdateCommand extends Command
                             }
 
                             $article->update([
-                                'program_id' => $monitoringData['data']['result']['data'][0]['project_type_id'],
-                                'sphere_id' => $monitoringData['data']['result']['data'][0]['object_types_id'],
+                                'program_id' => $monitoringData['data']['result']['data'][0]['project_type_id'] ?? null,
+                                'sphere_id' => $monitoringData['data']['result']['data'][0]['object_types_id'] ?? null,
                                 'is_change' => true,
                             ]);
                         }
