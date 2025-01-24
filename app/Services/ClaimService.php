@@ -1088,6 +1088,7 @@ class ClaimService
                                     $status = ClaimStatuses::TASK_STATUS_INSPECTOR;
                                 } else {
                                     $this->autoRejectByOrganization($reviews->first());
+                                    $status = ClaimStatuses::TASK_STATUS_ORGANIZATION_REJECTED;
                                 }
                             }
 
