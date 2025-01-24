@@ -328,6 +328,8 @@ class DxaBuildingResponseService
                         'end_term_work' => $response->end_term_work,
                         'administrative_status_id' => $response->administrative_status_id,
                         'inspector_id' => $article ? $article?->users()->where('role_id', UserRoleEnum::INSPECTOR->value)?->id : null,
+                        'lat' => $article ? $article?->lat : null,
+                        'long' => $article ? $article?->long : null,
                     ]);
                 }
 

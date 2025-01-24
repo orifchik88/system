@@ -47,10 +47,10 @@ class DxaResponseResource extends JsonResource
             'pinfl' => $this->pinfl,
             'notification_type' => $this->notification_type,
             'lat' => $this->notification_type === 2
-                ? ($this->lat ?? $this->getResponse($this->old_task_id)->lat ?? null)
+                ? ($this->lat ?? $this->getObject($this->old_task_id)->lat ?? null)
                 : $this->lat,
             'long' => $this->notification_type === 2
-                ? ($this->long ?? $this->getResponse($this->old_task_id)->long ?? null)
+                ? ($this->long ?? $this->getObject($this->old_task_id)->long ?? null)
                 : $this->long,
             "full_name" => $this->full_name,
             'legal_opf' => $this->legal_opf,
@@ -106,7 +106,7 @@ class DxaResponseResource extends JsonResource
             ),
             'blocks' => ResponseBlockResource::collection(
                 $this->notification_type === 2 && $this->blocks->isEmpty()
-                    ? $this->getResponse($this->old_task_id)->blocks ?? []
+                    ? $this->getObject($this->old_task_id)->blocks ?? []
                     : $this->blocks
             ),
             'inspector_comment' => $this->notification_type === 2
