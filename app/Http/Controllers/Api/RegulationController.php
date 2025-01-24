@@ -251,9 +251,14 @@ class RegulationController extends BaseController
                 }
             }
 
-            $regulation->update([
-               'regulation_status_id' => request('status'),
-            ]);
+            $updateData = ['regulation_status_id' => request('status')];
+
+            if ($regulation->lawyer_status_id != 3) {
+                $updateData['lawyer_status_id'] = null;
+            }
+
+            $regulation->update($updateData);
+
 
             DB::commit();
             return $this->sendSuccess([], 'Data saved successfully');
