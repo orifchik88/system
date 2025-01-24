@@ -31,7 +31,7 @@ class BlockChangeCommand extends Command
     {
 
         ActViolation::query()
-            ->whereIn('act_violation_type_id', [1])
+            ->whereIn('act_violation_type_id', [1, 2])
             ->whereHas('regulation', function ($query) {
                 $query->where('regulation_status_id', 1);
             })
