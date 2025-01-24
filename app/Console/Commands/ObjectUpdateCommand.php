@@ -6,6 +6,7 @@ use App\Models\Article;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use function Laravel\Prompts\select;
 
 class ObjectUpdateCommand extends Command
 {
@@ -66,6 +67,7 @@ class ObjectUpdateCommand extends Command
                                 'sphere_id' => $monitoringData['data']['result']['data'][0]['object_types_id'] ?? $article->sphere_id,
                                 'is_change' => true,
                             ]);
+                            sleep(5);
                         }
                     });
                 });
