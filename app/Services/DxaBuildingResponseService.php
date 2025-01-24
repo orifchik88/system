@@ -307,7 +307,7 @@ class DxaBuildingResponseService
                         ]
                     ]);
         }catch (\Exception $exception){
-            Log::info($exception->getMessage());;
+            Log::info($exception->getMessage());
         }
     }
 

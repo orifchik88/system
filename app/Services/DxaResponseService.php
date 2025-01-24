@@ -51,7 +51,8 @@ class DxaResponseService
         switch ($roleId) {
             case UserRoleEnum::INSPECTOR->value:
                 return $response
-                    ->where('inspector_id', $user->id);
+                    ->where('inspector_id', $user->id)
+                    ->where('dxa_response_status_id', DxaResponseStatusEnum::SEND_INSPECTOR);
             case UserRoleEnum::INSPEKSIYA->value:
             case UserRoleEnum::HUDUDIY_KUZATUVCHI->value:
             case UserRoleEnum::REGISTRATOR->value:
