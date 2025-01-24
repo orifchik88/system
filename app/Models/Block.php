@@ -20,6 +20,24 @@ class Block extends Model
         'block_mode_id' => BlockModeEnum::class
     ];
 
+    protected $appends = ['end_date'];
+
+    public function getEndDateAttribute()
+    {
+        $monitoring = ClaimMonitoring::query()
+            ->where('object_id', $this->article_id)
+            ->whereJsonContains('blocks', $this->id)
+            ->orderBy('id', 'desc')
+            ->first();
+
+        if(!$monitoring)
+            return "-";
+
+        $object = Claim::query()->where('id', $monitoring->claim_id)->first();
+
+        return $object->end_date;
+    }
+
     public function object(): BelongsTo
     {
         return $this->belongsTo(Article::class, 'article_id');

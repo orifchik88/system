@@ -17,22 +17,16 @@ class MonitoringRepository implements MonitoringRepositoryInterface
     public function getMonitoringList(array $filters)
     {
         return ArticleUser::query()
-            ->join('articles', function ($join) use ($filters) {
-                $join->on('articles.id', '=', 'article_users.article_id')
-                    ->whereRaw("
-                            articles.created_at <= (to_date(?, 'YYYY-MM') + INTERVAL '1 month - 1 day')
-                        ", ["{$filters['year']}-{$filters['month']}"]);
-            })
             ->leftJoin('monitorings', function ($join) use ($filters) {
                 $join->on('monitorings.object_id', '=', 'article_users.article_id')
                     ->where('monitorings.created_by_role', UserRoleEnum::INSPECTOR);
 
-                $join->whereExists(function ($query) {
-                    $query->select(DB::raw(1))
-                        ->from('check_list_answers')
-                        ->whereRaw('check_list_answers.monitoring_id = monitorings.id')
-                        ->groupBy('check_list_answers.question_id');
-                });
+//                $join->whereExists(function ($query) {
+//                    $query->select(DB::raw(1))
+//                        ->from('check_list_answers')
+//                        ->whereRaw('check_list_answers.monitoring_id = monitorings.id')
+//                        ->groupBy('check_list_answers.question_id');
+//                });
 
                 if (isset($filters['inspector_id'])) {
                     $join->where('monitorings.created_by', $filters['inspector_id']);
@@ -47,6 +41,15 @@ class MonitoringRepository implements MonitoringRepositoryInterface
                     $join->whereMonth('monitorings.created_at', $filters['month']);
                 }
             })
+            ->join('articles', function ($join) use ($filters) {
+                $join->on('articles.id', '=', 'article_users.article_id')
+                    ->whereRaw("
+                            articles.created_at <= (to_date(?, 'YYYY-MM') + INTERVAL '1 month - 1 day')
+                        ", ["{$filters['year']}-{$filters['month']}"]);
+            })
+//            ->leftJoinSub($checkListSubquery, 'check_list_summary', function ($join) {
+//                $join->on('check_list_summary.monitoring_id', '=', 'monitorings.id');
+//            })
             ->when(isset($filters['funding_source_id']), function ($q) use ($filters) {
                 $q->where('articles.funding_source_id', $filters['funding_source_id']);
             })
@@ -73,7 +76,7 @@ class MonitoringRepository implements MonitoringRepositoryInterface
                 'articles.object_status_id as status',
                 'articles.funding_source_id',
                 'articles.difficulty_category_id',
-                DB::raw('COUNT(monitorings.id) as count'),
+                DB::raw('COUNT(DISTINCT monitorings.id) as count'),
                 DB::raw('CASE
                     WHEN COUNT(monitorings.id) > 0 THEN true
                     ELSE false

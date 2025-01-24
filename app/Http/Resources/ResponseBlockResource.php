@@ -29,6 +29,7 @@ class ResponseBlockResource extends JsonResource
             'accepted' => $this->accepted,
             'appearance_type' => AppearanceTypeResource::make($this->appearanceType),
             'selected_work_type' => $this->selected_work_type,
+            'end_date' => $this->end_date
         ];
     }
 }

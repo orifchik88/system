@@ -3,6 +3,10 @@
 namespace App\Models;
 
 use App\Enums\ObjectStatusEnum;
+use App\Helpers\ClaimStatuses;
+use App\Repositories\ArticleRepository;
+use App\Repositories\ClaimRepository;
+use App\Services\ClaimService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -20,7 +24,7 @@ class Article extends Model
     use HasFactory, SoftDeletes;
 
     protected $guarded = [];
-    protected $appends = ['cost'];
+    protected $appends = ['cost', 'closed_type', 'closed_file'];
 
     public function documents(): MorphMany
     {
@@ -44,7 +48,7 @@ class Article extends Model
                 : 0;
         });
 
-        $totalAmount = (float) $this->price_supervision_service;
+        $totalAmount = (float)$this->price_supervision_service;
 
         $notPaid = $totalAmount - $totalPaid;
 
@@ -53,6 +57,32 @@ class Article extends Model
         }
 
         return $notPaid;
+    }
+
+    public function getClosedTypeAttribute()
+    {
+        $type = "-";
+
+        if (ManualConfirmedClaim::query()->where('object_id', $this->id)->first())
+            $type = "Inspeksiya boshlig'i";
+
+        if (Claim::query()->where(['status' => ClaimStatuses::TASK_STATUS_CONFIRMED, 'object_id' => $this->id])->first())
+            $type = "YIDXP";
+
+        return $type;
+    }
+
+    public function getClosedFileAttribute()
+    {
+        $file = "#";
+
+        if (ManualConfirmedClaim::query()->where('object_id', $this->id)->first())
+            $file = "https://api-nazorat.mc.uz/storage/" . ManualConfirmedClaim::query()->where('object_id', $this->id)->first()->file;
+
+        if (Claim::query()->where(['status' => ClaimStatuses::TASK_STATUS_CONFIRMED, 'object_id' => $this->id])->first())
+            $file = "https://api-nazorat.mc.uz/api/pdf-claim/" . $this->id;;
+
+        return $file;
     }
 
     public function inspector(): BelongsToMany
@@ -126,17 +156,15 @@ class Article extends Model
         $searchTerm = strtolower($searchTerm);
 
         return $query->whereRaw('LOWER(articles.organization_name) LIKE ?', ['%' . $searchTerm . '%'])
-                    ->orWhereRaw('LOWER(articles.name) LIKE ?', ['%' . $searchTerm . '%']);
+            ->orWhereRaw('LOWER(articles.name) LIKE ?', ['%' . $searchTerm . '%']);
 
     }
-
-
 
 
     public function scopeSearchByTaskId($query, $searchTerm)
     {
         return $query->where('articles.task_id', 'like', '%' . $searchTerm . '%')
-                ->orWhere('articles.id', 'like', '%' . $searchTerm . '%');
+            ->orWhere('articles.id', 'like', '%' . $searchTerm . '%');
     }
 
 
@@ -159,6 +187,7 @@ class Article extends Model
     {
         return $this->belongsTo(Sphere::class, 'sphere_id');
     }
+
     public function objectType(): BelongsTo
     {
         return $this->belongsTo(ObjectType::class, 'object_type_id');
@@ -187,6 +216,7 @@ class Article extends Model
                 return $log->content->additionalInfo->amount ?? 0;
             });
     }
+
     public function scopeWithPaymentStats(Builder $query)
     {
         return $query->with(['paymentLogs' => function ($query) {
@@ -208,8 +238,6 @@ class Article extends Model
             return 3;
         }
     }
-
-
 
 
 }

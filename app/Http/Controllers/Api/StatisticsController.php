@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Enums\ObjectStatusEnum;
 use App\Enums\RegulationStatusEnum;
 use App\Enums\UserRoleEnum;
+use App\Exports\ClaimExcel;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ArticlePalataResource;
 use App\Models\Article;
@@ -18,6 +19,7 @@ use App\Models\Regulation;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class StatisticsController extends BaseController
 {
@@ -38,17 +40,17 @@ class StatisticsController extends BaseController
 
 
             $userCounts = User::query()
-                ->selectRaw($group.', COUNT(*) as count')
+                ->selectRaw($group . ', COUNT(*) as count')
                 ->leftJoin('user_roles', 'user_roles.user_id', '=', 'users.id')
                 ->where('user_roles.role_id', 3)
                 ->groupBy($group)
                 ->pluck('count', $group);
 
-            $articleCounts = $this->getGroupedCounts(Article::query(), $group.', object_status_id, difficulty_category_id', [$group, 'object_status_id', 'difficulty_category_id'], $startDate, $endDate)->groupBy($group);
+            $articleCounts = $this->getGroupedCounts(Article::query(), $group . ', object_status_id, difficulty_category_id', [$group, 'object_status_id', 'difficulty_category_id'], $startDate, $endDate)->groupBy($group);
 
 
             $monitoringCounts = Article::query()
-                ->selectRaw($group.', COUNT(monitorings.id) as count')
+                ->selectRaw($group . ', COUNT(monitorings.id) as count')
                 ->leftJoin('monitorings', 'articles.id', '=', 'monitorings.object_id')
                 ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
                     $query->whereBetween('monitorings.created_at', [$startDate, $endDate]);
@@ -57,30 +59,29 @@ class StatisticsController extends BaseController
                     $query->where('articles.program_id', \request('program_id'));
                 })
                 ->where('created_by_role', UserRoleEnum::INSPECTOR->value)
-                ->groupBy('articles.'.$group)
+                ->groupBy('articles.' . $group)
                 ->pluck('count', $group);
-
 
 
             $regulationCounts = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, startDate: $startDate, endDate: $endDate);
 
 
-            $eliminatedRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, status:[6, 8],  startDate: $startDate, endDate: $endDate);
-            $inProgressRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, status:[1,2,3,4,5],  startDate: $startDate, endDate: $endDate);
-            $notExecutionRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, status:[7],  startDate: $startDate, endDate: $endDate);
+            $eliminatedRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, status: [6, 8], startDate: $startDate, endDate: $endDate);
+            $inProgressRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, status: [1, 2, 3, 4, 5], startDate: $startDate, endDate: $endDate);
+            $notExecutionRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, status: [7], startDate: $startDate, endDate: $endDate);
 
-            $costumerRegulationsEliminated = $this->getRegulationCounts(relation: 'regulations',  groupBy: $group, roleId: 6, status:[6, 8],  startDate: $startDate, endDate: $endDate);
-            $customerInProgressRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 6, status:[1,2,3,4,5],  startDate: $startDate, endDate: $endDate);
-            $costumerNotExecutionRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 6, status:[7],  startDate: $startDate, endDate: $endDate);
+            $costumerRegulationsEliminated = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 6, status: [6, 8], startDate: $startDate, endDate: $endDate);
+            $customerInProgressRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 6, status: [1, 2, 3, 4, 5], startDate: $startDate, endDate: $endDate);
+            $costumerNotExecutionRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 6, status: [7], startDate: $startDate, endDate: $endDate);
 
-            $manageRegulationsEliminated = $this->getRegulationCounts(relation: 'regulations',  groupBy: $group, roleId: 5, status:[6, 8],  startDate: $startDate, endDate: $endDate);
-            $manageInProgressRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 5, status:[1,2,3,4,5],  startDate: $startDate, endDate: $endDate);
-            $manageNotExecutionRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 5, status:[7],  startDate: $startDate, endDate: $endDate);
+            $manageRegulationsEliminated = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 5, status: [6, 8], startDate: $startDate, endDate: $endDate);
+            $manageInProgressRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 5, status: [1, 2, 3, 4, 5], startDate: $startDate, endDate: $endDate);
+            $manageNotExecutionRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 5, status: [7], startDate: $startDate, endDate: $endDate);
 
-            $authorRegulationsEliminated = $this->getRegulationCounts(relation: 'regulations',  groupBy: $group, roleId: 7, status:[6, 8],  startDate: $startDate, endDate: $endDate);
-            $authorInProgressRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 7, status:[1,2,3,4,5],  startDate: $startDate, endDate: $endDate);
-            $authorNotExecutionRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 7, status:[7],  startDate: $startDate, endDate: $endDate);
-            $administratively = $this->getRegulationCounts(relation: 'regulations', groupBy: $group,  startDate: $startDate, endDate: $endDate, lawyerStatus: 3);
+            $authorRegulationsEliminated = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 7, status: [6, 8], startDate: $startDate, endDate: $endDate);
+            $authorInProgressRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 7, status: [1, 2, 3, 4, 5], startDate: $startDate, endDate: $endDate);
+            $authorNotExecutionRegulations = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, roleId: 7, status: [7], startDate: $startDate, endDate: $endDate);
+            $administratively = $this->getRegulationCounts(relation: 'regulations', groupBy: $group, startDate: $startDate, endDate: $endDate, lawyerStatus: 3);
 
 
             $data = $regions->map(function ($region) use (
@@ -149,8 +150,7 @@ class StatisticsController extends BaseController
         if ($startDate && $endDate) {
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
-        if (\request('program_id'))
-        {
+        if (\request('program_id')) {
             $query->where('program_id', \request('program_id'));
         }
 
@@ -162,11 +162,11 @@ class StatisticsController extends BaseController
 
     private function getRegulationCounts($relation, $groupBy, $roleId = null, $status = [], $startDate = null, $endDate = null, $lawyerStatus = null)
     {
-        return  Article::query()
-            ->selectRaw($groupBy.', COUNT(' . $relation . '.id) as count')
-            ->leftJoin($relation, 'articles.id', '=', $relation.'.object_id')
+        return Article::query()
+            ->selectRaw($groupBy . ', COUNT(' . $relation . '.id) as count')
+            ->leftJoin($relation, 'articles.id', '=', $relation . '.object_id')
             ->when($startDate && $endDate, function ($query) use ($startDate, $endDate, $relation) {
-                $query->whereBetween($relation.'.created_at', [$startDate, $endDate]);
+                $query->whereBetween($relation . '.created_at', [$startDate, $endDate]);
             })
             ->when($roleId, function ($query) use ($roleId) {
                 $query->where('role_id', $roleId);
@@ -174,10 +174,10 @@ class StatisticsController extends BaseController
             ->when(!empty($status), function ($query) use ($status) {
                 $query->whereIn('regulation_status_id', $status);
             })
-            ->when($lawyerStatus, function ($query) use($lawyerStatus){
+            ->when($lawyerStatus, function ($query) use ($lawyerStatus) {
                 $query->where('lawyer_status_id', $lawyerStatus);
             })
-            ->when(\request('program_id'), function ($query)  {
+            ->when(\request('program_id'), function ($query) {
                 $query->where('articles.program_id', \request('program_id'));
             })
             ->where('created_by_role_id', 3)
@@ -224,28 +224,25 @@ class StatisticsController extends BaseController
             }
 
 
-
-
             $query = Article::query()
                 ->select($selectColumns)
-                ->when(in_array('inspector', $columns), function($q) use ($columns) {
+                ->when(in_array('inspector', $columns), function ($q) use ($columns) {
                     $q->with(['inspector' => function ($query) use ($columns) {
-                        $query->select('users.surname','users.name', 'users.middle_name', 'users.id as user_id', 'users.phone');
+                        $query->select('users.surname', 'users.name', 'users.middle_name', 'users.id as user_id', 'users.phone');
                     }]);
                 })
-                ->when(in_array('participants', $columns), function($q) use ($columns) {
+                ->when(in_array('participants', $columns), function ($q) use ($columns) {
                     $q->with(['users' => function ($query) use ($columns) {
-                        $query->select('users.surname','users.name', 'users.middle_name', 'users.id as user_id', 'users.phone')->whereIn('role_id', [5,7, 6]);
+                        $query->select('users.surname', 'users.name', 'users.middle_name', 'users.id as user_id', 'users.phone')->whereIn('role_id', [5, 7, 6]);
                     }]);
                 })
-
-                ->when(in_array('sphere', $columns), function($q) {
+                ->when(in_array('sphere', $columns), function ($q) {
                     $q->with(['sphere' => function ($query) {
                         $query->select('spheres.name_uz', 'spheres.id as id');
                     }]);
                 })
-                ->when(in_array('regulations', $columns), function($q) use($filters) {
-                    $q->with(['regulations' => function ($query) use($filters) {
+                ->when(in_array('regulations', $columns), function ($q) use ($filters) {
+                    $q->with(['regulations' => function ($query) use ($filters) {
                         $query->selectRaw('object_id, COUNT(id) as all_count,
 							SUM(CASE WHEN regulation_status_id IN (6, 8) AND created_by_role_id = 3 THEN 1 ELSE 0 END) as eliminated_count,
 							SUM(CASE WHEN regulation_status_id IN (1, 2, 3, 4, 5)  AND created_by_role_id = 3 THEN 1 ELSE 0 END) as progress_count,
@@ -267,21 +264,20 @@ class StatisticsController extends BaseController
                             ->groupBy('object_id');
                     }]);
                 })
-                ->when(in_array('status', $columns), function($q) {
+                ->when(in_array('status', $columns), function ($q) {
                     $q->with(['objectStatus' => function ($query) {
                         $query->select('object_statuses.name', 'object_statuses.id as id');
                     }]);
                 })
-
-                ->when(in_array('blocks', $columns), function($q) {
+                ->when(in_array('blocks', $columns), function ($q) {
                     $q->withCount('blocks');
                 })
-                ->when(in_array('monitorings', $columns), function ($q)  use($filters){
-                    $q->withCount(['monitorings as monitoring_count' => function ($query) use($filters){
+                ->when(in_array('monitorings', $columns), function ($q) use ($filters) {
+                    $q->withCount(['monitorings as monitoring_count' => function ($query) use ($filters) {
                         $query->where('created_by_role', UserRoleEnum::INSPECTOR->value)
-                                ->when(isset($filters['date_from']) && isset($filters['date_to']), function ($q) use ($filters) {
-                                    return $q->whereBetween('monitorings.created_at', [$filters['date_from'], $filters['date_to']]);
-                                });
+                            ->when(isset($filters['date_from']) && isset($filters['date_to']), function ($q) use ($filters) {
+                                return $q->whereBetween('monitorings.created_at', [$filters['date_from'], $filters['date_to']]);
+                            });
                     }]);
                 })
                 ->when(isset($filters['region']), function ($q) use ($filters) {
@@ -292,7 +288,6 @@ class StatisticsController extends BaseController
                         return $q->where('users.id', $filters['user']);
                     });
                 })
-
                 ->when(isset($filters['inspector']), function ($q) use ($filters) {
                     $q->whereHas('users', function ($query) use ($filters) {
                         $query->where('user_id', $filters['inspector'])
@@ -313,6 +308,8 @@ class StatisticsController extends BaseController
 
     public function excel()
     {
+        ini_set('max_execution_time', 300);
+
         $claims = ClaimMonitoring::query()
             ->join('claims as c', 'c.id', '=', 'claim_monitoring.claim_id')
             ->join('articles as a', 'a.id', '=', 'c.object_id')
@@ -325,7 +322,8 @@ class StatisticsController extends BaseController
                 'c.guid as ariza_raqami',
                 'a.task_id as obyekt_raqami',
                 'r.name_uz as region_name',
-                'd.name_uz as district_name'
+                'd.name_uz as district_name',
+                'c.end_date as end_date'
             )
             ->get();
 
@@ -354,17 +352,49 @@ class StatisticsController extends BaseController
                 }
             }
 
-            $array[] = [
-                'blocks' => $meta,
-                'obyekt_raqami' => $claim->obyekt_raqami,
-                'ariza_raqami' => $claim->ariza_raqami,
-                'region_name' => $claim->region_name,
-                'district_name' => $claim->district_name,
-                'json' => json_decode($uncompressed, true),
-            ];
+            $areas = json_decode($uncompressed, true);
+
+            if($areas == null)
+                continue;
+
+            $areaSum = 0;
+            $total_area = 0;
+            $total_use_area = 0;
+            $living_area = 0;
+
+            if ($areas != null)
+                foreach ($areas as $area) {
+                    $areaSum += $area['area'];
+                    $total_area += $area['total_area'];
+                    $total_use_area += $area['total_use_area'];
+                    $living_area += $area['living_area'];
+                }
+
+            $tmpArray = [];
+            foreach ($meta as $item) {
+                $tmpArray[] = [
+                    'ariza_raqami' => $claim->ariza_raqami,
+                    'type' => $item['type'],
+                    'count_apartments' => $item['count_apartments'],
+                    'region_name' => $claim->region_name,
+                    'district_name' => $claim->district_name,
+                    'yashash_maydon' => $living_area,
+                    'foydalanish_maydon' => $total_use_area,
+                    'umumiy_maydon' => $total_area,
+                    'qurilish_osti_maydoni' => $areaSum,
+                    //'json' => json_decode($uncompressed, true),
+                    'obyekt_raqami' => $claim->obyekt_raqami,
+                    'end_date' => $claim->end_date
+                ];
+            }
+
+            $array[] = $tmpArray;
         }
 
-        return response()->json($array);
+        return Excel::download(
+            new ClaimExcel($array),
+            'statistic.xls'
+        );
     }
 
 
