@@ -8,6 +8,7 @@ use App\Models\CheckList;
 use App\Models\CheckListAnswer;
 use App\Services\CheckListAnswerService;
 use App\Services\HistoryService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
@@ -47,14 +48,20 @@ class ChecklistAnswerController extends BaseController
             foreach ($data as $item) {
                 $checklist = CheckListAnswer::findOrFail($item['checklist_id']);
                 $checklist->update([
-                    'status' => $item['status']
+                    'status' => $item['status'],
                 ]);
 
                 if ($item['status'] == 3)
                 {
                     $status = 2;
+                    $checklist->update([
+                        'inspector_answered_at' => Carbon::now()->addDays(5),
+                    ]);
                 }else{
                     $status = 1;
+                    $checklist->update([
+                        'inspector_answered_at' => null,
+                    ]);
                 }
 
                 $meta = ['user_answered' => $status, 'user_id' => $this->user->id, 'role_id' => $this->roleId];

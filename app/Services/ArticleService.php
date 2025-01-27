@@ -199,30 +199,7 @@ class ArticleService
             'notPaid' => $totalAmount - $totalPaid,
         ];
     }
-//    public function calculatePaymentStatistics($regionId)
-//    {
-//        $articles = Article::with('paymentLogs')->where('region_id', $regionId)->get();
-//
-//        $filteredArticles = $articles->filter(function ($article) {
-//            return trim($article->price_supervision_service) !== '0.00';
-//        });
-//
-//        return [
-//            'all' => $filteredArticles->count(),
-//            'paid' => $filteredArticles->filter(function ($article) {
-//                $totalPaid = $article->paymentLogs->sum('content->additionalInfo->amount');
-//                return $totalPaid >= $article->price_supervision_service;
-//            })->count(),
-//            'partiallyPaid' => $filteredArticles->filter(function ($article) {
-//                $totalPaid = $article->paymentLogs->sum('content->additionalInfo->amount');
-//                return $totalPaid < $article->price_supervision_service && $totalPaid > 0;
-//            })->count(),
-//            'notPaid' => $filteredArticles->filter(function ($article) {
-//                $totalPaid = $article->paymentLogs->sum('content->additionalInfo->amount');
-//                return $totalPaid == 0;
-//            })->count(),
-//        ];
-//    }
+
 
     public function calculatePaymentStatistics($regionId)
     {
@@ -232,7 +209,7 @@ class ArticleService
             ->get();
 
         $filteredArticles = $articles->filter(function ($article) {
-            return trim($article->price_supervision_service) !== '0.00';
+            return (float) $article->price_supervision_service > 0;
         });
 
         $results = [
@@ -243,11 +220,15 @@ class ArticleService
         ];
 
         foreach ($filteredArticles as $article) {
-            $totalPaid = $article->paymentLogs->sum('content->additionalInfo->amount');
+            $totalPaid = $article->paymentLogs->sum(function ($log) {
+                return (float) data_get($log->content, 'additionalInfo.amount', 0);
+            });
 
-            if ($totalPaid >= (float) $article->price_supervision_service) {
+            $price = (float) $article->price_supervision_service;
+
+            if ($totalPaid >= $price) {
                 $results['paid']++;
-            } elseif ($totalPaid > 0) {
+            } elseif ($totalPaid > 0 && $totalPaid < $price) {
                 $results['partiallyPaid']++;
             } else {
                 $results['notPaid']++;
