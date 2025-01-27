@@ -263,19 +263,6 @@ class DxaResponseService
     }
 
 
-    private function determineBlockNumber($blockData, $response)
-    {
-        $lastBlock = Block::query()->orderBy('block_number', 'desc')->first();
-
-        if ($response->notification_type == 1) {
-            $lastNumber = $lastBlock ? $lastBlock->block_number : 999999;
-            $blockNumber = $lastNumber + 1;
-        } else {
-            $blockNumber = $blockData['block_number'] ?? ($lastBlock ? $lastBlock->block_number + 1 : 1);
-        }
-        return $blockNumber;
-    }
-
 
     public function sendReject($response, $comment): DxaResponse
     {

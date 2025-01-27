@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\DTO\ObjectDto;
+use App\Enums\ConstructionWork;
 use App\Enums\DifficultyCategoryEnum;
 use App\Enums\DxaResponseStatusEnum;
 use App\Enums\LogType;
@@ -332,6 +333,8 @@ class ArticleService
 
             $this->saveEmployee($article);
             $this->acceptResponse($response);
+
+            // $this->sendTax($article);
 
             DB::commit();
 
@@ -704,27 +707,29 @@ class ArticleService
         try{
             $authUsername = config('app.mygov.login');
             $authPassword = config('app.mygov.password');
+            $customer = $object->users()->where('role_id', UserRoleEnum::BUYURTMACHI->value)->first();
+            $builder = $object->users()->where('role_id', UserRoleEnum::QURILISH->value)->first();
 
             $data = [
-                'object_id' => $object->id,
+                'object_id' => $object->task_id,
                 'cadastral_number' => $object->cadastral_number,
                 'construction_type_name' => $object->construction_works,
-                'construction_type_id' => $object->construction_works,
+                'construction_type_id' => ConstructionWork::fromString($object->construction_works)->value,
                 'created_at' => $object->created_at,
-                'customer_name' => $object->organization_name,
-                'district_soato' => $object->created_at,
-                'general_contractor' => $object->created_at,
-                'not_completed_construction' => $object->created_at,
-                'object_name' => $object->created_at,
-                'open_date' => $object->created_at,
-                'pinfl_customer' => $object->created_at,
-                'pinfl_general_contractor' => $object->created_at,
-                'price_construction_installation' => $object->created_at,
+                'customer_name' => $customer ? $customer->organization_name : '',
+                'district_soato' => $object->district->soato ?? '',
+                'general_contractor' => $builder ? $builder->organization_name : '',
+                'not_completed_construction' => '',
+                'object_name' => $object->name,
+                'open_date' => $object->deadline,
+                'pinfl_customer' => $customer->name ? $customer->pinfl : '',
+                'pinfl_general_contractor' => $builder->name ? $builder->pinfl : '',
+                'price_construction_installation' => $object->construction_cost,
                 'region_soato' => $object->region->soato,
                 'send_date' => Carbon::now(),
-                'send_id' => $object->created_at,
-                'tin_customer' => $object->created_at,
-                'tin_general_contractor' => $object->created_at,
+                'send_id' => $object->id,
+                'tin_customer' => $customer->name ? '' : $customer->pinfl,
+                'tin_general_contractor' => $builder->name ? '' : $builder->pinfl,
             ];
 
              Http::withBasicAuth($authUsername, $authPassword)->post('https://api.shaffofqurilish.uz/api/v1/constructionSave', $data);

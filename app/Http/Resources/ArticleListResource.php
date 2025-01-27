@@ -18,6 +18,7 @@ class ArticleListResource extends JsonResource
             'region' => RegionResource::make($this->region),
             'district' => DistrictResource::make($this->district),
             'task_id' => $this->task_id,
+            'sphere' => SphereResource::make($this->sphere),
             'location_building' => $this->location_building,
             'organization_name' => $this->organization_name ?? null,
             'status' => ObjectStatusResource::make($this->objectStatus),
