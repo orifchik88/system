@@ -189,8 +189,9 @@ class DxaResponseService
         DB::beginTransaction();
         try {
             $response = $this->findResponse();
+            $oldResponse = DxaResponse::query()->where('old_task_id', $response->task_id)->first();
             $response->dxa_response_status_id = DxaResponseStatusEnum::IN_REGISTER;
-            $response->administrative_status_id = $this->data['administrative_status_id'];
+            $response->administrative_status_id = $this->data['administrative_status_id'] ?? ($oldResponse ? $oldResponse->administrative_status_id : null);
             $response->inspector_answered_at = Carbon::now();
             $response->price_supervision_service = price_supervision((int)$response->cost);
             $response->long = $this->data['long'];

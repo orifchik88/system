@@ -10,7 +10,6 @@ use App\Enums\ObjectStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Enums\UserStatusEnum;
 use App\Exceptions\NotFoundException;
-use App\Http\Requests\UserRequest;
 use App\Models\Article;
 use App\Models\ArticlePaymentLog;
 use App\Models\ArticleUser;
@@ -26,8 +25,8 @@ use App\Repositories\Interfaces\UserRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
-use mysql_xdevapi\Exception;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class ArticleService
@@ -696,6 +695,41 @@ class ArticleService
                 'user_id' => $ichki->id,
                 'parent_id' => $qurilish->id,
             ]);
+        }
+
+    }
+
+    private function sendTax($object)
+    {
+        try{
+            $authUsername = config('app.mygov.login');
+            $authPassword = config('app.mygov.password');
+
+            $data = [
+                'object_id' => $object->id,
+                'cadastral_number' => $object->cadastral_number,
+                'construction_type_name' => $object->construction_works,
+                'construction_type_id' => $object->construction_works,
+                'created_at' => $object->created_at,
+                'customer_name' => $object->organization_name,
+                'district_soato' => $object->created_at,
+                'general_contractor' => $object->created_at,
+                'not_completed_construction' => $object->created_at,
+                'object_name' => $object->created_at,
+                'open_date' => $object->created_at,
+                'pinfl_customer' => $object->created_at,
+                'pinfl_general_contractor' => $object->created_at,
+                'price_construction_installation' => $object->created_at,
+                'region_soato' => $object->region->soato,
+                'send_date' => Carbon::now(),
+                'send_id' => $object->created_at,
+                'tin_customer' => $object->created_at,
+                'tin_general_contractor' => $object->created_at,
+            ];
+
+             Http::withBasicAuth($authUsername, $authPassword)->post('https://api.shaffofqurilish.uz/api/v1/constructionSave', $data);
+        }catch (\Exception $exception){
+            Log::info($exception->getMessage());
         }
 
     }

@@ -28,7 +28,7 @@ class DxaResponseRegisterRequest extends FormRequest
             'commit' => 'string|required',
             'long' => 'string|required',
             'lat' => 'required|required',
-            'administrative_status_id' => 'integer|required',
+            'administrative_status_id' => 'integer|required_if:notification_type,1',
             'task_id' => 'integer|required|exists:dxa_responses,task_id',
             'images.*' => 'image|mimes:jpg,jpeg,png',
 //            'documents.*' => 'sometimes',
