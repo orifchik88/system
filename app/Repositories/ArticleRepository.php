@@ -242,7 +242,7 @@ class ArticleRepository implements ArticleRepositoryInterface
                     $q->whereRaw("
                     (SELECT SUM(CAST(content->'additionalInfo'->>'amount' AS DECIMAL))
                      FROM article_payment_logs
-                     WHERE article_payment_logs.gu_id = articles.gu_id
+                     WHERE article_payment_logs.gu_id = articles.id
                     ) = 0
                 ");
                 });
@@ -257,7 +257,7 @@ class ArticleRepository implements ArticleRepositoryInterface
                 $q->whereRaw("
                 (SELECT SUM(CAST(content->'additionalInfo'->>'amount' AS DECIMAL))
                  FROM article_payment_logs
-                 WHERE article_payment_logs.gu_id = articles.gu_id
+                 WHERE article_payment_logs.gu_id = articles.id
                 ) < CAST(articles.price_supervision_service AS DECIMAL)
             ");
             });
@@ -272,7 +272,7 @@ class ArticleRepository implements ArticleRepositoryInterface
                 $q->whereRaw("
                 (SELECT SUM(CAST(content->'additionalInfo'->>'amount' AS DECIMAL))
                  FROM article_payment_logs
-                 WHERE article_payment_logs.gu_id = articles.gu_id
+                 WHERE article_payment_logs.gu_id = articles.id
                 ) >= CAST(articles.price_supervision_service AS DECIMAL)
             ");
             });
