@@ -230,24 +230,53 @@ class ArticleRepository implements ArticleRepositoryInterface
     public function getAccountObjectsQuery($query, $status)
     {
         if ($status == 1) {
+//            $query->whereDoesntHave('paymentLogs')
+//                ->orWhereHas('paymentLogs', function ($q) {
+//                    $q->select(DB::raw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) as total_paid'))
+//                        ->groupBy('gu_id')
+//                        ->havingRaw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) = 0');
+//                });
+
             $query->whereDoesntHave('paymentLogs')
                 ->orWhereHas('paymentLogs', function ($q) {
-                    $q->select(DB::raw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) as total_paid'))
-                        ->groupBy('gu_id')
-                        ->havingRaw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) = 0');
+                    $q->whereRaw("
+                    (SELECT SUM(CAST(content->'additionalInfo'->>'amount' AS DECIMAL))
+                     FROM article_payment_logs
+                     WHERE article_payment_logs.gu_id = articles.gu_id
+                    ) = 0
+                ");
                 });
         } elseif ($status == 2) {
+//            $query->whereHas('paymentLogs', function ($q) {
+//                $q->select(DB::raw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) as total_paid'))
+//                    ->groupBy('gu_id')
+//                    ->havingRaw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) < CAST(price_supervision_service AS DECIMAL)');
+//            });
+
             $query->whereHas('paymentLogs', function ($q) {
-                $q->select(DB::raw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) as total_paid'))
-                    ->groupBy('gu_id')
-                    ->havingRaw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) < CAST(price_supervision_service AS DECIMAL)');
+                $q->whereRaw("
+                (SELECT SUM(CAST(content->'additionalInfo'->>'amount' AS DECIMAL))
+                 FROM article_payment_logs
+                 WHERE article_payment_logs.gu_id = articles.gu_id
+                ) < CAST(articles.price_supervision_service AS DECIMAL)
+            ");
             });
         } elseif ($status == 3) {
+//            $query->whereHas('paymentLogs', function ($q) {
+//                $q->select(DB::raw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) as total_paid'))
+//                    ->groupBy('gu_id')
+//                    ->havingRaw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) >= CAST(price_supervision_service AS DECIMAL)');
+//            });
+
             $query->whereHas('paymentLogs', function ($q) {
-                $q->select(DB::raw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) as total_paid'))
-                    ->groupBy('gu_id')
-                    ->havingRaw('SUM(CAST(content->\'additionalInfo\'->>\'amount\' AS DECIMAL)) >= CAST(price_supervision_service AS DECIMAL)');
+                $q->whereRaw("
+                (SELECT SUM(CAST(content->'additionalInfo'->>'amount' AS DECIMAL))
+                 FROM article_payment_logs
+                 WHERE article_payment_logs.gu_id = articles.gu_id
+                ) >= CAST(articles.price_supervision_service AS DECIMAL)
+            ");
             });
+
         }
 
         return $query;
