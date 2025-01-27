@@ -48,7 +48,7 @@ class ObjectController extends BaseController
 
         try {
             $query = $this->service->getObjects($this->user, $this->roleId);
-            $filters = request()->only(['status', 'sphere_id', 'start_date', 'end_date', 'customer_name', 'inspector_id', 'funding_source', 'object_type', 'task_id', 'region_id', 'district_id', 'user_search']);
+            $filters = request()->only(['status', 'sphere_id', 'null_sphere', 'start_date', 'end_date', 'customer_name', 'inspector_id', 'funding_source', 'object_type', 'task_id', 'region_id', 'district_id', 'user_search']);
 
             $objects = $this->service->searchObjects($query, $filters)
                 ->orderBy('created_at', request('sort_by_date', 'DESC'))
@@ -59,6 +59,28 @@ class ObjectController extends BaseController
             return $this->sendError($exception->getMessage());
         }
 
+    }
+
+    public function updateSphere()
+    {
+        try {
+            $object = Article::query()->where('id', request()->get('id'))->first();
+
+            if (!$object) {
+                return $this->sendError("Bunday obyekt mavjud emas!", "message");
+
+            } else {
+                $object->update(
+                    [
+                        'sphere_id' => request()->get('sphere_id')
+                    ]
+                );
+
+                return $this->sendSuccess("Ma'lumot yangilandi!", 'Success');
+            }
+        }catch (\Exception $exception){
+            return $this->sendError("Ichki Xatolik!", "message");
+        }
     }
 
     public function oneTimeUserCreate()
