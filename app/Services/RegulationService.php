@@ -589,11 +589,7 @@ class RegulationService
             if ($newDeadline < Carbon::now() ){
                 $regStatus = RegulationStatusEnum::LATE_EXECUTION;
             }
-
-            if ($newDeadline){
-                $regStatus = RegulationStatusEnum::LATE_EXECUTION;
-            }
-
+            
             $regulation->update([
                 'regulation_status_id' => $regStatus,
                 'deadline' => $newDeadline,
