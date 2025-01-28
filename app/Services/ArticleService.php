@@ -683,7 +683,7 @@ class ArticleService
                 'rating' => json_encode($rating)
             ]);
         }
-        
+
 
 
         if (!UserEmployee::query()->where('user_id', $texnik->id)->where('parent_id', $buyurtmachi->id)->exists()) {

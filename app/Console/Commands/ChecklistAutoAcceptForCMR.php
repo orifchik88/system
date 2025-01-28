@@ -35,6 +35,7 @@ class ChecklistAutoAcceptForCMR extends Command
     {
         CheckListAnswer::where('inspector_answered_at', '<=', Carbon::now())
             ->where('status', CheckListStatusEnum::AUTO_CONFIRMED)
+            ->whereNot('work_type_id', 14)
             ->where('auto_confirmed', true)
             ->chunk(50, function ($checklists) {
                 foreach ($checklists as $checklist) {
