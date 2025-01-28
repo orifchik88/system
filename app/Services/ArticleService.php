@@ -306,13 +306,16 @@ class ArticleService
             {
                 $article = $this->saveRepeat($response);
                 $this->saveRepeatUser($response, $article);
+                $this->saveEmployee($article, $response);
+
             }else{
                 $article = $this->saveResponse($response);
                 $this->saveResponseUser($response, $article);
+                $this->saveEmployee($article, null);
+
             }
             $this->saveBlocks($response, $article);
 
-            $this->saveEmployee($article);
             $this->acceptResponse($response);
 
             // $this->sendTax($article);
@@ -636,7 +639,7 @@ class ArticleService
 
     }
 
-    private function saveEmployee(Article $article): void
+    private function saveEmployee($article, $response=null): void
     {
         $rating = [];
         $muallif = $article->users()->where('role_id', UserRoleEnum::MUALLIF->value)->first();

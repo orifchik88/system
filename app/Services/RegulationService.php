@@ -390,7 +390,7 @@ class RegulationService
             }
 
             $regulation->update([
-                'regulation_status_id' => RegulationStatusEnum::PROVIDE_REMEDY,
+                'regulation_status_id' => RegulationStatusEnum::ATTACH_DEED,
                 'deadline' => $newDeadline,
                 'paused_at' => null,
             ]);
