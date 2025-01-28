@@ -223,6 +223,10 @@ class StatisticsController extends BaseController
                 unset($selectColumns[$key]);
             }
 
+            if (($key = array_search('difficulty_category', $selectColumns)) !== false) {
+                unset($selectColumns[$key]);
+            }
+
 
             $query = Article::query()
                 ->select($selectColumns)
@@ -239,6 +243,11 @@ class StatisticsController extends BaseController
                 ->when(in_array('sphere', $columns), function ($q) {
                     $q->with(['sphere' => function ($query) {
                         $query->select('spheres.name_uz', 'spheres.id as id');
+                    }]);
+                })
+                ->when(in_array('difficulty_category', $columns), function ($q) {
+                    $q->with(['difficulty_categories' => function ($query) {
+                        $query->select('difficulty_categories.difficulty', 'difficulty_categories.id as id');
                     }]);
                 })
                 ->when(in_array('regulations', $columns), function ($q) use ($filters) {

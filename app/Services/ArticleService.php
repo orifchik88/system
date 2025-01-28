@@ -499,7 +499,7 @@ class ArticleService
         $articleInspector = $article->users()->wherePivot('role_id', UserRoleEnum::INSPECTOR->value)->first();
         $inspector = User::query()->find($response->inspector_id);
         if ($articleInspector){
-            if ($articleInspector->pinfl != $inspector->pinfl)
+            if (isset($inspector->pinfl) && $articleInspector->pinfl != $inspector->pinfl)
             {
                 ArticleUser::query()
                     ->where('article_id', $article->id)
