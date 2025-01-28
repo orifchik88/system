@@ -56,6 +56,7 @@ class ChecklistAnswerController extends BaseController
                     $status = 2;
                     $checklist->update([
                         'inspector_answered_at' => Carbon::now()->addDays(5),
+                        'inspector_answered' => null,
                     ]);
                 }else{
                     $status = 1;
