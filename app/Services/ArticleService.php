@@ -650,18 +650,41 @@ class ArticleService
         $qurilish = $article->users()->where('role_id', UserRoleEnum::QURILISH->value)->first();
 
         $loyihaRating = getData(config('app.gasn.rating'), (int)$loyiha->identification_number);
-
         $qurilishRating = getData(config('app.gasn.rating'), (int)$qurilish->identification_number);
 
+        if ($response){
+            $responseLoyiha = $response->supervisors()->where('role_id', UserRoleEnum::LOYIHA->value)->first();
+            $responseQurilish = $response->supervisors()->where('role_id', UserRoleEnum::QURILISH->value)->first();
 
-        $rating[] = [
-            'loyiha' => $loyihaRating['data']['data'] ?? null,
-            'qurilish' => $qurilishRating['data']['data'] ?? null,
-        ];
+            if ($responseLoyiha && $responseLoyiha->stir_or_pinfl != $qurilish->pinfl){
+                $rating[0]['loyiha'] = $qurilishRating['data']['data'] ?? null;
+            }else{
+                $data = json_decode($article->rating);
+                $rating[0]['loyiha'] = $data[0]['loyiha'] ?? null;
+            }
 
-        $article->update([
-            'rating' => json_encode($rating)
-        ]);
+            if ($responseQurilish && $responseQurilish->stir_or_pinfl != $qurilish->pinfl){
+                $rating[0]['qurilish'] = $loyihaRating['data']['data'] ?? null;
+            }else{
+                $data = json_decode($article->rating);
+                $rating[0]['qurilish'] = $data[0]['qurilish'] ?? null;
+            }
+
+            $article->update([
+                'rating' => json_encode($rating)
+            ]);
+        }else{
+            $rating[] = [
+                'loyiha' => $loyihaRating['data']['data'] ?? null,
+                'qurilish' => $qurilishRating['data']['data'] ?? null,
+            ];
+
+            $article->update([
+                'rating' => json_encode($rating)
+            ]);
+        }
+        
+
 
         if (!UserEmployee::query()->where('user_id', $texnik->id)->where('parent_id', $buyurtmachi->id)->exists()) {
             UserEmployee::query()->create([

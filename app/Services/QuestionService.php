@@ -64,9 +64,10 @@ class QuestionService
 
         $answers = CheckListAnswer::where('block_id', $blockId)
             ->get()
-            ->keyBy(function ($answer) {
-                return $answer->work_type_id . '-' . $answer->question_id . '-' . $answer->floor;
-            });
+            ->groupBy(fn($answer) => $answer->work_type_id . '-' . $answer->question_id . '-' . $answer->floor)
+            ->map(fn($group) => $group->sortByDesc('created_at')->first());
+
+
 
 
         foreach ($workTypes as $workType) {

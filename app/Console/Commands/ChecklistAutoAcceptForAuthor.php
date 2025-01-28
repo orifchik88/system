@@ -32,6 +32,7 @@ class ChecklistAutoAcceptForAuthor extends Command
         CheckListAnswer::query()->where('technic_author_answered_at', '<=', Carbon::now())
             ->where('status', CheckListStatusEnum::FIRST)
             ->whereNull('author_answered')
+            ->whereNot('work_type_id', 14)
             ->chunk(50, function ($checklists) {
                 foreach ($checklists as $checklist) {
                     if ($checklist->technic_answered)
