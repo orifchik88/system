@@ -51,7 +51,6 @@ class ObjectController extends BaseController
             $filters = request()->only(['status', 'sphere_id', 'null_sphere', 'start_date', 'end_date', 'customer_name', 'inspector_id', 'funding_source', 'object_type', 'task_id', 'region_id', 'district_id', 'user_search']);
 
             $objects = $this->service->searchObjects($query, $filters)
-                ->whereNull('gnk_id')
                 ->orderBy('created_at', request('sort_by_date', 'DESC'))
                 ->paginate(request('per_page', 10));
 

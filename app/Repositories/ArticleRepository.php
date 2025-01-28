@@ -108,6 +108,7 @@ class ArticleRepository implements ArticleRepositoryInterface
             })
             ->when(isset($filters['null_sphere']), function ($query) use ($filters) {
                 $query->whereNull('sphere_id');
+                $query->whereNull('gnk_id');
             })
             ->when(isset($filters['object_type']), function ($query) use ($filters) {
                 $query->where('object_type_id', $filters['object_type']);
