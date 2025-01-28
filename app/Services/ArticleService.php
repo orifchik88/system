@@ -85,9 +85,7 @@ class ArticleService
                 return $this->getArticlesByRegion($user->region_id);
             case UserRoleEnum::RESPUBLIKA_KUZATUVCHI->value:
             case UserRoleEnum::ADMIN->value:
-                return Article::query()
-                    ->withCount(['regulations', 'monitorings'])
-                    ->with(['region', 'district', 'sphere', 'objectStatus', 'users']);
+                return Article::query();
             default:
                 return Article::query()->whereRaw('1 = 0');
         }
