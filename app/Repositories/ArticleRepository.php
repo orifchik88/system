@@ -68,12 +68,18 @@ class ArticleRepository implements ArticleRepositoryInterface
 
     public function getArticlesByUserRole($user, $roleId)
     {
-        return $user->objects()->wherePivot('role_id', $roleId);
+        return $user->objects()
+            ->withCount(['regulations', 'monitorings'])
+            ->with(['region', 'district', 'sphere', 'objectStatus', 'users'])
+            ->wherePivot('role_id', $roleId);
     }
 
     public function getArticlesByRegion($regionId)
     {
-        return Article::query()->where('region_id', $regionId);
+        return Article::query()
+            ->where('region_id', $regionId)
+            ->withCount(['regulations', 'monitorings'])
+            ->with(['region', 'district', 'sphere', 'objectStatus', 'users']);
     }
 
     public function searchObjects($query, $filters)

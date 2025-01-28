@@ -25,6 +25,8 @@ class ArticleListResource extends JsonResource
             'closed_at' => $this->closed_at,
             'deadline' => $this->deadline,
             'created_at' => $this->created_at,
+            'regulation_count' => $this->regulations_count,
+            'monitorings_count' => $this->monitorings_count,
             'paid' => $this->totalAmount(),
             'price_supervision_service' => $this->price_supervision_service,
             'inspector' => [
