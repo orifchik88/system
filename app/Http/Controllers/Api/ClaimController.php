@@ -257,7 +257,8 @@ class ClaimController extends BaseController
         $blocks = $request['blocks'];
         $errors = [];
 
-        $article = Article::query()->where('id', $blocks[0])->first();
+        $block = Block::find($blocks[0]);
+        $article = Article::query()->where('id', $block->article_id)->first();
         if ($article->cost > 0)
             $errors[] = "Obyekt summasi to'liq to'lanmagan";
 
