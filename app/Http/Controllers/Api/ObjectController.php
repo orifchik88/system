@@ -83,11 +83,22 @@ class ObjectController extends BaseController
         }
     }
 
-    public function oneTimeUserCreate()
+    public function getObjectImages($id): JsonResponse
     {
-        $this->service->createOneTimeUser(request('task_id'));
-        return $this->sendSuccess([], 'Object created successfully.');
+        try {
+            $object = Article::query()->findOrFail($id);
+            $imagesByDate = $object->monitorings
+                ->flatMap(fn($monitoring) => $monitoring->images)
+                ->groupBy(fn($image) => Carbon::parse($image->created_at)->toDateString());
+
+            $imagesByDate = $imagesByDate->toArray();
+
+            return $this->sendSuccess($imagesByDate, 'Images retrieved successfully.');
+        }catch (\Exception $exception){
+            return $this->sendError('Xatolik yuz berdi!', $exception->getMessage());
+        }
     }
+
 
     public function rotation(): JsonResponse
     {

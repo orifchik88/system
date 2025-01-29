@@ -137,6 +137,7 @@ Route::group([
     Route::get('objects', [ObjectController::class, 'index']);
     Route::post('update-object-sphere', [ObjectController::class, 'updateSphere']);
     Route::get('object/{id}', [ObjectController::class, 'getObject']);
+    Route::get('object-images/{id}', [ObjectController::class, 'getObjectImages']);
     Route::get('object-by-task/{task_id}', [ObjectController::class, 'getObjectByTaskId']);
     Route::get('object-count', [ObjectController::class, 'objectCount']);
     Route::get('get-object', [ObjectController::class, 'objectByParams']);
