@@ -308,7 +308,7 @@ class ArticleService
                 $this->updateRating($oldArticle, $response);
                 $article = $this->saveRepeat($response);
                 $this->saveRepeatUser($response, $article);
-                $this->saveEmployee($article);
+                $this->saveEmployee($article, false);
 
             }else{
                 $article = $this->saveResponse($response);
@@ -657,14 +657,14 @@ class ArticleService
             $rating[0]['loyiha'] = $loyihaRating['data']['data'] ?? null;
         }else{
             $data = json_decode($article->rating);
-            $rating[0]['loyiha'] = $data[0]['loyiha'] ?? null;
+            $rating[0]['loyiha'] = $data[0]->loyiha ?? null;
         }
 
         if ($responseQurilish && $responseQurilish->stir_or_pinfl != $qurilish->pinfl){
             $rating[0]['qurilish'] = $qurilishRating['data']['data'] ?? null;
         }else{
             $data = json_decode($article->rating);
-            $rating[0]['qurilish'] = $data[0]['qurilish'] ?? null;
+            $rating[0]['qurilish'] = $data[0]->qurilish ?? null;
         }
 
         $article->update([
@@ -672,7 +672,7 @@ class ArticleService
         ]);
     }
 
-    private function saveEmployee($article): void
+    private function saveEmployee($article, $create = true): void
     {
         $rating = [];
         $muallif = $article->users()->where('role_id', UserRoleEnum::MUALLIF->value)->first();
@@ -682,19 +682,21 @@ class ArticleService
         $ichki = $article->users()->where('role_id', UserRoleEnum::ICHKI->value)->first();
         $qurilish = $article->users()->where('role_id', UserRoleEnum::QURILISH->value)->first();
 
-        $loyihaRating = getData(config('app.gasn.rating'), (int)$loyiha->identification_number);
-        $qurilishRating = getData(config('app.gasn.rating'), (int)$qurilish->identification_number);
 
-        $rating[] = [
-            'loyiha' => $loyihaRating['data']['data'] ?? null,
-            'qurilish' => $qurilishRating['data']['data'] ?? null,
-        ];
+          if ($create)
+          {
+              $loyihaRating = getData(config('app.gasn.rating'), (int)$loyiha->identification_number);
+              $qurilishRating = getData(config('app.gasn.rating'), (int)$qurilish->identification_number);
 
-        $article->update([
-            'rating' => json_encode($rating)
-        ]);
+              $rating[] = [
+                  'loyiha' => $loyihaRating['data']['data'] ?? null,
+                  'qurilish' => $qurilishRating['data']['data'] ?? null,
+              ];
 
-
+              $article->update([
+                  'rating' => json_encode($rating)
+              ]);
+          }
 
         if (!UserEmployee::query()->where('user_id', $texnik->id)->where('parent_id', $buyurtmachi->id)->exists()) {
             UserEmployee::query()->create([
