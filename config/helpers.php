@@ -1,5 +1,8 @@
 <?php
 use GuzzleHttp\Client;
+use App\Models\Holiday;
+use Carbon\Carbon;
+
 if (!function_exists('price_supervision')) {
     function price_supervision($price)
     {
@@ -94,6 +97,28 @@ if (!function_exists('getRegionName')) {
     }
 }
 
+if(!function_exists('deadline')){
+    function deadline(?int $day)
+    {
+        $date = Carbon::today()->addDays($day);
+
+        $currentYear = Carbon::now()->year;
+
+        $holidays = Holiday::whereYear('day', $currentYear)
+            ->pluck('day')
+            ->toArray();
+
+        if (in_array(Carbon::today()->toDateString(), $holidays)) {
+            $date = Carbon::tomorrow()->addDays($day);
+        }
+
+        while (in_array($date->toDateString(), $holidays)) {
+            $date->addDay();
+        }
+
+        return $date->toDateString();
+    }
+}
 
 
 
