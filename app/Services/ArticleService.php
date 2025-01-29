@@ -304,14 +304,16 @@ class ArticleService
 
             if ($response->notification_type==2)
             {
+                $oldArticle = Article::query()->where('task_id', $response->old_task_id)->first();
+                $this->updateRating($oldArticle, $response);
                 $article = $this->saveRepeat($response);
                 $this->saveRepeatUser($response, $article);
-                $this->saveEmployee($article, $response);
+                $this->saveEmployee($article);
 
             }else{
                 $article = $this->saveResponse($response);
                 $this->saveResponseUser($response, $article);
-                $this->saveEmployee($article, null);
+                $this->saveEmployee($article);
 
             }
             $this->saveBlocks($response, $article);
@@ -639,7 +641,38 @@ class ArticleService
 
     }
 
-    private function saveEmployee($article, $response=null): void
+    private function updateRating($article, $response)
+    {
+
+        $loyiha = $article->users()->where('role_id', UserRoleEnum::LOYIHA->value)->first();
+        $qurilish = $article->users()->where('role_id', UserRoleEnum::QURILISH->value)->first();
+
+        $loyihaRating = getData(config('app.gasn.rating'), (int)$loyiha->identification_number);
+        $qurilishRating = getData(config('app.gasn.rating'), (int)$qurilish->identification_number);
+
+        $responseLoyiha = $response->supervisors()->where('role_id', UserRoleEnum::LOYIHA->value)->first();
+        $responseQurilish = $response->supervisors()->where('role_id', UserRoleEnum::QURILISH->value)->first();
+
+        if ($responseLoyiha && $responseLoyiha->stir_or_pinfl != $loyiha->pinfl){
+            $rating[0]['loyiha'] = $loyihaRating['data']['data'] ?? null;
+        }else{
+            $data = json_decode($article->rating);
+            $rating[0]['loyiha'] = $data[0]['loyiha'] ?? null;
+        }
+
+        if ($responseQurilish && $responseQurilish->stir_or_pinfl != $qurilish->pinfl){
+            $rating[0]['qurilish'] = $qurilishRating['data']['data'] ?? null;
+        }else{
+            $data = json_decode($article->rating);
+            $rating[0]['qurilish'] = $data[0]['qurilish'] ?? null;
+        }
+
+        $article->update([
+            'rating' => json_encode($rating)
+        ]);
+    }
+
+    private function saveEmployee($article): void
     {
         $rating = [];
         $muallif = $article->users()->where('role_id', UserRoleEnum::MUALLIF->value)->first();
@@ -652,37 +685,14 @@ class ArticleService
         $loyihaRating = getData(config('app.gasn.rating'), (int)$loyiha->identification_number);
         $qurilishRating = getData(config('app.gasn.rating'), (int)$qurilish->identification_number);
 
-        if ($response){
-            $responseLoyiha = $response->supervisors()->where('role_id', UserRoleEnum::LOYIHA->value)->first();
-            $responseQurilish = $response->supervisors()->where('role_id', UserRoleEnum::QURILISH->value)->first();
+        $rating[] = [
+            'loyiha' => $loyihaRating['data']['data'] ?? null,
+            'qurilish' => $qurilishRating['data']['data'] ?? null,
+        ];
 
-            if ($responseLoyiha && $responseLoyiha->stir_or_pinfl != $qurilish->pinfl){
-                $rating[0]['loyiha'] = $qurilishRating['data']['data'] ?? null;
-            }else{
-                $data = json_decode($article->rating);
-                $rating[0]['loyiha'] = $data[0]['loyiha'] ?? null;
-            }
-
-            if ($responseQurilish && $responseQurilish->stir_or_pinfl != $qurilish->pinfl){
-                $rating[0]['qurilish'] = $loyihaRating['data']['data'] ?? null;
-            }else{
-                $data = json_decode($article->rating);
-                $rating[0]['qurilish'] = $data[0]['qurilish'] ?? null;
-            }
-
-            $article->update([
-                'rating' => json_encode($rating)
-            ]);
-        }else{
-            $rating[] = [
-                'loyiha' => $loyihaRating['data']['data'] ?? null,
-                'qurilish' => $qurilishRating['data']['data'] ?? null,
-            ];
-
-            $article->update([
-                'rating' => json_encode($rating)
-            ]);
-        }
+        $article->update([
+            'rating' => json_encode($rating)
+        ]);
 
 
 
