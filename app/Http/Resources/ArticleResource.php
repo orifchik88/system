@@ -64,6 +64,7 @@ class ArticleResource extends JsonResource
             'payment_logs' => ArticlePaymentLogResource::collection($this->paymentLogs),
             'rating' => json_decode($this->rating),
             'is_old' => !is_null($this->old_id),
+            'cost' => $this->cost,
             'statistics' => $this->countMonitorings()
         ];
     }
