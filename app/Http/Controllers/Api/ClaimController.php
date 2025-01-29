@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\RegulationStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Http\Requests\ClaimRequests\AcceptTask;
 use App\Http\Requests\ClaimRequests\AttachBLockAndOrganization;
@@ -16,8 +17,11 @@ use App\Http\Requests\ClaimRequests\RejectClaimByOperator;
 use App\Http\Requests\ClaimRequests\RejectFromDirector;
 use App\Http\Requests\ClaimRequests\SendToDirector;
 use App\Http\Resources\ArticleResource;
+use App\Models\Article;
 use App\Models\Block;
 use App\Models\ClaimOrganizationReview;
+use App\Models\Monitoring;
+use App\Models\Regulation;
 use App\Services\ClaimService;
 use App\Services\HistoryService;
 use Illuminate\Support\Facades\Auth;
@@ -253,13 +257,24 @@ class ClaimController extends BaseController
         $blocks = $request['blocks'];
         $errors = [];
 
+        $article = Article::query()->where('id', $blocks[0])->first();
+        if ($article->cost > 0)
+            $errors[] = "Obyekt summasi to'liq to'lanmagan";
+
         foreach ($blocks as $blockId) {
             $block = Block::find($blockId);
+            $monitorings = Monitoring::query()->where('block_id', $blockId)->get();
+
+            foreach ($monitorings as $monitoring) {
+                $reguluations = Regulation::query()->where('monitoring_id', $monitoring->id)->whereNotIn('regulation_status_id', [RegulationStatusEnum::LATE_EXECUTION, RegulationStatusEnum::ELIMINATED])->count();
+                if($reguluations > 0)
+                    $errors[] = "Blok ($blockId)da $reguluations ta yopilmagan yozma ko'rsatma mavjud.";
+            }
 
             if (!$block) {
-                $errors[] = "Blok $blockId topilmadi.";
+                $errors[] = "Blok ($blockId) topilmadi.";
             } elseif ($block->status) {
-                $errors[] = "Blok $blockId tugallanmagan.";
+                $errors[] = "Blok ($blockId) qurilish ishlari yakunlanmagan.";
             }
         }
 
