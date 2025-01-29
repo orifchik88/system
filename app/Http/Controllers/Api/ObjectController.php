@@ -87,16 +87,17 @@ class ObjectController extends BaseController
     public function getObjectImages($id): JsonResponse
     {
         try {
-            $object = Article::query()->findOrFail($id);
+            $object = Article::with('monitorings.images')->findOrFail($id);
+
             $imagesByDate = $object->monitorings
+                ->flatMap(fn($monitoring) => $monitoring->images)
                 ->map(fn($image) => [
                     'id' => $image->id,
-                    'url' => Storage::disk('public')->url($image->url)
+                    'url' => Storage::disk('public')->url($image->url),
+                    'created_at' => $image->created_at
                 ])
-                ->flatMap(fn($monitoring) => $monitoring->images)
-                ->groupBy(fn($image) => Carbon::parse($image->created_at)->toDateString());
-
-            $imagesByDate = $imagesByDate->toArray();
+                ->groupBy(fn($image) => Carbon::parse($image['created_at'])->toDateString())
+                ->toArray();
 
             return $this->sendSuccess($imagesByDate, 'Images retrieved successfully.');
         }catch (\Exception $exception){
