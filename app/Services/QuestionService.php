@@ -198,7 +198,7 @@ class QuestionService
             $monitoring = $this->createMonitoring($data, $object, $roleId);
 
             if (!empty($data['public'])) {
-                $this->createPublicChecklist($data['public'], $object, $roleId, $monitoring->id);
+                $this->createPublicChecklist($data['public'], $object, $roleId, $monitoring);
             }
 
             if (!empty($data['positive'])) {
@@ -277,14 +277,24 @@ class QuestionService
         return $meta;
     }
 
-    private function createPublicChecklist($data, $object, $roleId, $monitoringID)
+    private function createPublicChecklist($data, $object, $roleId, $monitoring)
     {
+        if (!empty($data['images']))
+        {
+            foreach ($data('images') as $image) {
+                $imagePath = $image->store('monitoring', 'public');
+                $monitoring->images()->create([
+                    'url' => $imagePath,
+                ]);
+            }
+        }
+
         if (!empty($data['positive'])) {
-            $this->handleChecklists($data['positive'], $object, null, $roleId, true, $monitoringID);
+            $this->handleChecklists($data['positive'], $object, null, $roleId, true, $monitoring->id);
         }
         if (!empty($data['negative'])) {
-            $allRoleViolations = $this->handleChecklists($data['negative'], $object, null, $roleId, false, $monitoringID);
-            $this->createRegulations($allRoleViolations, $object, $monitoringID, $roleId);
+            $allRoleViolations = $this->handleChecklists($data['negative'], $object, null, $roleId, false, $monitoring->id);
+            $this->createRegulations($allRoleViolations, $object, $monitoring->id, $roleId);
         }
     }
 

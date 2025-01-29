@@ -653,17 +653,17 @@ class ArticleService
         $responseLoyiha = $response->supervisors()->where('role_id', UserRoleEnum::LOYIHA->value)->first();
         $responseQurilish = $response->supervisors()->where('role_id', UserRoleEnum::QURILISH->value)->first();
 
+        $data = json_decode($article->rating);
+
         if ($responseLoyiha && $responseLoyiha->stir_or_pinfl != $loyiha->pinfl){
             $rating[0]['loyiha'] = $loyihaRating['data']['data'] ?? null;
         }else{
-            $data = json_decode($article->rating);
             $rating[0]['loyiha'] = $data[0]->loyiha ?? null;
         }
 
         if ($responseQurilish && $responseQurilish->stir_or_pinfl != $qurilish->pinfl){
             $rating[0]['qurilish'] = $qurilishRating['data']['data'] ?? null;
         }else{
-            $data = json_decode($article->rating);
             $rating[0]['qurilish'] = $data[0]->qurilish ?? null;
         }
 
