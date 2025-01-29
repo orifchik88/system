@@ -229,6 +229,7 @@ class StatisticsController extends BaseController
 
             if (($key = array_search('difficulty_category', $selectColumns)) !== false) {
                 unset($selectColumns[$key]);
+                $selectColumns = array_merge(['difficulty_category_id'], $selectColumns);
             }
 
 
@@ -311,7 +312,7 @@ class StatisticsController extends BaseController
                     return $q->where('object_status_id', $filters['object_status']);
                 });
 
-            $articles = $query->get();
+            $articles = $query->get()->each->setAppends([]);
 
             return $this->sendSuccess($articles, 'Data retrieved successfully');
         } catch (\Exception $exception) {
