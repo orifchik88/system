@@ -281,7 +281,7 @@ class QuestionService
     {
         if (!empty($data['images']))
         {
-            foreach ($data('images') as $image) {
+            foreach ($data['images'] as $image) {
                 $imagePath = $image->store('monitoring', 'public');
                 $monitoring->images()->create([
                     'url' => $imagePath,
