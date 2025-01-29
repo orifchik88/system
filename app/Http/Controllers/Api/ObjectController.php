@@ -28,6 +28,7 @@ use Carbon\Carbon;
 use Hamcrest\Core\JavaForm;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Js;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -86,12 +87,17 @@ class ObjectController extends BaseController
     public function getObjectImages($id): JsonResponse
     {
         try {
-            $object = Article::query()->findOrFail($id);
+
+            $object = Article::with('monitorings.images')->findOrFail($id);
+
             $imagesByDate = $object->monitorings
                 ->flatMap(fn($monitoring) => $monitoring->images)
-                ->groupBy(fn($image) => Carbon::parse($image->created_at)->toDateString());
-
-            $imagesByDate = $imagesByDate->toArray();
+                ->map(fn($image) => [
+                    'id' => $image->id,
+                    'url' => Storage::disk('public')->url($image->url)
+                ])
+                ->groupBy(fn($image) => Carbon::parse($image['created_at'])->toDateString())
+                ->toArray();
 
             return $this->sendSuccess($imagesByDate, 'Images retrieved successfully.');
         }catch (\Exception $exception){
