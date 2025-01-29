@@ -246,7 +246,7 @@ class StatisticsController extends BaseController
                     }]);
                 })
                 ->when(in_array('difficulty_category', $columns), function ($q) {
-                    $q->with(['difficulty_categories' => function ($query) {
+                    $q->with(['difficulty' => function ($query) {
                         $query->select('difficulty_categories.difficulty', 'difficulty_categories.id as id');
                     }]);
                 })
