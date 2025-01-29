@@ -185,6 +185,10 @@ class StatisticsController extends BaseController
             ->groupBy($groupBy)
             ->pluck('count', $groupBy);
     }
+
+
+
+
     public function reports(Request $request): JsonResponse
     {
         try {
@@ -193,68 +197,119 @@ class StatisticsController extends BaseController
 
             $selectColumns = array_merge(['articles.id'], $columns);
 
-            $columnMap = [
-                'inspector' => null,
-                'sphere' => 'sphere_id',
-                'blocks' => null,
-                'monitorings' => null,
-                'status' => 'object_status_id',
-                'regulations' => null,
-                'participants' => null,
-                'difficulty_category' => null
-            ];
-
-            foreach ($columnMap as $key => $replace) {
-                if (($index = array_search($key, $selectColumns)) !== false) {
-                    unset($selectColumns[$index]);
-                    if ($replace) {
-                        $selectColumns[] = $replace;
-                    }
-                }
+            if (($key = array_search('inspector', $selectColumns)) !== false) {
+                unset($selectColumns[$key]);
             }
+
+            if (($key = array_search('sphere', $selectColumns)) !== false) {
+                unset($selectColumns[$key]);
+                $selectColumns = array_merge(['sphere_id'], $selectColumns);
+            }
+
+            if (($key = array_search('blocks', $selectColumns)) !== false) {
+                unset($selectColumns[$key]);
+            }
+
+            if (($key = array_search('monitorings', $selectColumns)) !== false) {
+                unset($selectColumns[$key]);
+            }
+
+            if (($key = array_search('status', $selectColumns)) !== false) {
+                unset($selectColumns[$key]);
+                $selectColumns = array_merge(['object_status_id'], $selectColumns);
+            }
+
+            if (($key = array_search('regulations', $selectColumns)) !== false) {
+                unset($selectColumns[$key]);
+            }
+
+            if (($key = array_search('participants', $selectColumns)) !== false) {
+                unset($selectColumns[$key]);
+            }
+
+            if (($key = array_search('difficulty_category', $selectColumns)) !== false) {
+                unset($selectColumns[$key]);
+            }
+
 
             $query = Article::query()
                 ->select($selectColumns)
-                ->with([
-                    'inspector:id,surname,name,middle_name,phone' => fn($q) => $q->when(in_array('inspector', $columns)),
-                    'users:id,surname,name,middle_name,phone' => fn($q) => $q->when(in_array('participants', $columns), fn($q) => $q->whereIn('role_id', [5, 6, 7])),
-                    'sphere:id,name_uz' => fn($q) => $q->when(in_array('sphere', $columns)),
-                    'difficulty:id,difficulty' => fn($q) => $q->when(in_array('difficulty_category', $columns)),
-                    'objectStatus:id,name' => fn($q) => $q->when(in_array('status', $columns))
-                ])
-                ->withCount([
-                    'blocks' => fn($q) => $q->when(in_array('blocks', $columns)),
-                    'monitorings as monitoring_count' => fn($q) => $q
-                        ->where('created_by_role', UserRoleEnum::INSPECTOR->value)
-                        ->when(isset($filters['date_from']) && isset($filters['date_to']), fn($q) => $q->whereBetween('monitorings.created_at', [$filters['date_from'], $filters['date_to']])),
-                ])
+                ->when(in_array('inspector', $columns), function ($q) use ($columns) {
+                    $q->with(['inspector' => function ($query) use ($columns) {
+                        $query->select('users.surname', 'users.name', 'users.middle_name', 'users.id as user_id', 'users.phone');
+                    }]);
+                })
+                ->when(in_array('participants', $columns), function ($q) use ($columns) {
+                    $q->with(['users' => function ($query) use ($columns) {
+                        $query->select('users.surname', 'users.name', 'users.middle_name', 'users.id as user_id', 'users.phone')->whereIn('role_id', [5, 7, 6]);
+                    }]);
+                })
+                ->when(in_array('sphere', $columns), function ($q) {
+                    $q->with(['sphere' => function ($query) {
+                        $query->select('spheres.name_uz', 'spheres.id as id');
+                    }]);
+                })
+                ->when(in_array('difficulty_category', $columns), function ($q) {
+                    $q->with(['difficulty' => function ($query) {
+                        $query->select('difficulty_categories.difficulty', 'difficulty_categories.id as id');
+                    }]);
+                })
                 ->when(in_array('regulations', $columns), function ($q) use ($filters) {
                     $q->with(['regulations' => function ($query) use ($filters) {
                         $query->selectRaw('object_id, COUNT(id) as all_count,
-                        SUM(CASE WHEN regulation_status_id IN (6, 8) AND created_by_role_id = 3 THEN 1 ELSE 0 END) as eliminated_count,
-                        SUM(CASE WHEN regulation_status_id IN (1, 2, 3, 4, 5)  AND created_by_role_id = 3 THEN 1 ELSE 0 END) as progress_count,
-                        SUM(CASE WHEN regulation_status_id = 7 AND created_by_role_id = 3 THEN 1 ELSE 0 END) as not_execution_count,
-                        SUM(CASE WHEN lawyer_status_id = 3 AND created_by_role_id = 3 THEN 1 ELSE 0 END) as administratively
-                    ')
-                            ->when(isset($filters['date_from']) && isset($filters['date_to']), fn($q) => $q->whereBetween('regulations.created_at', [$filters['date_from'], $filters['date_to']]))
+							SUM(CASE WHEN regulation_status_id IN (6, 8) AND created_by_role_id = 3 THEN 1 ELSE 0 END) as eliminated_count,
+							SUM(CASE WHEN regulation_status_id IN (1, 2, 3, 4, 5)  AND created_by_role_id = 3 THEN 1 ELSE 0 END) as progress_count,
+							SUM(CASE WHEN regulation_status_id = 7 AND created_by_role_id = 3 THEN 1 ELSE 0 END) as not_execution_count,
+							SUM(CASE WHEN regulation_status_id IN (6, 8) AND role_id = 6  AND created_by_role_id = 3 THEN 1 ELSE 0 END) as costumer_eliminated_count,
+							SUM(CASE WHEN regulation_status_id IN (1, 2, 3, 4, 5) AND role_id = 6 AND created_by_role_id = 3 THEN 1 ELSE 0 END) as costumer_progress_count,
+							SUM(CASE WHEN regulation_status_id = 7 AND role_id = 6 AND created_by_role_id = 3 THEN 1 ELSE 0 END) as costumer_not_execution_count,
+							SUM(CASE WHEN regulation_status_id IN (6, 8) AND role_id = 5  AND created_by_role_id = 3 THEN 1 ELSE 0 END) as manage_eliminated_count,
+							SUM(CASE WHEN regulation_status_id IN (1, 2, 3, 4, 5) AND role_id = 5 AND created_by_role_id = 3 THEN 1 ELSE 0 END) as manage_progress_count,
+							SUM(CASE WHEN regulation_status_id = 7 AND role_id = 5 AND created_by_role_id = 3 THEN 1 ELSE 0 END) as manage_not_execution_count,
+							SUM(CASE WHEN regulation_status_id IN (6, 8) AND role_id = 7  AND created_by_role_id = 3 THEN 1 ELSE 0 END) as author_eliminated_count,
+							SUM(CASE WHEN regulation_status_id IN (1, 2, 3, 4, 5) AND role_id = 7 AND created_by_role_id = 3 THEN 1 ELSE 0 END) as author_progress_count,
+							SUM(CASE WHEN regulation_status_id = 7 AND role_id = 7  AND created_by_role_id = 3 THEN 1 ELSE 0 END) as author_not_execution_count,
+                            SUM(CASE WHEN lawyer_status_id = 3 AND created_by_role_id = 3 THEN 1 ELSE 0 END) as administratively'
+                        )
+                            ->when(isset($filters['date_from']) && isset($filters['date_to']), function ($q) use ($filters) {
+                                return $q->whereBetween('regulations.created_at', [$filters['date_from'], $filters['date_to']]);
+                            })
                             ->groupBy('object_id');
                     }]);
                 })
-                ->when(isset($filters['region']), fn($q) => $q->where('region_id', $filters['region']))
-                ->when(isset($filters['user']), fn($q) => $q->whereExists(function ($query) use ($filters) {
-                    $query->select(DB::raw(1))
-                        ->from('article_users')
-                        ->whereRaw('article_users.article_id = articles.id')
-                        ->where('article_users.user_id', $filters['user']);
-                }))
-                ->when(isset($filters['inspector']), fn($q) => $q->whereExists(function ($query) use ($filters) {
-                    $query->select(DB::raw(1))
-                        ->from('article_users')
-                        ->whereRaw('article_users.article_id = articles.id')
-                        ->where('article_users.user_id', $filters['inspector'])
-                        ->where('article_users.role_id', UserRoleEnum::INSPECTOR->value);
-                }))
-                ->when(isset($filters['object_status']), fn($q) => $q->where('object_status_id', $filters['object_status']));
+                ->when(in_array('status', $columns), function ($q) {
+                    $q->with(['objectStatus' => function ($query) {
+                        $query->select('object_statuses.name', 'object_statuses.id as id');
+                    }]);
+                })
+                ->when(in_array('blocks', $columns), function ($q) {
+                    $q->withCount('blocks');
+                })
+                ->when(in_array('monitorings', $columns), function ($q) use ($filters) {
+                    $q->withCount(['monitorings as monitoring_count' => function ($query) use ($filters) {
+                        $query->where('created_by_role', UserRoleEnum::INSPECTOR->value)
+                            ->when(isset($filters['date_from']) && isset($filters['date_to']), function ($q) use ($filters) {
+                                return $q->whereBetween('monitorings.created_at', [$filters['date_from'], $filters['date_to']]);
+                            });
+                    }]);
+                })
+                ->when(isset($filters['region']), function ($q) use ($filters) {
+                    return $q->where('region_id', $filters['region']);
+                })
+                ->when(isset($filters['user']), function ($q) use ($filters) {
+                    return $q->whereHas('users', function ($q) use ($filters) {
+                        return $q->where('users.id', $filters['user']);
+                    });
+                })
+                ->when(isset($filters['inspector']), function ($q) use ($filters) {
+                    $q->whereHas('users', function ($query) use ($filters) {
+                        $query->where('user_id', $filters['inspector'])
+                            ->where('role_id', UserRoleEnum::INSPECTOR->value);
+                    });
+                })
+                ->when(isset($filters['object_status']), function ($q) use ($filters) {
+                    return $q->where('object_status_id', $filters['object_status']);
+                });
 
             $articles = $query->get();
 
@@ -263,138 +318,6 @@ class StatisticsController extends BaseController
             return $this->sendError($exception->getMessage(), $exception->getLine());
         }
     }
-
-
-
-//    public function reports(Request $request): JsonResponse
-//    {
-//        try {
-//            $columns = $request->input('columns', []);
-//            $filters = $request->only(['region', 'user', 'date_from', 'date_to', 'object_status', 'inspector']);
-//
-//            $selectColumns = array_merge(['articles.id'], $columns);
-//
-//            if (($key = array_search('inspector', $selectColumns)) !== false) {
-//                unset($selectColumns[$key]);
-//            }
-//
-//            if (($key = array_search('sphere', $selectColumns)) !== false) {
-//                unset($selectColumns[$key]);
-//                $selectColumns = array_merge(['sphere_id'], $selectColumns);
-//            }
-//
-//            if (($key = array_search('blocks', $selectColumns)) !== false) {
-//                unset($selectColumns[$key]);
-//            }
-//
-//            if (($key = array_search('monitorings', $selectColumns)) !== false) {
-//                unset($selectColumns[$key]);
-//            }
-//
-//            if (($key = array_search('status', $selectColumns)) !== false) {
-//                unset($selectColumns[$key]);
-//                $selectColumns = array_merge(['object_status_id'], $selectColumns);
-//            }
-//
-//            if (($key = array_search('regulations', $selectColumns)) !== false) {
-//                unset($selectColumns[$key]);
-//            }
-//
-//            if (($key = array_search('participants', $selectColumns)) !== false) {
-//                unset($selectColumns[$key]);
-//            }
-//
-//            if (($key = array_search('difficulty_category', $selectColumns)) !== false) {
-//                unset($selectColumns[$key]);
-//            }
-//
-//
-//            $query = Article::query()
-//                ->select($selectColumns)
-//                ->when(in_array('inspector', $columns), function ($q) use ($columns) {
-//                    $q->with(['inspector' => function ($query) use ($columns) {
-//                        $query->select('users.surname', 'users.name', 'users.middle_name', 'users.id as user_id', 'users.phone');
-//                    }]);
-//                })
-//                ->when(in_array('participants', $columns), function ($q) use ($columns) {
-//                    $q->with(['users' => function ($query) use ($columns) {
-//                        $query->select('users.surname', 'users.name', 'users.middle_name', 'users.id as user_id', 'users.phone')->whereIn('role_id', [5, 7, 6]);
-//                    }]);
-//                })
-//                ->when(in_array('sphere', $columns), function ($q) {
-//                    $q->with(['sphere' => function ($query) {
-//                        $query->select('spheres.name_uz', 'spheres.id as id');
-//                    }]);
-//                })
-//                ->when(in_array('difficulty_category', $columns), function ($q) {
-//                    $q->with(['difficulty' => function ($query) {
-//                        $query->select('difficulty_categories.difficulty', 'difficulty_categories.id as id');
-//                    }]);
-//                })
-//                ->when(in_array('regulations', $columns), function ($q) use ($filters) {
-//                    $q->with(['regulations' => function ($query) use ($filters) {
-//                        $query->selectRaw('object_id, COUNT(id) as all_count,
-//							SUM(CASE WHEN regulation_status_id IN (6, 8) AND created_by_role_id = 3 THEN 1 ELSE 0 END) as eliminated_count,
-//							SUM(CASE WHEN regulation_status_id IN (1, 2, 3, 4, 5)  AND created_by_role_id = 3 THEN 1 ELSE 0 END) as progress_count,
-//							SUM(CASE WHEN regulation_status_id = 7 AND created_by_role_id = 3 THEN 1 ELSE 0 END) as not_execution_count,
-//							SUM(CASE WHEN regulation_status_id IN (6, 8) AND role_id = 6  AND created_by_role_id = 3 THEN 1 ELSE 0 END) as costumer_eliminated_count,
-//							SUM(CASE WHEN regulation_status_id IN (1, 2, 3, 4, 5) AND role_id = 6 AND created_by_role_id = 3 THEN 1 ELSE 0 END) as costumer_progress_count,
-//							SUM(CASE WHEN regulation_status_id = 7 AND role_id = 6 AND created_by_role_id = 3 THEN 1 ELSE 0 END) as costumer_not_execution_count,
-//							SUM(CASE WHEN regulation_status_id IN (6, 8) AND role_id = 5  AND created_by_role_id = 3 THEN 1 ELSE 0 END) as manage_eliminated_count,
-//							SUM(CASE WHEN regulation_status_id IN (1, 2, 3, 4, 5) AND role_id = 5 AND created_by_role_id = 3 THEN 1 ELSE 0 END) as manage_progress_count,
-//							SUM(CASE WHEN regulation_status_id = 7 AND role_id = 5 AND created_by_role_id = 3 THEN 1 ELSE 0 END) as manage_not_execution_count,
-//							SUM(CASE WHEN regulation_status_id IN (6, 8) AND role_id = 7  AND created_by_role_id = 3 THEN 1 ELSE 0 END) as author_eliminated_count,
-//							SUM(CASE WHEN regulation_status_id IN (1, 2, 3, 4, 5) AND role_id = 7 AND created_by_role_id = 3 THEN 1 ELSE 0 END) as author_progress_count,
-//							SUM(CASE WHEN regulation_status_id = 7 AND role_id = 7  AND created_by_role_id = 3 THEN 1 ELSE 0 END) as author_not_execution_count,
-//                            SUM(CASE WHEN lawyer_status_id = 3 AND created_by_role_id = 3 THEN 1 ELSE 0 END) as administratively'
-//                        )
-//                            ->when(isset($filters['date_from']) && isset($filters['date_to']), function ($q) use ($filters) {
-//                                return $q->whereBetween('regulations.created_at', [$filters['date_from'], $filters['date_to']]);
-//                            })
-//                            ->groupBy('object_id');
-//                    }]);
-//                })
-//                ->when(in_array('status', $columns), function ($q) {
-//                    $q->with(['objectStatus' => function ($query) {
-//                        $query->select('object_statuses.name', 'object_statuses.id as id');
-//                    }]);
-//                })
-//                ->when(in_array('blocks', $columns), function ($q) {
-//                    $q->withCount('blocks');
-//                })
-//                ->when(in_array('monitorings', $columns), function ($q) use ($filters) {
-//                    $q->withCount(['monitorings as monitoring_count' => function ($query) use ($filters) {
-//                        $query->where('created_by_role', UserRoleEnum::INSPECTOR->value)
-//                            ->when(isset($filters['date_from']) && isset($filters['date_to']), function ($q) use ($filters) {
-//                                return $q->whereBetween('monitorings.created_at', [$filters['date_from'], $filters['date_to']]);
-//                            });
-//                    }]);
-//                })
-//                ->when(isset($filters['region']), function ($q) use ($filters) {
-//                    return $q->where('region_id', $filters['region']);
-//                })
-//                ->when(isset($filters['user']), function ($q) use ($filters) {
-//                    return $q->whereHas('users', function ($q) use ($filters) {
-//                        return $q->where('users.id', $filters['user']);
-//                    });
-//                })
-//                ->when(isset($filters['inspector']), function ($q) use ($filters) {
-//                    $q->whereHas('users', function ($query) use ($filters) {
-//                        $query->where('user_id', $filters['inspector'])
-//                            ->where('role_id', UserRoleEnum::INSPECTOR->value);
-//                    });
-//                })
-//                ->when(isset($filters['object_status']), function ($q) use ($filters) {
-//                    return $q->where('object_status_id', $filters['object_status']);
-//                });
-//
-//            $articles = $query->get();
-//
-//            return $this->sendSuccess($articles, 'Data retrieved successfully');
-//        } catch (\Exception $exception) {
-//            return $this->sendError($exception->getMessage(), $exception->getLine());
-//        }
-//    }
 
     public function excel()
     {
