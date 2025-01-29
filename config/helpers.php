@@ -112,7 +112,7 @@ if(!function_exists('deadline')){
             $date = Carbon::tomorrow()->addDays($day);
         }
 
-        while (in_array($date->toDateString(), $holidays)) {
+        while (in_array($date->toDateString(), $holidays) || $date->isSaturday() || $date->isSunday()) {
             $date->addDay();
         }
 
