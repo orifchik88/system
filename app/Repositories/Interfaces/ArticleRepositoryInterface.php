@@ -13,5 +13,7 @@ interface ArticleRepositoryInterface
 
     public function findByCadastralNumber($number);
 
+    public function setObjectUsers($user, $roleId, $id);
+
     public function getList($filters);
 }

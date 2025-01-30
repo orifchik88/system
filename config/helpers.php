@@ -98,7 +98,7 @@ if (!function_exists('getRegionName')) {
 }
 
 if(!function_exists('deadline')){
-    function deadline(?int $days)
+    function deadline(?int $days, ?string $startTime = null)
     {
 //        $date = Carbon::now();
 //        $addedDays = 0;
@@ -113,14 +113,14 @@ if(!function_exists('deadline')){
 //            $addedDays++;
 //        }
 //
-        $date = Carbon::now();
+        $date = $startTime ? Carbon::parse($startTime) : Carbon::now();
         $currentYear = $date->year;
 
         while (
             $date->isWeekend() ||
             Holiday::whereYear('day', $currentYear)->whereDate('day', $date->toDateString())->exists()
         ) {
-            $date->addDay();
+            $date->addDay()->startOfDay();
         }
 
         $addedDays = 0;
@@ -138,7 +138,7 @@ if(!function_exists('deadline')){
             $addedDays++;
         }
 
-        return $date->toDateString();
+        return $date->toDateTimeString();
 
     }
 }

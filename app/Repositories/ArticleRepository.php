@@ -8,12 +8,15 @@ use App\Enums\UserRoleEnum;
 use App\Models\Article;
 use App\Models\ArticleUser;
 use App\Models\DxaResponse;
+use App\Models\ObjectUserHistory;
 use App\Models\Regulation;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\UserRole;
 use App\Notifications\InspectorNotification;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use App\Services\MessageTemplate;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class ArticleRepository implements ArticleRepositoryInterface
@@ -64,6 +67,30 @@ class ArticleRepository implements ArticleRepositoryInterface
     public function findByCadastralNumber($number)
     {
         return Article::query()->where('cadastral_number', $number)->get();
+    }
+
+    public function setObjectUsers($user, $roleId, $id)
+    {
+        if (in_array($roleId, [UserRoleEnum::ICHKI->value, UserRoleEnum::TEXNIK->value, UserRoleEnum::MUALLIF->value])) {
+            $existingHistory = ObjectUserHistory::query()
+                ->where('user_id', $user->id)
+                ->where('role_id', $roleId)
+                ->where('object_id', $id)
+                ->whereDate('date', Carbon::today())
+                ->exists();
+
+            if (!$existingHistory) {
+                return ObjectUserHistory::query()->create([
+                    'user_id' => $user->id,
+                    'role_id' => $roleId,
+                    'object_id' => $id,
+                    'date' => Carbon::now()
+                ]);
+            }
+        }
+
+        return null;
+
     }
 
     public function getArticlesByUserRole($user, $roleId)
