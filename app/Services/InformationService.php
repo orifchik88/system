@@ -33,8 +33,8 @@ class InformationService
             $meta = [];
             if (isset($response['result']['data']['result']['data'])) {
                 foreach ($response['result']['data']['result']['data'] as $item) {
-                    $sphere = Sphere::query()->find($item[0]['object_types_id']);
-                    $program = Program::query()->find($item[0]['project_type_id']);
+                    $sphere = Sphere::query()->find($item['object_types_id']);
+                    $program = Program::query()->find($item['project_type_id']);
                     $meta[] = [
                         'id' => $item['id'],
                         'gnk_id' => $item['gnk_id'],
