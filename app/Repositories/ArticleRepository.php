@@ -76,7 +76,7 @@ class ArticleRepository implements ArticleRepositoryInterface
                 ->where('user_id', $user->id)
                 ->where('role_id', $roleId)
                 ->where('object_id', $id)
-                ->whereDate('date', Carbon::today())
+                ->whereDate('check_at', Carbon::today())
                 ->exists();
 
             if (!$existingHistory) {
@@ -84,7 +84,7 @@ class ArticleRepository implements ArticleRepositoryInterface
                     'user_id' => $user->id,
                     'role_id' => $roleId,
                     'object_id' => $id,
-                    'date' => Carbon::now()
+                    'check_at' => Carbon::now()
                 ]);
             }
         }
