@@ -23,7 +23,13 @@ class VersionController extends Controller
 
     public function update(VersionRequest $request)
     {
-        $version = AppVersion::query()->where('type', $request->type)->update($request->validated());
+        $version = AppVersion::query()->where('type', $request->type)->first();
+
+        if (!$version) {
+            return response()->json(['message' => 'App version not found'], 404);
+        }
+
+        $version->update($request->validated());
 
         return response()->json([
             'id' => $version->id,
