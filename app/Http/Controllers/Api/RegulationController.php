@@ -411,6 +411,7 @@ class RegulationController extends BaseController
 
     public function fine(RegulationFineRequest $request): JsonResponse
     {
+        DB::beginTransaction();
         try {
             $regulation = Regulation::query()->findOrFaiL($request->regulation_id);
 
@@ -463,9 +464,10 @@ class RegulationController extends BaseController
                 'regulation_status_id' => $status,
             ]);
 
-
+            DB::commit();
             return $this->sendSuccess([], 'Data saved successfully');
         } catch (\Exception $exception) {
+            DB::rollBack();
             return $this->sendError('xatolik aniqlandi', $exception->getCode());
         }
     }
