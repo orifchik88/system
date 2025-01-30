@@ -66,7 +66,7 @@ class ArticleResource extends JsonResource
             'is_old' => !is_null($this->old_id),
             'cost' => $this->cost,
             'statistics' => $this->countMonitorings(),
-            'internal_control' => $this->internal_controle
+            'internal_control' => $this->internal_control
         ];
     }
 

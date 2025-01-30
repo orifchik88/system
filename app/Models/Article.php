@@ -86,9 +86,11 @@ class Article extends Model
         return $file;
     }
 
-    public function getInternalControleAttribute()
+    public function getInternalControlAttribute()
     {
-        return $this->userHistories()->where('role_id', UserRoleEnum::ICHKI->value)->pluck('check_at');
+        return $this->userHistories()
+            ->where('role_id', UserRoleEnum::ICHKI->value)
+            ->pluck('check_at');
     }
 
     public function userHistories(): HasMany
