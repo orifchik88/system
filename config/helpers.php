@@ -100,13 +100,38 @@ if (!function_exists('getRegionName')) {
 if(!function_exists('deadline')){
     function deadline(?int $days)
     {
+//        $date = Carbon::now();
+//        $addedDays = 0;
+//
+//        while ($addedDays < $days) {
+//            $date->addDay();
+//
+//            if ($date->isWeekend() || Holiday::whereDate('day', $date->toDateString())->exists()) {
+//                continue;
+//            }
+//
+//            $addedDays++;
+//        }
+//
         $date = Carbon::now();
+        $currentYear = $date->year;
+
+        while (
+            $date->isWeekend() ||
+            Holiday::whereYear('day', $currentYear)->whereDate('day', $date->toDateString())->exists()
+        ) {
+            $date->addDay();
+        }
+
         $addedDays = 0;
 
         while ($addedDays < $days) {
             $date->addDay();
 
-            if ($date->isWeekend() || Holiday::whereDate('day', $date->toDateString())->exists()) {
+            if (
+                $date->isWeekend() ||
+                Holiday::whereYear('day', $currentYear)->whereDate('day', $date->toDateString())->exists()
+            ) {
                 continue;
             }
 
@@ -114,6 +139,7 @@ if(!function_exists('deadline')){
         }
 
         return $date->toDateString();
+
     }
 }
 
