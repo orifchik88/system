@@ -3,7 +3,11 @@
 namespace App\Services;
 
 use App\Exceptions\NotFoundException;
+use App\Http\Resources\ProgramResource;
+use App\Http\Resources\SphereResource;
 use App\Models\DxaResponse;
+use App\Models\Program;
+use App\Models\Sphere;
 use GuzzleHttp\Client;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
@@ -26,45 +30,21 @@ class InformationService
                     ]
                 ]);
             $response = json_decode($resClient->getBody(), true);
-
+            $meta = [];
             if (isset($response['result']['data']['result']['data'])) {
-                foreach ($response['result']['data']['result']['data'] as &$item) {
-                    if (isset($item['pudrat_tender']) && is_array($item['pudrat_tender'])) {
-                        $item['pudrat_tender'] = array_values($item['pudrat_tender']);
-
-                        $item['pudrat_tender'] = array_filter($item['pudrat_tender'], function ($tender) use ($pudratInn) {
-                            return $tender['winner_inn'] == $pudratInn;
-                        });
-
-                        if (!empty($item['pudrat_tender'])) {
-                            usort($item['pudrat_tender'], function ($a, $b) {
-                                return strtotime($b['confirmed_date']) - strtotime($a['confirmed_date']);
-                            });
-
-                            $item['pudrat_tender'] = [reset($item['pudrat_tender'])];
-                        } else {
-                            $item['pudrat_tender'] = [];
-                        }
-
-                        if (empty($item['pudrat_tender'])) {
-                            unset($item);
-                        }
-                    }
+                foreach ($response['result']['data']['result']['data'] as $item) {
+                    $sphere = Sphere::query()->find($item['object_types_id']);
+                    $program = Program::query()->find($item['project_type_id']);
+                    $meta[] = [
+                        'id' => $item['id'],
+                        'gnk_id' => $item['gnk_id'],
+                        'project_type' => ProgramResource::make($program),
+                        'sphere' => SphereResource::make($sphere),
+                        'name' => $item['name'],
+                        'end_term_work_days' => $item['end_term_work_days']  ?? $item['pudrat_tender'][0]['end_term_work_days'],
+                    ];
                 }
-
-                $response['result']['data']['result']['data'] = array_values($response['result']['data']['result']['data']);
             }
-
-            $data = $response['result']['data']['result']['data'][0];
-
-            $meta = [
-                'id' => $data['id'],
-                'gnk_id' => $data['gnk_id'],
-                'project_type_id' => $data['project_type_id'],
-                'name' => $data['name'],
-                'end_term_work_days' => $data['end_term_work_days']  ?? $data['pudrat_tender'][0]['end_term_work_days'],
-            ];
-
             return $meta;
         } catch (\Exception $exception){
            throw new  $exception;

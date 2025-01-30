@@ -61,6 +61,11 @@ class ArticleService
         return $this->articleRepository->findByTaskId($taskId);
     }
 
+    public function setObjectUsers($user, $roleId, $id)
+    {
+        return $this->articleRepository->setObjectUsers($user, $roleId, $id);
+    }
+
 
 
     public function getObjects($user, $roleId)

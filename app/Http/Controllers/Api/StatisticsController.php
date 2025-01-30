@@ -187,6 +187,9 @@ class StatisticsController extends BaseController
             ->pluck('count', $groupBy);
     }
 
+
+
+
     public function reports(Request $request): JsonResponse
     {
         try {
@@ -227,6 +230,7 @@ class StatisticsController extends BaseController
 
             if (($key = array_search('difficulty_category', $selectColumns)) !== false) {
                 unset($selectColumns[$key]);
+                $selectColumns = array_merge(['difficulty_category_id'], $selectColumns);
             }
 
 
@@ -248,7 +252,7 @@ class StatisticsController extends BaseController
                     }]);
                 })
                 ->when(in_array('difficulty_category', $columns), function ($q) {
-                    $q->with(['difficulty_categories' => function ($query) {
+                    $q->with(['difficulty' => function ($query) {
                         $query->select('difficulty_categories.difficulty', 'difficulty_categories.id as id');
                     }]);
                 })
@@ -309,7 +313,7 @@ class StatisticsController extends BaseController
                     return $q->where('object_status_id', $filters['object_status']);
                 });
 
-            $articles = $query->get();
+            $articles = $query->get()->each->setAppends([]);
 
             return $this->sendSuccess($articles, 'Data retrieved successfully');
         } catch (\Exception $exception) {
