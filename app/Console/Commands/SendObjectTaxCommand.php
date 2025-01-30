@@ -51,7 +51,8 @@ class SendObjectTaxCommand extends Command
             $builder = $object->users()->where('role_id', UserRoleEnum::QURILISH->value)->first();
 
             $data = [
-                'object_id' => $object->task_id,
+                'send_id' => $object->id,
+                'send_date' => Carbon::now(),
                 'cadastral_number' => $object->cadastral_number,
                 'construction_type_name' => $object->construction_works,
                 'construction_type_id' => ConstructionWork::fromString($object->construction_works)->value,
@@ -66,8 +67,6 @@ class SendObjectTaxCommand extends Command
                 'pinfl_general_contractor' => $builder->name ? $builder->pinfl : '',
                 'price_construction_installation' => $object->construction_cost,
                 'region_soato' => $object->region->soato,
-                'send_date' => Carbon::now(),
-                'send_id' => $object->id,
                 'tin_customer' => $customer->name ? '' : $customer->pinfl,
                 'tin_general_contractor' => $builder->name ? '' : $builder->pinfl,
             ];
