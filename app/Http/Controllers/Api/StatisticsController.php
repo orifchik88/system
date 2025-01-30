@@ -395,7 +395,7 @@ class StatisticsController extends BaseController
                     ];
                 }
             }
-            
+
             $operator = base64_decode($claim->operator_answer);
             $uncompressed = @gzuncompress($operator) ?: $operator;
             $areas = json_decode($uncompressed, true);
@@ -431,36 +431,36 @@ class StatisticsController extends BaseController
                 'obyekt_raqami' => $claim->obyekt_raqami,
                 'region_name' => $claim->region_name,
                 'district_name' => $claim->district_name,
-                'jami_honadon' => $claimBlocks->sum('count_apartments'),
-                'jami_block' => $claimBlocks->count(),
-                'noturar' => $blockCounts['noturar'],
-                'turar' => $blockCounts['turar'],
-                'yakka' => $blockCounts['yakka'],
-                'count_apartments' => array_sum(array_column($meta, 'count_apartments')),
-                'priyomka_jami_block' => count($blocks),
-                'priyomka_noturar' => $countNoturar,
-                'priyomka_turar' => $countTurar,
-                'priyomka_yakka' => $countYakka,
+                'jami_honadon' => (string)$claimBlocks->sum('count_apartments'),
+                'jami_block' => (string)$claimBlocks->count(),
+                'noturar' => (string)$blockCounts['noturar'],
+                'turar' => (string)$blockCounts['turar'],
+                'yakka' => (string)$blockCounts['yakka'],
+                'count_apartments' => (string)array_sum(array_column($meta, 'count_apartments')),
+                'priyomka_jami_block' => (string)count($blocksData),
+                'priyomka_noturar' => (string)$countNoturar,
+                'priyomka_turar' => (string)$countTurar,
+                'priyomka_yakka' => (string)$countYakka,
 
-                'umumiy_maydon' => $total_area['total'],
-                'umumiy_noturar' => $total_area['noturar'],
-                'umumiy_turar' => $total_area['turar'],
-                'umumiy_yakka' => $total_area['yakka'],
+                'umumiy_maydon' => (string)$total_area['total'],
+                'umumiy_noturar' => (string)$total_area['noturar'],
+                'umumiy_turar' => (string)$total_area['turar'],
+                'umumiy_yakka' => (string)$total_area['yakka'],
 
-                'foydalanish_maydon' => $total_use_area['total'],
-                'foydalanish_noturar' => $total_use_area['noturar'],
-                'foydalanish_turar' => $total_use_area['turar'],
-                'foydalanish_yakka' => $total_use_area['yakka'],
+                'foydalanish_maydon' => (string)$total_use_area['total'],
+                'foydalanish_noturar' => (string)$total_use_area['noturar'],
+                'foydalanish_turar' => (string)$total_use_area['turar'],
+                'foydalanish_yakka' => (string)$total_use_area['yakka'],
 
-                'yashash_maydon' => $living_area['total'],
-                'yashash_noturar' => $living_area['noturar'],
-                'yashash_turar' => $living_area['turar'],
-                'yashash_yakka' => $living_area['yakka'],
+                'yashash_maydon' => (string)$living_area['total'],
+                'yashash_noturar' => (string)$living_area['noturar'],
+                'yashash_turar' => (string)$living_area['turar'],
+                'yashash_yakka' => (string)$living_area['yakka'],
 
-                'qurilish_osti_maydoni' => $areaSum['total'],
-                'qurilish_osti_noturar' => $areaSum['noturar'],
-                'qurilish_osti_turar' => $areaSum['turar'],
-                'qurilish_osti_yakka' => $areaSum['yakka'],
+                'qurilish_osti_maydoni' => (string)$areaSum['total'],
+                'qurilish_osti_noturar' => (string)$areaSum['noturar'],
+                'qurilish_osti_turar' => (string)$areaSum['turar'],
+                'qurilish_osti_yakka' => (string)$areaSum['yakka'],
             ];
 
             $array[] = $tmpArray;
