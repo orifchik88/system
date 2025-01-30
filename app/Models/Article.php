@@ -25,7 +25,7 @@ class Article extends Model
     use HasFactory, SoftDeletes;
 
     protected $guarded = [];
-    protected $appends = ['cost', 'closed_type', 'closed_file', 'internal_control'];
+    protected $appends = ['cost', 'closed_type', 'closed_file'];
 
     public function documents(): MorphMany
     {
@@ -86,12 +86,7 @@ class Article extends Model
         return $file;
     }
 
-    public function getInternalControlAttribute()
-    {
-        return $this->userHistories()
-            ->where('role_id', UserRoleEnum::ICHKI->value)
-            ->pluck('check_at');
-    }
+
 
     public function userHistories(): HasMany
     {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\UserRoleEnum;
 use App\Models\Article;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -66,7 +67,7 @@ class ArticleResource extends JsonResource
             'is_old' => !is_null($this->old_id),
             'cost' => $this->cost,
             'statistics' => $this->countMonitorings(),
-            'internal_control' => $this->internal_control
+            'internal_control' => $this->userHistories()->where('role_id', UserRoleEnum::ICHKI->value)->pluck('check_at')
         ];
     }
 
