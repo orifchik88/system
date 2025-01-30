@@ -120,6 +120,9 @@ class MigrateCommand extends Command
             case 17:
                 $this->migratePayments();
                 break;
+            case 18:
+                $this->changeOperatorAnswers();
+                break;
             default:
                 echo 'Fuck you!';
                 break;
@@ -134,6 +137,43 @@ class MigrateCommand extends Command
         parent::__construct();
         $this->claimService = $claimService;
         $this->articleService = $articleService;
+    }
+
+    private function changeOperatorAnswers()
+    {
+        $answers = ClaimMonitoring::query()->whereNotNull('operator_answer')->get();
+
+        foreach ($answers as $answer) {
+            $claim = Claim::query()->where('id', $answer->claim_id)->first();
+
+            if (!$claim || $claim->building_type == null || !in_array($claim->building_type, [1, 4]))
+                continue;
+
+            $operator = gzuncompress(base64_decode($answer->operator_answer));
+            $operatorArr = json_decode($operator, true);
+
+            $type = 1;
+            if ($claim->building_type == 4)
+                $type = 0;
+
+            $newArr = [];
+            foreach ($operatorArr as $item) {
+                if (isset($item['type']))
+                    continue;
+
+                $item['type'] = $type;
+
+                $newArr[] = $item;
+            }
+
+            if (!empty($newArr))
+                $answer->update(
+                    [
+                        'operator_answer' => base64_encode(gzcompress(json_encode($newArr), 9))
+                    ]
+                );
+
+        }
     }
 
     private function migratePayments()

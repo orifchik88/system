@@ -6,6 +6,7 @@ use App\Enums\ObjectStatusEnum;
 use App\Enums\RegulationStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Exports\ClaimExcel;
+use App\Helpers\ClaimStatuses;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ArticlePalataResource;
 use App\Models\Article;
@@ -187,8 +188,6 @@ class StatisticsController extends BaseController
     }
 
 
-
-
     public function reports(Request $request): JsonResponse
     {
         try {
@@ -323,86 +322,149 @@ class StatisticsController extends BaseController
     public function excel()
     {
         ini_set('max_execution_time', 300);
+        $filters = request()->only(['region_id', 'start_date', 'end_date']);
 
         $claims = ClaimMonitoring::query()
             ->join('claims as c', 'c.id', '=', 'claim_monitoring.claim_id')
             ->join('articles as a', 'a.id', '=', 'c.object_id')
             ->join('regions as r', 'r.id', '=', 'a.region_id')
             ->join('districts as d', 'd.id', '=', 'a.district_id')
-            ->where('c.status', 20)
+            ->when(isset($filters['region_id']), fn($q) => $q->where('r.id', $filters['region_id']))
+            ->when(isset($filters['start_date']) || isset($filters['end_date']), function ($query) use ($filters) {
+                $startDate = $filters['start_date'] ? $filters['start_date'] . ' 00:00:00' : null;
+                $endDate = $filters['end_date'] ? $filters['end_date'] . ' 23:59:59' : null;
+
+                if ($startDate && $endDate) {
+                    $query->whereBetween('c.created_at', [$startDate, $endDate]);
+                } elseif ($startDate) {
+                    $query->where('c.created_at', '>=', $startDate);
+                } elseif ($endDate) {
+                    $query->where('c.created_at', '<=', $endDate);
+                }
+            })
+            ->where('c.status', ClaimStatuses::TASK_STATUS_CONFIRMED)
             ->whereNotNull('c.object_id')
-            ->select(
+            ->select([
                 'claim_monitoring.*',
                 'c.guid as ariza_raqami',
                 'a.task_id as obyekt_raqami',
+                'a.id as article_id',
+                'a.name as obyekt_nomi',
                 'r.name_uz as region_name',
                 'd.name_uz as district_name',
-                'c.end_date as end_date'
-            )
+                'c.end_date as end_date',
+            ])
             ->get();
 
+        $articleIds = $claims->pluck('article_id')->unique();
+        $blocks = Block::query()
+            ->whereIn('article_id', $articleIds)
+            ->get()
+            ->groupBy('article_id');
+
         $array = [];
+        $count = 1;
 
         foreach ($claims as $claim) {
+            $claimBlocks = $blocks[$claim->article_id] ?? collect();
+
+            $blockCounts = [
+                'noturar' => $claimBlocks->where('block_type_id', 1)->count(),
+                'turar' => $claimBlocks->whereNotIn('block_type_id', [1, 25])->count(),
+                'yakka' => $claimBlocks->where('block_type_id', 25)->count(),
+            ];
+
             $meta = [];
+            $countTurar = 0;
+            $countNoturar = 0;
+            $countYakka = 0;
+
+            $blocksData = json_decode($claim->blocks, true);
+            if (is_array($blocksData)) {
+                foreach ($blocksData as $item) {
+                    $block = $claimBlocks->where('id', $item)->first();
+                    if (!$block) continue;
+
+                    if ($block->block_type_id == 1) $countTurar++;
+                    elseif ($block->block_type_id == 25) $countYakka++;
+                    else $countNoturar++;
+
+                    $meta[] = [
+                        'type' => optional($block->type)->name,
+                        'count_apartments' => $block->count_apartments,
+                    ];
+                }
+            }
 
             $operator = base64_decode($claim->operator_answer);
-
-            $uncompressed = @gzuncompress($operator);
-            if ($uncompressed === false) {
-                $uncompressed = $operator;
-            }
-
-            $blocks = json_decode($claim->blocks, true);
-            if (is_array($blocks)) {
-                foreach ($blocks as $item) {
-                    $block = Block::query()->find($item);
-                    if ($block) {
-                        $meta[] = [
-                            'type' => optional($block->type)->name,
-                            'count_apartments' => $block->count_apartments,
-                        ];
-                    }
-                }
-            }
-
+            $uncompressed = @gzuncompress($operator) ?: $operator;
             $areas = json_decode($uncompressed, true);
 
-            if($areas == null)
-                continue;
+            if (!$areas) continue;
 
-            $areaSum = 0;
-            $total_area = 0;
-            $total_use_area = 0;
-            $living_area = 0;
+            $areaSum = $total_area = $total_use_area = $living_area = [
+                'total' => 0, 'turar' => 0, 'noturar' => 0, 'yakka' => 0
+            ];
 
-            if ($areas != null)
-                foreach ($areas as $area) {
-                    $areaSum += $area['area'];
-                    $total_area += $area['total_area'];
-                    $total_use_area += $area['total_use_area'];
-                    $living_area += $area['living_area'];
-                }
+            foreach ($areas as $area) {
+                $type = match ($area['type']) {
+                    1 => 'turar',
+                    0 => 'noturar',
+                    default => 'yakka',
+                };
 
-            $tmpArray = [];
-            foreach ($meta as $item) {
-                $tmpArray[] = [
-                    'ariza_raqami' => $claim->ariza_raqami,
-                    'type' => $item['type'],
-                    'count_apartments' => $item['count_apartments'],
-                    'region_name' => $claim->region_name,
-                    'district_name' => $claim->district_name,
-                    'yashash_maydon' => $living_area,
-                    'foydalanish_maydon' => $total_use_area,
-                    'umumiy_maydon' => $total_area,
-                    'qurilish_osti_maydoni' => $areaSum,
-                    //'json' => json_decode($uncompressed, true),
-                    'obyekt_raqami' => $claim->obyekt_raqami,
-                    'end_date' => $claim->end_date
-                ];
+                $areaSum[$type] += $area['area'];
+                $total_area[$type] += $area['total_area'];
+                $total_use_area[$type] += $area['total_use_area'];
+                $living_area[$type] += $area['living_area'];
+
+                $areaSum['total'] += $area['area'];
+                $total_area['total'] += $area['total_area'];
+                $total_use_area['total'] += $area['total_use_area'];
+                $living_area['total'] += $area['living_area'];
             }
 
+            $tmpArray = [
+                'tartib_raqami' => $count,
+                'ariza_raqami' => $claim->ariza_raqami,
+                'obyekt_nomi' => $claim->obyekt_nomi,
+                'obyekt_raqami' => $claim->obyekt_raqami,
+                'region_name' => $claim->region_name,
+                'district_name' => $claim->district_name,
+                'jami_honadon' => (string)$claimBlocks->sum('count_apartments'),
+                'jami_block' => (string)$claimBlocks->count(),
+                'noturar' => (string)$blockCounts['noturar'],
+                'turar' => (string)$blockCounts['turar'],
+                'yakka' => (string)$blockCounts['yakka'],
+                'count_apartments' => (string)array_sum(array_column($meta, 'count_apartments')),
+                'priyomka_jami_block' => (string)count($blocksData),
+                'priyomka_noturar' => (string)$countNoturar,
+                'priyomka_turar' => (string)$countTurar,
+                'priyomka_yakka' => (string)$countYakka,
+
+                'umumiy_maydon' => (string)$total_area['total'],
+                'umumiy_noturar' => (string)$total_area['noturar'],
+                'umumiy_turar' => (string)$total_area['turar'],
+                'umumiy_yakka' => (string)$total_area['yakka'],
+
+                'foydalanish_maydon' => (string)$total_use_area['total'],
+                'foydalanish_noturar' => (string)$total_use_area['noturar'],
+                'foydalanish_turar' => (string)$total_use_area['turar'],
+                'foydalanish_yakka' => (string)$total_use_area['yakka'],
+
+                'yashash_maydon' => (string)$living_area['total'],
+                'yashash_noturar' => (string)$living_area['noturar'],
+                'yashash_turar' => (string)$living_area['turar'],
+                'yashash_yakka' => (string)$living_area['yakka'],
+
+                'qurilish_osti_maydoni' => (string)$areaSum['total'],
+                'qurilish_osti_noturar' => (string)$areaSum['noturar'],
+                'qurilish_osti_turar' => (string)$areaSum['turar'],
+                'qurilish_osti_yakka' => (string)$areaSum['yakka'],
+            ];
+
             $array[] = $tmpArray;
+            $count++;
         }
 
         return Excel::download(
