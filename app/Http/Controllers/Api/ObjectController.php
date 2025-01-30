@@ -188,7 +188,8 @@ class ObjectController extends BaseController
     {
         try {
             $object = $this->service->getObjectById($this->user, $this->roleId, $id);
-            $this->service->setObjectUsers($this->user, $this->roleId, $id);
+
+            if ($object)  $this->service->setObjectUsers($this->user, $this->roleId, $id);
 
             return $this->sendSuccess(ArticleResource::make($object), 'Object retrieved successfully.');
         } catch (\Exception $exception) {
