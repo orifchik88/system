@@ -188,8 +188,6 @@ class StatisticsController extends BaseController
     }
 
 
-
-
     public function reports(Request $request): JsonResponse
     {
         try {
@@ -325,29 +323,28 @@ class StatisticsController extends BaseController
     {
         ini_set('max_execution_time', 300);
         $filters = request()->only(['region_id', 'start_date', 'end_date']);
+
         $claims = ClaimMonitoring::query()
             ->join('claims as c', 'c.id', '=', 'claim_monitoring.claim_id')
             ->join('articles as a', 'a.id', '=', 'c.object_id')
             ->join('regions as r', 'r.id', '=', 'a.region_id')
             ->join('districts as d', 'd.id', '=', 'a.district_id')
-            ->when(isset($filters['region_id']), function ($q) use ($filters) {
-                $q->where('r.id', $filters['region_id']);
-            })
+            ->when(isset($filters['region_id']), fn($q) => $q->where('r.id', $filters['region_id']))
             ->when(isset($filters['start_date']) || isset($filters['end_date']), function ($query) use ($filters) {
-                $startDate = (isset($filters['start_date'])) ? $filters['start_date'] . ' 00:00:00' : null;
-                $endDate = (isset($filters['end_date'])) ? $filters['end_date'] . ' 23:59:59' : null;
+                $startDate = $filters['start_date'] ? $filters['start_date'] . ' 00:00:00' : null;
+                $endDate = $filters['end_date'] ? $filters['end_date'] . ' 23:59:59' : null;
 
                 if ($startDate && $endDate) {
-                    $query->whereBetween('claims.created_at', [$startDate, $endDate]);
-                } elseif (isset($filters['start_date'])) {
+                    $query->whereBetween('c.created_at', [$startDate, $endDate]);
+                } elseif ($startDate) {
                     $query->where('c.created_at', '>=', $startDate);
-                } elseif (isset($filters['end_date'])) {
+                } elseif ($endDate) {
                     $query->where('c.created_at', '<=', $endDate);
                 }
             })
             ->where('c.status', ClaimStatuses::TASK_STATUS_CONFIRMED)
             ->whereNotNull('c.object_id')
-            ->select(
+            ->select([
                 'claim_monitoring.*',
                 'c.guid as ariza_raqami',
                 'a.task_id as obyekt_raqami',
@@ -355,102 +352,77 @@ class StatisticsController extends BaseController
                 'a.name as obyekt_nomi',
                 'r.name_uz as region_name',
                 'd.name_uz as district_name',
-                'c.end_date as end_date'
-            )
+                'c.end_date as end_date',
+            ])
             ->get();
+
+        $articleIds = $claims->pluck('article_id')->unique();
+        $blocks = Block::query()
+            ->whereIn('article_id', $articleIds)
+            ->get()
+            ->groupBy('article_id');
 
         $array = [];
         $count = 1;
+
         foreach ($claims as $claim) {
-            $blockModel = Block::query()->where('article_id', $claim->article_id);
+            $claimBlocks = $blocks[$claim->article_id] ?? collect();
+
+            $blockCounts = [
+                'noturar' => $claimBlocks->where('block_type_id', 1)->count(),
+                'turar' => $claimBlocks->whereNotIn('block_type_id', [1, 25])->count(),
+                'yakka' => $claimBlocks->where('block_type_id', 25)->count(),
+            ];
 
             $meta = [];
-
-            $operator = base64_decode($claim->operator_answer);
-
-            $uncompressed = @gzuncompress($operator);
-            if ($uncompressed === false) {
-                $uncompressed = $operator;
-            }
-
             $countTurar = 0;
             $countNoturar = 0;
             $countYakka = 0;
-            $blocks = json_decode($claim->blocks, true);
-            if (is_array($blocks)) {
-                foreach ($blocks as $item) {
-                    $block = Block::query()->find($item);
-                    if ($block->block_type_id == 1)
-                        $countTurar++;
-                    elseif ($block->block_type_id == 25)
-                        $countYakka++;
-                    else
-                        $countNoturar++;
 
-                    if ($block) {
-                        $meta[] = [
-                            'type' => optional($block->type)->name,
-                            'count_apartments' => $block->count_apartments,
-                        ];
-                    }
+            $blocksData = json_decode($claim->blocks, true);
+            if (is_array($blocksData)) {
+                foreach ($blocksData as $item) {
+                    $block = $claimBlocks->where('id', $item)->first();
+                    if (!$block) continue;
+
+                    if ($block->block_type_id == 1) $countTurar++;
+                    elseif ($block->block_type_id == 25) $countYakka++;
+                    else $countNoturar++;
+
+                    $meta[] = [
+                        'type' => optional($block->type)->name,
+                        'count_apartments' => $block->count_apartments,
+                    ];
                 }
             }
-
+            
+            $operator = base64_decode($claim->operator_answer);
+            $uncompressed = @gzuncompress($operator) ?: $operator;
             $areas = json_decode($uncompressed, true);
 
-            if ($areas == null)
-                continue;
+            if (!$areas) continue;
 
-            $areaSum = [
-                'total' => 0,
-                'turar' => 0,
-                'noturar' => 0,
-                'yakka' => 0
+            $areaSum = $total_area = $total_use_area = $living_area = [
+                'total' => 0, 'turar' => 0, 'noturar' => 0, 'yakka' => 0
             ];
-            $total_area = [
-                'total' => 0,
-                'turar' => 0,
-                'noturar' => 0,
-                'yakka' => 0
-            ];;
-            $total_use_area = [
-                'total' => 0,
-                'turar' => 0,
-                'noturar' => 0,
-                'yakka' => 0
-            ];;
-            $living_area = [
-                'total' => 0,
-                'turar' => 0,
-                'noturar' => 0,
-                'yakka' => 0
-            ];;
 
-            if ($areas != null)
-                foreach ($areas as $area) {
-                    if ($area['type'] == 1) {
-                        $areaSum['turar'] += $area['area'];
-                        $total_area['turar'] += $area['total_area'];
-                        $total_use_area['turar'] += $area['total_use_area'];
-                        $living_area['turar'] += $area['living_area'];
-                    } elseif ($area['type'] == 0) {
-                        $areaSum['noturar'] += $area['area'];
-                        $total_area['noturar'] += $area['total_area'];
-                        $total_use_area['noturar'] += $area['total_use_area'];
-                        $living_area['noturar'] += $area['living_area'];
-                    } else {
-                        $areaSum['yakka'] += $area['area'];
-                        $total_area['yakka'] += $area['total_area'];
-                        $total_use_area['yakka'] += $area['total_use_area'];
-                        $living_area['yakka'] += $area['living_area'];
-                    }
+            foreach ($areas as $area) {
+                $type = match ($area['type']) {
+                    1 => 'turar',
+                    0 => 'noturar',
+                    default => 'yakka',
+                };
 
-                    $areaSum['total'] += $area['area'];
-                    $total_area['total'] += $area['total_area'];
-                    $total_use_area['total'] += $area['total_use_area'];
-                    $living_area['total'] += $area['living_area'];
-                }
+                $areaSum[$type] += $area['area'];
+                $total_area[$type] += $area['total_area'];
+                $total_use_area[$type] += $area['total_use_area'];
+                $living_area[$type] += $area['living_area'];
 
+                $areaSum['total'] += $area['area'];
+                $total_area['total'] += $area['total_area'];
+                $total_use_area['total'] += $area['total_use_area'];
+                $living_area['total'] += $area['living_area'];
+            }
 
             $tmpArray = [
                 'tartib_raqami' => $count,
@@ -459,11 +431,11 @@ class StatisticsController extends BaseController
                 'obyekt_raqami' => $claim->obyekt_raqami,
                 'region_name' => $claim->region_name,
                 'district_name' => $claim->district_name,
-                'jami_honadon' => $blockModel->sum(DB::raw('count_apartments::int')),
-                'jami_block' => $blockModel->count(),
-                'noturar' => $blockModel->where('block_type_id', 1)->count(),
-                'turar' => $blockModel->whereNotIn('block_type_id', [1, 25])->count(),
-                'yakka' => $blockModel->where('block_type_id', 25)->count(),
+                'jami_honadon' => $claimBlocks->sum('count_apartments'),
+                'jami_block' => $claimBlocks->count(),
+                'noturar' => $blockCounts['noturar'],
+                'turar' => $blockCounts['turar'],
+                'yakka' => $blockCounts['yakka'],
                 'count_apartments' => array_sum(array_column($meta, 'count_apartments')),
                 'priyomka_jami_block' => count($blocks),
                 'priyomka_noturar' => $countNoturar,
