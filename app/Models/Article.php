@@ -25,7 +25,7 @@ class Article extends Model
     use HasFactory, SoftDeletes;
 
     protected $guarded = [];
-    protected $appends = ['cost', 'closed_type', 'closed_file'];
+    protected $appends = ['cost', 'closed_type', 'closed_file', 'internal_control'];
 
     public function documents(): MorphMany
     {
