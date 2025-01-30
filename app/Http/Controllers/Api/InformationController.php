@@ -67,10 +67,9 @@ class InformationController extends BaseController
                     'sphere' => SphereResource::make($sphere),
                 ];
             }else{
-                $meta[] = $informationService->customer($customerInn, $pudratInn);
+                $meta = $informationService->customer($customerInn, $pudratInn);
             }
-
-
+            
             return $this->sendSuccess($meta, 'Monitoring objects successfully.');
         } catch (\Exception $exception){
             return $this->sendError($exception->getMessage(), $exception->getCode());
