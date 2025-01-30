@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ObjectStatusEnum;
+use App\Enums\UserRoleEnum;
 use App\Helpers\ClaimStatuses;
 use App\Repositories\ArticleRepository;
 use App\Repositories\ClaimRepository;
@@ -83,6 +84,16 @@ class Article extends Model
             $file = "https://api-nazorat.mc.uz/api/pdf-claim/" . $this->id;;
 
         return $file;
+    }
+
+    public function getInternalControleAttribute()
+    {
+        return $this->userHistories()->where('role_id', UserRoleEnum::ICHKI->value)->pluck('check_at');
+    }
+
+    public function userHistories(): HasMany
+    {
+        return $this->hasMany(ObjectUserHistory::class, 'object_id');
     }
 
     public function inspector(): BelongsToMany
