@@ -604,7 +604,11 @@ class ArticleService
             if (!$response)  throw new NotFoundException('Ariza topilmadi');
             $article = $this->saveResponse($response);
             $this->saveResponseUser($response, $article);
-            $this->saveEmployee($article);
+            $this->saveEmployee($article, false);
+            $article->update([
+                'created_at' => $response->created_at,
+                'deadline' => Carbon::parse($response->created_at)->addYears(2)
+            ]);
                 DB::commit();
         }catch (\Exception $exception){
             DB::rollBack();
