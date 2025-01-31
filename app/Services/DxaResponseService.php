@@ -317,13 +317,17 @@ class DxaResponseService
 
         if ($model->notification_type == 2) {
             $response = DxaResponse::getResponse($model->old_task_id);
-            $images = $response->images;
-            foreach ($images as $image) {
-                $newImage = $image->replicate();
-                $newImage->imageable_id = $model->id;
-                $newImage->imageable_type = get_class($model);
-                $newImage->save();
+            if ($response)
+            {
+                $images = $response->images;
+                foreach ($images as $image) {
+                    $newImage = $image->replicate();
+                    $newImage->imageable_id = $model->id;
+                    $newImage->imageable_type = get_class($model);
+                    $newImage->save();
+                }
             }
+
         }
         if (isset($this->data['images'])) {
             foreach ($this->data['images'] as $image) {
