@@ -257,6 +257,7 @@ class StatisticsController extends BaseController
                 ->when(in_array('regulations', $columns), function ($q) use ($filters) {
                     $q->with(['regulations' => function ($query) use ($filters) {
                         $query->selectRaw('object_id, COUNT(id) as all_count,
+                            SUM(CASE WHEN created_by_role_id = 3 THEN 1 ELSE 0 END) as inspector_count,
 							SUM(CASE WHEN regulation_status_id IN (6, 8) AND created_by_role_id = 3 THEN 1 ELSE 0 END) as eliminated_count,
 							SUM(CASE WHEN regulation_status_id IN (1, 2, 3, 4, 5)  AND created_by_role_id = 3 THEN 1 ELSE 0 END) as progress_count,
 							SUM(CASE WHEN regulation_status_id = 7 AND created_by_role_id = 3 THEN 1 ELSE 0 END) as not_execution_count,
