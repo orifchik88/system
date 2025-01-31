@@ -652,35 +652,86 @@ class ArticleService
 
     private function updateRating($article, $response)
     {
+        $ratingConfig = config('app.gasn.rating');
+        if (!$ratingConfig) {
+            throw new \Exception("Rating config not found.");
+        }
 
         $loyiha = $article->users()->where('role_id', UserRoleEnum::LOYIHA->value)->first();
         $qurilish = $article->users()->where('role_id', UserRoleEnum::QURILISH->value)->first();
-        if($loyiha->identification_number && $qurilish->identification_number){
-            $loyihaRating = getData(config('app.gasn.rating'), (int)$loyiha->identification_number);
-            $qurilishRating = getData(config('app.gasn.rating'), (int)$qurilish->identification_number);
 
-            $responseLoyiha = $response->supervisors()->where('role_id', UserRoleEnum::LOYIHA->value)->first();
-            $responseQurilish = $response->supervisors()->where('role_id', UserRoleEnum::QURILISH->value)->first();
+        $responseLoyiha = $response->supervisors()->where('role_id', UserRoleEnum::LOYIHA->value)->first();
+        $responseQurilish = $response->supervisors()->where('role_id', UserRoleEnum::QURILISH->value)->first();
 
-            $data = json_decode($article->rating);
+        $loyihaRating = getData($ratingConfig, (int)($responseLoyiha->stir_or_pinfl ?? 0));
+        $qurilishRating = getData($ratingConfig, (int)($responseQurilish->stir_or_pinfl ?? 0));
 
-            if ($responseLoyiha && $responseLoyiha->stir_or_pinfl != $loyiha->pinfl){
-                $rating[0]['loyiha'] = $loyihaRating['data']['data'] ?? null;
-            }else{
-                $rating[0]['loyiha'] = $data[0]->loyiha ?? null;
-            }
+        $data = json_decode($article->rating, true) ?? [];
 
-            if ($responseQurilish && $responseQurilish->stir_or_pinfl != $qurilish->pinfl){
-                $rating[0]['qurilish'] = $qurilishRating['data']['data'] ?? null;
-            }else{
-                $rating[0]['qurilish'] = $data[0]->qurilish ?? null;
-            }
+        $oldLoyihaRating = $data[0]['loyiha'] ?? null;
+        $oldQurilishRating = $data[0]['qurilish'] ?? null;
 
-            $article->update([
-                'rating' => json_encode($rating)
-            ]);
-        }
+        $rating[0]['loyiha'] =  $loyiha
+        ? ($responseLoyiha && $responseLoyiha->stir_or_pinfl != $loyiha->pinfl ? $loyihaRating['data']['data'] ?? null : $oldLoyihaRating)
+        : ($responseLoyiha ? $loyihaRating['data']['data'] ?? null : null);
+
+        $rating[0]['qurilish'] = $qurilish
+                ? ($responseQurilish && $responseQurilish->stir_or_pinfl != $qurilish->pinfl ? $qurilishRating['data']['data'] ?? null : $oldQurilishRating)
+                : ($responseQurilish ? $qurilishRating['data']['data'] ?? null : null);
+
+        $article->update([
+            'rating' => json_encode($rating)
+        ]);
     }
+
+
+//    private function updateRating($article, $response)
+//    {
+//        $rating = [];
+//        $loyiha = $article->users()->where('role_id', UserRoleEnum::LOYIHA->value)->first();
+//        $qurilish = $article->users()->where('role_id', UserRoleEnum::QURILISH->value)->first();
+//
+//        $responseLoyiha = $response->supervisors()->where('role_id', UserRoleEnum::LOYIHA->value)->first();
+//        $responseQurilish = $response->supervisors()->where('role_id', UserRoleEnum::QURILISH->value)->first();
+//
+//        $loyihaRating = getData(config('app.gasn.rating'), (int)$responseLoyiha->stir_or_pinfl);
+//        $qurilishRating = getData(config('app.gasn.rating'), (int)$responseQurilish->stir_or_pinfl);
+//
+//        $data = json_decode($article->rating, true);
+//
+//
+//        if($loyiha){
+//           if ($responseLoyiha && $responseLoyiha->stir_or_pinfl != $loyiha->pinfl){
+//               $rating[0]['loyiha'] = $loyihaRating['data']['data'] ?? null;
+//           }else{
+//               $rating[0]['loyiha'] = $data[0]->loyiha ?? null;
+//           }
+//        }else{
+//            if ($responseLoyiha){
+//                $rating[0]['loyiha'] = $loyihaRating['data']['data'] ?? null;
+//            }else{
+//                $rating[0]['loyiha'] = null;
+//            }
+//        }
+//
+//        if($qurilish){
+//            if ($responseQurilish && $responseQurilish->stir_or_pinfl != $qurilish->pinfl){
+//                $rating[0]['qurilish'] = $qurilishRating['data']['data'] ?? null;
+//            }else{
+//                $rating[0]['qurilish'] = $data[0]->qurilish ?? null;
+//            }
+//        }else{
+//            if ($responseQurilish){
+//                $rating[0]['qurilish'] = $qurilishRating['data']['data'] ?? null;
+//            }else{
+//                $rating[0]['qurilish'] = null;
+//            }
+//        }
+//
+//        $article->update([
+//            'rating' => json_encode($rating)
+//        ]);
+//    }
 
     private function saveEmployee($article, $create = true): void
     {
