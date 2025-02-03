@@ -380,49 +380,53 @@ class ArticleService
 
     private function saveResponse($response)
     {
-        $article = new Article();
-        $article->name = $response->object_name;
-        $article->region_id = $response->region_id;
-        $article->district_id = $response->district_id;
-        $article->object_status_id = ObjectStatusEnum::PROGRESS;
-        $article->object_type_id = $response->object_type_id;
-        $article->organization_name = $response->organization_name;
-        $article->location_building = $response->location_building;
-        $article->address = $response->address;
-        $article->cadastral_number = $response->cadastral_number;
-        $article->name_expertise = $response->name_expertise;
-        $article->difficulty_category_id = DifficultyCategoryEnum::fromString($response->category_object_dictionary);
-        $article->construction_cost = $response->cost;
-        $article->sphere_id  = $response->sphere_id;
-        $article->program_id  = $response->program_id;
-        $article->construction_works  = $response->construction_works;
-        $article->linear_type  = $response->linear_type;
-        $article->appearance_type_id = 1;
-        $article->is_accepted = true;
-        $article->organization_projects = $response->organization_projects;
-        $article->specialists_certificates = $response->specialists_certificates;
-        $article->contract_file = $response->contract_file;
-        $article->confirming_laboratory = $response->confirming_laboratory;
-        $article->file_energy_efficiency = $response->file_energy_efficiency;
-        $article->legal_opf = $response->legal_opf;
-        $article->lat = $response->lat;
-        $article->long = $response->long;
-        $article->dxa_response_id = $response->id;
-        $article->price_supervision_service = price_supervision($response->cost);
-        $article->task_id = $response->task_id;
-        $article->number_protocol = $response->number_protocol;
-        $article->positive_opinion_number = $response->positive_opinion_number;
-        $article->date_protocol = $response->date_protocol;
-        $article->funding_source_id = $response->funding_source_id;
-        $article->paid = 0;
-        $article->payment_deadline = Carbon::now();
-        $article->deadline = $response->end_term_work;
-        $article->gnk_id = $response->gnk_id;
-        $article->reestr_number = (int)$response->reestr_number;
+        try {
+            $article = new Article();
+            $article->name = $response->object_name;
+            $article->region_id = $response->region_id;
+            $article->district_id = $response->district_id;
+            $article->object_status_id = ObjectStatusEnum::PROGRESS;
+            $article->object_type_id = $response->object_type_id;
+            $article->organization_name = $response->organization_name;
+            $article->location_building = $response->location_building;
+            $article->address = $response->address;
+            $article->cadastral_number = $response->cadastral_number;
+            $article->name_expertise = $response->name_expertise;
+            $article->difficulty_category_id = DifficultyCategoryEnum::fromString($response->category_object_dictionary);
+            $article->construction_cost = $response->cost;
+            $article->sphere_id  = $response->sphere_id;
+            $article->program_id  = $response->program_id;
+            $article->construction_works  = $response->construction_works;
+            $article->linear_type  = $response->linear_type;
+            $article->appearance_type_id = 1;
+            $article->is_accepted = true;
+            $article->organization_projects = $response->organization_projects;
+            $article->specialists_certificates = $response->specialists_certificates;
+            $article->contract_file = $response->contract_file;
+            $article->confirming_laboratory = $response->confirming_laboratory;
+            $article->file_energy_efficiency = $response->file_energy_efficiency;
+            $article->legal_opf = $response->legal_opf;
+            $article->lat = $response->lat;
+            $article->long = $response->long;
+            $article->dxa_response_id = $response->id;
+            $article->price_supervision_service = price_supervision($response->cost);
+            $article->task_id = $response->task_id;
+            $article->number_protocol = $response->number_protocol;
+            $article->positive_opinion_number = $response->positive_opinion_number;
+            $article->date_protocol = $response->date_protocol;
+            $article->funding_source_id = $response->funding_source_id;
+            $article->paid = 0;
+            $article->payment_deadline = Carbon::now();
+            $article->deadline = $response->end_term_work;
+            $article->gnk_id = $response->gnk_id;
+            $article->reestr_number = (int)$response->reestr_number;
 
-        $article->save();
+            $article->save();
 
-        return $article;
+            return $article;
+        }catch (\Exception $exception) {
+          throw new $exception;
+        }
     }
 
     private function saveRepeatUser($response, $article)
@@ -612,7 +616,7 @@ class ArticleService
                 DB::commit();
         }catch (\Exception $exception){
             DB::rollBack();
-            throw new $exception;
+            throw new  \Exception($exception->getMessage());
         }
     }
 

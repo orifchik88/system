@@ -332,9 +332,20 @@ class ObjectController extends BaseController
         DB::beginTransaction();
         try {
             $service = new HistoryService('article_histories');
-            $this->service->getObjectById($this->user, $this->roleId, $request->object_id)
-                ->update(['object_status_id' => $request->status]);
+            $object = $this->service->getObjectById($this->user, $this->roleId, $request->object_id);
 
+            $previousStatus = $object->object_status_id;
+
+
+            $object->update([
+                'object_status_id' => $request->status
+            ]);
+
+            if (request('deadline')) {
+                $object->update([
+                    'deadline' => isset($object->deadline) ? $object->deadline : request('deadline')
+                ]);
+            }
 
             $tableId = $service->createHistory(
                 guId: $request->object_id,
@@ -345,6 +356,8 @@ class ObjectController extends BaseController
                 additionalInfo: [
                     'user_id' => $this->user->id,
                     'role_id' => $this->roleId,
+                    'previous_status' => $previousStatus,
+                    'new_status' => $request->status,
                 ]
             );
 
