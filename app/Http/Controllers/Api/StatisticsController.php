@@ -332,8 +332,8 @@ class StatisticsController extends BaseController
             ->join('districts as d', 'd.id', '=', 'a.district_id')
             ->when(isset($filters['region_id']), fn($q) => $q->where('r.id', $filters['region_id']))
             ->when(isset($filters['start_date']) || isset($filters['end_date']), function ($query) use ($filters) {
-                $startDate = $filters['start_date'] ? $filters['start_date'] . ' 00:00:00' : null;
-                $endDate = $filters['end_date'] ? $filters['end_date'] . ' 23:59:59' : null;
+                $startDate = isset($filters['start_date']) ? $filters['start_date'] . ' 00:00:00' : null;
+                $endDate = isset($filters['end_date']) ? $filters['end_date'] . ' 23:59:59' : null;
 
                 if ($startDate && $endDate) {
                     $query->whereBetween('c.created_at', [$startDate, $endDate]);
