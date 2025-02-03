@@ -18,6 +18,7 @@ use App\Models\Monitoring;
 use App\Models\Region;
 use App\Models\Regulation;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -332,8 +333,11 @@ class StatisticsController extends BaseController
             ->join('districts as d', 'd.id', '=', 'a.district_id')
             ->when(isset($filters['region_id']), fn($q) => $q->where('r.id', $filters['region_id']))
             ->when(isset($filters['start_date']) || isset($filters['end_date']), function ($query) use ($filters) {
-                $startDate = $filters['start_date'] ? $filters['start_date'] . ' 00:00:00' : null;
-                $endDate = $filters['end_date'] ? $filters['end_date'] . ' 23:59:59' : null;
+                $startDate = isset($filters['start_date']) ? $filters['start_date'] . ' 00:00:00' : null;
+                $endDate = isset($filters['end_date']) ? $filters['end_date'] . ' 23:59:59' : null;
+
+                $startDate = $startDate ? Carbon::parse($startDate)->format('Y-m-d') : null;
+                $endDate = $endDate ? Carbon::parse($endDate)->format('Y-m-d') : null;
 
                 if ($startDate && $endDate) {
                     $query->whereBetween('c.created_at', [$startDate, $endDate]);
