@@ -31,6 +31,9 @@ class ClaimExcel implements FromCollection, WithColumnFormatting, WithHeadings, 
             "Obyekt ariza raqami",
             "Viloyat",
             "Tuman",
+            "Kadastr raqami",
+            "Buyurtmachi",
+            "Buyurtmachi INN",
             "Jami xonadon soni",
             "Bloklar soni",
             "Noturar",
@@ -105,12 +108,12 @@ class ClaimExcel implements FromCollection, WithColumnFormatting, WithHeadings, 
                     Alignment::HORIZONTAL_CENTER
                 );
 
-                $event->sheet->getStyle('H1:K1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => '66B2FF']]);
-                $event->sheet->getStyle('M1:P1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'FFFF66']]);
-                $event->sheet->getStyle('Q1:T1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'E0E0E0']]);
-                $event->sheet->getStyle('U1:X1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'FFB266']]);
-                $event->sheet->getStyle('Y1:AB1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'FF8000']]);
-                $event->sheet->getStyle('AC1:AF1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'CCFFCC']]);
+                $event->sheet->getStyle('K1:N1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => '66B2FF']]);
+                $event->sheet->getStyle('P1:S1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'FFFF66']]);
+                $event->sheet->getStyle('T1:W1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'E0E0E0']]);
+                $event->sheet->getStyle('X1:AA1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'FFB266']]);
+                $event->sheet->getStyle('AB1:AE1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'FF8000']]);
+                $event->sheet->getStyle('AF1:AI1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'CCFFCC']]);
 
 
                 $event->sheet->getDelegate()->getStyle('A1:AX1')->getAlignment()->setVertical(
