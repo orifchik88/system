@@ -38,16 +38,18 @@ class RegulationService
             case UserRoleEnum::TEXNIK->value:
                 return Regulation::query()
                     ->where(function ($q) use ($user, $roleId) {
-                        $q->where('user_id', $user->id)
-//                            ->where('role_id', $roleId)
+                        $q->where('role_id', $roleId)
+//                        ->where('user_id', $user->id)
                             ->orWhere(function ($query) use ($user, $roleId) {
-                                $query->where('created_by_user_id', $user->id);
-//                                    ->where('created_by_role_id', $roleId);
+                                $query->where('created_by_role_id', $roleId);
+//                                    ->where('created_by_user_id', $user->id);
                             });
                     });
             case UserRoleEnum::MUALLIF->value:
             case UserRoleEnum::ICHKI->value:
-                return Regulation::query()->where('user_id', $user->id)->where('role_id', $roleId);
+                return Regulation::query()
+//                    ->where('user_id', $user->id)
+                    ->where('role_id', $roleId);
 
             case UserRoleEnum::BUYURTMACHI->value:
                 $objectIds = $user->objects()->where('role_id', UserRoleEnum::BUYURTMACHI->value)->pluck('article_id')->toArray();
