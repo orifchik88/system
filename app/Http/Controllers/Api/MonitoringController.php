@@ -147,7 +147,11 @@ class MonitoringController extends BaseController
             $inspectorAnswered = null;
             $technicAnswered = null;
 
+            $block = Block::query()->findOrFail($data['block_id']);
+            if(!$block->selected_work_type) throw new \Exception('Blok inspektor tomonidan bir martalik checklist tasdiqlanmagan');
+
             $object = Article::query()->findOrFail($data['object_id']);
+
             foreach ($data['regular_checklist'] as $item) {
                 if (isset($item['status'])) {
                     $status = CheckListStatusEnum::SECOND;
