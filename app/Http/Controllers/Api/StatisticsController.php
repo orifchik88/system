@@ -470,7 +470,7 @@ class StatisticsController extends BaseController
 
         return Excel::download(
             new ClaimExcel($array),
-            'statistic.xls'
+            'statistic.xlsx'
         );
     }
 
