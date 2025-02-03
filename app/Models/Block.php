@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\BlockModeEnum;
+use App\Helpers\ClaimStatuses;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -20,7 +21,7 @@ class Block extends Model
         'block_mode_id' => BlockModeEnum::class
     ];
 
-    protected $appends = ['end_date'];
+    protected $appends = ['end_date', 'task_id'];
 
     public function getEndDateAttribute()
     {
@@ -30,12 +31,30 @@ class Block extends Model
             ->orderBy('id', 'desc')
             ->first();
 
-        if(!$monitoring)
+        if (!$monitoring)
             return "-";
 
         $object = Claim::query()->where('id', $monitoring->claim_id)->first();
 
         return $object->end_date;
+    }
+
+    public function getTaskIdAttribute()
+    {
+        if (ManualConfirmedClaim::query()->where('object_id', $this->article_id)->first())
+            return "Inspeksiya boshlig'i";
+
+        $monitoring = ClaimMonitoring::query()
+            ->with('claim')
+            ->where('object_id', $this->article_id)
+            ->whereJsonContains('blocks', $this->id)
+            ->orderBy('id', 'desc')
+            ->first();
+
+        if ($monitoring)
+            return $monitoring->claim->guid;
+
+        return "-";
     }
 
     public function object(): BelongsTo
@@ -45,7 +64,7 @@ class Block extends Model
 
     public function responses(): BelongsTo
     {
-        return $this->belongsTo(DxaResponse::class,  'dxa_response_id');
+        return $this->belongsTo(DxaResponse::class, 'dxa_response_id');
     }
 
     public function mode(): BelongsTo
