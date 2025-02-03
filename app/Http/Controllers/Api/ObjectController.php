@@ -335,6 +335,7 @@ class ObjectController extends BaseController
             $object = $this->service->getObjectById($this->user, $this->roleId, $request->object_id);
 
             $previousStatus = $object->object_status_id;
+            $previousDeadline = $object->deadline;
 
 
             $object->update([
@@ -343,7 +344,7 @@ class ObjectController extends BaseController
 
             if ($request->deadline) {
                 $object->update([
-                    'deadline' => isset($object->deadline) ? $object->deadline : $request->deadline
+                    'deadline' => !empty($object->deadline) ? $object->deadline : $request->deadline
                 ]);
             }
 
@@ -358,6 +359,8 @@ class ObjectController extends BaseController
                     'role_id' => $this->roleId,
                     'previous_status' => $previousStatus,
                     'new_status' => $request->status,
+                    'previous_deadline' => $previousDeadline,
+                    'new_deadline' => $request->deadline,
                 ]
             );
 
