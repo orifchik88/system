@@ -25,6 +25,7 @@ class ArticleChangeStatusRequest extends FormRequest
             'object_id' => 'required|exists:articles,id',
             'status' => 'required|integer',
             'comment' => 'sometimes|string',
+            'deadline' => 'sometimes|string',
             'file' => 'sometimes',
         ];
     }
