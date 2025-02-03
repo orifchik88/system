@@ -341,7 +341,7 @@ class ObjectController extends BaseController
                 'object_status_id' => $request->status
             ]);
 
-            if (request('deadline')) {
+            if ($request->deadline) {
                 $object->update([
                     'deadline' => isset($object->deadline) ? $object->deadline : $request->deadline
                 ]);
