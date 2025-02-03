@@ -336,9 +336,9 @@ class StatisticsController extends BaseController
                 $startDate = isset($filters['start_date']) ? $filters['start_date'] . ' 00:00:00' : null;
                 $endDate = isset($filters['end_date']) ? $filters['end_date'] . ' 23:59:59' : null;
 
-                $startDate = $startDate ? Carbon::parse($startDate)->format('YYYY-mm-dd') : null;
-                $endDate = $endDate ? Carbon::parse($endDate)->format('YYYY-mm-dd') : null;
-                
+                $startDate = $startDate ? Carbon::parse($startDate)->format('Y-m-d') : null;
+                $endDate = $endDate ? Carbon::parse($endDate)->format('Y-m-d') : null;
+
                 if ($startDate && $endDate) {
                     $query->whereBetween('c.created_at', [$startDate, $endDate]);
                 } elseif ($startDate) {
