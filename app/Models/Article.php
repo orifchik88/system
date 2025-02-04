@@ -178,6 +178,21 @@ class Article extends Model
 
     }
 
+    public function scopeSearchByInn($query, $searchTerm)
+    {
+        $searchTerm = strtolower($searchTerm);
+
+        return $query->whereHas('users', function ($query) use ($searchTerm) {
+            $query->whereIn('role_id', [
+                UserRoleEnum::BUYURTMACHI->value,
+                UserRoleEnum::QURILISH->value,
+                UserRoleEnum::LOYIHA->value
+            ])
+                ->whereRaw('LOWER(pinfl) LIKE ?', ['%' . $searchTerm . '%']);
+        });
+
+    }
+
     public function scopeSearchByCustomerName($query, $searchTerm)
     {
         $searchTerm = strtolower($searchTerm);

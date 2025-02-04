@@ -148,6 +148,10 @@ class ArticleRepository implements ArticleRepositoryInterface
             ->when(isset($filters['region_id']), function ($query) use ($filters) {
                 $query->where('articles.region_id', $filters['region_id']);
             })
+            ->when(isset($filters['inn']), function ($query) use ($filters) {
+                $query->searchByInn($filters['inn']);
+            })
+
             ->when(isset($filters['start_date']) || isset($filters['end_date']), function ($query) use ($filters) {
                 $startDate = isset($filters['start_date']) ? $filters['start_date'] . ' 00:00:00' : null;
                 $endDate = isset($filters['end_date']) ? $filters['end_date'] . ' 23:59:59' : null;
