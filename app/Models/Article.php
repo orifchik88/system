@@ -93,6 +93,20 @@ class Article extends Model
             ->pluck('check_at');
     }
 
+    public function getAuthorControlAttribute()
+    {
+        return $this->userHistories()
+            ->where('role_id', UserRoleEnum::MUALLIF->value)
+            ->pluck('check_at');
+    }
+
+    public function getTechnicControlAttribute()
+    {
+        return $this->userHistories()
+            ->where('role_id', UserRoleEnum::TEXNIK->value)
+            ->pluck('check_at');
+    }
+
     public function userHistories(): HasMany
     {
         return $this->hasMany(ObjectUserHistory::class, 'object_id');
