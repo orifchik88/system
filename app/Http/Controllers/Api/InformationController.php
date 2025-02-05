@@ -172,7 +172,7 @@ class InformationController extends BaseController
     {
         try {
             $data = Http::withBasicAuth('dev@gasn', 'EkN`9?@{3v0j')
-                ->post('https://api.shaffofqurilish.uz/api/v1/request/get-cad-info', [
+                ->post('https://api.shaffofqurilish.uz/api/v1/get-cad-info', [
                'cad_num' => "10:08:40:02:01:0043",
                'purpose' =>  "Davlat Xizmatlari uchun",
                 "id" => 12

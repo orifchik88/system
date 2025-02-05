@@ -76,7 +76,7 @@ return [
         'expertise' => 'https://api.shaffofqurilish.uz/api/v1/request/opendata-ekspertiza?reestr_number',
         'tender' => 'https://api.shaffofqurilish.uz/api/v1/request/ekspertiza-appeal-tender?conc',
         'bayonnoma' => 'https://api.shaffofqurilish.uz/api/v1/request/ccnis-dxa-watcher-type?conclusion',
-        'cadastr' => 'https://api.shaffofqurilish.uz/api/v1/request/get-cad-info'
+        'cadastr' => 'https://api.shaffofqurilish.uz/api/v1/get-cad-info'
     ],
 
     'rate_supervision' => 0.2,
