@@ -58,6 +58,7 @@ class ObjectCreateRequest extends FormRequest
         $this->merge([
             'price_supervision_service' => price_supervision($this->construction_cost),
             'object_status_id' => ObjectStatusEnum::PROGRESS->value,
+            'appearance_type_id' => 1,
         ]);
     }
 }

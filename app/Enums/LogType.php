@@ -9,4 +9,5 @@ class LogType
     const CLAIM_HISTORY = 2;
 
     const ARTICLE_HISTORY = 3;
+    const ARTICLE_CREATE_HISTORY = 4;
 }

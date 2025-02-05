@@ -303,7 +303,6 @@ class ObjectController extends BaseController
 
     public function objectCreate(ObjectCreateRequest $request): JsonResponse
     {
-        dd($request->except('users', 'inspector_id', 'files', 'expertise_files'));
         try {
             $this->service->createObjectRegister($request);
 

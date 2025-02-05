@@ -31,6 +31,7 @@ class MonitoringResource extends JsonResource
             'regulation_count' => $this->regulations()->count(),
             'active_regulation_count' => $this->regulations()->where('regulation_status_id', '!=', 6)->count(),
             'violation_count' =>  $violationCount ?? 0,
+            'work_in_progress' => $this->work_in_progress,
             'checklists' => $this->checklists->map(function ($checklist) {
                 return [
                     'status' => $checklist->status,

@@ -597,7 +597,7 @@ class ArticleService
             }
         }
 
-        $article->users()->attach($response->inspector_id, ['role_id' => 3]);
+       $this->attachInspector($article,  $response->inspector_id);
     }
 
     public function createObjectManual($taskId)
@@ -624,11 +624,75 @@ class ArticleService
     {
         DB::beginTransaction();
         try {
+            $article = Article::query()->create($request->except('users', 'inspector_id', 'files', 'expertise_files'));
+            $this->attachInspector($article, $request['inspector_id']);
+            $this->saveArticleUsers($request['users'], $article);
+            $this->saveFiles($request['files'], $request['expertise_files'], $article);
 
             DB::commit();
         }catch (\Exception $exception){
             DB::rollBack();
             throw new  \Exception($exception->getMessage());
+        }
+    }
+
+    private function attachInspector($article, $inspectorId)
+    {
+        $article->users()->attach($inspectorId, ['role_id' => UserRoleEnum::INSPECTOR->value]);
+    }
+
+    private function saveFiles($files, $expertises, $article)
+    {
+
+        $objectFiles = [];
+        $expertiseFiles = [];
+        foreach ($files as $file) {
+            $path = $file->store('object/files', 'public');
+            $objectFiles[] =$path;
+        }
+
+        foreach ($expertises as $file) {
+            $path = $file->store('object/files', 'public');
+            $expertiseFiles[] =$path;
+        }
+
+        $article->update([
+            'files' => json_encode($objectFiles),
+            'expertise_files' => json_encode($expertiseFiles),
+        ]);
+    }
+
+    private function saveArticleUsers($data,$article)
+    {
+        foreach ($data as $item) {
+            $user = User::query()->where('pinfl', $item['pinfl'])->first();
+            if ($user)
+            {
+                $article->users()->attach($user->id, ['role_id' => $item['role_id']]);
+                if (!$user->roles()->where('role_id', $item['role_id'])->exists())
+                    UserRole::query()->create([
+                        'user_id' => $user->id,
+                        'role_id' => $item['role_id'],
+                    ]);
+            }else{
+                $user = User::create([
+                    'name' => $item['name'] ??  null,
+                    'surname' => $item['surname'] ?? null,
+                    'middle_name' => $item['middle_name'] ?? null,
+                    'phone' => $item['phone'] ?? null,
+                    'login' => $item['passport_number'] ?? null,
+                    'organization_name' => $item['organization_name'] ?? null,
+                    'password' => bcrypt($item['pinfl']),
+                    'user_status_id' => UserStatusEnum::ACTIVE,
+                    'pinfl' => $item['pinfl'],
+                    'identification_number' => $item['pinfl'],
+                ]);
+                $article->users()->attach($user->id, ['role_id' => $item['role_id']]);
+                UserRole::query()->create([
+                    'user_id' => $user->id,
+                    'role_id' => $item['role_id'],
+                ]);
+            }
         }
     }
 
