@@ -167,6 +167,24 @@ class InformationController extends BaseController
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
+
+    public function cadastr(): JsonResponse
+    {
+        try {
+            $data =  Http::withBasicAuth(
+                'qurilish_vazirligi',
+                'qurilish@324134123'
+            )->post('http://10.190.33.150:8080/api/info-all', ['cad_num' => request('cad_num')]);
+            if ($data->ok()) {
+                return $this->sendSuccess($data->json(), 'Monitoring customer information successfully.');
+            }
+            return $this->sendError('Kadastr bilan xatolik yuz berdi');
+
+        }catch (\Exception $exception){
+            return $this->sendError('Kadastr bilan xatolik yuz berdi',$exception->getMessage());
+        }
+    }
+
     public function monitoringGNK(): JsonResponse
     {
         try {
