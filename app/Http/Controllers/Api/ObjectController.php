@@ -10,6 +10,7 @@ use App\Enums\ObjectStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Http\Requests\ArticleChangeStatusRequest;
 use App\Http\Requests\ArticleLocationChangeRequest;
+use App\Http\Requests\ObjectCreateRequest;
 use App\Http\Requests\ObjectManualRequest;
 use App\Http\Requests\ObjectRequest;
 use App\Http\Requests\ObjectUserRequest;
@@ -99,7 +100,7 @@ class ObjectController extends BaseController
                 ->groupBy(fn($image) => Carbon::parse($image['created_at'])->toDateString())
                 ->toArray();
 
-            return $this->sendSuccess($imagesByDate, 'Images retrieved successfully.');
+            return $this->sendSuccess($imagesByDate ?? null, 'Images retrieved successfully.');
         }catch (\Exception $exception){
             return $this->sendError('Xatolik yuz berdi!', $exception->getMessage());
         }
@@ -272,6 +273,18 @@ class ObjectController extends BaseController
     {
         try {
             $this->service->createObjectManual(request('task_id'));
+
+            return $this->sendSuccess([],'success');
+        }catch (\Exception $exception){
+            return $this->sendError($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function objectCreate(ObjectCreateRequest $request): JsonResponse
+    {
+        dd($request->except('users', 'inspector_id', 'files', 'expertise_files'));
+        try {
+            $this->service->createObjectRegister($request);
 
             return $this->sendSuccess([],'success');
         }catch (\Exception $exception){

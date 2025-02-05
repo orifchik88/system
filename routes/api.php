@@ -143,6 +143,7 @@ Route::group([
     Route::get('get-object', [ObjectController::class, 'objectByParams']);
     Route::get('user-objects', [ObjectController::class, 'userObjects']);
     Route::post('object-create-manual', [ObjectController::class, 'manualCreate']);
+    Route::post('object-create-register', [ObjectController::class, 'objectCreate']);
     Route::post('object-update-manual', [ObjectController::class, 'manualUpdate']);
     Route::get('funding-sources', [ObjectController::class, 'fundingSource']);
     Route::post('object-create', [ObjectController::class, 'create']);
