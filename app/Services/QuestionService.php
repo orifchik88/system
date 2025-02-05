@@ -213,7 +213,8 @@ class QuestionService
                 }
 
             }
-            $this->changeBlockStatus($data['block_id']);
+            if(isset($data['block_id']))  $this->changeBlockStatus($data['block_id']);
+
         } catch (\Exception $exception) {
             throw $exception;
         }
