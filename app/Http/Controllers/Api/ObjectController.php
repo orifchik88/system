@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\DTO\ObjectDto;
-use App\Enums\DifficultyCategoryEnum;
 use App\Enums\LogType;
 use App\Enums\ObjectCheckEnum;
 use App\Enums\ObjectStatusEnum;
@@ -21,12 +20,10 @@ use App\Http\Resources\UserResource;
 use App\Models\Article;
 use App\Models\ArticleHistory;
 use App\Models\ArticleUser;
-use App\Models\DxaResponse;
 use App\Models\User;
 use App\Services\ArticleService;
 use App\Services\HistoryService;
 use Carbon\Carbon;
-use Hamcrest\Core\JavaForm;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -100,7 +97,7 @@ class ObjectController extends BaseController
                 ->groupBy(fn($image) => Carbon::parse($image['created_at'])->toDateString())
                 ->toArray();
 
-            return $this->sendSuccess($imagesByDate ?? null, 'Images retrieved successfully.');
+            return $this->sendSuccess(!empty($imagesByDate) ? $imagesByDate : null, 'Images retrieved successfully.');
         }catch (\Exception $exception){
             return $this->sendError('Xatolik yuz berdi!', $exception->getMessage());
         }
@@ -162,6 +159,30 @@ class ObjectController extends BaseController
                         ->paginate(\request('per_page', 10));
 
         return $this->sendSuccess(ArticleListResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
+    }
+
+    public function accountReport(): JsonResponse
+    {
+        try {
+            $articles = Article::with(['region', 'district', 'paymentLogs', 'objectStatus'])
+                ->whereIn('object_status_id', [ObjectStatusEnum::PROGRESS, ObjectStatusEnum::FROZEN, ObjectStatusEnum::SUSPENDED])
+                ->get()
+                ->map(function ($article) {
+                    return [
+                        'region' => optional($article->region)->name_uz,
+                        'district' => optional($article->district)->name_uz,
+                        'status' => $article->objectStatus->name,
+                        'task_id' => $article->task_id,
+                        'name' => $article->name,
+                        'created_at' => $article->created_at,
+                        'cost' => $article->price_supervision_service,
+                        'paid' => $article->paymentLogs->sum(fn($p) => (float) data_get($p->content, 'additionalInfo->amount', 0))
+                    ];
+                });
+            return $this->sendSuccess($articles, 'Objects retrieved successfully.');
+        } catch (\Exception $exception){
+            return $this->sendError('Xatolik yuz berdi', $exception->getMessage());
+        }
     }
 
     public function totalPayment(): JsonResponse
