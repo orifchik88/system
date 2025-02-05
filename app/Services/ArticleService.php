@@ -620,6 +620,18 @@ class ArticleService
         }
     }
 
+    public function createObjectRegister($request)
+    {
+        DB::beginTransaction();
+        try {
+
+            DB::commit();
+        }catch (\Exception $exception){
+            DB::rollBack();
+            throw new  \Exception($exception->getMessage());
+        }
+    }
+
     public function updateObjectManual($taskId)
     {
         DB::beginTransaction();

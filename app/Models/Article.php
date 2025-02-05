@@ -93,6 +93,20 @@ class Article extends Model
             ->pluck('check_at');
     }
 
+    public function getAuthorControlAttribute()
+    {
+        return $this->userHistories()
+            ->where('role_id', UserRoleEnum::MUALLIF->value)
+            ->pluck('check_at');
+    }
+
+    public function getTechnicControlAttribute()
+    {
+        return $this->userHistories()
+            ->where('role_id', UserRoleEnum::TEXNIK->value)
+            ->pluck('check_at');
+    }
+
     public function userHistories(): HasMany
     {
         return $this->hasMany(ObjectUserHistory::class, 'object_id');
@@ -161,6 +175,21 @@ class Article extends Model
         $searchTerm = strtolower($searchTerm);
 
         return $query->whereRaw('LOWER(articles.organization_name) LIKE ?', ['%' . $searchTerm . '%']);
+
+    }
+
+    public function scopeSearchByInn($query, $searchTerm)
+    {
+        $searchTerm = strtolower($searchTerm);
+
+        return $query->whereHas('users', function ($query) use ($searchTerm) {
+            $query->whereIn('role_id', [
+                UserRoleEnum::BUYURTMACHI->value,
+                UserRoleEnum::QURILISH->value,
+                UserRoleEnum::LOYIHA->value
+            ])
+                ->whereRaw('LOWER(pinfl) LIKE ?', ['%' . $searchTerm . '%']);
+        });
 
     }
 

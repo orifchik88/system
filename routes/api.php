@@ -143,6 +143,7 @@ Route::group([
     Route::get('get-object', [ObjectController::class, 'objectByParams']);
     Route::get('user-objects', [ObjectController::class, 'userObjects']);
     Route::post('object-create-manual', [ObjectController::class, 'manualCreate']);
+    Route::post('object-create-register', [ObjectController::class, 'objectCreate']);
     Route::post('object-update-manual', [ObjectController::class, 'manualUpdate']);
     Route::get('funding-sources', [ObjectController::class, 'fundingSource']);
     Route::post('object-create', [ObjectController::class, 'create']);
@@ -153,9 +154,11 @@ Route::group([
     Route::get('total-payment', [ObjectController::class, 'totalPayment']);
     Route::get('payment-statistics', [ObjectController::class, 'paymentStatistics']);
     Route::get('accountant-objects', [ObjectController::class, 'accountObjects']);
+    Route::get('accountant-report', [ObjectController::class, 'accountReport']);
     Route::post('rotation', [ObjectController::class, 'rotation']);
     Route::post('object-create-user', [ObjectController::class, 'objectCreateUser']);
     Route::post('inspector-attachment-object', [ObjectController::class, 'inspectorAttachmentObject']);
+
 
 
     Route::get('blocks/{id}', [BlockController::class, 'index']);
