@@ -171,14 +171,14 @@ class InformationController extends BaseController
     public function cadastr(): JsonResponse
     {
         try {
-            $data =  Http::withBasicAuth(
-                'qurilish_vazirligi',
-                'qurilish@324134123'
-            )->post('http://10.190.33.150:8080/api/info-all', ['cad_num' => request('cad_num')]);
-            if ($data->ok()) {
-                return $this->sendSuccess($data->json(), 'Monitoring customer information successfully.');
-            }
-            return $this->sendError('Kadastr bilan xatolik yuz berdi');
+            $data = Http::withBasicAuth('dev@gasn', 'EkN`9?@{3v0j')
+                ->post('https://api.shaffofqurilish.uz/api/v1/request/get-cad-info', [
+               'cad_num' => "10:08:40:02:01:0043",
+               'purpose' =>  "Davlat Xizmatlari uchun",
+                "id" => 12
+            ]);
+            dd($data->json());
+            return $this->sendSuccess($data['data'], 'Reestr');
 
         }catch (\Exception $exception){
             return $this->sendError('Kadastr bilan xatolik yuz berdi',$exception->getMessage());
