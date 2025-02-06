@@ -456,7 +456,7 @@ class InformationController extends BaseController
                     ];
                 })->toArray();
 
-            $responseArr = $data;
+            $responseArr['user_objects'] = $data;
 
             if (strlen($pinfl) == 9) {
                 $rating = getData(config('app.gasn.rating'), $pinfl);
