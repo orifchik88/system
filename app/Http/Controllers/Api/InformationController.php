@@ -171,14 +171,13 @@ class InformationController extends BaseController
     public function cadastr(): JsonResponse
     {
         try {
-            $data = Http::withBasicAuth('dev@gasn', 'EkN`9?@{3v0j')
-                ->post('https://api.shaffofqurilish.uz/api/v1/get-cad-info', [
-               'cad_num' => "10:08:40:02:01:0043",
-               'purpose' =>  "Davlat Xizmatlari uchun",
-                "id" => 12
-            ]);
-            dd($data->json());
-            return $this->sendSuccess($data['data'], 'Reestr');
+            $cadNumber = request('cad_number');
+            $response = Http::withBasicAuth(config('app.passport.login'), config('app.passport.password'))
+                ->post(config('app.gasn.cadastr'), [
+                    'cad_num' => $cadNumber,
+                ]);
+
+            return $this->sendSuccess($response->json()['result']['data'], 'Reestr');
 
         }catch (\Exception $exception){
             return $this->sendError('Kadastr bilan xatolik yuz berdi',$exception->getMessage());

@@ -39,6 +39,17 @@ class UserService
                         UserRoleEnum::MUALLIF->value,
                     ]);
                 });
+            case UserRoleEnum::REGISTRATOR->value:
+                return User::query()->whereHas('roles', function ($query) {
+                    $query->whereIn('role_id', [
+                        UserRoleEnum::BUYURTMACHI->value,
+                        UserRoleEnum::LOYIHA->value,
+                        UserRoleEnum::QURILISH->value,
+                        UserRoleEnum::ICHKI->value,
+                        UserRoleEnum::TEXNIK->value,
+                        UserRoleEnum::MUALLIF->value,
+                    ]);
+                })->where('region_id', $user->region_id);
 
             case UserRoleEnum::REGKADR->value:
                 return User::query()->whereHas('roles', function ($query) {
@@ -78,6 +89,7 @@ class UserService
                     ->whereHas('roles', function ($query) {
                         $query->where('role_id', UserRoleEnum::FVB->value);
                     });
+
 
             case UserRoleEnum::NOGIRONLAR_JAM_KADR->value:
                 return User::query()->whereNot('user_status_id', UserStatusEnum::RELEASED)->whereHas('roles', function ($query) {
