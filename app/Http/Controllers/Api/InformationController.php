@@ -183,8 +183,7 @@ class InformationController extends BaseController
                     'cad_num' => $cadNumber,
                 ]);
 
-            if ($response->successful())
-            {
+            if ($response->successful()) {
                 $data = $response->json()['result']['data'];
 
                 $region = Region::query()->where('soato', $data['region_id'])->first();
@@ -485,7 +484,7 @@ class InformationController extends BaseController
                 $tempObjects = [];
                 if ($user) {
                     $objects = $user->objects();
-                    $claimObjects = $objects->where('object_status_id', ObjectStatusEnum::SUBMITTED)->get();
+                    $claimObjects = $objects->where('object_status_id', ObjectStatusEnum::SUBMITTED)->whereNotNull('sphere_id')->get();
 
                     $tempObjects = $claimObjects->map(function ($object) {
                         return [
