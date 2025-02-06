@@ -17,9 +17,11 @@ use App\Http\Resources\SphereResource;
 use App\Http\Resources\TopicResource;
 use App\Models\Article;
 use App\Models\Basis;
+use App\Models\District;
 use App\Models\NormativeDocument;
 use App\Models\NotificationLog;
 use App\Models\Program;
+use App\Models\Region;
 use App\Models\Sphere;
 use App\Models\Topic;
 use App\Models\User;
@@ -181,7 +183,25 @@ class InformationController extends BaseController
                     'cad_num' => $cadNumber,
                 ]);
 
-            return $this->sendSuccess($response->json()['result']['data'], 'Reestr');
+            if ($response->successful())
+            {
+                $data = $response->json()['result']['data'];
+
+                $region = Region::query()->where('soato', $data['region_id'])->first();
+                $district = District::query()->where('soato', $data['district_id'])->first();
+                $meta = [
+                    'region' => RegionResource::make($region),
+                    'district' => DistrictResource::make($district),
+                    'name' => $data['name'],
+                    'subjects' => $data['subjects'],
+                    'address' => $data['address'],
+                    'cad_number' => $data['cad_number'],
+                ];
+
+                return $this->sendSuccess($meta, 'Cadastr');
+
+            }
+            return $this->sendError('Xatolik yuz berdi', 'Cadastr');
 
         } catch (\Exception $exception) {
             return $this->sendError('Kadastr bilan xatolik yuz berdi', $exception->getMessage());
