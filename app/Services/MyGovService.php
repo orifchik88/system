@@ -160,12 +160,40 @@ class MyGovService
         if (!$objects)
             return null;
 
-        $response = [
+        $meta = [
+            "success" => true,
+            "status" => 200,
+            "msg" => "Сўровга асосан маълумотлар тўлиқ шакллантирилди",
+            "title" => "Обектлар",
+            "total_counts" => $objects->total(),
+            "description" => [
+                'doc_id' => 'Маълумотнинг уникал рақами',
+                'app_date' => 'Ариза берилган  сана',
+                'app_number' => 'Ариза рақами',
+                'obj_name' => 'Объект номи',
+                'region_id' => 'Объект ҳудуди коди (СОАТО)',
+                'region_name' => 'Объект ҳудуди номи',
+                'district_id' => 'Объект тумани (шаҳар) коди (СОАТО)',
+                'district_name' => 'Объект тумани (шаҳар) номи',
+                'customer_name' => 'Буюртмачи номи',
+                'customer_tin' => 'Буюртмачининг СТИРи',
+                'builder_name' => 'Пудратчи ташкилот номи',
+                'builder_tin' => 'Пудратчи ташкилот СТИРи',
+                'rating' => 'Рейтинг кўрсаткичлари',
+                'deadline' => 'Қурилиш муддати',
+                'finish_date' => 'Объектни фойдаланишга топширилган сана',
+                'obj_type' => 'Объект тури',
+                'complexity' => 'Мураккаблик тоифаси',
+                'build_type' => 'Қурилиш тури',
+                'build_cost' => 'Қурилиш қиймати',
+                'industry' => 'Қурилиш соҳаси номи',
+                'funding' => 'Молиялаштириш манбаи',
+            ],
             'data' => ArticlePalataResource::collection($objects),
             'meta' => pagination($objects)
         ];
 
-        return $response;
+        return response()->json($meta, 200);
 
     }
 
