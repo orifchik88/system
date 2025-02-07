@@ -156,7 +156,6 @@ class MyGovService
     public function getObjectList($filters)
     {
         $objects = $this->articleRepository->getList($filters);
-
         if (!$objects)
             return null;
 
@@ -189,7 +188,7 @@ class MyGovService
                 'industry' => 'Қурилиш соҳаси номи',
                 'funding' => 'Молиялаштириш манбаи',
             ],
-            'data' => ArticlePalataResource::collection($objects),
+            'data' => ArticlePalataResource::collection($objects->makeHidden(['appends'])),
             'meta' => pagination($objects)
         ];
 
