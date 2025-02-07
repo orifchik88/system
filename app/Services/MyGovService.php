@@ -161,11 +161,11 @@ class MyGovService
             return null;
 
         $response = [
-            'objects' => ArticlePalataResource::collection($objects),
+            'data' => ArticlePalataResource::collection($objects),
             'meta' => pagination($objects)
         ];
 
-        return response()->json($response, 200);
+        return $response;
 
     }
 

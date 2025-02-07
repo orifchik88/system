@@ -51,8 +51,28 @@ class ArticleRepository implements ArticleRepositoryInterface
                 } elseif ($endDate) {
                     $query->where('created_at', '<=', $endDate);
                 }
-            })->paginate(50);
+            })->paginate($filters['per_page'] ?? 50);
     }
+    public function getListPalata($filters)
+    {
+        return Article::query()
+            ->when(isset($filters['region_id']), function ($query) use ($filters) {
+                $query->where('articles.region_id', $filters['region_id']);
+            })
+            ->when(isset($filters['date_from']) || isset($filters['date_to']), function ($query) use ($filters) {
+                $startDate = isset($filters['date_from']) ? $filters['date_from'] . ' 00:00:00' : null;
+                $endDate = isset($filters['date_to']) ? $filters['date_to'] . ' 23:59:59' : null;
+
+                if ($startDate && $endDate) {
+                    $query->whereBetween('created_at', [$startDate, $endDate]);
+                } elseif ($startDate) {
+                    $query->where('created_at', '>=', $startDate);
+                } elseif ($endDate) {
+                    $query->where('created_at', '<=', $endDate);
+                }
+            })->get();
+    }
+
 
     public function findByTaskId($taskId): ?Article
     {
