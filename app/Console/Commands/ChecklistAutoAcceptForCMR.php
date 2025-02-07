@@ -61,7 +61,7 @@ class ChecklistAutoAcceptForCMR extends Command
             'role' => $roleId,
             'date' =>  now(),
             'status' => $checklist->status->value,
-            'comment' => 'Automatik ravishda tasdiqlandi',
+            'comment' => 'SMR tomonidan automatik ravishda tasdiqlandi',
             'additionalInfo' => ['user_answered' => 1, 'answered' => 'auto']
         ];
 

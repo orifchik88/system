@@ -189,7 +189,6 @@ class MyGovService
                 'funding' => 'Молиялаштириш манбаи',
             ],
             'data' => ArticlePalataResource::collection($objects->makeHidden(['appends'])),
-            'meta' => pagination($objects)
         ];
 
         return response()->json($meta, 200);

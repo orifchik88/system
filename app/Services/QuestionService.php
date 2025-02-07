@@ -305,7 +305,7 @@ class QuestionService
             'object_id' => $object->id,
             'number' => 123,
             'regulation_type_id' => 1,
-            'work_in_progress' =>  $data['work_in_progress'],
+            'work_in_progress' =>  $data['work_in_progress'] ?? null,
             'block_id' =>  $data['block_id'] ??  null,
             'created_by' => Auth::id(),
             'created_by_role' => $roleId,
