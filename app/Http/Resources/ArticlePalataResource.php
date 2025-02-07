@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Enums\ConstructionWork;
 use App\Enums\UserRoleEnum;
 use App\Models\ConstructionTypes;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -35,7 +36,7 @@ class ArticlePalataResource extends JsonResource
             'builder_tin' => $builder ? $builder->identification_number : null,
             'rating' => $rating ? ($rating[0]?->qurilish?->reyting_umumiy ?? null) : null,
             'deadline' => $this->deadline,
-            'finish_date' => $this->closed_at ? $this->closed_at->format('Y-m-d') : null,
+            'finish_date' => $this->closed_at ? Carbon::parse($this->closed_at)->format('Y-m-d') : null,
             'obj_type' => $this->objectType ? $this->objectType->name : null,
             'complexity' => $this->difficulty ? $this->difficulty->difficulty : null,
             'build_type' => $this->construction_works,
