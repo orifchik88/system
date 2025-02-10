@@ -241,8 +241,8 @@ class MyGovService
             'registration_date' => $object->created_at,
             'closed_at' => $object->closed_at,
             'regulations' => $object->regulations->map(function ($regulation) {
-                $fromUser = $regulation->regulationUser ?  User::query()->find($regulation->regulationUser->from_user_id) : null;
-                $fromRole = $regulation->regulationUser ?  Role::query()->find($regulation->regulationUser->from_role_id) : null;
+                $fromUser = User::query()->find($regulation->created_by_user_id);
+                $fromRole = Role::query()->find($regulation->created_by_role_id);
                 return [
                     'status' => RegulationStatusResource::make($regulation->regulationStatus),
                     'from_user' => $fromUser ? "{$fromUser->surname} {$fromUser->name} {$fromUser->middle_name}" : null,
