@@ -262,8 +262,6 @@ class DxaResponseService
         }
     }
 
-
-
     public function sendReject($response, $comment): DxaResponse
     {
 

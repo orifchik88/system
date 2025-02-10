@@ -14,6 +14,7 @@ use App\Exceptions\NotFoundException;
 use App\Models\Article;
 use App\Models\ArticlePaymentLog;
 use App\Models\ArticleUser;
+use App\Models\Block;
 use App\Models\DxaResponse;
 use App\Models\FundingSource;
 use App\Models\Regulation;
@@ -24,6 +25,7 @@ use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use App\Repositories\Interfaces\BlockRepositoryInterface;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -33,7 +35,9 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 class ArticleService
 {
     protected ObjectDto $objectDto;
+
     private HistoryService $historyService;
+    private HistoryService $objectHistory;
 
     public function __construct(
         protected ArticleRepositoryInterface $articleRepository,
@@ -41,9 +45,10 @@ class ArticleService
         protected BlockRepositoryInterface $blockRepository,
         protected DxaResponse $dxaResponse,
         protected ImageService  $imageService,
-        protected DocumentService  $documentService,
+        protected DocumentService  $documentService
     ) {
         $this->historyService = new HistoryService('article_payment_logs');
+        $this->objectHistory = new HistoryService('article_histories');
     }
 
     public function setObjectDto(ObjectDto $objectDto): void
@@ -620,7 +625,7 @@ class ArticleService
         }
     }
 
-    public function createObjectRegister($request)
+    public function createObjectRegister($request, $user, $roleId)
     {
         DB::beginTransaction();
         try {
@@ -628,12 +633,29 @@ class ArticleService
             $this->attachInspector($article, $request['inspector_id']);
             $this->saveArticleUsers($request['users'], $article);
             $this->saveFiles($request['files'], $request['expertise_files'], $article);
+            $this->saveBlocksRegister($article, $request['blocks']);
+            $this->createHistory($article, $user, $roleId);
 
             DB::commit();
         }catch (\Exception $exception){
             DB::rollBack();
             throw new  \Exception($exception->getMessage());
         }
+    }
+
+    private function createHistory($article, $user, $roleId)
+    {
+        $this->objectHistory->createHistory(
+            guId: $article->id,
+            status: ObjectStatusEnum::PROGRESS->value,
+            type: LogType::ARTICLE_CREATE_HISTORY,
+            date: null,
+            comment: $request->comment ?? '',
+            additionalInfo: [
+                'user_id' => $user->id,
+                'role_id' => $roleId,
+            ]
+        );
     }
 
     private function attachInspector($article, $inspectorId)
@@ -765,54 +787,6 @@ class ArticleService
     }
 
 
-//    private function updateRating($article, $response)
-//    {
-//        $rating = [];
-//        $loyiha = $article->users()->where('role_id', UserRoleEnum::LOYIHA->value)->first();
-//        $qurilish = $article->users()->where('role_id', UserRoleEnum::QURILISH->value)->first();
-//
-//        $responseLoyiha = $response->supervisors()->where('role_id', UserRoleEnum::LOYIHA->value)->first();
-//        $responseQurilish = $response->supervisors()->where('role_id', UserRoleEnum::QURILISH->value)->first();
-//
-//        $loyihaRating = getData(config('app.gasn.rating'), (int)$responseLoyiha->stir_or_pinfl);
-//        $qurilishRating = getData(config('app.gasn.rating'), (int)$responseQurilish->stir_or_pinfl);
-//
-//        $data = json_decode($article->rating, true);
-//
-//
-//        if($loyiha){
-//           if ($responseLoyiha && $responseLoyiha->stir_or_pinfl != $loyiha->pinfl){
-//               $rating[0]['loyiha'] = $loyihaRating['data']['data'] ?? null;
-//           }else{
-//               $rating[0]['loyiha'] = $data[0]->loyiha ?? null;
-//           }
-//        }else{
-//            if ($responseLoyiha){
-//                $rating[0]['loyiha'] = $loyihaRating['data']['data'] ?? null;
-//            }else{
-//                $rating[0]['loyiha'] = null;
-//            }
-//        }
-//
-//        if($qurilish){
-//            if ($responseQurilish && $responseQurilish->stir_or_pinfl != $qurilish->pinfl){
-//                $rating[0]['qurilish'] = $qurilishRating['data']['data'] ?? null;
-//            }else{
-//                $rating[0]['qurilish'] = $data[0]->qurilish ?? null;
-//            }
-//        }else{
-//            if ($responseQurilish){
-//                $rating[0]['qurilish'] = $qurilishRating['data']['data'] ?? null;
-//            }else{
-//                $rating[0]['qurilish'] = null;
-//            }
-//        }
-//
-//        $article->update([
-//            'rating' => json_encode($rating)
-//        ]);
-//    }
-
     private function saveEmployee($article, $create = true): void
     {
         $rating = [];
@@ -860,6 +834,28 @@ class ArticleService
             ]);
         }
 
+    }
+
+    private function saveBlocksRegister($article, $blocks)
+    {
+            foreach ($blocks as $blockData) {
+                $blockAttributes = [
+                    'name' => $blockData['name'],
+                    'article_id' => $article->id,
+                    'floor' => $blockData['floor'] ?? null,
+                    'construction_area' => $blockData['construction_area'] ?? null,
+                    'count_apartments' => $blockData['count_apartments'] ?? null,
+                    'height' => $blockData['height'] ?? null,
+                    'length' => $blockData['length'] ?? null,
+                    'block_mode_id' => $blockData['block_mode_id'] ?? null,
+                    'block_type_id' => $blockData['block_type_id'] ?? null,
+                    'appearance_type' => $blockData['appearance_type'] ?? null,
+                    'created_by' => Auth::id(),
+                    'status' => true,
+                ];
+
+                Block::create($blockAttributes);
+            }
     }
 
     private function sendTax($object)
@@ -934,7 +930,6 @@ class ArticleService
         }catch (\Exception $exception){
             throw new NotFoundException($exception->getMessage(), $exception->getCode());
         }
-
     }
 
 

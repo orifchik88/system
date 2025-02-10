@@ -10,6 +10,10 @@ use App\Http\Resources\DistrictResource;
 use App\Http\Resources\ObjectDesignResource;
 use App\Http\Resources\ObjectOrganizationResource;
 use App\Http\Resources\RegionResource;
+use App\Http\Resources\RegulationStatusResource;
+use App\Http\Resources\RoleResource;
+use App\Models\Role;
+use App\Models\User;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use Carbon\Carbon;
@@ -220,6 +224,32 @@ class MyGovService
         $response = [
             'objects' => ObjectDesignResource::collection($objects),
             'meta' => pagination($objects)
+        ];
+
+        return response()->json($response, 200);
+    }
+
+    public function getObjectsRegulations($filters)
+    {
+        $object = $this->articleRepository->findByReestr($filters);
+        if (!$object)
+            return null;
+
+
+        $response = [
+            'registration_number' => $object->task_id,
+            'registration_date' => $object->created_at,
+            'closed_at' => $object->closed_at,
+            'regulations' => $object->regulations->map(function ($regulation) {
+                $fromUser = $regulation->regulationUser ?  User::query()->find($regulation->regulationUser->from_user_id) : null;
+                $fromRole = $regulation->regulationUser ?  Role::query()->find($regulation->regulationUser->from_role_id) : null;
+                return [
+                    'status' => RegulationStatusResource::make($regulation->regulationStatus),
+                    'from_user' => $fromUser ? "{$fromUser->surname} {$fromUser->name} {$fromUser->middle_name}" : null,
+                    'role' => $fromRole ? RoleResource::make($fromRole) : null,
+                    'pdf' => $regulation->pdf,
+                ];
+            }),
         ];
 
         return response()->json($response, 200);

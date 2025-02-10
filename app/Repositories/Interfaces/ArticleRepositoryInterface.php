@@ -16,4 +16,5 @@ interface ArticleRepositoryInterface
     public function setObjectUsers($user, $roleId, $id);
 
     public function getList($filters);
+    public function findByReestr($filters);
 }

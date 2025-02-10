@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Enums\ObjectStatusEnum;
+use App\Models\Article;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
@@ -59,6 +60,17 @@ class ObjectCreateRequest extends FormRequest
             'price_supervision_service' => price_supervision($this->construction_cost),
             'object_status_id' => ObjectStatusEnum::PROGRESS->value,
             'appearance_type_id' => 1,
+            'funding_source_id' => 2,
+            'task_id' => $this->generateUniqueTaskId()
         ]);
+    }
+
+    private function generateUniqueTaskId(): int
+    {
+        do {
+            $taskId = rand(100000, 999999);
+        } while (Article::query()->where('task_id', $taskId)->exists());
+
+        return $taskId;
     }
 }

@@ -95,6 +95,19 @@ class MyGovController extends Controller
         return $data;
     }
 
+    public function getObjectsRegulations()
+    {
+        $filters = request()->only(['gnk_id', 'protocol_number', 'reestr_number']);
+
+        $data = $this->myGovService->getObjectsRegulations($filters);
+
+        if (!$data) {
+            return ['success' =>  false, 'message' => "Ma'lumot topilmadi"];
+        }
+
+        return $data;
+    }
+
 
 
 }

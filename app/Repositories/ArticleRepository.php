@@ -93,6 +93,19 @@ class ArticleRepository implements ArticleRepositoryInterface
         return Article::with('objectType')->where('id', $id)->first();
     }
 
+    public function findByReestr($filters)
+    {
+        return collect(['gnk_id', 'reestr_number', 'number_protocol'])
+            ->some(fn($key) => isset($filters[$key]))
+            ? Article::query()
+                ->when(isset($filters['gnk_id']), fn($query) => $query->where('gnk_id', $filters['gnk_id']))
+                ->when(isset($filters['reestr_number']), fn($query) => $query->where('reestr_number', $filters['reestr_number']))
+                ->when(isset($filters['number_protocol']), fn($query) => $query->where('number_protocol', $filters['number_protocol']))
+                ->first()
+            : null;
+
+    }
+
     public function findByCadastralNumber($number)
     {
         return Article::query()->where('cadastral_number', $number)->get();
