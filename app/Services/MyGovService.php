@@ -245,8 +245,16 @@ class MyGovService
                 $fromRole = Role::query()->find($regulation->created_by_role_id);
                 return [
                     'status' => RegulationStatusResource::make($regulation->regulationStatus),
-                    'from_user' => $fromUser ? "{$fromUser->surname} {$fromUser->name} {$fromUser->middle_name}" : null,
-                    'role' => $fromRole ? RoleResource::make($fromRole) : null,
+                    'from_user' => [
+                        'id' => $fromUser->id,
+                        'name' => $fromUser->name,
+                        'middle_name' => $fromUser->middle_name,
+                        'surname' => $fromUser->surname,
+                    ],
+                    'role' => [
+                        'id' => $fromRole->id,
+                        'name'=> $fromRole->name,
+                    ],
                     'pdf' => $regulation->pdf,
                 ];
             }),
