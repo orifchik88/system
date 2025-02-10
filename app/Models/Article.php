@@ -54,7 +54,8 @@ class Article extends Model
         $notPaid = $totalAmount - $totalPaid;
 
         if (trim($this->price_supervision_service) === '0.00') {
-            return 'no_value';
+//            return 'no_value';
+            return 0;
         }
 
         return $notPaid;
