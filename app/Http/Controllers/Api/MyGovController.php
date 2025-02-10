@@ -97,7 +97,7 @@ class MyGovController extends Controller
 
     public function getObjectsRegulations()
     {
-        $filters = request()->only(['gnk_id', 'protocol_number', 'reestr_number']);
+        $filters = request()->only(['gnk_id', 'number_protocol', 'reestr_number']);
 
         $data = $this->myGovService->getObjectsRegulations($filters);
 
