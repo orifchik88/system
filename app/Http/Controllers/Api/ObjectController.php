@@ -11,6 +11,7 @@ use App\Http\Requests\ArticleChangeStatusRequest;
 use App\Http\Requests\ArticleLocationChangeRequest;
 use App\Http\Requests\ObjectCreateRequest;
 use App\Http\Requests\ObjectManualRequest;
+use App\Http\Requests\ObjectPriceRequest;
 use App\Http\Requests\ObjectRequest;
 use App\Http\Requests\ObjectUserRequest;
 use App\Http\Resources\ArticleListResource;
@@ -28,6 +29,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Js;
+use Psy\Util\Json;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ObjectController extends BaseController
@@ -54,7 +56,7 @@ class ObjectController extends BaseController
                 ->paginate(request('per_page', 10));
 
             return $this->sendSuccess(ArticleListResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage());
         }
 
@@ -77,7 +79,7 @@ class ObjectController extends BaseController
 
                 return $this->sendSuccess("Ma'lumot yangilandi!", 'Success');
             }
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError("Ichki Xatolik!", "message");
         }
     }
@@ -98,7 +100,7 @@ class ObjectController extends BaseController
                 ->toArray();
 
             return $this->sendSuccess(!empty($imagesByDate) ? $imagesByDate : null, 'Images retrieved successfully.');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError('Xatolik yuz berdi!', $exception->getMessage());
         }
     }
@@ -116,6 +118,20 @@ class ObjectController extends BaseController
         }
     }
 
+    public function objectChangePrice(ObjectPriceRequest $request): JsonResponse
+    {
+        try {
+            $object = Article::query()->findOrFail($request->object_id);
+            $object->update([
+                'construction_cost' => $request->price,
+                'price_supervision_service' => price_supervision($request->price)
+            ]);
+            return $this->sendSuccess([], 'Object price changed successfully.');
+        } catch (\Exception $exception) {
+            return $this->sendError('Xatolik aniqlandi', $exception->getMessage());
+        }
+    }
+
     public function objectByParams(): JsonResponse
     {
         try {
@@ -126,7 +142,7 @@ class ObjectController extends BaseController
 
             return $this->sendSuccess(ArticleResource::make($object), 'Object retrieved successfully.');
 
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -142,7 +158,7 @@ class ObjectController extends BaseController
 
             return $this->sendSuccess(ArticleListResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
 
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -156,7 +172,7 @@ class ObjectController extends BaseController
         $query = $this->service->searchObjects($query, $filters);
 
         $objects = $query->orderBy('created_at', request('sort_by_date', 'DESC'))
-                        ->paginate(\request('per_page', 10));
+            ->paginate(\request('per_page', 10));
 
         return $this->sendSuccess(ArticleListResource::collection($objects), 'Objects retrieved successfully.', pagination($objects));
     }
@@ -176,11 +192,11 @@ class ObjectController extends BaseController
                         'name' => $article->name,
                         'created_at' => $article->created_at,
                         'cost' => $article->price_supervision_service,
-                        'paid' => $article->paymentLogs->sum(fn($p) => (float) data_get($p->content, 'additionalInfo->amount', 0))
+                        'paid' => $article->paymentLogs->sum(fn($p) => (float)data_get($p->content, 'additionalInfo->amount', 0))
                     ];
                 });
             return $this->sendSuccess($articles, 'Objects retrieved successfully.');
-        } catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError('Xatolik yuz berdi', $exception->getMessage());
         }
     }
@@ -211,7 +227,7 @@ class ObjectController extends BaseController
         try {
             $object = $this->service->getObjectById($this->user, $this->roleId, $id);
 
-            if ($object)  $this->service->setObjectUsers($this->user, $this->roleId, $id);
+            if ($object) $this->service->setObjectUsers($this->user, $this->roleId, $id);
 
             return $this->sendSuccess(ArticleResource::make($object), 'Object retrieved successfully.');
         } catch (\Exception $exception) {
@@ -264,7 +280,7 @@ class ObjectController extends BaseController
     {
         try {
 
-            $this->service->createPayment($this->user, $this->roleId,request('object_id'));
+            $this->service->createPayment($this->user, $this->roleId, request('object_id'));
 
             return $this->sendSuccess([], 'Article retrieved successfully.');
 
@@ -272,6 +288,7 @@ class ObjectController extends BaseController
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
+
     public function checkObject()
     {
         try {
@@ -295,8 +312,8 @@ class ObjectController extends BaseController
         try {
             $this->service->createObjectManual(request('task_id'));
 
-            return $this->sendSuccess([],'success');
-        }catch (\Exception $exception){
+            return $this->sendSuccess([], 'success');
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -306,8 +323,8 @@ class ObjectController extends BaseController
         try {
             $this->service->createObjectRegister($request);
 
-            return $this->sendSuccess([],'success');
-        }catch (\Exception $exception){
+            return $this->sendSuccess([], 'success');
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -316,8 +333,8 @@ class ObjectController extends BaseController
     {
         try {
             $this->service->updateObjectManual(request('task_id'));
-            return $this->sendSuccess([],'success');
-        } catch (\Exception $exception){
+            return $this->sendSuccess([], 'success');
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -343,7 +360,7 @@ class ObjectController extends BaseController
         try {
             $user = $this->service->createUser($request);
             return $this->sendSuccess(UserResource::make($user), 'Success');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -352,7 +369,7 @@ class ObjectController extends BaseController
     {
         $inactiveBlocks = [];
         foreach ($object->blocks as $block) {
-            if (!$block->status){
+            if (!$block->status) {
                 $inactiveBlocks[] = $block->name;
             }
         }
@@ -399,8 +416,7 @@ class ObjectController extends BaseController
 
             $history = ArticleHistory::query()->findOrFail($tableId);
 
-            if ($request->hasFile('file'))
-            {
+            if ($request->hasFile('file')) {
                 $path = $request->file('file')->store('object/files', 'public');
                 $history->documents()->create(['url' => $path]);
             }
@@ -422,7 +438,7 @@ class ObjectController extends BaseController
             ]);
 
             return $this->sendSuccess(null, 'Object location updated');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -433,7 +449,7 @@ class ObjectController extends BaseController
             $object = Article::query()->where('task_id', request('task_id'))->first();
 
             $user = User::query()->findOrFail(request('user_id'));
-            if(!$object) throw new NotFoundHttpException('Object not found');
+            if (!$object) throw new NotFoundHttpException('Object not found');
 
             $articleUser = new ArticleUser();
             $articleUser->article_id = $object->id;
@@ -443,7 +459,7 @@ class ObjectController extends BaseController
 
             return $this->sendSuccess(UserResource::make($user), 'data saved');
 
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }

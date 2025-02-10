@@ -159,6 +159,7 @@ Route::group([
     Route::post('rotation', [ObjectController::class, 'rotation']);
     Route::post('object-create-user', [ObjectController::class, 'objectCreateUser']);
     Route::post('inspector-attachment-object', [ObjectController::class, 'inspectorAttachmentObject']);
+    Route::post('object-change-price', [ObjectController::class, 'objectChangePrice']);
 
 
 
