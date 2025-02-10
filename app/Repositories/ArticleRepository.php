@@ -101,7 +101,7 @@ class ArticleRepository implements ArticleRepositoryInterface
                 ->when(isset($filters['gnk_id']), fn($query) => $query->where('gnk_id', $filters['gnk_id']))
                 ->when(isset($filters['reestr_number']), fn($query) => $query->where('reestr_number', $filters['reestr_number']))
                 ->when(isset($filters['number_protocol']), fn($query) => $query->where('number_protocol', $filters['number_protocol']))
-                ->first()
+                ->get()
             : null;
 
     }

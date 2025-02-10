@@ -231,34 +231,38 @@ class MyGovService
 
     public function getObjectsRegulations($filters)
     {
-        $object = $this->articleRepository->findByReestr($filters);
-        if (!$object)
+        $response = [];
+        $objects = $this->articleRepository->findByReestr($filters);
+        if (!$objects)
             return null;
 
 
-        $response = [
-            'registration_number' => $object->task_id,
-            'registration_date' => $object->created_at,
-            'closed_at' => $object->closed_at,
-            'regulations' => $object->regulations->map(function ($regulation) {
-                $fromUser = User::query()->find($regulation->created_by_user_id);
-                $fromRole = Role::query()->find($regulation->created_by_role_id);
-                return [
-                    'status' => RegulationStatusResource::make($regulation->regulationStatus),
-                    'from_user' => [
-                        'id' => $fromUser->id,
-                        'name' => $fromUser->name,
-                        'middle_name' => $fromUser->middle_name,
-                        'surname' => $fromUser->surname,
-                    ],
-                    'role' => [
-                        'id' => $fromRole->id,
-                        'name'=> $fromRole->name,
-                    ],
-                    'pdf' => $regulation->pdf,
-                ];
-            }),
-        ];
+        foreach ($objects as $object) {
+            $response[] = [
+                'registration_number' => $object->task_id,
+                'registration_date' => $object->created_at,
+                'closed_at' => $object->closed_at,
+                'regulations' => $object->regulations->map(function ($regulation) {
+                    $fromUser = User::query()->find($regulation->created_by_user_id);
+                    $fromRole = Role::query()->find($regulation->created_by_role_id);
+                    return [
+                        'status' => RegulationStatusResource::make($regulation->regulationStatus),
+                        'from_user' => [
+                            'id' => $fromUser->id,
+                            'name' => $fromUser->name,
+                            'middle_name' => $fromUser->middle_name,
+                            'surname' => $fromUser->surname,
+                        ],
+                        'role' => [
+                            'id' => $fromRole->id,
+                            'name'=> $fromRole->name,
+                        ],
+                        'pdf' => $regulation->pdf,
+                    ];
+                }),
+            ];
+        }
+
 
         return response()->json($response, 200);
     }
