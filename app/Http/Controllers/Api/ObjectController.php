@@ -122,7 +122,7 @@ class ObjectController extends BaseController
     public function objectChangePrice(ObjectPriceRequest $request): JsonResponse
     {
         try {
-           $this->service->changePrice($request);
+           $this->service->changePrice($request, $this->user, $this->roleId);
            return $this->sendSuccess([], 'Object price changed successfully.');
         } catch (\Exception $exception) {
             return $this->sendError('Xatolik aniqlandi', $exception->getMessage());
