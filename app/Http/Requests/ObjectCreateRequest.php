@@ -48,8 +48,8 @@ class ObjectCreateRequest extends FormRequest
             'sphere_id' => 'required|integer|exists:spheres,id',
             'users.*' => 'required|array',
             'blocks.*' => 'required|array',
-            'files' => 'sometimes|array',
-            'expertise_files' => 'sometimes|array',
+            'files.*' => 'required|array',
+            'expertise_files.*' => 'required|array',
             'price_supervision_service' => 'required',
             'inspector_id' => 'required|integer|exists:users,id',
         ];
@@ -70,7 +70,7 @@ class ObjectCreateRequest extends FormRequest
     {
         $regionCode = Region::query()
             ->where('id', $this->region_id)
-            ->value('code');
+            ->value('region_code');
 
         if (!$regionCode) {
             throw new \Exception("Viloyat topilmadi");
