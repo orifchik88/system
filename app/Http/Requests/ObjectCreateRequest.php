@@ -44,7 +44,7 @@ class ObjectCreateRequest extends FormRequest
             'manual_task_id' => 'required|string',
             'number_protocol' => 'required|integer',
             'funding_source_id' => 'required|integer|exists:funding_sources,id',
-            'linear_type' => 'required_if:object_type_id,1|string|exists:object_types,id',
+            'linear_type' => 'required_if:object_type_id,1|string',
             'sphere_id' => 'required|integer|exists:spheres,id',
             'users.*' => 'required|array',
             'blocks.*' => 'required|array',
