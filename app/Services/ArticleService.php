@@ -94,6 +94,7 @@ class ArticleService
             case UserRoleEnum::YURIST->value:
                 return $this->getArticlesByRegion($user->region_id);
             case UserRoleEnum::RESPUBLIKA_KUZATUVCHI->value:
+            case UserRoleEnum::RESPUBLIKA_BUXGALTER->value:
             case UserRoleEnum::ADMIN->value:
                 return Article::query();
             default:

@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\ObjectStatusEnum;
 use App\Models\Article;
+use App\Models\Region;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
@@ -40,7 +41,7 @@ class ObjectCreateRequest extends FormRequest
             'construction_works' => 'required|string',
             'address' => 'required|string',
             'name_expertise' => 'required|string',
-            'task_id' => 'required|integer',
+            'manual_task_id' => 'required|string',
             'number_protocol' => 'required|integer',
             'funding_source_id' => 'required|integer|exists:funding_sources,id',
             'linear_type' => 'required_if:object_type_id,1|string|exists:object_types,id',
@@ -65,11 +66,20 @@ class ObjectCreateRequest extends FormRequest
         ]);
     }
 
-    private function generateUniqueTaskId(): int
+    private function generateUniqueTaskId(): string
     {
+        $regionCode = Region::query()
+            ->where('id', $this->region_id)
+            ->value('code');
+
+        if (!$regionCode) {
+            throw new \Exception("Viloyat topilmadi");
+        }
+
         do {
-            $taskId = rand(100000, 999999);
-        } while (Article::query()->where('task_id', $taskId)->exists());
+            $randomNumber = rand(100000, 999999);
+            $taskId = '0'.$regionCode . $randomNumber;
+        } while (Article::query()->where('manual_task_id', $taskId)->exists());
 
         return $taskId;
     }

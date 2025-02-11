@@ -71,27 +71,7 @@ trait RegulationTrait
 
     public function getPdfAttribute()
     {
-        $regulation = $this;
-        $createdByRole = Role::query()->find($this->created_by_role_id);
-        $createdByUser = User::query()->find($this->created_by_user_id);
-        $object = $this->object;
-        $responsibleUser = User::query()->find($this->user_id);
-        $responsibleRole = Role::query()->find($this->role_id);
-        $domain = URL::to('/regulation-info') . '/' . $this->id;
-
-        $qrImage = base64_encode(QrCode::format('png')->size(200)->generate($domain));
-
-        $pdf = Pdf::loadView('pdf.regulation', compact(
-            'regulation',
-            'object',
-            'responsibleUser',
-            'responsibleRole',
-            'createdByUser',
-            'createdByRole',
-            'qrImage'
-        ))->output();
-
-        return base64_encode($pdf);
+        return URL::to('regulation-info/'.$this->id);
     }
 
 }
