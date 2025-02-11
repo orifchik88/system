@@ -231,51 +231,43 @@ class MyGovService
 
     public function getObjectsRegulations($filters)
     {
-        $response = [];
         $objects = $this->articleRepository->findByReestr($filters);
         if (!$objects)
             return null;
 
-
-        foreach ($objects as $object) {
-            $response[] = [
+        $response = $objects->load(['regulations.createdByUser', 'regulations.createdByRole', 'regulations.responsibleUser', 'regulations.responsibleRole'])->map(function ($object) {
+            return [
                 'registration_number' => $object->task_id,
                 'registration_date' => $object->created_at,
                 'closed_at' => $object->closed_at,
                 'regulations' => $object->regulations->map(function ($regulation) {
-                    $fromUser = User::query()->find($regulation->created_by_user_id);
-                    $toUser = User::query()->find($regulation->user_id);
-                    $fromRole = Role::query()->find($regulation->created_by_role_id);
-                    $toRole = Role::query()->find($regulation->role_id);
-
                     return [
                         'status' => RegulationStatusResource::make($regulation->regulationStatus),
                         'from_user' => [
-                            'id' => $fromUser->id,
-                            'name' => $fromUser->name,
-                            'middle_name' => $fromUser->middle_name,
-                            'surname' => $fromUser->surname,
+                            'id' => $regulation->createdByUser->id ?? null,
+                            'name' => $regulation->createdByUser->name ?? null,
+                            'middle_name' => $regulation->createdByUser->middle_name ?? null,
+                            'surname' => $regulation->createdByUser->surname ?? null,
                         ],
                         'from_role' => [
-                            'id' => $fromRole->id,
-                            'name'=> $fromRole->name,
+                            'id' => $regulation->createdByRole->id ?? null,
+                            'name' => $regulation->createdByRole->name ?? null,
                         ],
                         'to_user' => [
-                            'id' => $toUser->id,
-                            'name' => $toUser->name,
-                            'middle_name' => $toUser->middle_name,
-                            'surname' => $toUser->surname,
+                            'id' => $regulation->responsibleUser->id,
+                            'name' => $regulation->responsibleUser->name,
+                            'middle_name' => $regulation->responsibleUser->middle_name,
+                            'surname' => $regulation->responsibleUser->surname,
                         ],
                         'to_role' => [
-                            'id' => $toRole->id,
-                            'name'=> $toRole->name,
+                            'id' => $regulation->responsibleRole->id,
+                            'name'=> $regulation->responsibleRole->name,
                         ],
                         'pdf' => $regulation->pdf,
                     ];
                 }),
             ];
-        }
-
+        });
 
         return response()->json($response, 200);
     }
