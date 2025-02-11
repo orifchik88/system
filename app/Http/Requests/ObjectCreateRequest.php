@@ -35,7 +35,7 @@ class ObjectCreateRequest extends FormRequest
             'organization_name' => 'required|',
             'object_type_id' => 'required|integer|exists:object_types,id',
             'deadline' => 'required|string',
-            'cadastral_number' => 'required_if:object_type_id,2|string',
+            'cadastral_number' => 'required_if:object_type_id,2',
             'difficulty_category_id' => 'required|integer|exists:difficulty_categories,id',
             'construction_cost' => 'required|string',
             'construction_works' => 'required|string',
@@ -48,8 +48,8 @@ class ObjectCreateRequest extends FormRequest
             'sphere_id' => 'required|integer|exists:spheres,id',
             'users.*' => 'required|array',
             'blocks.*' => 'required|array',
-            'files.*' => 'required|array',
-            'expertise_files.*' => 'required|array',
+            'files' => 'required|array',
+            'expertise_files' => 'required|array',
             'price_supervision_service' => 'required',
             'inspector_id' => 'required|integer|exists:users,id',
         ];
@@ -62,7 +62,7 @@ class ObjectCreateRequest extends FormRequest
             'object_status_id' => ObjectStatusEnum::PROGRESS->value,
             'appearance_type_id' => 1,
             'funding_source_id' => 2,
-            'task_id' => $this->generateUniqueTaskId()
+            'manual_task_id' => $this->generateUniqueTaskId()
         ]);
     }
 

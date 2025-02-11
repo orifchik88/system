@@ -630,7 +630,7 @@ class ArticleService
     {
         DB::beginTransaction();
         try {
-            $article = Article::query()->create($request->except('users', 'inspector_id', 'files', 'expertise_files'));
+            $article = Article::query()->create($request->except('users', 'inspector_id', 'files', 'blocks','expertise_files'));
             $this->attachInspector($article, $request['inspector_id']);
             $this->saveArticleUsers($request['users'], $article);
             $this->saveFiles($request['files'], $request['expertise_files'], $article);
