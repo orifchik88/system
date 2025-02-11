@@ -20,6 +20,7 @@ use App\Http\Resources\FundingSourceResource;
 use App\Http\Resources\UserResource;
 use App\Models\Article;
 use App\Models\ArticleHistory;
+use App\Models\ArticlePaymentLog;
 use App\Models\ArticleUser;
 use App\Models\User;
 use App\Services\ArticleService;
@@ -128,6 +129,17 @@ class ObjectController extends BaseController
             ]);
             return $this->sendSuccess([], 'Object price changed successfully.');
         } catch (\Exception $exception) {
+            return $this->sendError('Xatolik aniqlandi', $exception->getMessage());
+        }
+    }
+
+    public function deleteObjectPayment($id): JsonResponse
+    {
+        try { 
+            $log = ArticlePaymentLog::query()->findOrFail($id);
+            $log->delete();
+            return $this->sendSuccess([], 'Object payment deleted successfully.');
+        }catch (\Exception $exception){
             return $this->sendError('Xatolik aniqlandi', $exception->getMessage());
         }
     }
