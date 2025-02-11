@@ -10,4 +10,6 @@ class LogType
 
     const ARTICLE_HISTORY = 3;
     const ARTICLE_CREATE_HISTORY = 4;
+
+    const ARTICLE_PRICE_HISTORY = 5;
 }

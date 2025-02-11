@@ -250,6 +250,29 @@ class ArticleService
 
     }
 
+    public function changePrice($request, $user, $roleId)
+    {
+        $object = Article::query()->findOrFail($request->object_id);
+        $object->update([
+            'construction_cost' => $request->price,
+            'price_supervision_service' => price_supervision($request->price)
+        ]);
+
+        $meta = [
+            'user_id' => $user->id, 'role_id' => $roleId, 'price' => $request->price
+        ];
+
+        $this->historyService->createHistory(
+            guId: $object->id,
+            status: $object->object_status_id->value,
+            type: LogType::ARTICLE_PRICE_HISTORY,
+            date: null,
+            comment: $item['comment'] ?? "",
+            additionalInfo: $meta
+        );
+
+    }
+
 
     public function createPayment($user, $roleId, $objectId)
     {
