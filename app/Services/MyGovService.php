@@ -244,7 +244,10 @@ class MyGovService
                 'closed_at' => $object->closed_at,
                 'regulations' => $object->regulations->map(function ($regulation) {
                     $fromUser = User::query()->find($regulation->created_by_user_id);
+                    $toUser = User::query()->find($regulation->user_id);
                     $fromRole = Role::query()->find($regulation->created_by_role_id);
+                    $toRole = Role::query()->find($regulation->role_id);
+
                     return [
                         'status' => RegulationStatusResource::make($regulation->regulationStatus),
                         'from_user' => [
@@ -253,9 +256,19 @@ class MyGovService
                             'middle_name' => $fromUser->middle_name,
                             'surname' => $fromUser->surname,
                         ],
-                        'role' => [
+                        'from_role' => [
                             'id' => $fromRole->id,
                             'name'=> $fromRole->name,
+                        ],
+                        'to_user' => [
+                            'id' => $toUser->id,
+                            'name' => $toUser->name,
+                            'middle_name' => $toUser->middle_name,
+                            'surname' => $toUser->surname,
+                        ],
+                        'to_role' => [
+                            'id' => $toRole->id,
+                            'name'=> $toRole->name,
                         ],
                         'pdf' => $regulation->pdf,
                     ];
