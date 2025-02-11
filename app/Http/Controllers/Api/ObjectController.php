@@ -135,7 +135,7 @@ class ObjectController extends BaseController
 
     public function deleteObjectPayment($id): JsonResponse
     {
-        try { 
+        try {
             $log = ArticlePaymentLog::query()->findOrFail($id);
             $log->delete();
             return $this->sendSuccess([], 'Object payment deleted successfully.');

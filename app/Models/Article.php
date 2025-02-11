@@ -207,7 +207,8 @@ class Article extends Model
     public function scopeSearchByTaskId($query, $searchTerm)
     {
         return $query->where('articles.task_id', 'like', '%' . $searchTerm . '%')
-            ->orWhere('articles.id', 'like', '%' . $searchTerm . '%');
+            ->orWhere('articles.id', 'like', '%' . $searchTerm . '%')
+            ->orWhere('articles.manual_task_id', 'like', '%' . $searchTerm . '%');
     }
 
 

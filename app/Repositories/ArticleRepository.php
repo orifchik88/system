@@ -282,7 +282,8 @@ class ArticleRepository implements ArticleRepositoryInterface
     {
         return Article::query()
             ->when($params['task_id'], function ($query) use ($params) {
-                $query->where('task_id', $params['task_id']);
+                $query->where('task_id', $params['task_id'])
+                        ->orWhere('manual_task_id', $params['task_id']);
             })
             ->when($params['gnk_id'], function ($query) use ($params) {
                 $query->where('gnk_id', $params['gnk_id']);
