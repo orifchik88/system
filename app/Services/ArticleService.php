@@ -661,6 +661,7 @@ class ArticleService
             $this->createHistory($article, $user, $roleId);
 
             DB::commit();
+            return $article;
         }catch (\Exception $exception){
             DB::rollBack();
             throw new  \Exception($exception->getMessage());

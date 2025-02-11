@@ -329,9 +329,8 @@ class ObjectController extends BaseController
     public function objectCreate(ObjectCreateRequest $request): JsonResponse
     {
         try {
-            $this->service->createObjectRegister($request, $this->user, $this->roleId);
-
-            return $this->sendSuccess([], 'success');
+            $article = $this->service->createObjectRegister($request, $this->user, $this->roleId);
+            return $this->sendSuccess(ArticleResource::make($article), 'success');
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
