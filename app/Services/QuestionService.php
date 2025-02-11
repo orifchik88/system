@@ -258,7 +258,7 @@ class QuestionService
                 'author_role_id' => $roleId,
                 'user_id' => $object->users()->wherePivot('role_id', UserRoleEnum::ICHKI->value)->pluck('users.id')->first(),
                 'role_id' => UserRoleEnum::ICHKI->value,
-                'bases_id' => $item['basis_id'],
+                'bases_id' => $item['basis_id'] ?? null,
                 'work_type_id' => $checklistData['work_type_id'],
                 'author_images' => json_encode($images),
                 'author_comment' => $item['comment'],
@@ -505,11 +505,11 @@ class QuestionService
     private function createViolation($violationData, $question, $checklist)
     {
         return Violation::create([
-            'question_id' => $question->id,
+            'question_id' => $question->id ?? null,
             'title' => $question->name,
             'description' => $violationData['description'],
             'comment' => $violationData['comment'],
-            'bases_id' => $violationData['basis_id'],
+            'bases_id' => $violationData['basis_id'] ?? null,
             'checklist_id' => $checklist->id,
         ]);
     }
