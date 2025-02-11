@@ -35,7 +35,7 @@ class ObjectCreateRequest extends FormRequest
             'organization_name' => 'required|',
             'object_type_id' => 'required|integer|exists:object_types,id',
             'deadline' => 'required|string',
-            'cadastral_number' => 'required|string',
+            'cadastral_number' => 'required_if:object_type_id,2|string',
             'difficulty_category_id' => 'required|integer|exists:difficulty_categories,id',
             'construction_cost' => 'required|string',
             'construction_works' => 'required|string',
