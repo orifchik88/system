@@ -239,10 +239,13 @@ class MyGovService
             return [
                 'registration_number' => $object->task_id,
                 'registration_date' => $object->created_at,
+                'lat' =>$object->lat,
+                'long' => $object->long,
                 'closed_at' => $object->closed_at,
                 'regulations' => $object->regulations->map(function ($regulation) {
                     return [
                         'status' => RegulationStatusResource::make($regulation->regulationStatus),
+                        'regulation_number' => $regulation->regulation_number,
                         'from_user' => [
                             'id' => $regulation->createdByUser->id ?? null,
                             'name' => $regulation->createdByUser->name ?? null,
