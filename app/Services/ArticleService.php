@@ -874,7 +874,7 @@ class ArticleService
                     'length' => $blockData['length'] ?? null,
                     'block_mode_id' => $blockData['block_mode_id'] ?? null,
                     'block_type_id' => $blockData['block_type_id'] ?? null,
-                    'appearance_type' => $blockData['appearance_type'] ?? null,
+                    'appearance_type' => filter_var($blockData['appearance_type'], FILTER_VALIDATE_BOOLEAN),
                     'created_by' => Auth::id(),
                     'status' => true,
                 ];
