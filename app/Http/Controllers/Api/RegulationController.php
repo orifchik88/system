@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\DTO\RegulationDto;
 use App\Enums\DxaResponseStatusEnum;
 use App\Enums\LawyerStatusEnum;
+use App\Enums\ObjectStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Exceptions\NotFoundException;
 use App\Http\Requests\RegulationAcceptRequest;
@@ -15,6 +16,7 @@ use App\Http\Resources\AuthorRegulationResource;
 use App\Http\Resources\RegulationResource;
 use App\Models\ActViolation;
 use App\Models\Article;
+use App\Models\ArticleUser;
 use App\Models\AuthorRegulation;
 use App\Models\DxaResponse;
 use App\Models\Regulation;
@@ -512,9 +514,64 @@ class RegulationController extends BaseController
     public function test()
     {
         try {
+            $filters = request()->only(['funding_source_id', 'region_id', 'difficulty_category_id', 'inspector_id', 'year', 'month', 'own']);
+            $monitorings =  ArticleUser::query()
+                ->leftJoin('monitorings', function ($join) {
+                    $join->on('monitorings.object_id', '=', 'article_users.article_id')
+                        ->where('monitorings.created_by_role', UserRoleEnum::INSPECTOR);
 
-            $data = deadline(2);
-            dd($data);
+                    if (isset($filters['year'])) {
+                        $join->whereYear('monitorings.created_at', $filters['year']);
+                    }
+                    if (isset($filters['month'])) {
+                        $join->whereMonth('monitorings.created_at', $filters['month']);
+                    }
+                })
+                ->join('articles', function ($join) use ($filters) {
+                    $join->on('articles.id', '=', 'article_users.article_id')
+                        ->whereRaw("
+                            articles.created_at <= (to_date(?, 'YYYY-MM') + INTERVAL '1 month - 1 day')
+                        ", ["{$filters['year']}-{$filters['month']}"]);
+                })
+//            ->leftJoinSub($checkListSubquery, 'check_list_summary', function ($join) {
+//                $join->on('check_list_summary.monitoring_id', '=', 'monitorings.id');
+//            })
+                ->when(isset($filters['funding_source_id']), function ($q) use ($filters) {
+                    $q->where('articles.funding_source_id', $filters['funding_source_id']);
+                })
+                ->when(isset($filters['region_id']), function ($q) use ($filters) {
+                    $q->where('articles.region_id', $filters['region_id']);
+                })
+                ->when(isset($filters['difficulty_category_id']), function ($q) use ($filters) {
+                    $q->where('articles.difficulty_category_id', $filters['difficulty_category_id']);
+                })
+                ->when(isset($filters['inspector_id']), function ($q) use ($filters) {
+                    $q->where('article_users.user_id', $filters['inspector_id']);
+                })
+                ->when(isset($filters['own']), function ($q) use ($filters) {
+                    $q->where('article_users.user_id', Auth::user()->id);
+                })
+                ->when(!isset($filters['own']) && !isset($filters['inspector_id']), function ($q) {
+                    $q->whereNull('article_users.user_id');
+                })
+                ->whereIn('articles.object_status_id', [ObjectStatusEnum::PROGRESS, ObjectStatusEnum::FROZEN, ObjectStatusEnum::SUSPENDED])
+                ->groupBy('articles.id', 'articles.funding_source_id', 'articles.difficulty_category_id', 'articles.task_id', 'articles.object_status_id', 'monitorings.id')
+                ->select([
+                    'monitorings.id as monitoring_id',
+                    'articles.id as object_id',
+                    'articles.task_id as task_id',
+                    'articles.object_status_id as status',
+                    'articles.funding_source_id',
+                    'articles.difficulty_category_id',
+                    DB::raw('COUNT(DISTINCT monitorings.id) as count'),
+                    DB::raw('CASE
+                    WHEN COUNT(monitorings.id) > 0 THEN true
+                    ELSE false
+                END as is_monitored'),
+                ])
+                ->get();
+
+            dd($monitorings);
 
 
             $response = DxaResponse::query()->where('task_id', request('task_id'))->first();
