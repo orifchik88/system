@@ -27,15 +27,15 @@ class ObjectCreateRequest extends FormRequest
     {
         return [
             'name' => 'required|string',
-            'lat'=>'required|string',
-            'long'=>'required|string',
+            'lat'=>'sometimes|string',
+            'long'=>'sometimes|string',
             'object_status_id'=>'required|integer|exists:object_statuses,id',
             'region_id' => 'required|integer|exists:regions,id',
             'district_id' => 'required|integer|exists:districts,id',
             'organization_name' => 'required|',
             'object_type_id' => 'required|integer|exists:object_types,id',
-            'deadline' => 'required|string',
-            'cadastral_number' => 'required_if:object_type_id,2',
+            'created_at' => 'required|string',
+            'cadastral_number' => 'sometimes|string',
             'difficulty_category_id' => 'required|integer|exists:difficulty_categories,id',
             'construction_cost' => 'required|string',
             'construction_works' => 'required|string',
@@ -50,6 +50,7 @@ class ObjectCreateRequest extends FormRequest
             'blocks.*' => 'required|array',
             'files' => 'required|array',
             'expertise_files' => 'required|array',
+            'user_files' => 'required|array',
             'price_supervision_service' => 'required',
             'inspector_id' => 'required|integer|exists:users,id',
         ];

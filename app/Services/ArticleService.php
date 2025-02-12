@@ -653,10 +653,10 @@ class ArticleService
     {
         DB::beginTransaction();
         try {
-            $article = Article::query()->create($request->except('users', 'inspector_id', 'files', 'blocks','expertise_files'));
+            $article = Article::query()->create($request->except('users', 'inspector_id', 'files', 'user_files', 'blocks','expertise_files'));
             $this->attachInspector($article, $request['inspector_id']);
             $this->saveArticleUsers($request['users'], $article);
-            $this->saveFiles($request['files'], $request['expertise_files'], $article);
+            $this->saveFiles($request['files'], $request['expertise_files'], $request['user_files'], $article);
             $this->saveBlocksRegister($article, $request['blocks']);
             $this->createHistory($article, $user, $roleId);
 
@@ -688,24 +688,31 @@ class ArticleService
         $article->users()->attach($inspectorId, ['role_id' => UserRoleEnum::INSPECTOR->value]);
     }
 
-    private function saveFiles($files, $expertises, $article)
+    private function saveFiles($files, $expertises, $users, $article)
     {
 
         $objectFiles = [];
         $expertiseFiles = [];
+        $userFiles = [];
         foreach ($files as $file) {
             $path = $file->store('object/files', 'public');
-            $objectFiles[] =$path;
+            $objectFiles[] = $path;
         }
 
         foreach ($expertises as $file) {
             $path = $file->store('object/files', 'public');
-            $expertiseFiles[] =$path;
+            $expertiseFiles[] = $path;
+        }
+
+        foreach ($users as $file) {
+            $path = $file->store('object/files', 'public');
+            $userFiles[] = $path;
         }
 
         $article->update([
             'files' => json_encode($objectFiles),
             'expertise_files' => json_encode($expertiseFiles),
+            'user_files' => json_encode($userFiles),
         ]);
     }
 
