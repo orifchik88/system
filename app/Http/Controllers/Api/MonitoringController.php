@@ -72,7 +72,16 @@ class MonitoringController extends BaseController
             $meta = array_merge($meta, $array);
         }
 
-        dd($meta);
+        foreach ($meta as $item) {
+            $monitoring = Monitoring::find($item);
+            if ($monitoring) {
+                $monitoring->update([
+                    'question_64' => true,
+                    'question_65' => true,
+                ]);
+            }
+        }
+
     }
 
     public function monitoring(): JsonResponse
