@@ -290,6 +290,11 @@ class StatisticsController extends BaseController
                 ->when(in_array('monitorings', $columns), function ($q) use ($filters) {
                     $q->withCount(['monitorings as monitoring_count' => function ($query) use ($filters) {
                         $query->where('created_by_role', UserRoleEnum::INSPECTOR->value)
+                            ->whereExists(function ($subQuery) {
+                                $subQuery->select(DB::raw(1))
+                                    ->from('check_list_answers')
+                                    ->whereColumn('check_list_answers.monitoring_id', 'monitorings.id');
+                            })
                             ->when(isset($filters['date_from']) && isset($filters['date_to']), function ($q) use ($filters) {
                                 return $q->whereBetween('monitorings.created_at', [$filters['date_from'], $filters['date_to']]);
                             });
