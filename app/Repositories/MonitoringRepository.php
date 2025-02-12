@@ -71,6 +71,7 @@ class MonitoringRepository implements MonitoringRepositoryInterface
             ->whereIn('articles.object_status_id', [ObjectStatusEnum::PROGRESS, ObjectStatusEnum::FROZEN, ObjectStatusEnum::SUSPENDED])
             ->groupBy('articles.id', 'articles.funding_source_id', 'articles.difficulty_category_id', 'articles.task_id', 'articles.object_status_id')
             ->select([
+                'monitorings.id as monitoring_id',
                 'articles.id as object_id',
                 'articles.task_id as task_id',
                 'articles.object_status_id as status',
