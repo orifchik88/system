@@ -28,11 +28,11 @@ class MonitoringRepository implements MonitoringRepositoryInterface
 //                        ->groupBy('check_list_answers.question_id');
 //                });
 
-                if (isset($filters['inspector_id'])) {
-                    $join->where('monitorings.created_by', $filters['inspector_id']);
-                } elseif (isset($filters['own'])) {
-                    $join->where('monitorings.created_by', Auth::user()->id);
-                }
+//                if (isset($filters['inspector_id'])) {
+//                    $join->where('monitorings.created_by', $filters['inspector_id']);
+//                } elseif (isset($filters['own'])) {
+//                    $join->where('monitorings.created_by', Auth::user()->id);
+//                }
 
                 if (isset($filters['year'])) {
                     $join->whereYear('monitorings.created_at', $filters['year']);
