@@ -64,6 +64,7 @@ Route::group([
     Route::get('monitoring-objects', [InformationController::class, 'monitoringObjects']);
     Route::get('cadastral-info', [InformationController::class, 'cadastr']);
     Route::get('monitoring-list', [MonitoringController::class, 'monitoringList']);
+    Route::get('monitor', [MonitoringController::class, 'getMonitor']);
     Route::get('monitoring-gnk', [InformationController::class, 'monitoringGNK']);
     Route::get('monitoring-customer', [InformationController::class, 'monitoringCustomer']);
     Route::get('reestr', [InformationController::class, 'reestr']);

@@ -17,6 +17,7 @@ use App\Models\Block;
 use App\Models\CheckListAnswer;
 use App\Models\CheckListHistory;
 use App\Models\Monitoring;
+use App\Models\User;
 use App\Services\HistoryService;
 use App\Services\MessageTemplate;
 use App\Services\MonitoringService;
@@ -49,6 +50,29 @@ class MonitoringController extends BaseController
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage());
         }
+    }
+
+    public function getMonitor()
+    {
+        $filters = request()->only(['funding_source_id', 'region_id', 'difficulty_category_id', 'year', 'month', 'own']);
+        $users = User::query()->whereHas('roles', function ($query) {
+            $query->where('role_id', 3);
+        });
+        $meta = [];
+        foreach ($users as $user) {
+            $filters  = array_merge($filters, ['inspector_id' => $user->id]);
+            $monitorings = $this->monitoringService->getMonitoringList(filters: $filters);
+            $array = [];
+            foreach ($monitorings as $monitoring) {
+                if ($monitoring->monitoring_id)
+                {
+                    $array [] = $monitoring->monitoring_id;
+                }
+            }
+            $meta = array_merge($meta, $array);
+        }
+
+        dd($meta);
     }
 
     public function monitoring(): JsonResponse

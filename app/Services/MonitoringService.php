@@ -49,6 +49,13 @@ class MonitoringService
         return $this->monitoringRepository->getMonitoringList(filters: $filters);
     }
 
+    public function getMonitor()
+    {
+
+    }
+
+
+
     public function getMonitoringByRegion($regionId)
     {
         return $this->monitoringRepository->getMonitoringByRegion($regionId);
