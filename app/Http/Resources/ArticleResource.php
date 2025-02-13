@@ -69,6 +69,22 @@ class ArticleResource extends JsonResource
             'internal_control' => $this->internal_control,
             'author_control' => $this->author_control,
             'technic_control' => $this->technic_control,
+            'files' => collect(json_decode($this->files))->map(function ($file) {
+                return [
+                    'url' => url($file),
+                ];
+            }),
+            'expertise_files' => collect(json_decode($this->expertise_files))->map(function ($file) {
+                return [
+                    'url' => url($file),
+                ];
+            }),
+            'user_files' => collect(json_decode($this->user_files))->map(function ($file) {
+                return [
+                    'url' => url($file),
+                ];
+            }),
+
         ];
     }
 
