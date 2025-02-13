@@ -290,8 +290,11 @@ class QuestionService
             }
         }
 
+        $this->constantChecklist($data, $monitoring);
+
+
         if (!empty($data['positive'])) {
-            $this->handleChecklists($data['positive'], $object, null, $roleId, true, $monitoring->id);
+             $this->handleChecklists($data['positive'], $object, null, $roleId, true, $monitoring->id);
         }
         if (!empty($data['negative'])) {
             $allRoleViolations = $this->handleChecklists($data['negative'], $object, null, $roleId, false, $monitoring->id);
@@ -299,6 +302,20 @@ class QuestionService
         }
     }
 
+    private function constantChecklist($data, $monitoring)
+    {
+        $meta = [];
+        foreach ($data['positive'] as $positive) {
+          $meta [$data['question_id']] = $positive['status'];
+        }
+        foreach ($data['negative'] as $negative) {
+            $meta [$data['question_id']] = $negative['status'];
+        }
+
+        $monitoring->update([
+            'constant_checklist' => json_encode($meta),
+        ]);
+    }
     private function createMonitoring($data, $object, $roleId)
     {
         return Monitoring::create([
