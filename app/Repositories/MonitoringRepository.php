@@ -34,6 +34,11 @@ class MonitoringRepository implements MonitoringRepositoryInterface
 //                    $join->where('monitorings.created_by', Auth::user()->id);
 //                }
 
+                $join->where(function ($q) {
+                    return $q->whereNotNull('monitorings.work_in_progress')
+                        ->orWhereNotNull('monitorings.constant_checklist');
+                });
+
                 if (isset($filters['year'])) {
                     $join->whereYear('monitorings.created_at', $filters['year']);
                 }
@@ -67,9 +72,6 @@ class MonitoringRepository implements MonitoringRepositoryInterface
             })
             ->when(!isset($filters['own']) && !isset($filters['inspector_id']), function ($q) {
                 $q->whereNull('article_users.user_id');
-
-                $q->whereNotNull('monitorings.work_in_progress')
-                    ->orWhereNotNull('monitorings.constant_checklist');
             })
             ->whereIn('articles.object_status_id', [ObjectStatusEnum::PROGRESS, ObjectStatusEnum::FROZEN, ObjectStatusEnum::SUSPENDED])
             ->groupBy('articles.id', 'articles.funding_source_id', 'articles.difficulty_category_id', 'articles.task_id', 'articles.object_status_id')
