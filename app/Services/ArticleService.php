@@ -400,7 +400,7 @@ class ArticleService
             'positive_opinion_number' => $response->positive_opinion_number,
             'date_protocol' =>$response->date_protocol,
             'funding_source_id' => $response->funding_source_id ?? $article->funding_source_id,
-            //'deadline' => $response->end_term_work,
+            'org_stir' => $response->application_stir_pinfl,
             'gnk_id' => $response->gnk_id,
             'reestr_number' => (int)$response->reestr_number,
         ]);
