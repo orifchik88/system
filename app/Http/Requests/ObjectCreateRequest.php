@@ -63,6 +63,7 @@ class ObjectCreateRequest extends FormRequest
             'object_status_id' => ObjectStatusEnum::PROGRESS->value,
             'appearance_type_id' => 1,
             'funding_source_id' => 2,
+            'location_building' => $this->address,
             'manual_task_id' => $this->generateUniqueTaskId()
         ]);
     }
