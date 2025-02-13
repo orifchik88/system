@@ -400,7 +400,7 @@ class ArticleService
             'positive_opinion_number' => $response->positive_opinion_number,
             'date_protocol' =>$response->date_protocol,
             'funding_source_id' => $response->funding_source_id ?? $article->funding_source_id,
-            'org_stir' => $response->application_stir_pinfl,
+            'org_stir' => $response->application_stir_pinfl ?? $response->pinfl,
             'gnk_id' => $response->gnk_id,
             'reestr_number' => (int)$response->reestr_number,
         ]);
@@ -447,6 +447,8 @@ class ArticleService
             $article->paid = 0;
             $article->payment_deadline = Carbon::now();
             $article->deadline = $response->end_term_work;
+            $article->org_stir = $response->application_stir_pinfl ?? $response->pinfl;
+
             $article->gnk_id = $response->gnk_id;
             $article->reestr_number = (int)$response->reestr_number;
 

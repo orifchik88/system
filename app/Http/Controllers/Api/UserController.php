@@ -382,6 +382,7 @@ class UserController extends BaseController
                 'surname' => $data['surnamelat'],
                 'middle_name' => $data['patronymlat'],
                 'image' => $data['photo'],
+                'passport_number' => $data['current_document']
             ];
             return $this->sendSuccess($meta, 'Passport Information Get Successfully');
 
