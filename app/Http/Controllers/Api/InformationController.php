@@ -91,9 +91,10 @@ class InformationController extends BaseController
             $response = Http::withBasicAuth('orgapi-v1', '*@org-apiv_*ali')
                 ->get('https://api-sert.mc.uz/api/orginfoapi/'.$cadNumber);
 
+
             if ($response->successful()) {
 
-                return $this->sendSuccess($response->json()['data'], 'Organization information successfully retrieved.');
+                return response()->json($response->json());
 
             }
             return $this->sendError('Xatolik yuz berdi');
