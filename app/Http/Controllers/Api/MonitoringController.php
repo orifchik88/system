@@ -59,14 +59,14 @@ class MonitoringController extends BaseController
         try {
             $query = $this->monitoringService->getMonitorings($this->user, $this->roleId);
             $filters = request()->only(['object_name','start_date', 'role_id', 'end_date', 'region_id', 'district_id', 'funding_source', 'category', 'task_id']);
-
             $monitorings = $this->monitoringService->searchMonitoring($query, $filters)
                 ->orderBy('created_at', request('sort_by_date', 'DESC'))
                 ->paginate(request('per_page', 10));
 
+
             return $this->sendSuccess(MonitoringResource::collection($monitorings), 'Monitorings', pagination($monitorings));
         } catch (\Exception $exception) {
-            return $this->sendError($exception->getMessage());
+            return $this->sendError($exception->getMessage(), $exception->getLine());
         }
 
     }
