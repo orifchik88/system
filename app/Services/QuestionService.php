@@ -305,13 +305,18 @@ class QuestionService
     private function constantChecklist($data, $monitoring)
     {
         $meta = [];
-        foreach ($data['positive'] as $positive) {
-          $meta [$positive['question_id']] = $positive['status'];
+        if (isset($data['positive']))
+        {
+            foreach ($data['positive'] as $positive) {
+                $meta [$positive['question_id']] = $positive['status'];
+            }
         }
-        foreach ($data['negative'] as $negative) {
-            $meta [$negative['question_id']] = $negative['status'];
+        if (isset($data['negative'])){
+            foreach ($data['negative'] as $negative) {
+                $meta [$negative['question_id']] = $negative['status'];
+            }
         }
-
+        
         $monitoring->update([
             'constant_checklist' => json_encode($meta),
         ]);

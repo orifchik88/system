@@ -516,14 +516,16 @@ class RegulationController extends BaseController
     public function test()
     {
         try {
-           $monitroings = Monitoring::query()
-               ->where('created_by_role', 3)
-               ->where('created_by_user', 21215)
-               ->whereYear('created_at', "2025")
-                ->whereMonth('created_at', "01")
-               ->get();
-
-           dd($monitroings);
+            $meta = [];
+            $monitroings = Monitoring::query()->find(314896);
+            $data = json_decode($monitroings->constant_checklist);
+            foreach ($data as $key => $datum) {
+                $meta[] =[
+                    'question_id' => $key,
+                    'status' => $datum,
+                ];
+            }
+           dd($meta);
 
 
             $response = DxaResponse::query()->where('task_id', request('task_id'))->first();
