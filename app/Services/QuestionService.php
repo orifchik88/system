@@ -316,7 +316,7 @@ class QuestionService
                 $meta [$negative['question_id']] = $negative['status'];
             }
         }
-        
+
         $monitoring->update([
             'constant_checklist' => json_encode($meta),
         ]);
