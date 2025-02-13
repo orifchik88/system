@@ -33,6 +33,7 @@ class MonitoringUpdate extends Command
             ->with(['checklists' => function ($query) {
                 $query->whereIn('question_id', [64, 65, 73]);
             }])
+            ->whereNull('constant_checklist')
             ->chunk(100, function ($monitorings) {
                 foreach ($monitorings as $monitoring) {
                     $meta = [];
