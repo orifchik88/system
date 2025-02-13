@@ -87,8 +87,6 @@ Route::group([
     Route::get('reports', [StatisticsController::class, 'reports']);
     Route::get('excelClaim', [StatisticsController::class, 'excel']);
 
-
-
     Route::get('sphere', [SphereController::class, 'spheres']);
     Route::get('programs', [ProgramController::class, 'programs']);
 
