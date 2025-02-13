@@ -58,17 +58,21 @@ class InformationController extends BaseController
         try {
             $data = getData(config('app.gasn.monitoring'), request('expertise_number'))['data']['result']['data'];
 
+
             if (!empty($data)) {
-                $sphere = Sphere::query()->find($data[0]['object_types_id']);
-                $program = Program::query()->find($data[0]['project_type_id']);
-                $meta[] = [
-                    'id' => $data[0]['id'],
-                    'gnk_id' => $data[0]['gnk_id'],
-                    'project_type' => ProgramResource::make($program),
-                    'name' => $data[0]['name'],
-                    'end_term_work_days' => $data[0]['end_term_work_days'],
-                    'sphere' => SphereResource::make($sphere),
-                ];
+                foreach ($data as $item) {
+                    $sphere = Sphere::query()->find($item['object_types_id']);
+                    $program = Program::query()->find($item['project_type_id']);
+                    $meta[] = [
+                        'id' => $item['id'],
+                        'gnk_id' => $item['gnk_id'],
+                        'project_type' => ProgramResource::make($program),
+                        'name' => $item['name'],
+                        'end_term_work_days' => $item['end_term_work_days'],
+                        'sphere' => SphereResource::make($sphere),
+                    ];
+                }
+
             } else {
                 $meta = $informationService->customer($customerInn, $pudratInn);
             }
