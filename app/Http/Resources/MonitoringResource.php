@@ -45,8 +45,8 @@ class MonitoringResource extends JsonResource
 
             'checklists' => $this->constant_checklist ? collect(json_decode($this->constant_checklist, true))->map(function ($status, $question_id) {
                 return [
-                    'question_id' => $question_id,
-                    'status' => $status,
+                    'question_id' => (int)$question_id,
+                    'status' => (int)$status,
                 ];
             })->values() : [],
             'created_at' => $this->created_at,
