@@ -7,6 +7,7 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use function PHPUnit\Framework\stringContains;
 
 class MonitoringResource extends JsonResource
 {
@@ -35,12 +36,19 @@ class MonitoringResource extends JsonResource
             'question_64' => $this->question_64,
             'question_65' => $this->question_65,
             'question_73' => $this->question_73,
-            'checklists' => $this->checklists->map(function ($checklist) {
+//            'checklists' => $this->checklists->map(function ($checklist) {
+//                return [
+//                    'status' => $checklist->status,
+//                    'question_id' => $checklist->question ? $checklist->question->id : null,
+//                ];
+//            }),
+
+            'checklists' => $this->constant_checklist ? collect(json_decode($this->constant_checklist, true))->map(function ($status, $question_id) {
                 return [
-                    'status' => $checklist->status,
-                    'question_id' => $checklist->question ? $checklist->question->id : null,
+                    'question_id' => $question_id,
+                    'status' => $status,
                 ];
-            }),
+            })->values() : [],
             'created_at' => $this->created_at,
             'role' => [
                 'id' => $this->role->id,
