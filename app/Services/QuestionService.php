@@ -317,9 +317,12 @@ class QuestionService
             }
         }
 
-        $monitoring->update([
-            'constant_checklist' => json_encode($meta),
-        ]);
+        if (!empty($meta)){
+            $monitoring->update([
+                'constant_checklist' => json_encode($meta),
+            ]);
+        }
+
     }
     private function createMonitoring($data, $object, $roleId)
     {
