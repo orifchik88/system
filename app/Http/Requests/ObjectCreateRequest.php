@@ -27,15 +27,15 @@ class ObjectCreateRequest extends FormRequest
     {
         return [
             'name' => 'required|string',
-            'lat'=>'sometimes|string',
-            'long'=>'sometimes|string',
+            'lat'=>'sometimes',
+            'long'=>'sometimes',
             'object_status_id'=>'required|integer|exists:object_statuses,id',
             'region_id' => 'required|integer|exists:regions,id',
             'district_id' => 'required|integer|exists:districts,id',
             'organization_name' => 'required|',
             'object_type_id' => 'required|integer|exists:object_types,id',
             'created_at' => 'required|string',
-            'cadastral_number' => 'sometimes|string',
+            'cadastral_number' => 'sometimes',
             'difficulty_category_id' => 'required|integer|exists:difficulty_categories,id',
             'construction_cost' => 'required|string',
             'construction_works' => 'required|string',
