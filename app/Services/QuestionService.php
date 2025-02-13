@@ -306,10 +306,10 @@ class QuestionService
     {
         $meta = [];
         foreach ($data['positive'] as $positive) {
-          $meta [$data['question_id']] = $positive['status'];
+          $meta [$positive['question_id']] = $positive['status'];
         }
         foreach ($data['negative'] as $negative) {
-            $meta [$data['question_id']] = $negative['status'];
+            $meta [$negative['question_id']] = $negative['status'];
         }
 
         $monitoring->update([
