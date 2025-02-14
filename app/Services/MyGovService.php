@@ -6,9 +6,12 @@ use App\Enums\ObjectStatusEnum;
 use App\Enums\RoleTypeEnum;
 use App\Enums\UserRoleEnum;
 use App\Http\Resources\ArticlePalataResource;
+use App\Http\Resources\DifficultyCategoryResource;
 use App\Http\Resources\DistrictResource;
+use App\Http\Resources\FundingSourceResource;
 use App\Http\Resources\ObjectDesignResource;
 use App\Http\Resources\ObjectOrganizationResource;
+use App\Http\Resources\ObjectTypeResource;
 use App\Http\Resources\RegionResource;
 use App\Http\Resources\RegulationStatusResource;
 use App\Http\Resources\RoleResource;
@@ -25,7 +28,8 @@ class MyGovService
 
     public function __construct(
         ArticleRepositoryInterface $articleRepository,
-        UserRepositoryInterface    $userRepository
+        UserRepositoryInterface    $userRepository,
+        protected QuestionService   $questionService,
     )
     {
         $this->articleRepository = $articleRepository;
@@ -273,5 +277,65 @@ class MyGovService
         });
 
         return response()->json($response, 200);
+    }
+
+    public function getObjectTax($objectId)
+    {
+        $object = $this->articleRepository->findById($objectId);
+        if (!$object) return null;
+
+        if ($object->funding_source_id != 1 && $object->object_type_id != 1) {
+            $customer = $object->users()->where('role_id', UserRoleEnum::BUYURTMACHI->value)->first();
+            $builder = $object->users()->where('role_id', UserRoleEnum::QURILISH->value)->first();
+
+            $blocks = $object->blocks()->with('type')->get();
+
+            $blockWorkTypes = $blocks->map(function ($block) {
+                $works = $this->questionService->getQuestionList(
+                    blockId: $block->id,
+                    type: null,
+                    block_type: 2
+                );
+
+                $workTypes = collect($works)
+                    ->filter(fn($item) => !empty($item['questions'][0]['work_type_status']) && $item['questions'][0]['work_type_status']->value == 1)
+                    ->map(fn($item) => ['name' => $item['name']])
+                    ->values()
+                    ->toArray();
+
+                return [
+                    'id' => $block->id,
+                    'name' => $block->name,
+                    'floor' => $block->floor,
+                    'work_types' => $workTypes,
+                ];
+            });
+
+            $data = [
+                'object_id' => $object->id,
+                'object_name' => $object->name,
+                'created_at' => $object->created_at,
+                'customer_name' => $customer?->organization_name ?? '',
+                'cadastral_number' => $object->cadastral_number,
+                'difficulty_category' => $object->difficulty ? DifficultyCategoryResource::make($object->difficulty) : null,
+                'construction_works' => $object->construction_works,
+                'region' => $object->region ? RegionResource::make($object->region) : null,
+                'district' => $object->district ? DistrictResource::make($object->district) : null,
+                'object_type' => $object->objectType ? ObjectTypeResource::make($object->objectType) : null,
+                'address' => $object->location_building,
+                'number_protocol' => $object->number_protocol,
+                'reestr_number' => $object->reestr_number,
+                'funding_source' => FundingSourceResource::make($object->fundingSource),
+                'construction_cost' => $object->construction_cost,
+                'pinfl_customer' => $customer?->name ? $customer->pinfl : '',
+                'tin_customer' => $customer?->name ? '' : ($customer?->pinfl ?? ''),
+                'tin_general_contractor' => $builder?->pinfl ?? '',
+                'blocks' => $blockWorkTypes,
+            ];
+
+            return response()->json($data, 200);
+        }
+
+        return null;
     }
 }

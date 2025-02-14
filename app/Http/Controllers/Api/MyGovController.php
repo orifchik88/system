@@ -108,6 +108,18 @@ class MyGovController extends Controller
         return $data;
     }
 
+    public function getObjectTax()
+    {
+        $objectId = request('object_id');
+        $data = $this->myGovService->getObjectTax($objectId);
+
+        if (!$data) {
+            return ['success' =>  false, 'message' => "Ma'lumot topilmadi"];
+        }
+
+        return $data;
+    }
+
 
 
 }

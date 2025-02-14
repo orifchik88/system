@@ -267,6 +267,7 @@ Route::middleware('auth.custom_basic')->prefix('internal')->group(function () {
     Route::get('get-objects-by-organization', [MyGovController::class, 'getObjectsByOrganization']);
     Route::get('get-objects-by-design', [MyGovController::class, 'getObjectsByDesign']);
     Route::get('get-objects-regulations', [MyGovController::class, 'getObjectsRegulations']);
+    Route::get('get-object-tax', [MyGovController::class, 'getObjectTax']);
 });
 
 
