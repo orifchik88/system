@@ -298,10 +298,31 @@ class MyGovService
                 );
 
                 $workTypes = collect($works)
-                    ->filter(fn($item) => !empty($item['questions'][0]['work_type_status']) && $item['questions'][0]['work_type_status']->value == 1)
-                    ->map(fn($item) => ['name' => $item['name']])
+                    ->reject(fn($item) => in_array($item['work_type_id'], [14]))
+                    ->flatMap(function ($item) {
+                        $title = $item['name'];
+                        $questions = $item['questions'];
+
+                        $filteredQuestions = collect($questions)->groupBy('floor');
+
+                        return $filteredQuestions->map(function ($questions, $floor) use ($title) {
+                            $name = $floor && $floor != '' ? $floor . ' - ' . $title : $title;
+
+                            $firstQuestion = $questions->first();
+                            if (!$firstQuestion || $firstQuestion['work_type_status']->value != 2) {
+                                return null;
+                            }
+
+                            return [
+                                'name' => $name,
+                            ];
+                        })->filter();
+                    })
                     ->values()
                     ->toArray();
+
+
+
 
                 return [
                     'id' => $block->id,
@@ -319,13 +340,13 @@ class MyGovService
                 'cadastral_number' => $object->cadastral_number,
                 'difficulty_category' => $object->difficulty ? DifficultyCategoryResource::make($object->difficulty) : null,
                 'construction_works' => $object->construction_works,
-                'region' => $object->region ? RegionResource::make($object->region) : null,
-                'district' => $object->district ? DistrictResource::make($object->district) : null,
-                'object_type' => $object->objectType ? ObjectTypeResource::make($object->objectType) : null,
+                'region' => $object->region ? $object->region->only(['name_uz', 'soato']) : null,
+                'district' => $object->district ? $object->district->only(['name_uz', 'soato']) : null,
+                'object_type' => $object->objectType ? $object->objectType->only(['id','name']) : null,
                 'address' => $object->location_building,
                 'number_protocol' => $object->number_protocol,
                 'reestr_number' => $object->reestr_number,
-                'funding_source' => FundingSourceResource::make($object->fundingSource),
+                'funding_source' => $object->fundingSource ? $object->fundingSource->only(['id', 'description']) : null,
                 'construction_cost' => $object->construction_cost,
                 'pinfl_customer' => $customer?->name ? $customer->pinfl : '',
                 'tin_customer' => $customer?->name ? '' : ($customer?->pinfl ?? ''),
