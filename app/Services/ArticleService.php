@@ -266,7 +266,7 @@ class ArticleService
             'user_id' => $user->id, 'role_id' => $roleId, 'price' => $request->price, 'old_price' => $oldPrice
         ];
 
-        $this->historyService->createHistory(
+        $this->objectHistory->createHistory(
             guId: $object->id,
             status: $object->object_status_id->value,
             type: LogType::ARTICLE_PRICE_HISTORY,
@@ -285,7 +285,7 @@ class ArticleService
             $object = Article::query()->findOrFail($log->gu_id);
             $meta = ['user_id' => $user->id, 'role_id' => $roleId, 'content' => $log->content];
 
-            $this->historyService->createHistory(
+            $this->objectHistory->createHistory(
                 guId: $object->id,
                 status: $object->object_status_id->value,
                 type: LogType::ARTICLE_PRICE_DELETE,
