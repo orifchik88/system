@@ -129,10 +129,10 @@ class ObjectController extends BaseController
         }
     }
 
-    public function deleteObjectPayment($id): JsonResponse
+    public function deleteObjectPayment(): JsonResponse
     {
         try {
-            $log = ArticlePaymentLog::query()->findOrFail($id);
+            $log = ArticlePaymentLog::query()->findOrFail(request('id'));
             $log->delete();
             return $this->sendSuccess([], 'Object payment deleted successfully.');
         }catch (\Exception $exception){
