@@ -254,13 +254,16 @@ class ArticleService
     public function changePrice($request, $user, $roleId)
     {
         $object = Article::query()->findOrFail($request->object_id);
+
+        $oldPrice = $object->construction_cost;
+
         $object->update([
             'construction_cost' => $request->price,
             'price_supervision_service' => price_supervision($request->price)
         ]);
 
         $meta = [
-            'user_id' => $user->id, 'role_id' => $roleId, 'price' => $request->price
+            'user_id' => $user->id, 'role_id' => $roleId, 'price' => $request->price, 'old_price' => $oldPrice
         ];
 
         $this->historyService->createHistory(

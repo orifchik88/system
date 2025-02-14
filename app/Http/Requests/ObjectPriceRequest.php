@@ -28,12 +28,12 @@ class ObjectPriceRequest extends FormRequest
                 'required',
                 'integer',
                 'exists:articles,id',
-                function ($attribute, $value, $fail) {
-                    $cost = Article::query()->where('id', $value)->value('construction_cost');
-                    if (intval($cost) !== 0) {
-                        $fail('Tanlangan obyektning qiymati mavjud');
-                    }
-                },
+//                function ($attribute, $value, $fail) {
+//                    $cost = Article::query()->where('id', $value)->value('construction_cost');
+//                    if (intval($cost) !== 0) {
+//                        $fail('Tanlangan obyektning qiymati mavjud');
+//                    }
+//                },
             ],
             'price' => 'required',
         ];
