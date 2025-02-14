@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
+use PHPUnit\Framework\Exception;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class ArticleService
@@ -271,6 +272,31 @@ class ArticleService
             additionalInfo: $meta
         );
 
+    }
+
+    public function deletePaymentLog($id, $comment, $user, $roleId)
+    {
+        DB::beginTransaction();
+        try {
+            $log = ArticlePaymentLog::query()->findOrFail($id);
+            $object = Article::query()->findOrFail($log->gu_id);
+            $meta = ['user_id' => $user->id, 'role_id' => $roleId, 'content' => $log->content];
+
+            $this->historyService->createHistory(
+                guId: $object->id,
+                status: $object->object_status_id->value,
+                type: LogType::ARTICLE_PRICE_DELETE,
+                date: null,
+                comment: $comment ?? "",
+                additionalInfo: $meta
+            );
+
+            $log->delete();
+            DB::commit();
+        }catch (\Exception $exception){
+            DB::rollBack();
+            throw  new Exception('Xatolik');
+        }
     }
 
 

@@ -12,4 +12,5 @@ class LogType
     const ARTICLE_CREATE_HISTORY = 4;
 
     const ARTICLE_PRICE_HISTORY = 5;
+    const ARTICLE_PRICE_DELETE = 6;
 }
