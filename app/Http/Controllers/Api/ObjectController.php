@@ -472,4 +472,15 @@ class ObjectController extends BaseController
         }
     }
 
+    public function inspectorChangeObject(): JsonResponse
+    {
+        try {
+            $this->service->attachInspectorObject($this->user, $this->roleId, request('task_ids'), request('inspector_id'));
+
+            return $this->sendSuccess([], 'success');
+        }catch (\Exception $exception){
+            return $this->sendError('Xatolik aniqlandi', $exception->getMessage());
+        }
+    }
+
 }

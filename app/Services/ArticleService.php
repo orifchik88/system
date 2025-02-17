@@ -277,6 +277,41 @@ class ArticleService
 
     }
 
+    public function attachInspectorObject($user, $roleId, $taskIds, $user_id)
+    {
+        DB::beginTransaction();
+        try {
+            $objects = Article::query()->whereIn('task_id', $taskIds)->get();
+
+            foreach ($objects as $object) {
+                 $oldInspector = $object->users()->where('role_id', UserRoleEnum::INSPECTOR->value)->first();
+                $meta = [
+                    'user_id' => $user->id, 'role_id' => $roleId, 'old_user_id' => $oldInspector ? $oldInspector->id : null, 'new_user_id' => $user_id
+                ];
+
+                $this->objectHistory->createHistory(
+                    guId: $object->id,
+                    status: $object->object_status_id->value,
+                    type: LogType::ARTICLE_PRICE_HISTORY,
+                    date: null,
+                    comment: $item['comment'] ?? "",
+                    additionalInfo: $meta
+                );
+
+                $articleUser = new ArticleUser();
+                $articleUser->article_id = $object->id;
+                $articleUser->user_id = $user_id;
+                $articleUser->role_id = UserRoleEnum::INSPECTOR->value;
+                $articleUser->save();
+
+            DB::commit();
+            }
+        }catch (\Exception $exception){
+            DB::rollBack();
+            throw $exception;
+        }
+    }
+
     public function deletePaymentLog($id, $comment, $user, $roleId)
     {
         DB::beginTransaction();
@@ -920,6 +955,8 @@ class ArticleService
                 Block::create($blockAttributes);
             }
     }
+
+
 
     private function sendTax($object)
     {
