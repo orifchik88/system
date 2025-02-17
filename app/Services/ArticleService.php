@@ -292,7 +292,7 @@ class ArticleService
                 $this->objectHistory->createHistory(
                     guId: $object->id,
                     status: $object->object_status_id->value,
-                    type: LogType::ARTICLE_PRICE_HISTORY,
+                    type: LogType::ARTICLE_INSPECTOR_HISTORY,
                     date: null,
                     comment: $item['comment'] ?? "",
                     additionalInfo: $meta
