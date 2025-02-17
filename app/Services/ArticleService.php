@@ -298,11 +298,23 @@ class ArticleService
                     additionalInfo: $meta
                 );
 
-                $articleUser = new ArticleUser();
-                $articleUser->article_id = $object->id;
-                $articleUser->user_id = $user_id;
-                $articleUser->role_id = UserRoleEnum::INSPECTOR->value;
-                $articleUser->save();
+                if ($oldInspector)
+                {
+                    ArticleUser::query()
+                        ->where('user_id', $oldInspector->id)
+                        ->where('object_id', $object->id)
+                        ->where('role_id', UserRoleEnum::INSPECTOR->value)
+                        ->update(['role_id' => UserRoleEnum::INSPECTOR->value, 'user_id' => $user_id]);
+                }else{
+                    $articleUser = new ArticleUser();
+                    $articleUser->article_id = $object->id;
+                    $articleUser->user_id = $user_id;
+                    $articleUser->role_id = UserRoleEnum::INSPECTOR->value;
+                    $articleUser->save();
+                }
+
+
+
 
             DB::commit();
             }
