@@ -6,6 +6,7 @@ use App\DTO\RegulationDto;
 use App\Enums\DxaResponseStatusEnum;
 use App\Enums\LawyerStatusEnum;
 use App\Enums\ObjectStatusEnum;
+use App\Enums\RegulationStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Exceptions\NotFoundException;
 use App\Http\Requests\RegulationAcceptRequest;
@@ -36,6 +37,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
+use PHPUnit\Framework\Exception;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use function Laravel\Prompts\select;
 
@@ -172,6 +174,9 @@ class RegulationController extends BaseController
             $roleId = $user->getRoleFromToken();
 
             $regulation = Regulation::query()->findOrFaiL($request->post('regulation_id'));
+
+            if ($regulation->regulation_status_id == RegulationStatusEnum::IN_LAWYER) throw new Exception('Tasdiqlash imkoni yoq');
+
             $act = ActViolation::create([
                 'regulation_id' => $regulation->id,
                 'user_id' => Auth::id(),
@@ -202,6 +207,8 @@ class RegulationController extends BaseController
 
         try {
             $regulation = Regulation::query()->findOrFaiL($request->post('regulation_id'));
+            if ($regulation->regulation_status_id == RegulationStatusEnum::IN_LAWYER) throw new Exception('Tasdiqlash imkoni yoq');
+            
             $user = Auth::user();
             $roleId = $user->getRoleFromToken();
 
