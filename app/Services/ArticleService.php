@@ -302,7 +302,7 @@ class ArticleService
                 {
                     ArticleUser::query()
                         ->where('user_id', $oldInspector->id)
-                        ->where('object_id', $object->id)
+                        ->where('article_id', $object->id)
                         ->where('role_id', UserRoleEnum::INSPECTOR->value)
                         ->update(['role_id' => UserRoleEnum::INSPECTOR->value, 'user_id' => $user_id]);
                 }else{
