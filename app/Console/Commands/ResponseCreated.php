@@ -183,7 +183,7 @@ class ResponseCreated extends Command
         $dxa->notification_type = $data['notification_type']['real_value'];
         $dxa->phone = $phone;
         $dxa->object_name = $data['name_building']['real_value'];
-        $dxa->deadline = now()->addDay();
+        $dxa->deadline = deadline(1, Carbon::now());
         $dxa->administrative_status_id = 1;
         $dxa->object_type_id = 2;
         $dxa->region_id = $region->id;
