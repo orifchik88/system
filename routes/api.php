@@ -25,6 +25,7 @@ use App\Http\Controllers\Api\InformationController;
 use App\Http\Controllers\Api\SphereController;
 use App\Http\Controllers\Api\ProgramController;
 use App\Http\Controllers\Api\VersionController;
+use App\Http\Controllers\Api\HolidayController;
 
 use App\Http\Controllers\Api\StatisticsController;
 
@@ -214,6 +215,9 @@ Route::group([
 
     Route::get('check-list-answer', [CheckListAnswerController::class, 'index']);
     Route::post('check-list-status-change', [CheckListAnswerController::class, 'checklistStatusChange']);
+
+    Route::get('holidays', [HolidayController::class, 'index']);
+    Route::post('holiday/create', [HolidayController::class, 'create']);
 
 
     Route::post('test', [RegulationController::class, 'test']);
