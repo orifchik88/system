@@ -524,7 +524,6 @@ class RegulationController extends BaseController
     public function test()
     {
         try {
-            $deadline = ;
             $meta = [];
             $monitroings = Monitoring::query()->find(314896);
             $data = json_decode($monitroings->constant_checklist);
