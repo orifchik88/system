@@ -62,6 +62,10 @@ class StatisticsController extends BaseController
                     $query->where('articles.program_id', \request('program_id'));
                 })
                 ->where('created_by_role', UserRoleEnum::INSPECTOR->value)
+                     ->where(function ($q){
+                         $q->whereNotNull('work_in_progress')
+                             ->orWhereNotNull('constant_checklist');
+                     })
                 ->groupBy('articles.' . $group)
                 ->pluck('count', $group);
 

@@ -208,7 +208,7 @@ class RegulationController extends BaseController
         try {
             $regulation = Regulation::query()->findOrFaiL($request->post('regulation_id'));
             if ($regulation->regulation_status_id == RegulationStatusEnum::IN_LAWYER) throw new Exception('Tasdiqlash imkoni yoq');
-            
+
             $user = Auth::user();
             $roleId = $user->getRoleFromToken();
 
