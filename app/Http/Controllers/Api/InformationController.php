@@ -89,7 +89,7 @@ class InformationController extends BaseController
         try {
             $cadNumber = request('stir');
             $response = Http::withBasicAuth('orgapi-v1', '*@org-apiv_*ali')
-                ->get('https://api-sert.mc.uz/api/orginfoapi/'.$cadNumber);
+                ->get('https://api-sert.mc.uz/api/orginfoapi/' . $cadNumber);
 
 
             if ($response->successful()) {
@@ -98,7 +98,7 @@ class InformationController extends BaseController
 
             }
             return $this->sendError('Xatolik yuz berdi');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError("xatolik aniqlandi", $exception->getMessage());
         }
     }
@@ -233,8 +233,27 @@ class InformationController extends BaseController
     public function monitoringGNK(): JsonResponse
     {
         try {
-            $data = getData(config('app.gasn.get_monitoring'), request('gnk_id'));
-            return $this->sendSuccess($data['data']['result']['data'], 'Object');
+            $data = getData(config('app.gasn.get_monitoring'), request('gnk_id'))['data']['result']['data'];
+
+            if (!empty($data)) {
+                foreach ($data as $item) {
+                    $sphere = Sphere::query()->find($item['object_types_id']);
+                    $program = Program::query()->find($item['project_type_id']);
+                    $meta[] = [
+                        'id' => $item['id'],
+                        'gnk_id' => $item['gnk_id'],
+                        'project_type' => $program ? ProgramResource::make($program) : null,
+                        'name' => $item['name'],
+                        'end_term_work_days' => $item['end_term_work_days'],
+                        'sphere' => $sphere ? SphereResource::make($sphere) : null,
+                    ];
+                }
+
+                return $this->sendSuccess($meta, 'Monitoring');
+            }
+
+            return $this->sendSuccess([], 'Monitoring');
+
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
