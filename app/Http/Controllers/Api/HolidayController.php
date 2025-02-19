@@ -21,7 +21,7 @@ class HolidayController extends BaseController
     public function index(): JsonResponse
     {
         try {
-            $holidays = Holiday::query()->select('id', 'name', 'day')
+            $holidays = Holiday::query()->select('id', 'name', 'day', 'created_at')
                 ->orderBy('created_at', 'desc')
                 ->get()
                 ->groupBy(function ($holiday) {
