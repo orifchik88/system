@@ -190,7 +190,7 @@ class RegulationController extends BaseController
 
             $regulation->update([
                 'act_status_id' => 11,
-                'deadline' => $request->post('deadline')
+                'deadline' => Carbon::parse($request->post('deadline'))->endOfDay(),
             ]);
 
             DB::commit();
