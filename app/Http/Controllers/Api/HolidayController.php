@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\HolidayCreateRequest;
 use App\Http\Resources\HolidayResource;
 use App\Models\Holiday;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
@@ -21,14 +22,17 @@ class HolidayController extends BaseController
     public function index(): JsonResponse
     {
         try {
-            $holidays = Holiday::query()->select('id', 'name', 'day', 'created_at')
+
+            $holidays = Holiday::query()
+                ->select('id', 'name', 'day', 'created_at')
                 ->orderBy('created_at', 'desc')
                 ->get()
                 ->groupBy(function ($holiday) {
-                    return $holiday->created_at->format('Y');
+                    return Carbon::parse($holiday->day)->format('Y');
                 });
 
-            $holidays->toArray();
+            $holidays = $holidays->toArray();
+
 
             return $this->sendSuccess($holidays, 'Holidays retrieved successfully.');
         }catch (\Exception $exception){
