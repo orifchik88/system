@@ -757,7 +757,7 @@ class ClaimService
         elseif (isset($historiesNew[0]))
             $lastInspectorConclusion = json_decode($historiesNew[0]->content, true);
         else
-            $lastInspectorConclusion['comment'] = '  ';
+            $lastInspectorConclusion['comment'] = $request['comment'];
 
         $dataArray['SendToStepConclusionGasnV2FormCompletedBuildingsRegistrationCadastral'] = [
             'comment_gasn' => $lastInspectorConclusion['comment'],
