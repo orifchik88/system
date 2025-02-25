@@ -23,6 +23,8 @@ class ArticleListResource extends JsonResource
             'organization_name' => $this->organization_name ?? null,
             'status' => ObjectStatusResource::make($this->objectStatus),
             'closed_at' => $this->closed_at,
+            'lat' => $this->lat,
+            'long' => $this->long,
             'deadline' => $this->deadline,
             'created_at' => $this->created_at,
             'regulation_count' => $this->regulations()->count(),
