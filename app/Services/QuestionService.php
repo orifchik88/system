@@ -258,7 +258,7 @@ class QuestionService
                 'author_role_id' => $roleId,
                 'user_id' => $object->users()->wherePivot('role_id', UserRoleEnum::ICHKI->value)->pluck('users.id')->first(),
                 'role_id' => UserRoleEnum::ICHKI->value,
-                'bases_id' => $item['basis_id'],
+                'bases_id' => $item['basis_id'] ?? null,
                 'work_type_id' => $checklistData['work_type_id'],
                 'author_images' => json_encode($images),
                 'author_comment' => $item['comment'],
@@ -290,8 +290,11 @@ class QuestionService
             }
         }
 
+        $this->constantChecklist($data, $monitoring);
+
+
         if (!empty($data['positive'])) {
-            $this->handleChecklists($data['positive'], $object, null, $roleId, true, $monitoring->id);
+             $this->handleChecklists($data['positive'], $object, null, $roleId, true, $monitoring->id);
         }
         if (!empty($data['negative'])) {
             $allRoleViolations = $this->handleChecklists($data['negative'], $object, null, $roleId, false, $monitoring->id);
@@ -299,14 +302,36 @@ class QuestionService
         }
     }
 
+    private function constantChecklist($data, $monitoring)
+    {
+        $meta = [];
+        if (isset($data['positive']))
+        {
+            foreach ($data['positive'] as $positive) {
+                $meta [$positive['question_id']] = $positive['status'];
+            }
+        }
+        if (isset($data['negative'])){
+            foreach ($data['negative'] as $negative) {
+                $meta [$negative['question_id']] = $negative['status'];
+            }
+        }
+
+        if (!empty($meta)){
+            $monitoring->update([
+                'constant_checklist' => json_encode($meta),
+            ]);
+        }
+
+    }
     private function createMonitoring($data, $object, $roleId)
     {
         return Monitoring::create([
             'object_id' => $object->id,
             'number' => 123,
             'regulation_type_id' => 1,
-            'work_in_progress' => isset($data['work_in_progress']) ? $data['work_in_progress'] : null,
-            'block_id' =>  isset($data['block_id']) ? $data['block_id'] : null,
+            'work_in_progress' =>  $data['work_in_progress'] ?? null,
+            'block_id' =>  $data['block_id'] ??  null,
             'created_by' => Auth::id(),
             'created_by_role' => $roleId,
         ]);
@@ -505,11 +530,11 @@ class QuestionService
     private function createViolation($violationData, $question, $checklist)
     {
         return Violation::create([
-            'question_id' => $question->id,
+            'question_id' => $question->id ?? null,
             'title' => $question->name,
             'description' => $violationData['description'],
             'comment' => $violationData['comment'],
-            'bases_id' => $violationData['basis_id'],
+            'bases_id' => $violationData['basis_id'] ?? null,
             'checklist_id' => $checklist->id,
         ]);
     }

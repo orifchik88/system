@@ -14,6 +14,7 @@ use App\Exceptions\NotFoundException;
 use App\Models\Article;
 use App\Models\ArticlePaymentLog;
 use App\Models\ArticleUser;
+use App\Models\Block;
 use App\Models\DxaResponse;
 use App\Models\FundingSource;
 use App\Models\Regulation;
@@ -24,16 +25,20 @@ use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use App\Repositories\Interfaces\BlockRepositoryInterface;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
+use PHPUnit\Framework\Exception;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class ArticleService
 {
     protected ObjectDto $objectDto;
+
     private HistoryService $historyService;
+    private HistoryService $objectHistory;
 
     public function __construct(
         protected ArticleRepositoryInterface $articleRepository,
@@ -41,9 +46,10 @@ class ArticleService
         protected BlockRepositoryInterface $blockRepository,
         protected DxaResponse $dxaResponse,
         protected ImageService  $imageService,
-        protected DocumentService  $documentService,
+        protected DocumentService  $documentService
     ) {
         $this->historyService = new HistoryService('article_payment_logs');
+        $this->objectHistory = new HistoryService('article_histories');
     }
 
     public function setObjectDto(ObjectDto $objectDto): void
@@ -89,6 +95,7 @@ class ArticleService
             case UserRoleEnum::YURIST->value:
                 return $this->getArticlesByRegion($user->region_id);
             case UserRoleEnum::RESPUBLIKA_KUZATUVCHI->value:
+            case UserRoleEnum::RESPUBLIKA_BUXGALTER->value:
             case UserRoleEnum::ADMIN->value:
                 return Article::query();
             default:
@@ -244,6 +251,104 @@ class ArticleService
 
     }
 
+    public function changePrice($request, $user, $roleId)
+    {
+        $object = Article::query()->findOrFail($request->object_id);
+
+        $oldPrice = $object->construction_cost;
+
+        $object->update([
+            'construction_cost' => $request->price,
+            'price_supervision_service' => price_supervision($request->price)
+        ]);
+
+        $meta = [
+            'user_id' => $user->id, 'role_id' => $roleId, 'price' => $request->price, 'old_price' => $oldPrice
+        ];
+
+        $this->objectHistory->createHistory(
+            guId: $object->id,
+            status: $object->object_status_id->value,
+            type: LogType::ARTICLE_PRICE_HISTORY,
+            date: null,
+            comment: $item['comment'] ?? "",
+            additionalInfo: $meta
+        );
+
+    }
+
+    public function attachInspectorObject($user, $roleId, $taskIds, $user_id)
+    {
+        DB::beginTransaction();
+        try {
+            $objects = Article::query()->whereIn('task_id', $taskIds)->get();
+
+            foreach ($objects as $object) {
+                 $oldInspector = $object->users()->where('role_id', UserRoleEnum::INSPECTOR->value)->first();
+                $meta = [
+                    'user_id' => $user->id, 'role_id' => $roleId, 'old_user_id' => $oldInspector ? $oldInspector->id : null, 'new_user_id' => $user_id
+                ];
+
+                $this->objectHistory->createHistory(
+                    guId: $object->id,
+                    status: $object->object_status_id->value,
+                    type: LogType::ARTICLE_INSPECTOR_HISTORY,
+                    date: null,
+                    comment: $item['comment'] ?? "",
+                    additionalInfo: $meta
+                );
+
+                if ($oldInspector)
+                {
+                    ArticleUser::query()
+                        ->where('user_id', $oldInspector->id)
+                        ->where('article_id', $object->id)
+                        ->where('role_id', UserRoleEnum::INSPECTOR->value)
+                        ->update(['role_id' => UserRoleEnum::INSPECTOR->value, 'user_id' => $user_id]);
+                }else{
+                    $articleUser = new ArticleUser();
+                    $articleUser->article_id = $object->id;
+                    $articleUser->user_id = $user_id;
+                    $articleUser->role_id = UserRoleEnum::INSPECTOR->value;
+                    $articleUser->save();
+                }
+
+
+
+
+            DB::commit();
+            }
+        }catch (\Exception $exception){
+            DB::rollBack();
+            throw $exception;
+        }
+    }
+
+    public function deletePaymentLog($id, $comment, $user, $roleId)
+    {
+        DB::beginTransaction();
+        try {
+            $log = ArticlePaymentLog::query()->findOrFail($id);
+            $object = Article::query()->findOrFail($log->gu_id);
+            $meta = ['user_id' => $user->id, 'role_id' => $roleId, 'content' => $log->content];
+
+            $this->objectHistory->createHistory(
+                guId: $object->id,
+                status: $object->object_status_id->value,
+                type: LogType::ARTICLE_PRICE_DELETE,
+                date: null,
+                comment: $comment ?? "",
+                additionalInfo: $meta
+            );
+
+            $log->delete();
+            DB::commit();
+        }catch (\Exception $exception){
+            DB::rollBack();
+            throw  new Exception('Xatolik');
+        }
+    }
+
 
     public function createPayment($user, $roleId, $objectId)
     {
@@ -371,7 +476,7 @@ class ArticleService
             'positive_opinion_number' => $response->positive_opinion_number,
             'date_protocol' =>$response->date_protocol,
             'funding_source_id' => $response->funding_source_id ?? $article->funding_source_id,
-            //'deadline' => $response->end_term_work,
+            'org_stir' => $response->application_stir_pinfl ?? $response->pinfl,
             'gnk_id' => $response->gnk_id,
             'reestr_number' => (int)$response->reestr_number,
         ]);
@@ -418,6 +523,8 @@ class ArticleService
             $article->paid = 0;
             $article->payment_deadline = Carbon::now();
             $article->deadline = $response->end_term_work;
+            $article->org_stir = $response->application_stir_pinfl ?? $response->pinfl;
+
             $article->gnk_id = $response->gnk_id;
             $article->reestr_number = (int)$response->reestr_number;
 
@@ -620,20 +727,38 @@ class ArticleService
         }
     }
 
-    public function createObjectRegister($request)
+    public function createObjectRegister($request, $user, $roleId)
     {
         DB::beginTransaction();
         try {
-            $article = Article::query()->create($request->except('users', 'inspector_id', 'files', 'expertise_files'));
+            $article = Article::query()->create($request->except('users', 'inspector_id', 'files', 'user_files', 'blocks','expertise_files'));
             $this->attachInspector($article, $request['inspector_id']);
             $this->saveArticleUsers($request['users'], $article);
-            $this->saveFiles($request['files'], $request['expertise_files'], $article);
+            $this->saveFiles($request['files'], $request['expertise_files'], $request['user_files'], $article);
+            $this->saveBlocksRegister($article, $request['blocks']);
+            $this->createHistory($article, $user, $roleId);
 
             DB::commit();
+            return $article;
         }catch (\Exception $exception){
             DB::rollBack();
             throw new  \Exception($exception->getMessage());
         }
+    }
+
+    private function createHistory($article, $user, $roleId)
+    {
+        $this->objectHistory->createHistory(
+            guId: $article->id,
+            status: ObjectStatusEnum::PROGRESS->value,
+            type: LogType::ARTICLE_CREATE_HISTORY,
+            date: null,
+            comment: $request->comment ?? '',
+            additionalInfo: [
+                'user_id' => $user->id,
+                'role_id' => $roleId,
+            ]
+        );
     }
 
     private function attachInspector($article, $inspectorId)
@@ -641,24 +766,31 @@ class ArticleService
         $article->users()->attach($inspectorId, ['role_id' => UserRoleEnum::INSPECTOR->value]);
     }
 
-    private function saveFiles($files, $expertises, $article)
+    private function saveFiles($files, $expertises, $users, $article)
     {
 
         $objectFiles = [];
         $expertiseFiles = [];
+        $userFiles = [];
         foreach ($files as $file) {
             $path = $file->store('object/files', 'public');
-            $objectFiles[] =$path;
+            $objectFiles[] = $path;
         }
 
         foreach ($expertises as $file) {
             $path = $file->store('object/files', 'public');
-            $expertiseFiles[] =$path;
+            $expertiseFiles[] = $path;
+        }
+
+        foreach ($users as $file) {
+            $path = $file->store('object/files', 'public');
+            $userFiles[] = $path;
         }
 
         $article->update([
             'files' => json_encode($objectFiles),
             'expertise_files' => json_encode($expertiseFiles),
+            'user_files' => json_encode($userFiles),
         ]);
     }
 
@@ -765,54 +897,6 @@ class ArticleService
     }
 
 
-//    private function updateRating($article, $response)
-//    {
-//        $rating = [];
-//        $loyiha = $article->users()->where('role_id', UserRoleEnum::LOYIHA->value)->first();
-//        $qurilish = $article->users()->where('role_id', UserRoleEnum::QURILISH->value)->first();
-//
-//        $responseLoyiha = $response->supervisors()->where('role_id', UserRoleEnum::LOYIHA->value)->first();
-//        $responseQurilish = $response->supervisors()->where('role_id', UserRoleEnum::QURILISH->value)->first();
-//
-//        $loyihaRating = getData(config('app.gasn.rating'), (int)$responseLoyiha->stir_or_pinfl);
-//        $qurilishRating = getData(config('app.gasn.rating'), (int)$responseQurilish->stir_or_pinfl);
-//
-//        $data = json_decode($article->rating, true);
-//
-//
-//        if($loyiha){
-//           if ($responseLoyiha && $responseLoyiha->stir_or_pinfl != $loyiha->pinfl){
-//               $rating[0]['loyiha'] = $loyihaRating['data']['data'] ?? null;
-//           }else{
-//               $rating[0]['loyiha'] = $data[0]->loyiha ?? null;
-//           }
-//        }else{
-//            if ($responseLoyiha){
-//                $rating[0]['loyiha'] = $loyihaRating['data']['data'] ?? null;
-//            }else{
-//                $rating[0]['loyiha'] = null;
-//            }
-//        }
-//
-//        if($qurilish){
-//            if ($responseQurilish && $responseQurilish->stir_or_pinfl != $qurilish->pinfl){
-//                $rating[0]['qurilish'] = $qurilishRating['data']['data'] ?? null;
-//            }else{
-//                $rating[0]['qurilish'] = $data[0]->qurilish ?? null;
-//            }
-//        }else{
-//            if ($responseQurilish){
-//                $rating[0]['qurilish'] = $qurilishRating['data']['data'] ?? null;
-//            }else{
-//                $rating[0]['qurilish'] = null;
-//            }
-//        }
-//
-//        $article->update([
-//            'rating' => json_encode($rating)
-//        ]);
-//    }
-
     private function saveEmployee($article, $create = true): void
     {
         $rating = [];
@@ -861,6 +945,30 @@ class ArticleService
         }
 
     }
+
+    private function saveBlocksRegister($article, $blocks)
+    {
+            foreach ($blocks as $blockData) {
+                $blockAttributes = [
+                    'name' => $blockData['name'],
+                    'article_id' => $article->id,
+                    'floor' => $blockData['floor'] ?? null,
+                    'construction_area' => $blockData['construction_area'] ?? null,
+                    'count_apartments' => $blockData['count_apartments'] ?? null,
+                    'height' => $blockData['height'] ?? null,
+                    'length' => $blockData['length'] ?? null,
+                    'block_mode_id' => $blockData['block_mode_id'] ?? null,
+                    'block_type_id' => $blockData['block_type_id'] ?? null,
+                    'appearance_type' => filter_var($blockData['appearance_type'], FILTER_VALIDATE_BOOLEAN),
+                    'created_by' => Auth::id(),
+                    'status' => true,
+                ];
+
+                Block::create($blockAttributes);
+            }
+    }
+
+
 
     private function sendTax($object)
     {
@@ -934,7 +1042,6 @@ class ArticleService
         }catch (\Exception $exception){
             throw new NotFoundException($exception->getMessage(), $exception->getCode());
         }
-
     }
 
 

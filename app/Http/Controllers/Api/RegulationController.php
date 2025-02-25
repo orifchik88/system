@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\DTO\RegulationDto;
 use App\Enums\DxaResponseStatusEnum;
 use App\Enums\LawyerStatusEnum;
+use App\Enums\ObjectStatusEnum;
+use App\Enums\RegulationStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Exceptions\NotFoundException;
 use App\Http\Requests\RegulationAcceptRequest;
@@ -15,8 +17,10 @@ use App\Http\Resources\AuthorRegulationResource;
 use App\Http\Resources\RegulationResource;
 use App\Models\ActViolation;
 use App\Models\Article;
+use App\Models\ArticleUser;
 use App\Models\AuthorRegulation;
 use App\Models\DxaResponse;
+use App\Models\Monitoring;
 use App\Models\Regulation;
 use App\Models\RegulationDemand;
 use App\Models\RegulationEvent;
@@ -26,6 +30,7 @@ use App\Models\User;
 use App\Notifications\InspectorNotification;
 use App\Services\MessageTemplate;
 use App\Services\RegulationService;
+use Carbon\Carbon;
 use Firebase\JWT\JWT;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -33,7 +38,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
+use PHPUnit\Framework\Exception;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use function Laravel\Prompts\select;
 
 class RegulationController extends BaseController
 {
@@ -168,6 +175,9 @@ class RegulationController extends BaseController
             $roleId = $user->getRoleFromToken();
 
             $regulation = Regulation::query()->findOrFaiL($request->post('regulation_id'));
+
+            if ($regulation->regulation_status_id == RegulationStatusEnum::IN_LAWYER) throw new Exception('Tasdiqlash imkoni yoq');
+
             $act = ActViolation::create([
                 'regulation_id' => $regulation->id,
                 'user_id' => Auth::id(),
@@ -180,7 +190,7 @@ class RegulationController extends BaseController
 
             $regulation->update([
                 'act_status_id' => 11,
-                'deadline' => $request->post('deadline')
+                'deadline' => Carbon::parse($request->post('deadline'))->endOfDay(),
             ]);
 
             DB::commit();
@@ -198,6 +208,8 @@ class RegulationController extends BaseController
 
         try {
             $regulation = Regulation::query()->findOrFaiL($request->post('regulation_id'));
+            if ($regulation->regulation_status_id == RegulationStatusEnum::IN_LAWYER) throw new Exception('Tasdiqlash imkoni yoq');
+
             $user = Auth::user();
             $roleId = $user->getRoleFromToken();
 
@@ -512,9 +524,16 @@ class RegulationController extends BaseController
     public function test()
     {
         try {
-
-            $data = deadline(2);
-            dd($data);
+            $meta = [];
+            $monitroings = Monitoring::query()->find(314896);
+            $data = json_decode($monitroings->constant_checklist);
+            foreach ($data as $key => $datum) {
+                $meta[] =[
+                    'question_id' => $key,
+                    'status' => $datum,
+                ];
+            }
+           dd($meta);
 
 
             $response = DxaResponse::query()->where('task_id', request('task_id'))->first();

@@ -24,7 +24,7 @@ class ArticleResource extends JsonResource
             'task_ids' => $oldTaskIds,
             'region' => RegionResource::make($this->region),
             'district' => DistrictResource::make($this->district),
-            'task_id' => $this->task_id,
+            'task_id' => $this->task_id ?? $this->manual_task_id,
             'address' => $this->address,
             'linear_type' => $this->linear_type,
             'sphere' => SphereResource::make($this->sphere),
@@ -69,6 +69,23 @@ class ArticleResource extends JsonResource
             'internal_control' => $this->internal_control,
             'author_control' => $this->author_control,
             'technic_control' => $this->technic_control,
+            'is_manual' => $this->task_id ? false : true,
+            'files' => collect(json_decode($this->files))->map(function ($file) {
+                return [
+                    'url' => url($file),
+                ];
+            }),
+            'expertise_files' => collect(json_decode($this->expertise_files))->map(function ($file) {
+                return [
+                    'url' => url($file),
+                ];
+            }),
+            'user_files' => collect(json_decode($this->user_files))->map(function ($file) {
+                return [
+                    'url' => url($file),
+                ];
+            }),
+
         ];
     }
 

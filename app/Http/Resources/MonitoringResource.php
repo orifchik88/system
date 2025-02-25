@@ -7,6 +7,7 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use function PHPUnit\Framework\stringContains;
 
 class MonitoringResource extends JsonResource
 {
@@ -32,21 +33,24 @@ class MonitoringResource extends JsonResource
             'active_regulation_count' => $this->regulations()->where('regulation_status_id', '!=', 6)->count(),
             'violation_count' =>  $violationCount ?? 0,
             'work_in_progress' => $this->work_in_progress,
-            'checklists' => $this->checklists->map(function ($checklist) {
+            'question_64' => $this->question_64,
+            'question_65' => $this->question_65,
+            'question_73' => $this->question_73,
+            'checklists' => $this->constant_checklist ? collect(json_decode($this->constant_checklist, true))->map(function ($status, $question_id) {
                 return [
-                    'status' => $checklist->status,
-                    'question_id' => $checklist->question ? $checklist->question->id : null,
+                    'question_id' => (int)$question_id,
+                    'status' => (int)$status,
                 ];
-            }),
+            })->values() : [],
             'created_at' => $this->created_at,
             'role' => [
-                'id' => $this->role->id,
-                'name' => $this->role->name,
+                'id' => $this->role ? $this->role->id : null,
+                'name' => $this->role ? $this->role->name : null,
             ],
             'user' => [
-                'id' => $this->user->id,
+                'id' => $this->user ? $this->user->id : null,
                 'name' => $this->user ? "{$this->user->surname} {$this->user->name} {$this->user->middle_name}" : null,
-                'phone' => $this->user->phone,
+                'phone' => $this->user ? $this->user->phone : null,
             ],
 
         ];

@@ -2,15 +2,16 @@
 
 namespace App\Models\Traits;
 
-use App\Enums\RegulationStatusEnum;
 use App\Models\Article;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\Violation;
-use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Spatie\Permission\Models\Role;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\URL;
 
 trait RegulationTrait
 {
@@ -66,6 +67,11 @@ trait RegulationTrait
     public function responsibleRole(): BelongsTo
     {
         return $this->belongsTo(Role::class, 'role_id');
+    }
+
+    public function getPdfAttribute()
+    {
+        return URL::to('regulation-info/'.$this->id);
     }
 
 }

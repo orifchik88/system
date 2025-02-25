@@ -6,10 +6,17 @@ use App\Enums\ObjectStatusEnum;
 use App\Enums\RoleTypeEnum;
 use App\Enums\UserRoleEnum;
 use App\Http\Resources\ArticlePalataResource;
+use App\Http\Resources\DifficultyCategoryResource;
 use App\Http\Resources\DistrictResource;
+use App\Http\Resources\FundingSourceResource;
 use App\Http\Resources\ObjectDesignResource;
 use App\Http\Resources\ObjectOrganizationResource;
+use App\Http\Resources\ObjectTypeResource;
 use App\Http\Resources\RegionResource;
+use App\Http\Resources\RegulationStatusResource;
+use App\Http\Resources\RoleResource;
+use App\Models\Role;
+use App\Models\User;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use Carbon\Carbon;
@@ -21,7 +28,8 @@ class MyGovService
 
     public function __construct(
         ArticleRepositoryInterface $articleRepository,
-        UserRepositoryInterface    $userRepository
+        UserRepositoryInterface    $userRepository,
+        protected QuestionService   $questionService,
     )
     {
         $this->articleRepository = $articleRepository;
@@ -156,16 +164,42 @@ class MyGovService
     public function getObjectList($filters)
     {
         $objects = $this->articleRepository->getList($filters);
-
         if (!$objects)
             return null;
 
-        $response = [
-            'data' => ArticlePalataResource::collection($objects),
-            'meta' => pagination($objects)
+        $meta = [
+            "success" => true,
+            "status" => 200,
+            "msg" => "Сўровга асосан маълумотлар тўлиқ шакллантирилди",
+            "title" => "Обектлар",
+            "total_counts" => $objects->total(),
+            "description" => [
+                'doc_id' => 'Маълумотнинг уникал рақами',
+                'app_date' => 'Ариза берилган  сана',
+                'app_number' => 'Ариза рақами',
+                'obj_name' => 'Объект номи',
+                'region_id' => 'Объект ҳудуди коди (СОАТО)',
+                'region_name' => 'Объект ҳудуди номи',
+                'district_id' => 'Объект тумани (шаҳар) коди (СОАТО)',
+                'district_name' => 'Объект тумани (шаҳар) номи',
+                'customer_name' => 'Буюртмачи номи',
+                'customer_tin' => 'Буюртмачининг СТИРи',
+                'builder_name' => 'Пудратчи ташкилот номи',
+                'builder_tin' => 'Пудратчи ташкилот СТИРи',
+                'rating' => 'Рейтинг кўрсаткичлари',
+                'deadline' => 'Қурилиш муддати',
+                'finish_date' => 'Объектни фойдаланишга топширилган сана',
+                'obj_type' => 'Объект тури',
+                'complexity' => 'Мураккаблик тоифаси',
+                'build_type' => 'Қурилиш тури',
+                'build_cost' => 'Қурилиш қиймати',
+                'industry' => 'Қурилиш соҳаси номи',
+                'funding' => 'Молиялаштириш манбаи',
+            ],
+            'data' => ArticlePalataResource::collection($objects->makeHidden(['appends'])),
         ];
 
-        return $response;
+        return response()->json($meta, 200);
 
     }
 
@@ -197,5 +231,134 @@ class MyGovService
         ];
 
         return response()->json($response, 200);
+    }
+
+    public function getObjectsRegulations($filters)
+    {
+        $objects = $this->articleRepository->findByReestr($filters);
+        if (!$objects)
+            return null;
+
+        $response = $objects->load(['regulations.createdByUser', 'regulations.createdByRole', 'regulations.responsibleUser', 'regulations.responsibleRole'])->map(function ($object) {
+            return [
+                'registration_number' => $object->task_id,
+                'registration_date' => $object->created_at,
+                'lat' =>$object->lat,
+                'long' => $object->long,
+                'closed_at' => $object->closed_at,
+                'regulations' => $object->regulations->map(function ($regulation) {
+                    return [
+                        'status' => RegulationStatusResource::make($regulation->regulationStatus),
+                        'regulation_number' => $regulation->regulation_number,
+                        'from_user' => [
+                            'id' => $regulation->createdByUser->id ?? null,
+                            'name' => $regulation->createdByUser->name ?? null,
+                            'middle_name' => $regulation->createdByUser->middle_name ?? null,
+                            'surname' => $regulation->createdByUser->surname ?? null,
+                        ],
+                        'from_role' => [
+                            'id' => $regulation->createdByRole->id ?? null,
+                            'name' => $regulation->createdByRole->name ?? null,
+                        ],
+                        'to_user' => [
+                            'id' => $regulation->responsibleUser->id,
+                            'name' => $regulation->responsibleUser->name,
+                            'middle_name' => $regulation->responsibleUser->middle_name,
+                            'surname' => $regulation->responsibleUser->surname,
+                        ],
+                        'to_role' => [
+                            'id' => $regulation->responsibleRole->id,
+                            'name'=> $regulation->responsibleRole->name,
+                        ],
+                        'pdf' => $regulation->pdf,
+                    ];
+                }),
+            ];
+        });
+
+        return response()->json($response, 200);
+    }
+
+    public function getObjectTax($objectId)
+    {
+        $object = $this->articleRepository->findById($objectId);
+        if (!$object) return null;
+
+        if ($object->funding_source_id != 1 && $object->object_type_id != 1) {
+            $customer = $object->users()->where('role_id', UserRoleEnum::BUYURTMACHI->value)->first();
+            $builder = $object->users()->where('role_id', UserRoleEnum::QURILISH->value)->first();
+
+            $blocks = $object->blocks()->with('type')->get();
+
+            $blockWorkTypes = $blocks->map(function ($block) {
+                $works = $this->questionService->getQuestionList(
+                    blockId: $block->id,
+                    type: null,
+                    block_type: 2
+                );
+
+                $workTypes = collect($works)
+                    ->reject(fn($item) => in_array($item['work_type_id'], [14]))
+                    ->flatMap(function ($item) {
+                        $title = $item['name'];
+                        $questions = $item['questions'];
+
+                        $filteredQuestions = collect($questions)->groupBy('floor');
+
+                        return $filteredQuestions->map(function ($questions, $floor) use ($title) {
+                            $name = $floor && $floor != '' ? $floor . ' - ' . $title : $title;
+
+                            $firstQuestion = $questions->first();
+                            if (!$firstQuestion || $firstQuestion['work_type_status']->value != 2) {
+                                return null;
+                            }
+
+                            return [
+                                'name' => $name,
+                            ];
+                        })->filter();
+                    })
+                    ->values()
+                    ->toArray();
+
+
+
+
+                return [
+                    'id' => $block->id,
+                    'name' => $block->name,
+                    'floor' => $block->floor,
+                    'work_types' => $workTypes,
+                ];
+            });
+
+            $data = [
+                'object_id' => $object->id,
+                'object_name' => $object->name,
+                'created_at' => $object->created_at,
+                'closed_at' => $object->closed_at,
+                'customer_name' => $customer?->organization_name ?? '',
+                'builder_name' => $builder?->organization_name ?? '',
+                'cadastral_number' => $object->cadastral_number,
+                'difficulty_category' => $object->difficulty ? DifficultyCategoryResource::make($object->difficulty) : null,
+                'construction_works' => $object->construction_works,
+                'region' => $object->region ? $object->region->only(['name_uz', 'soato']) : null,
+                'district' => $object->district ? $object->district->only(['name_uz', 'soato']) : null,
+                'object_type' => $object->objectType ? $object->objectType->only(['id','name']) : null,
+                'address' => $object->location_building,
+                'number_protocol' => $object->number_protocol,
+                'reestr_number' => $object->reestr_number,
+                'funding_source' => $object->fundingSource ? $object->fundingSource->only(['id', 'description']) : null,
+                'construction_cost' => $object->construction_cost,
+                'pinfl_customer' => $customer?->name ? $customer->pinfl : '',
+                'tin_customer' => $customer?->name ? '' : ($customer?->pinfl ?? ''),
+                'tin_general_contractor' => $builder?->pinfl ?? '',
+                'blocks' => $blockWorkTypes,
+            ];
+
+            return response()->json($data, 200);
+        }
+
+        return null;
     }
 }

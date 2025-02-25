@@ -69,7 +69,6 @@ class LoginController extends BaseController
                 ]);
             }
 
-
             $success['token'] = $token;
             $success['full_name'] = $user->full_name;
             $success['pinfl'] = $user->pinfl;

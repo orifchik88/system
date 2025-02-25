@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\ObjectStatusEnum;
+use App\Enums\UserRoleEnum;
 use App\Enums\UserStatusEnum;
 use App\Exports\RegulationExport;
 use App\Http\Resources\BasisResource;
@@ -24,6 +25,7 @@ use App\Models\Region;
 use App\Models\Sphere;
 use App\Models\Topic;
 use App\Models\User;
+use App\Services\ArticleService;
 use App\Services\InformationService;
 use GuzzleHttp\Client;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -38,11 +40,14 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class InformationController extends BaseController
 {
-//    public function __construct(protected InformationService $informationService)
-//    {
-//        $this->middleware('auth');
-//        parent::__construct();
-//    }
+    protected ArticleService $articleService;
+
+    public function __construct(ArticleService $articleService)
+    {
+        // $this->middleware('auth');
+        $this->articleService = $articleService;
+        parent::__construct();
+    }
 
     public function monitoringObjects(): JsonResponse
     {
@@ -53,27 +58,49 @@ class InformationController extends BaseController
         try {
             $data = getData(config('app.gasn.monitoring'), request('expertise_number'))['data']['result']['data'];
 
-            if (!empty($data))
-            {
-                $sphere = Sphere::query()->find($data[0]['object_types_id']);
-                $program = Program::query()->find($data[0]['project_type_id']);
-                $meta[] = [
-                    'id' => $data[0]['id'],
-                    'gnk_id' => $data[0]['gnk_id'],
-                    'project_type' => ProgramResource::make($program),
-                    'name' => $data[0]['name'],
-                    'end_term_work_days' => $data[0]['end_term_work_days'],
-                    'sphere' => SphereResource::make($sphere),
-                ];
-            }else{
+
+            if (!empty($data)) {
+                foreach ($data as $item) {
+                    $sphere = Sphere::query()->find($item['object_types_id']);
+                    $program = Program::query()->find($item['project_type_id']);
+                    $meta[] = [
+                        'id' => $item['id'],
+                        'gnk_id' => $item['gnk_id'],
+                        'project_type' => ProgramResource::make($program),
+                        'name' => $item['name'],
+                        'end_term_work_days' => $item['end_term_work_days'],
+                        'sphere' => SphereResource::make($sphere),
+                    ];
+                }
+
+            } else {
                 $meta = $informationService->customer($customerInn, $pudratInn);
             }
 
             return $this->sendSuccess($meta, 'Monitoring objects successfully.');
-        } catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
 
+    }
+
+    public function organization(): JsonResponse
+    {
+        try {
+            $cadNumber = request('stir');
+            $response = Http::withBasicAuth('orgapi-v1', '*@org-apiv_*ali')
+                ->get('https://api-sert.mc.uz/api/orginfoapi/' . $cadNumber);
+
+
+            if ($response->successful()) {
+
+                return response()->json($response->json());
+
+            }
+            return $this->sendError('Xatolik yuz berdi');
+        } catch (\Exception $exception) {
+            return $this->sendError("xatolik aniqlandi", $exception->getMessage());
+        }
     }
 
     public function statement(): JsonResponse
@@ -81,7 +108,7 @@ class InformationController extends BaseController
         try {
             $data = getData(config('app.gasn.bayonnoma'), \request('conc'));
             return $this->sendSuccess($data['data']['conclusions'], 'Tender');
-        } catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -91,7 +118,7 @@ class InformationController extends BaseController
         try {
             $data = getData(config('app.gasn.tender'), \request('conc'));
             return $this->sendSuccess($data['data']['result']['data'], 'Tender');
-        } catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -104,7 +131,7 @@ class InformationController extends BaseController
             $client = new Client();
             $apiCredentials = config('app.passport.login') . ':' . config('app.passport.password');
 
-            $url = 'https://api.shaffofqurilish.uz/api/v1/request/monitoring-objects?customer_inn='.$customerInn.'&pudrat_inn='.$pudratInn;
+            $url = 'https://api.shaffofqurilish.uz/api/v1/request/monitoring-objects?customer_inn=' . $customerInn . '&pudrat_inn=' . $pudratInn;
 
 
             $resClient = $client->post($url,
@@ -150,12 +177,12 @@ class InformationController extends BaseController
                 'gnk_id' => $data['gnk_id'],
                 'project_type_id' => $data['project_type_id'],
                 'name' => $data['name'],
-                'end_term_work_days' => $data['end_term_work_days']  ?? $data['pudrat_tender'][0]['end_term_work_days'],
+                'end_term_work_days' => $data['end_term_work_days'] ?? $data['pudrat_tender'][0]['end_term_work_days'],
             ];
 
 
             return $this->sendSuccess($meta, 'Monitoring customer information successfully.');
-        } catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -165,7 +192,7 @@ class InformationController extends BaseController
         try {
             $data = getData(config('app.gasn.reestr'), \request('reestr_number'));
             return $this->sendSuccess($data['data'], 'Reestr');
-        } catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -179,8 +206,7 @@ class InformationController extends BaseController
                     'cad_num' => $cadNumber,
                 ]);
 
-            if ($response->successful())
-            {
+            if ($response->successful()) {
                 $data = $response->json()['result']['data'];
 
                 $region = Region::query()->where('soato', $data['region_id'])->first();
@@ -199,17 +225,36 @@ class InformationController extends BaseController
             }
             return $this->sendError('Xatolik yuz berdi', 'Cadastr');
 
-        }catch (\Exception $exception){
-            return $this->sendError('Kadastr bilan xatolik yuz berdi',$exception->getMessage());
+        } catch (\Exception $exception) {
+            return $this->sendError('Kadastr bilan xatolik yuz berdi', $exception->getMessage());
         }
     }
 
     public function monitoringGNK(): JsonResponse
     {
         try {
-            $data = getData(config('app.gasn.get_monitoring'), request('gnk_id'));
-            return $this->sendSuccess($data['data']['result']['data'], 'Object');
-        } catch (\Exception $exception){
+            $data = getData(config('app.gasn.get_monitoring'), request('gnk_id'))['data']['result']['data'];
+
+            if (!empty($data)) {
+                foreach ($data as $item) {
+                    $sphere = Sphere::query()->find($item['object_types_id']);
+                    $program = Program::query()->find($item['project_type_id']);
+                    $meta[] = [
+                        'id' => $item['id'],
+                        'gnk_id' => $item['gnk_id'],
+                        'project_type' => $program ? ProgramResource::make($program) : null,
+                        'name' => $item['name'],
+                        'end_term_work_days' => $item['end_term_work_days'],
+                        'sphere' => $sphere ? SphereResource::make($sphere) : null,
+                    ];
+                }
+
+                return $this->sendSuccess($meta, 'Monitoring');
+            }
+
+            return $this->sendSuccess([], 'Monitoring');
+
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -220,7 +265,7 @@ class InformationController extends BaseController
         try {
             $data = getData(config('app.gasn.rating'), \request('inn'));
             return $this->sendSuccess($data['data']['data'], 'Reyting');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -230,7 +275,7 @@ class InformationController extends BaseController
         try {
             $data = getData(config('app.gasn.conference'), \request('conc'));
             return $this->sendSuccess($data['data'], 'Kengash');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -240,7 +285,7 @@ class InformationController extends BaseController
         try {
             $data = getData(config('app.gasn.expertise'), \request('reestr_number'));
             return $this->sendSuccess($data['data']['data'], 'Expertise Files');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -250,19 +295,19 @@ class InformationController extends BaseController
     {
         try {
             $url = 'https://sso.egov.uz/sso/oauth/Authorization.do?grant_type=one_authorization_code
-            &client_id='.config('services.oneId.id').
-            '&client_secret='.config('services.oneId.secret').
-            '&code='.request('code').
-            '&redirect_url='.config('services.oneId.redirect');
+            &client_id=' . config('services.oneId.id') .
+                '&client_secret=' . config('services.oneId.secret') .
+                '&code=' . request('code') .
+                '&redirect_url=' . config('services.oneId.redirect');
             $resClient = Http::post($url);
             $response = json_decode($resClient->getBody(), true);
 
 
             $url = 'https://sso.egov.uz/sso/oauth/Authorization.do?grant_type=one_access_token_identify
-            &client_id='.config('services.oneId.id').
-            '&client_secret='.config('services.oneId.secret').
-            '&access_token='.$response['access_token'].
-            '&scope='.$response['scope'];
+            &client_id=' . config('services.oneId.id') .
+                '&client_secret=' . config('services.oneId.secret') .
+                '&access_token=' . $response['access_token'] .
+                '&scope=' . $response['scope'];
             $resClient = Http::post($url);
             $data = json_decode($resClient->getBody(), true);
 
@@ -276,26 +321,25 @@ class InformationController extends BaseController
             if (!$user) throw new ModelNotFoundException('Foydalanuvchi topilmadi');
             if ($user->active == 0) throw new ModelNotFoundException('Foydalanuvchi faol emas');
 
-           if (request('app_id'))
-           {
-               $user->update([
-                   'notification_app_id' => request('app_id'),
-               ]);
-           }
+            if (request('app_id')) {
+                $user->update([
+                    'notification_app_id' => request('app_id'),
+                ]);
+            }
 
             $combinedData = $data['pin'] . ':' . $response['access_token'];
 
             $encodedData = base64_encode($combinedData);
 
             $meta = [
-                'roles'=>RoleResource::collection($user->roles),
+                'roles' => RoleResource::collection($user->roles),
                 'access_token' => $encodedData,
                 'full_name' => $user->full_name
             ];
 
             return $this->sendSuccess($meta, 'Success');
 
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -311,7 +355,7 @@ class InformationController extends BaseController
             $informationService = new InformationService();
             $data = $informationService->getConclusionPDF(request('task_id'));
             return $this->sendSuccess($data, 'Conclusion PDF');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -323,7 +367,7 @@ class InformationController extends BaseController
 
             return $this->sendSuccess(NormativeDocumentResource::collection($docs), 'Normative', pagination($docs));
 
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -335,7 +379,7 @@ class InformationController extends BaseController
                 ->where('parent_id', request('doc_id'))
                 ->paginate(request('per_page', 10));
             return $this->sendSuccess(TopicResource::collection($topics), 'Topics', pagination($topics));
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -347,7 +391,7 @@ class InformationController extends BaseController
                 ->where('parent_id', request('topic_id'))
                 ->paginate(request('per_page', 10));
             return $this->sendSuccess(BasisResource::collection($topics), 'Basis', pagination($topics));
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -362,7 +406,7 @@ class InformationController extends BaseController
             }
             $notifications = $query->orderBy('id', 'DESC')->paginate(request('per_page', 10));
             return $this->sendSuccess(NotificationResource::collection($notifications), 'Notifications', pagination($notifications));
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -371,12 +415,12 @@ class InformationController extends BaseController
     {
         try {
             $user = Auth::user();
-            $data =  [
+            $data = [
                 'all' => $user->notifications()->count(),
                 'notRead' => $user->notifications()->where('read', false)->count(),
             ];
             return $this->sendSuccess($data, 'Notifications');
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -384,9 +428,9 @@ class InformationController extends BaseController
     public function notificationRead(): JsonResponse
     {
         try {
-             NotificationLog::query()->find(request('id'))->update(['read' => true]);
-             return $this->sendSuccess([],'Notification Read');
-        }catch (\Exception $exception){
+            NotificationLog::query()->find(request('id'))->update(['read' => true]);
+            return $this->sendSuccess([], 'Notification Read');
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -396,13 +440,13 @@ class InformationController extends BaseController
         try {
             $article = Article::query()->find($id);
 
-            $url = URL::to('/object-info').'/'.$article->task_id;
+            $url = URL::to('/object-info') . '/' . $article->task_id;
 
             $qrImage = base64_encode(QrCode::format('png')->size(200)->generate($url));
 
             return $this->sendSuccess($qrImage, 'Qr Image');
 
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
@@ -410,6 +454,8 @@ class InformationController extends BaseController
     public function userObjects(): JsonResponse
     {
         try {
+            $responseArr = [];
+
             $pinfl = request('pinfl');
             $user = User::query()->where('pinfl', $pinfl)->first();
 
@@ -422,7 +468,7 @@ class InformationController extends BaseController
                 throw new NotFoundHttpException('Foydalanuvchi topilmadi');
             }
 
-            $data =  collect($user->roles)
+            $data = collect($user->roles)
                 ->filter(function ($role) use ($allowedRoleIds) {
                     return in_array($role->id, $allowedRoleIds);
                 })
@@ -450,7 +496,57 @@ class InformationController extends BaseController
                         })->toArray(),
                     ];
                 })->toArray();
-            return $this->sendSuccess($data, 'User Objects');
+
+            $responseArr['user_objects'] = $data;
+
+            if (strlen($pinfl) == 9) {
+                $rating = getData(config('app.gasn.rating'), $pinfl);
+                if (isset($rating['data']['data']))
+                    $responseArr['rating'] = $rating['data']['data'];
+
+                $tenderObjects = Http::get("https://apisitender.mc.uz/api/get-winner-tender-info/" . $pinfl)->json();
+                $tenderArr = [];
+                if (isset($tenderObjects['code']) && $tenderObjects['code'] == 200 && $tenderObjects['result']['data']['tender_count'] > 0) {
+                    foreach ($tenderObjects['result']['data']['tenders'] as $item) {
+                        $tenderArr[] = [
+                            'name' => $item['lot_name'],
+                            'region' => $item['region'],
+                            'soxa_id' => $item['soxa_id'],
+                            'soxa' => $item['soxa'],
+                            'lot_id' => $item['lot_id'],
+                            'date' => $item['protocol_date']
+                        ];
+                    }
+                }
+
+                $responseArr['tender_objects'] = $tenderArr;
+
+                $user = $this->articleService->getUserByInnAndRole($pinfl, UserRoleEnum::QURILISH->value);
+
+                $tempObjects = [];
+                if ($user) {
+                    $objects = $user->objects();
+                    $claimObjects = $objects->where('object_status_id', ObjectStatusEnum::SUBMITTED)->whereNotNull('sphere_id')->get();
+
+                    $tempObjects = $claimObjects->map(function ($object) {
+                        return [
+                            'id' => $object->id,
+                            'name' => $object->name,
+                            'task_id' => $object->task_id,
+                            'region' => $object->region->name_uz,
+                            'soxa_id' => $object->sphere_id,
+                            'soxa' => $object->sphere->name_uz,
+                            'date' => $object->closed_at
+                        ];
+                    })->toArray();
+                }
+
+
+                $responseArr['claim_objects'] = $tempObjects;
+            }
+
+
+            return $this->sendSuccess($responseArr, 'User Objects');
 
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
@@ -465,13 +561,10 @@ class InformationController extends BaseController
             $fileName = 'Toshkent.xlsx';
 
             return Excel::download(new RegulationExport(1), $fileName);
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getLine());
         }
     }
-
-
-
 
 
 }

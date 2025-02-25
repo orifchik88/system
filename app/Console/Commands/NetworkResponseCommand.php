@@ -143,7 +143,7 @@ class NetworkResponseCommand extends Command
         $dxa->legal_opf = $data['legal_kopf']['real_value'];
         $dxa->phone = $phone;
         $dxa->object_name = $data['object_name']['real_value'];
-        $dxa->deadline = Carbon::now()->addDay();
+        $dxa->deadline = deadline(1, Carbon::now());
         $dxa->administrative_status_id = 1;
         $dxa->object_type_id = 1;
         $dxa->region_id = $region->id;

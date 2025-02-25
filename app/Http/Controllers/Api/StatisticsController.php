@@ -62,6 +62,10 @@ class StatisticsController extends BaseController
                     $query->where('articles.program_id', \request('program_id'));
                 })
                 ->where('created_by_role', UserRoleEnum::INSPECTOR->value)
+                     ->where(function ($q){
+                         $q->whereNotNull('work_in_progress')
+                             ->orWhereNotNull('constant_checklist');
+                     })
                 ->groupBy('articles.' . $group)
                 ->pluck('count', $group);
 
@@ -290,6 +294,10 @@ class StatisticsController extends BaseController
                 ->when(in_array('monitorings', $columns), function ($q) use ($filters) {
                     $q->withCount(['monitorings as monitoring_count' => function ($query) use ($filters) {
                         $query->where('created_by_role', UserRoleEnum::INSPECTOR->value)
+                                ->where(function ($q){
+                                    $q->whereNotNull('work_in_progress')
+                                        ->orWhereNotNull('constant_checklist');
+                                })
                             ->when(isset($filters['date_from']) && isset($filters['date_to']), function ($q) use ($filters) {
                                 return $q->whereBetween('monitorings.created_at', [$filters['date_from'], $filters['date_to']]);
                             });

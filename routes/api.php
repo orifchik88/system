@@ -25,6 +25,7 @@ use App\Http\Controllers\Api\InformationController;
 use App\Http\Controllers\Api\SphereController;
 use App\Http\Controllers\Api\ProgramController;
 use App\Http\Controllers\Api\VersionController;
+use App\Http\Controllers\Api\HolidayController;
 
 use App\Http\Controllers\Api\StatisticsController;
 
@@ -80,13 +81,12 @@ Route::group([
     Route::get('notification-count', [InformationController::class, 'notificationCount']);
     Route::post('notification-read', [InformationController::class, 'notificationRead']);
     Route::get('statement', [InformationController::class, 'statement']);
+    Route::get('organization', [InformationController::class, 'organization']);
     Route::get('qr-image/{id}', [InformationController::class, 'qrImage']);
 
     Route::get('statistics', [StatisticsController::class, 'statistics']);
     Route::get('reports', [StatisticsController::class, 'reports']);
     Route::get('excelClaim', [StatisticsController::class, 'excel']);
-
-
 
     Route::get('sphere', [SphereController::class, 'spheres']);
     Route::get('programs', [ProgramController::class, 'programs']);
@@ -151,6 +151,7 @@ Route::group([
     Route::post('check-object', [ObjectController::class, 'checkObject']);
     Route::post('change-object-status', [ObjectController::class, 'changeObjectStatus']);
     Route::post('change-object-location', [ObjectController::class, 'changeObjectLocation']);
+    Route::post('delete-object-payment', [ObjectController::class, 'deleteObjectPayment']);
     Route::post('payment', [ObjectController::class, 'payment']);
     Route::get('total-payment', [ObjectController::class, 'totalPayment']);
     Route::get('payment-statistics', [ObjectController::class, 'paymentStatistics']);
@@ -159,6 +160,8 @@ Route::group([
     Route::post('rotation', [ObjectController::class, 'rotation']);
     Route::post('object-create-user', [ObjectController::class, 'objectCreateUser']);
     Route::post('inspector-attachment-object', [ObjectController::class, 'inspectorAttachmentObject']);
+    Route::post('inspector-change-object', [ObjectController::class, 'inspectorChangeObject']);
+    Route::post('object-change-price', [ObjectController::class, 'objectChangePrice']);
 
 
 
@@ -213,6 +216,9 @@ Route::group([
     Route::get('check-list-answer', [CheckListAnswerController::class, 'index']);
     Route::post('check-list-status-change', [CheckListAnswerController::class, 'checklistStatusChange']);
 
+    Route::get('holidays', [HolidayController::class, 'index']);
+    Route::post('holiday/create', [HolidayController::class, 'create']);
+
 
     Route::post('test', [RegulationController::class, 'test']);
 
@@ -262,9 +268,11 @@ Route::middleware('auth.custom_basic')->prefix('internal')->group(function () {
     Route::get('object-by-task-id/{id}', [ApiController::class, 'showTask']);
     Route::post('update-deadline', [ApiController::class, 'updateDeadline']);
     Route::get('get-objects-by-cadasr', [MyGovController::class, 'getObjectsByCadastr']);
-    Route::get('get-objects-list', [MyGovController::class, 'getObjectsList']);
+    Route::get('get-objects-listsasdfasdf', [MyGovController::class, 'getObjectsList']);
     Route::get('get-objects-by-organization', [MyGovController::class, 'getObjectsByOrganization']);
     Route::get('get-objects-by-design', [MyGovController::class, 'getObjectsByDesign']);
+    Route::get('get-objects-regulations', [MyGovController::class, 'getObjectsRegulations']);
+    Route::get('get-object-tax', [MyGovController::class, 'getObjectTax']);
 });
 
 
