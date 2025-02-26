@@ -275,7 +275,7 @@ class ObjectController extends BaseController
 
             $this->service->setObjectDto($dto);
 
-            $object = $this->service->createObject();
+            $object = $this->service->createObject($this->user, $this->roleId);
             return $this->sendSuccess(ArticleResource::make($object), 'Object created');
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());

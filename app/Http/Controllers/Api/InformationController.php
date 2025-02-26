@@ -107,7 +107,7 @@ class InformationController extends BaseController
     {
         try {
             $data = getData(config('app.gasn.bayonnoma'), \request('conc'));
-            return $this->sendSuccess($data['data']['conclusions'], 'Tender');
+            return $this->sendSuccess($data['data'], 'Tender');
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }

@@ -401,7 +401,7 @@ class ArticleService
     {
         return $this->articleRepository->getAccountObjectsQuery($query, $status);
     }
-    public function createObject()
+    public function createObject($user, $roleId)
     {
         DB::beginTransaction();
         try {
@@ -419,11 +419,14 @@ class ArticleService
                 $article = $this->saveRepeat($response);
                 $this->saveRepeatUser($response, $article);
                 $this->saveEmployee($article, false);
+                $this->saveHistory($article, $user, $roleId, true);
 
             }else{
                 $article = $this->saveResponse($response);
                 $this->saveResponseUser($response, $article);
                 $this->saveEmployee($article);
+                $this->saveHistory($article, $user, $roleId, false);
+
 
             }
             $this->saveBlocks($response, $article);
@@ -441,6 +444,20 @@ class ArticleService
             throw new NotFoundException($exception->getMessage(), $exception->getLine(), );
         }
 
+    }
+
+    private function saveHistory($article, $user, $roleId, $isUpdate)
+    {
+        $this->historyService->createHistory(
+            guId: $article->id,
+            status: ObjectStatusEnum::PROGRESS->value,
+            type: LogType::ARTICLE_CREATE_HISTORY,
+            date: null,
+            comment: $isUpdate ? 'Obyekt yangilandi' : 'Obyekt yaratildi',
+            additionalInfo: [
+                'user_id' => $user->id, 'role_id' => $roleId,
+            ]
+        );
     }
 
     private function saveRepeat($response)
