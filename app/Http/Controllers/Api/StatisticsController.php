@@ -348,11 +348,11 @@ class StatisticsController extends BaseController
                 $endDate = $endDate ? Carbon::parse($endDate)->format('Y-m-d') : null;
 
                 if ($startDate && $endDate) {
-                    $query->whereBetween('c.created_at', [$startDate, $endDate]);
+                    $query->whereBetween('a.closed_at', [$startDate, $endDate]);
                 } elseif ($startDate) {
-                    $query->where('c.created_at', '>=', $startDate);
+                    $query->where('a.closed_at', '>=', $startDate);
                 } elseif ($endDate) {
-                    $query->where('c.created_at', '<=', $endDate);
+                    $query->where('a.closed_at', '<=', $endDate);
                 }
             })
             ->where('c.status', ClaimStatuses::TASK_STATUS_CONFIRMED)
