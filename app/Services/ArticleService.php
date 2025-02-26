@@ -450,8 +450,8 @@ class ArticleService
     {
         $this->historyService->createHistory(
             guId: $article->id,
-            status: ObjectStatusEnum::PROGRESS->value,
-            type: LogType::ARTICLE_CREATE_HISTORY,
+            status: $article->object_status_id,
+            type: $isUpdate ? LogType::ARTICLE_UPDATE_HISTORY : LogType::ARTICLE_CREATE_HISTORY,
             date: null,
             comment: $isUpdate ? 'Obyekt yangilandi' : 'Obyekt yaratildi',
             additionalInfo: [
@@ -753,7 +753,7 @@ class ArticleService
             $this->saveArticleUsers($request['users'], $article);
             $this->saveFiles($request['files'], $request['expertise_files'], $request['user_files'], $article);
             $this->saveBlocksRegister($article, $request['blocks']);
-            $this->createHistory($article, $user, $roleId);
+            $this->saveHistory($article, $user, $roleId, false);
 
             DB::commit();
             return $article;
@@ -763,20 +763,7 @@ class ArticleService
         }
     }
 
-    private function createHistory($article, $user, $roleId)
-    {
-        $this->objectHistory->createHistory(
-            guId: $article->id,
-            status: ObjectStatusEnum::PROGRESS->value,
-            type: LogType::ARTICLE_CREATE_HISTORY,
-            date: null,
-            comment: $request->comment ?? '',
-            additionalInfo: [
-                'user_id' => $user->id,
-                'role_id' => $roleId,
-            ]
-        );
-    }
+
 
     private function attachInspector($article, $inspectorId)
     {

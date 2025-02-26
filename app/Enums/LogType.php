@@ -14,5 +14,6 @@ class LogType
     const ARTICLE_PRICE_HISTORY = 5;
     const ARTICLE_PRICE_DELETE = 6;
     const ARTICLE_INSPECTOR_HISTORY = 7;
-    const ARTICLE_ROTATION = 7;
+    const ARTICLE_ROTATION = 8;
+    const ARTICLE_UPDATE_HISTORY = 9;
 }
