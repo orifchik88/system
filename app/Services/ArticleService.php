@@ -108,18 +108,20 @@ class ArticleService
     public function getObjectHistory($id)
     {
         $object = $this->articleRepository->findById($id);
-        $histories = $object->histories->map(function ($history){
+        $histories = $object->histories->map(function ($history) {
             return [
                 'id' => $history->id,
                 'user' => User::query()->find($history->content->user, ['name', 'surname', 'middle_name']),
                 'role' => Role::query()->find($history->content->role, ['name', 'description']),
-                'status' => ObjectStatus::query()->find($history->content->status, ['id','name']),
+                'status' => ObjectStatus::query()->find($history->content->status, ['id', 'name']),
                 'type' => $history->type,
                 'is_change' => LogType::getLabel($history->type),
                 'created_at' => $history->created_at,
             ];
-        });
+        })->sortByDesc('created_at')->values();
+
         return $histories;
+
     }
 
     public function getArticlesByUserRole($user, $roleId)

@@ -35,7 +35,7 @@ class LogType
             case self::ARTICLE_INSPECTOR_HISTORY:
                 return 'Obyektda inspektor o\'zgardi';
             case self::ARTICLE_MONITORING:
-                return 'Obyektda monitoring otkazildi';
+                return 'Obyektda monitoring o\'tkazildi';
             default:
                 return 'Noma’lum tur';
         }
