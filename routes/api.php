@@ -136,6 +136,7 @@ Route::group([
 
 
     Route::get('objects', [ObjectController::class, 'index']);
+    Route::get('object-location-list', [ObjectController::class, 'locationList']);
     Route::post('update-object-sphere', [ObjectController::class, 'updateSphere']);
     Route::get('object/{id}', [ObjectController::class, 'getObject']);
     Route::get('object-images/{id}', [ObjectController::class, 'getObjectImages']);

@@ -312,6 +312,53 @@ class DxaBuildingResponseService
         }
     }
 
+    public function checkOldReponse($dxa)
+    {
+        try {
+            $response = DxaResponse::query()
+                ->where('cadastral_number', $dxa->cadastral_number)
+                ->where('dxa_response_status_id', DxaResponseStatusEnum::REJECTED->value)
+                ->where('created_at', '>=', Carbon::now()->subDays(3))
+                ->latest('created_at')
+                ->first();
+
+            if($response) {
+                $dxa->update([
+                    'inspector_id' => $response->inspector_id,
+                    'dxa_response_status_id' => DxaResponseStatusEnum::IN_REGISTER->value,
+                    'funding_source_id' => $response->funding_source_id,
+                    'sphere_id' => $response->sphere_id,
+                    'end_term_work' => $response->end_term_work,
+                    'program_id' => $response->program_id,
+                    'inspector_commit' => $response->inspector_commit,
+                    'rekvizit_id' => $response->rekvizit_id,
+                    'administrative_status_id' => $response->administrative_status_id,
+                    'lat' => $response->lat,
+                    'long' => $response->long,
+                ]);
+
+                if ($response->images) {
+                    foreach ($response->images as $image) {
+                        $dxa->images()->create([
+                            'url' => $image->url,
+                        ]);
+                    }
+                }
+                if ($response->blocks) {
+                    foreach ($response->blocks as $block) {
+                        $block->update([
+                            'dxa_response_id' => $dxa->id,
+                        ]);
+                    }
+                }
+
+            }
+
+        }catch (\Exception $exception){
+            Log::info($exception->getMessage());
+        }
+    }
+
     public function saveExpertise($dxa)
     {
         try {

@@ -15,6 +15,7 @@ use App\Http\Requests\ObjectPriceRequest;
 use App\Http\Requests\ObjectRequest;
 use App\Http\Requests\ObjectUserRequest;
 use App\Http\Resources\ArticleListResource;
+use App\Http\Resources\ArticleLocationListResource;
 use App\Http\Resources\ArticleResource;
 use App\Http\Resources\FundingSourceResource;
 use App\Http\Resources\UserResource;
@@ -60,6 +61,13 @@ class ObjectController extends BaseController
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage());
         }
+
+    }
+
+    public function locationList()
+    {
+        $objects = $this->service->getObjects($this->user, $this->roleId)->get();
+        return $this->sendSuccess(ArticleLocationListResource::collection($objects), 'Object Location');
 
     }
 
@@ -393,18 +401,12 @@ class ObjectController extends BaseController
             $object = $this->service->getObjectById($this->user, $this->roleId, $request->object_id);
 
             $previousStatus = $object->object_status_id;
-            $previousDeadline = $object->deadline;
 
 
             $object->update([
                 'object_status_id' => $request->status
             ]);
 
-            if ($request->deadline) {
-                $object->update([
-                    'deadline' => !empty($object->deadline) ? $object->deadline : $request->deadline
-                ]);
-            }
 
             $tableId = $service->createHistory(
                 guId: $request->object_id,
@@ -417,8 +419,6 @@ class ObjectController extends BaseController
                     'role_id' => $this->roleId,
                     'previous_status' => $previousStatus,
                     'new_status' => $request->status,
-                    'previous_deadline' => $previousDeadline,
-                    'new_deadline' => $request->deadline,
                 ]
             );
 
@@ -482,5 +482,4 @@ class ObjectController extends BaseController
             return $this->sendError('Xatolik aniqlandi', $exception->getMessage());
         }
     }
-
 }
