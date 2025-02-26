@@ -50,6 +50,7 @@ class ClaimController extends BaseController
 
         $regionId = match ($roleId) {
             (string)UserRoleEnum::FVB_REG_KADR->value, (string)UserRoleEnum::SEOM_REG_KADR->value, (string)UserRoleEnum::INSPEKSIYA->value, (string)UserRoleEnum::EKOLOGIYA->value,
+            (string)UserRoleEnum::HUDUDIY_KUZATUVCHI->value,(string)UserRoleEnum::BUXGALTER->value,
             (string)UserRoleEnum::NOGIRONLAR_JAM->value, (string)UserRoleEnum::NOGIRONLAR_ASSOT->value, (string)UserRoleEnum::UY_JOY_INSPEKSIYA->value,
             (string)UserRoleEnum::OPERATOR->value, (string)UserRoleEnum::INSPECTOR->value => Auth::user()->region_id ?? Auth::user()->region_id ?? null,
             default => request()->get('region', null),
@@ -168,6 +169,7 @@ class ClaimController extends BaseController
 
         $regionId = match ($roleId) {
             (string)UserRoleEnum::FVB_REG_KADR->value, (string)UserRoleEnum::SEOM_REG_KADR->value, (string)UserRoleEnum::INSPEKSIYA->value,
+            (string)UserRoleEnum::HUDUDIY_KUZATUVCHI->value,(string)UserRoleEnum::BUXGALTER->value,
             (string)UserRoleEnum::NOGIRONLAR_JAM->value, (string)UserRoleEnum::NOGIRONLAR_ASSOT->value, (string)UserRoleEnum::UY_JOY_INSPEKSIYA->value, (string)UserRoleEnum::EKOLOGIYA->value,
             (string)UserRoleEnum::OPERATOR->value, (string)UserRoleEnum::INSPECTOR->value => Auth::user()->region_id ?? Auth::user()->region_id ?? null,
             default => request()->get('region_id', null),
