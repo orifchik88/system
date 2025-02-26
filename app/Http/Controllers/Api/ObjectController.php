@@ -71,6 +71,15 @@ class ObjectController extends BaseController
 
     }
 
+    public function getHistory($id): JsonResponse
+    {
+        try {
+           return $this->sendSuccess($this->service->getObjectHistory($id), 'Object History');
+        }catch (\Exception $exception){
+            return $this->sendError('Xatolik aniqlandi', $exception->getMessage());
+        }
+    }
+
     public function updateSphere()
     {
         try {

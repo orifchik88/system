@@ -17,7 +17,9 @@ use App\Models\ArticleUser;
 use App\Models\Block;
 use App\Models\DxaResponse;
 use App\Models\FundingSource;
+use App\Models\ObjectStatus;
 use App\Models\Regulation;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\UserEmployee;
 use App\Models\UserRole;
@@ -101,6 +103,22 @@ class ArticleService
             default:
                 return Article::query()->whereRaw('1 = 0');
         }
+    }
+
+    public function getObjectHistory($id)
+    {
+        $object = $this->articleRepository->findById($id);
+        $histories = $object->histories->map(function ($history){
+            return [
+                'id' => $history->id,
+                'user' => User::query()->find($history->content->user, ['name', 'surname', 'middle_name']),
+                'role' => Role::query()->find($history->content->role, ['name', 'description']),
+                'status' => ObjectStatus::query()->find($history->content->status, ['id','name']),
+                'is_change' => LogType::getLabel($history->type),
+                'created_at' => $history->created_at,
+            ];
+        });
+        return $histories;
     }
 
     public function getArticlesByUserRole($user, $roleId)
@@ -450,7 +468,7 @@ class ArticleService
     {
         $this->historyService->createHistory(
             guId: $article->id,
-            status: $article->object_status_id,
+            status: $article->object_status_id->value,
             type: $isUpdate ? LogType::ARTICLE_UPDATE_HISTORY : LogType::ARTICLE_CREATE_HISTORY,
             date: null,
             comment: $isUpdate ? 'Obyekt yangilandi' : 'Obyekt yaratildi',

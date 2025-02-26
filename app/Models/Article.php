@@ -113,6 +113,11 @@ class Article extends Model
         return $this->hasMany(ObjectUserHistory::class, 'object_id');
     }
 
+    public function histories(): HasMany
+    {
+        return $this->hasMany(ArticleHistory::class, 'gu_id');
+    }
+
     public function inspector(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'article_users', 'article_id', 'user_id')->withPivot('role_id')->wherePivot('role_id', 3);

@@ -14,6 +14,10 @@ class ArticleHistory extends Model
 
     protected $guarded = false;
 
+    protected $casts = [
+        'content' => 'object'
+    ];
+
     public function documents(): MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');

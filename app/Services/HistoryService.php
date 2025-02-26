@@ -41,6 +41,7 @@ class HistoryService
             LogType::ARTICLE_PRICE_HISTORY,
             LogType::CLAIM_HISTORY,
             LogType::ARTICLE_ROTATION,
+            LogType::ARTICLE_UPDATE_HISTORY,
             => $this->shapeTaskContent(
                 status: $status,
                 comment: $comment,
