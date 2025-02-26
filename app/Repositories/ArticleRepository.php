@@ -295,7 +295,7 @@ class ArticleRepository implements ArticleRepositoryInterface
             $object = $this->findById($userArticle);
             $tableId = $service->createHistory(
                 guId: $object->id,
-                status: $object->object_status_id,
+                status: $object->object_status_id->value,
                 type: LogType::ARTICLE_ROTATION,
                 date: null,
                 comment: 'rotatsiya',

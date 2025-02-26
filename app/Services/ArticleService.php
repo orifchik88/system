@@ -114,6 +114,7 @@ class ArticleService
                 'user' => User::query()->find($history->content->user, ['name', 'surname', 'middle_name']),
                 'role' => Role::query()->find($history->content->role, ['name', 'description']),
                 'status' => ObjectStatus::query()->find($history->content->status, ['id','name']),
+                'type' => $history->type,
                 'is_change' => LogType::getLabel($history->type),
                 'created_at' => $history->created_at,
             ];

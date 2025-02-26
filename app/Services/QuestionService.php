@@ -196,6 +196,7 @@ class QuestionService
             $object = Article::find($data['object_id']);
 
             $monitoring = $this->createMonitoring($data, $object, $roleId);
+            $this->saveObjectHistory($user, $roleId, $monitoring->id, $object);
 
             if (!empty($data['public'])) {
                 $this->createPublicChecklist($data['public'], $object, $roleId, $monitoring);
@@ -219,6 +220,24 @@ class QuestionService
             throw $exception;
         }
 
+    }
+
+    public function saveObjectHistory($user, $roleId, $monitoringId, $object)
+    {
+        $history  = new HistoryService('article_histories');
+
+        $history->createHistory(
+            guId: $object->id,
+            status: $object->object_status_id->value,
+            type: LogType::ARTICLE_MONITORING,
+            date: null,
+            comment: $request->comment ?? '',
+            additionalInfo: [
+                'user_id' => $user->id,
+                'role_id' => $roleId,
+                'monitoring_id' => $monitoringId
+            ]
+        );
     }
 
     private function createAuthorRegulation($checklists, $object, $roleId, $blockId)
@@ -335,6 +354,7 @@ class QuestionService
             'created_by' => Auth::id(),
             'created_by_role' => $roleId,
         ]);
+
     }
 
     private function handleChecklists($checklists, $object, $blockId, $roleId, $isPositive, $monitoringID)
