@@ -3,9 +3,11 @@
 namespace App\Repositories;
 
 use App\Enums\DxaResponseStatusEnum;
+use App\Enums\LogType;
 use App\Enums\ObjectStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Models\Article;
+use App\Models\ArticleHistory;
 use App\Models\ArticleUser;
 use App\Models\DxaResponse;
 use App\Models\ObjectUserHistory;
@@ -15,6 +17,7 @@ use App\Models\User;
 use App\Models\UserRole;
 use App\Notifications\InspectorNotification;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
+use App\Services\HistoryService;
 use App\Services\MessageTemplate;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -218,64 +221,92 @@ class ArticleRepository implements ArticleRepositoryInterface
 
     public function rotateUsers($user, $roleId, $firstUserId, $secondUserId): void
     {
-        $fistUser = User::query()->find($firstUserId);
-        $secondUser = User::query()->find($secondUserId);
+        DB::beginTransaction();
+        try {
+            $fistUser = User::query()->find($firstUserId);
+            $secondUser = User::query()->find($secondUserId);
 
-//        $firstUserArticles = ArticleUser::where('user_id', $firstUserId)
-//            ->where('role_id', UserRoleEnum::INSPECTOR->value)
-//            ->pluck('article_id');
-//        $secondUserArticles = ArticleUser::where('user_id', $secondUserId)
-//            ->where('role_id', UserRoleEnum::INSPECTOR->value)
-//            ->pluck('article_id');
+            $secondUserArticles = $secondUser->objects()
+                ->wherePivot('role_id', UserRoleEnum::INSPECTOR->value)
+                ->whereIn('articles.object_status_id', [ObjectStatusEnum::PROGRESS, ObjectStatusEnum::FROZEN, ObjectStatusEnum::SUSPENDED])
+                ->pluck('articles.id');
 
-        $secondUserArticles = $secondUser->objects()
-            ->wherePivot('role_id', UserRoleEnum::INSPECTOR->value)
-            ->whereIn('articles.object_status_id', [ObjectStatusEnum::PROGRESS, ObjectStatusEnum::FROZEN, ObjectStatusEnum::SUSPENDED])
-            ->pluck('articles.id');
+            $this->saveArticleHistory($user, $roleId, $firstUserId, $secondUserId, $secondUserArticles);
 
-        $firstUserArticles = $fistUser->objects()
-            ->wherePivot('role_id', UserRoleEnum::INSPECTOR->value)
-            ->whereIn('articles.object_status_id', [ObjectStatusEnum::PROGRESS, ObjectStatusEnum::FROZEN, ObjectStatusEnum::SUSPENDED])
-            ->pluck('articles.id');
+            $firstUserArticles = $fistUser->objects()
+                ->wherePivot('role_id', UserRoleEnum::INSPECTOR->value)
+                ->whereIn('articles.object_status_id', [ObjectStatusEnum::PROGRESS, ObjectStatusEnum::FROZEN, ObjectStatusEnum::SUSPENDED])
+                ->pluck('articles.id');
+
+            $this->saveArticleHistory($user, $roleId, $secondUserId, $firstUserId, $secondUserArticles);
 
 
-        DxaResponse::query()
-            ->whereIn('dxa_response_status_id', [DxaResponseStatusEnum::IN_REGISTER, DxaResponseStatusEnum::SEND_INSPECTOR])
-            ->where('inspector_id', $firstUserId)
-            ->update(['inspector_id' => $secondUserId]);
 
-        DxaResponse::query()
-            ->whereIn('dxa_response_status_id', [DxaResponseStatusEnum::IN_REGISTER, DxaResponseStatusEnum::SEND_INSPECTOR])
-            ->where('inspector_id', $secondUserId)
-            ->update(['inspector_id' => $firstUserId]);
+            DxaResponse::query()
+                ->whereIn('dxa_response_status_id', [DxaResponseStatusEnum::IN_REGISTER, DxaResponseStatusEnum::SEND_INSPECTOR])
+                ->where('inspector_id', $firstUserId)
+                ->update(['inspector_id' => $secondUserId]);
 
-        ArticleUser::whereIn('article_id', $firstUserArticles)
-            ->where('role_id', UserRoleEnum::INSPECTOR->value)
-            ->update(['user_id' => $secondUserId]);
+            DxaResponse::query()
+                ->whereIn('dxa_response_status_id', [DxaResponseStatusEnum::IN_REGISTER, DxaResponseStatusEnum::SEND_INSPECTOR])
+                ->where('inspector_id', $secondUserId)
+                ->update(['inspector_id' => $firstUserId]);
 
-        ArticleUser::whereIn('article_id', $secondUserArticles)
-            ->where('role_id', UserRoleEnum::INSPECTOR->value)
-            ->update(['user_id' => $firstUserId]);
+            ArticleUser::whereIn('article_id', $firstUserArticles)
+                ->where('role_id', UserRoleEnum::INSPECTOR->value)
+                ->update(['user_id' => $secondUserId]);
 
-        Regulation::query()
-            ->whereIn('object_id', $firstUserArticles)
-            ->where('created_by_user_id', $firstUserId)
-            ->where('created_by_role_id', UserRoleEnum::INSPECTOR->value)
-            ->update([
-                'created_by_user_id' => $secondUserId,
-                'created_by_role_id' => UserRoleEnum::INSPECTOR->value,
-            ]);
+            ArticleUser::whereIn('article_id', $secondUserArticles)
+                ->where('role_id', UserRoleEnum::INSPECTOR->value)
+                ->update(['user_id' => $firstUserId]);
 
-        Regulation::query()
-            ->whereIn('object_id', $secondUserArticles)
-            ->where('created_by_user_id', $secondUserId)
-            ->where('created_by_role_id', UserRoleEnum::INSPECTOR->value)
-            ->update([
-                'created_by_user_id' => $firstUserId,
-                'created_by_role_id' => UserRoleEnum::INSPECTOR->value,
-            ]);
-        $this->sendNotification($user, $firstUserId, $secondUserId, $roleId);
-        $this->sendNotification($user, $secondUserId, $firstUserId, $roleId);
+            Regulation::query()
+                ->whereIn('object_id', $firstUserArticles)
+                ->where('created_by_user_id', $firstUserId)
+                ->where('created_by_role_id', UserRoleEnum::INSPECTOR->value)
+                ->update([
+                    'created_by_user_id' => $secondUserId,
+                    'created_by_role_id' => UserRoleEnum::INSPECTOR->value,
+                ]);
+
+            Regulation::query()
+                ->whereIn('object_id', $secondUserArticles)
+                ->where('created_by_user_id', $secondUserId)
+                ->where('created_by_role_id', UserRoleEnum::INSPECTOR->value)
+                ->update([
+                    'created_by_user_id' => $firstUserId,
+                    'created_by_role_id' => UserRoleEnum::INSPECTOR->value,
+                ]);
+
+            $this->sendNotification($user, $firstUserId, $secondUserId, $roleId);
+            $this->sendNotification($user, $secondUserId, $firstUserId, $roleId);
+            DB::commit();
+        }catch (\Exception $exception) {
+            DB::rollBack();
+            throw $exception;
+        }
+
+    }
+
+    private function saveArticleHistory($user, $roleId, $firstUserId, $secondUserId, $userArticles)
+    {
+        foreach ($userArticles as $userArticle) {
+            $service = new HistoryService('article_histories');
+            $object = $this->findById($userArticle);
+            $tableId = $service->createHistory(
+                guId: $object->id,
+                status: $object->object_status_id,
+                type: LogType::ARTICLE_ROTATION,
+                date: null,
+                comment: 'rotatsiya',
+                additionalInfo: [
+                    'user_id' => $user->id,
+                    'role_id' => $roleId,
+                    'previous_user_id' => $secondUserId,
+                    'new_user_id' => $firstUserId,
+                ]
+            );
+        }
     }
 
     public function findArticleByParams($params)
