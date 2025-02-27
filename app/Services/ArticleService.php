@@ -867,7 +867,7 @@ class ArticleService
 
         }catch (\Exception $exception){
             DB::rollBack();
-            throw new $exception;
+            throw $exception;
         }
     }
 
@@ -1057,11 +1057,12 @@ class ArticleService
                             "requisites" => $response->rekvizit->name ?? '',
                             "loacation_rep" => $response->region->name_uz . ' ' . $response->district->name_uz . ' ' . $response->location_building,
                             "name_rep" => $response->organization_name,
-                            "amount" => $response->price_supervision_service ?? '',
+                            "amount" => price_supervision($response->cost) ?? '',
                             "qr_image" => $qrImageTag,
                             "qr_comment" => "Ushbu QR kod obyekt pasporti hisoblanadi. QR kodni obyektning ko‘rinarli joyiga o‘rnatib qo‘yishingiz talab etiladi"
                         ]
                     ]);
+
 
                 if ($return->failed()) throw new NotFoundException("mygovda xatolik yuz berdi");
         }catch (\Exception $exception){
