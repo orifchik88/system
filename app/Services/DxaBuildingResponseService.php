@@ -142,9 +142,9 @@ class DxaBuildingResponseService
         $dxa->save();
         $this->saveSupervisors($data, $dxa->id, $userType);
         $this->updateObject($dxa, $json);
-//        if ($dxa->notification_type == 2) {
+        if ($dxa->notification_type == 2) {
             $this->saveRekvizit($dxa);
-//        }
+        }
         return $dxa;
 
     }
@@ -322,6 +322,9 @@ class DxaBuildingResponseService
                 ->latest('created_at')
                 ->first();
 
+            $this->saveRekvizit($dxa);
+            
+
             if($response) {
                 $dxa->update([
                     'inspector_id' => $response->inspector_id,
@@ -351,7 +354,6 @@ class DxaBuildingResponseService
                         ]);
                     }
                 }
-
             }
 
         }catch (\Exception $exception){

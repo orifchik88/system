@@ -524,6 +524,13 @@ class RegulationController extends BaseController
     public function test()
     {
         try {
+
+            $dxa = DxaResponse::query()
+                ->whereNotNull('cost')
+                ->whereNull('price_supervision_service')
+                ->whereIn('dxa_response_status_id', [1,2,3])
+                ->whereNotNull('notification_type')->get();
+            dd($dxa);
             $meta = [];
             $monitroings = Monitoring::query()->find(314896);
             $data = json_decode($monitroings->constant_checklist);
