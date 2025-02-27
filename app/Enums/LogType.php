@@ -15,7 +15,7 @@ class LogType
     const ARTICLE_INSPECTOR_HISTORY = 7;
     const ARTICLE_ROTATION = 8;
     const ARTICLE_UPDATE_HISTORY = 9;
-    const ARTICLE_MONITORING = 9;
+    const ARTICLE_MONITORING = 10;
 
     public static function getLabel($type): string
     {

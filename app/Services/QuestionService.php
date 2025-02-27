@@ -190,6 +190,7 @@ class QuestionService
 
     public function createRegulation($data)
     {
+        DB::beginTransaction();
         try {
             $user = Auth::user();
             $roleId = (int)$user->getRoleFromToken();
@@ -215,8 +216,9 @@ class QuestionService
 
             }
             if(isset($data['block_id']))  $this->changeBlockStatus($data['block_id']);
-
+            DB::commit();
         } catch (\Exception $exception) {
+            DB::rollBack();
             throw $exception;
         }
 
@@ -224,9 +226,9 @@ class QuestionService
 
     public function saveObjectHistory($user, $roleId, $monitoringId, $object)
     {
-        $history  = new HistoryService('article_histories');
+        $history = new HistoryService('article_histories');
 
-        $history->createHistory(
+        $history = $history->createHistory(
             guId: $object->id,
             status: $object->object_status_id->value,
             type: LogType::ARTICLE_MONITORING,
