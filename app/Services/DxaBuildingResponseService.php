@@ -323,7 +323,7 @@ class DxaBuildingResponseService
                 ->first();
 
             $this->saveRekvizit($dxa);
-            
+
 
             if($response) {
                 $dxa->update([
