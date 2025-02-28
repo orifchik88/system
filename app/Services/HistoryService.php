@@ -44,6 +44,7 @@ class HistoryService
             LogType::ARTICLE_UPDATE_HISTORY,
             LogType::ARTICLE_CREATE_HISTORY,
             LogType::ARTICLE_MONITORING,
+            LogType::ARTICLE_PAYMENT_CREATE,
             => $this->shapeTaskContent(
                 status: $status,
                 comment: $comment,
