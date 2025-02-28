@@ -14,6 +14,7 @@ class VersionRequest extends FormRequest
             'version' => 'string|required',
             'app_link' => 'string|required',
             'type' => 'integer|required',
+            'message' => 'string|required'
         ];
     }
 }

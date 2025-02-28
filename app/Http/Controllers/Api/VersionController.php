@@ -18,6 +18,7 @@ class VersionController extends Controller
             'version' => $version->version,
             'app_link' => $version->app_link,
             'type' => $version->type,
+            'message' => $version->message,
         ]);
     }
 
@@ -36,6 +37,7 @@ class VersionController extends Controller
             'version' => $version->version,
             'app_link' => $version->app_link,
             'type' => $version->type,
+            'message' => $version->message,
         ]);
     }
 }
