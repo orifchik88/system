@@ -433,6 +433,7 @@ class ArticleService
                 'dxa_response_status_id' => DxaResponseStatusEnum::ACCEPTED
             ]);
 
+
             if ($response->notification_type==2)
             {
                 $oldArticle = Article::query()->where('task_id', $response->old_task_id)->first();
@@ -469,7 +470,7 @@ class ArticleService
 
     private function saveHistory($article, $user, $roleId, $isUpdate)
     {
-        $this->historyService->createHistory(
+        $this->objectHistory->createHistory(
             guId: $article->id,
             status: $article->object_status_id->value,
             type: $isUpdate ? LogType::ARTICLE_UPDATE_HISTORY : LogType::ARTICLE_CREATE_HISTORY,
