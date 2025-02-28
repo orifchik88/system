@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\LogType;
 use App\Enums\ObjectStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Helpers\ClaimStatuses;
@@ -254,7 +255,7 @@ class Article extends Model
 
     public function paymentLogs(): HasMany
     {
-        return $this->hasMany(ArticlePaymentLog::class, 'gu_id');
+        return $this->hasMany(ArticleHistory::class, 'gu_id')->where('type', LogType::ARTICLE_PAYMENT_CREATE);
     }
 
     public function totalAmount()

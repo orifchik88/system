@@ -17,6 +17,8 @@ class LogType
     const ARTICLE_UPDATE_HISTORY = 9;
     const ARTICLE_MONITORING = 10;
 
+    const ARTICLE_PAYMENT_CREATE = 11;
+
     public static function getLabel($type): string
     {
         switch ($type) {

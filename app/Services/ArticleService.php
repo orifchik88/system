@@ -12,6 +12,7 @@ use App\Enums\UserRoleEnum;
 use App\Enums\UserStatusEnum;
 use App\Exceptions\NotFoundException;
 use App\Models\Article;
+use App\Models\ArticleHistory;
 use App\Models\ArticlePaymentLog;
 use App\Models\ArticleUser;
 use App\Models\Block;
@@ -39,7 +40,6 @@ class ArticleService
 {
     protected ObjectDto $objectDto;
 
-    private HistoryService $historyService;
     private HistoryService $objectHistory;
 
     public function __construct(
@@ -50,7 +50,6 @@ class ArticleService
         protected ImageService  $imageService,
         protected DocumentService  $documentService
     ) {
-        $this->historyService = new HistoryService('article_payment_logs');
         $this->objectHistory = new HistoryService('article_histories');
     }
 
@@ -349,7 +348,7 @@ class ArticleService
     {
         DB::beginTransaction();
         try {
-            $log = ArticlePaymentLog::query()->findOrFail($id);
+            $log = ArticleHistory::query()->findOrFail($id);
             $object = Article::query()->findOrFail($log->gu_id);
             $meta = ['user_id' => $user->id, 'role_id' => $roleId, 'content' => $log->content];
 
@@ -386,16 +385,16 @@ class ArticleService
 
         $meta = ['amount' => request('amount'), 'cost' => $cost];
 
-        $tableId = $this->historyService->createHistory(
+        $tableId = $this->objectHistory->createHistory(
             guId: $object->id,
             status: $object->object_status_id->value,
-            type: LogType::TASK_HISTORY,
+            type: LogType::ARTICLE_PAYMENT_CREATE,
             date: null,
             comment: $item['comment'] ?? "",
             additionalInfo: $meta
         );
 
-        $log = ArticlePaymentLog::query()->findOrFail($tableId);
+        $log = ArticleHistory::query()->findOrFail($tableId);
 
         if (request()->hasFile('file')) {
             $this->documentService->saveFile($log, 'payment-log',request()->file('file'));
