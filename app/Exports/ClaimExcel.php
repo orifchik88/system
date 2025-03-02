@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
@@ -13,7 +14,7 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class ClaimExcel implements FromCollection, WithColumnFormatting, WithHeadings, WithStyles, WithEvents
+class ClaimExcel implements FromCollection, WithColumnFormatting, WithHeadings, WithStyles, WithEvents, WithColumnWidths
 {
     private array $tasks;
 
@@ -107,10 +108,31 @@ class ClaimExcel implements FromCollection, WithColumnFormatting, WithHeadings, 
     public function styles(Worksheet $sheet): array
     {
         return [
+            'A1:AX1' => [
+                'alignment' => [
+                    'wrapText' => true,
+                ],
+            ],
             // Style the first row as bold text.
             1 => [
                 'font' => ['bold' => true],
             ],
+        ];
+    }
+
+    public function columnWidths(): array
+    {
+        return [
+            'H' => 50,
+            'X' => 50,
+            'C' => 50,
+            'AO' => 50,
+            'AX' => 50,
+            'AZ' => 50,
+            'BA' => 50,
+            'BB' => 50,
+
+            // kerakli ustunlarga kenglik bering
         ];
     }
 
@@ -122,11 +144,11 @@ class ClaimExcel implements FromCollection, WithColumnFormatting, WithHeadings, 
             ) {
                 $event->sheet->autoSize();
 
-                $event->sheet->getDelegate()->getRowDimension('1')->setRowHeight(40);
+                //$event->sheet->getDelegate()->getRowDimension('1')->setRowHeight(40);
 
-                $event->sheet->getDelegate()->getStyle('A:AX')->getAlignment()->setHorizontal(
+                $event->sheet->getDelegate()->getStyle('A:BB')->getAlignment()->setHorizontal(
                     Alignment::HORIZONTAL_CENTER
-                );
+                )->setVertical(Alignment::VERTICAL_CENTER)->setWrapText(true);
 
                 $event->sheet->getStyle('K1:N1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => '66B2FF']]);
                 $event->sheet->getStyle('P1:S1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'FFFF66']]);
@@ -135,10 +157,9 @@ class ClaimExcel implements FromCollection, WithColumnFormatting, WithHeadings, 
                 $event->sheet->getStyle('AB1:AE1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'FF8000']]);
                 $event->sheet->getStyle('AF1:AI1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'CCFFCC']]);
 
-
                 $event->sheet->getDelegate()->getStyle('A1:BB1')->getAlignment()->setVertical(
                     Alignment::VERTICAL_CENTER
-                );
+                )->setHorizontal(Alignment::HORIZONTAL_CENTER)->setWrapText(true);
             }
         ];
     }
