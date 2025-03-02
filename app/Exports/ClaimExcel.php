@@ -60,6 +60,26 @@ class ClaimExcel implements FromCollection, WithColumnFormatting, WithHeadings, 
             "Noturar",
             "Turar",
             "Yakka tartibdagi",
+
+            'Inspeksiyaga kelgan vaqt',
+            'Oxirgi tashkilot hulosa bergan vaqti',
+            'Inspektor hulosa bergan vaqat',
+            'Inspektor',
+            'Jismoniy yoki Yuridik shaxs',
+            'Qurilish obyekti manzili',
+            'Obyekt Turi',
+            'Obyekt murakkablik toifasi',
+            'Obyekt yaratilgan sana',
+            'Inspektorga yuborilgan sana',
+            'Direktorga yuborilgan sana',
+            'Yakunlangan sana',
+            'Xolati',
+            'Kim tomonidan yakunlandi',
+            'Rad etilganligi sababi',
+            'Dastur nomi',
+            'Qurosh panellari o`rnatilganligi',
+            'Qurilishi tugallangan obektlarni konstruktiv tizimi qurilish maydonining seysmik darajasi yuk ko‘taruvchi konstruksiyalar materiallarining mastahkamlik ko‘rsatkichlarini nazarda tutuvchi elektron pasportini kiritish.""	Qurilishi tugallangan obektlarni konstruktiv tizimi qurilish maydonining seysmik darajasi yuk ko‘taruvchi konstruksiyalar materiallarining mastahkamlik ko‘rsatkichlarini nazarda tutuvchi elektron pasportini kiritish.',
+            'Инспектор томонидан сейсмика бўйича техник кўрик олган ёки олинмаган III-IV toifadagi obʼektlarda zilzilabardoshlikka doyr instrumental-texnik tekshiruvdan utkazilganligini tasdiklovchi xujjat va laboratoriya sinov xulosalarini kiritish.'
         ];
     }
 
@@ -116,7 +136,7 @@ class ClaimExcel implements FromCollection, WithColumnFormatting, WithHeadings, 
                 $event->sheet->getStyle('AF1:AI1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'CCFFCC']]);
 
 
-                $event->sheet->getDelegate()->getStyle('A1:AX1')->getAlignment()->setVertical(
+                $event->sheet->getDelegate()->getStyle('A1:BB1')->getAlignment()->setVertical(
                     Alignment::VERTICAL_CENTER
                 );
             }
