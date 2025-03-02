@@ -633,7 +633,7 @@ class StatisticsController extends BaseController
             $count++;
         }
 
-        return Excel::queue(
+        return Excel::download(
             new ClaimExcel($array),
             'statistic.xlsx'
         );
