@@ -6,6 +6,7 @@ use App\Enums\ObjectStatusEnum;
 use App\Enums\RegulationStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Exports\ClaimExcel;
+use App\Exports\ClaimTaskExcel;
 use App\Helpers\ClaimStatuses;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ArticlePalataResource;
@@ -634,7 +635,7 @@ class StatisticsController extends BaseController
         }
 
         return Excel::download(
-            new ClaimExcel($array),
+            new ClaimTaskExcel($array),
             'statistic.xlsx'
         );
     }
