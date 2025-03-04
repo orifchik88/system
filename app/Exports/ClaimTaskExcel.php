@@ -14,7 +14,7 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class ClaimExcel implements FromCollection, WithColumnFormatting, WithHeadings, WithStyles, WithEvents, WithColumnWidths
+class ClaimTaskExcel implements FromCollection, WithColumnFormatting, WithHeadings, WithStyles, WithEvents, WithColumnWidths
 {
     private array $tasks;
 
@@ -61,6 +61,26 @@ class ClaimExcel implements FromCollection, WithColumnFormatting, WithHeadings, 
             "Noturar",
             "Turar",
             "Yakka tartibdagi",
+
+            'Inspeksiyaga kelgan vaqt',
+            'Oxirgi tashkilot hulosa bergan vaqti',
+            'Inspektor hulosa bergan vaqat',
+            'Inspektor',
+            'Jismoniy yoki Yuridik shaxs',
+            'Qurilish obyekti manzili',
+            'Obyekt Turi',
+            'Obyekt murakkablik toifasi',
+            'Obyekt yaratilgan sana',
+            'Inspektorga yuborilgan sana',
+            'Direktorga yuborilgan sana',
+            'Yakunlangan sana',
+            'Xolati',
+            'Kim tomonidan yakunlandi',
+            'Rad etilganligi sababi',
+            'Dastur nomi',
+            'Qurosh panellari o`rnatilganligi',
+            'Qurilishi tugallangan obektlarni konstruktiv tizimi qurilish maydonining seysmik darajasi yuk ko‘taruvchi konstruksiyalar materiallarining mastahkamlik ko‘rsatkichlarini nazarda tutuvchi elektron pasportini kiritish.""	Qurilishi tugallangan obektlarni konstruktiv tizimi qurilish maydonining seysmik darajasi yuk ko‘taruvchi konstruksiyalar materiallarining mastahkamlik ko‘rsatkichlarini nazarda tutuvchi elektron pasportini kiritish.',
+            'Инспектор томонидан сейсмика бўйича техник кўрик олган ёки олинмаган III-IV toifadagi obʼektlarda zilzilabardoshlikka doyr instrumental-texnik tekshiruvdan utkazilganligini tasdiklovchi xujjat va laboratoriya sinov xulosalarini kiritish.'
         ];
     }
 
@@ -85,22 +105,34 @@ class ClaimExcel implements FromCollection, WithColumnFormatting, WithHeadings, 
         ];
     }
 
-    public function columnWidths(): array
-    {
-        return [
-            'C' => 50,
-            'H' => 50
-            // kerakli ustunlarga kenglik bering
-        ];
-    }
-
     public function styles(Worksheet $sheet): array
     {
         return [
+            'A1:AX1' => [
+                'alignment' => [
+                    'wrapText' => true,
+                ],
+            ],
             // Style the first row as bold text.
             1 => [
                 'font' => ['bold' => true],
             ],
+        ];
+    }
+
+    public function columnWidths(): array
+    {
+        return [
+            'H' => 50,
+            'X' => 50,
+            'C' => 50,
+            'AO' => 50,
+            'AX' => 50,
+            'AZ' => 50,
+            'BA' => 50,
+            'BB' => 50,
+
+            // kerakli ustunlarga kenglik bering
         ];
     }
 
@@ -112,9 +144,9 @@ class ClaimExcel implements FromCollection, WithColumnFormatting, WithHeadings, 
             ) {
                 $event->sheet->autoSize();
 
-                $event->sheet->getDelegate()->getRowDimension('1')->setRowHeight(40);
+                //$event->sheet->getDelegate()->getRowDimension('1')->setRowHeight(40);
 
-                $event->sheet->getDelegate()->getStyle('A:AI')->getAlignment()->setHorizontal(
+                $event->sheet->getDelegate()->getStyle('A:BB')->getAlignment()->setHorizontal(
                     Alignment::HORIZONTAL_CENTER
                 )->setVertical(Alignment::VERTICAL_CENTER)->setWrapText(true);
 
@@ -123,10 +155,9 @@ class ClaimExcel implements FromCollection, WithColumnFormatting, WithHeadings, 
                 $event->sheet->getStyle('T1:W1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'E0E0E0']]);
                 $event->sheet->getStyle('X1:AA1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'FFB266']]);
                 $event->sheet->getStyle('AB1:AE1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'FF8000']]);
-                $event->sheet->getStyle('AF1:AE1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'CCFFCC']]);
+                $event->sheet->getStyle('AF1:AI1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'CCFFCC']]);
 
-
-                $event->sheet->getDelegate()->getStyle('A1:AX1')->getAlignment()->setVertical(
+                $event->sheet->getDelegate()->getStyle('A1:BB1')->getAlignment()->setVertical(
                     Alignment::VERTICAL_CENTER
                 )->setHorizontal(Alignment::HORIZONTAL_CENTER)->setWrapText(true);
             }
