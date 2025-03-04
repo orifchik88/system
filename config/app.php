@@ -53,8 +53,8 @@ return [
     'url' => env('APP_URL', 'http://localhost'),
 
     'mygov' => [
-        'url' => env('MY_GOV_URL', 'https://my.gov.uz/notice-beginning-construction-works-v4/rest-api'),
-        'linear' => env('MY_GOV_LINEAR_URL', 'https://my.gov.uz/registration-start-linear-object-v1/rest-api'),
+        'url' => env('MY_GOV_URL', 'https://oldmy.gov.uz/notice-beginning-construction-works-v4/rest-api'),
+        'linear' => env('MY_GOV_LINEAR_URL', 'https://oldmy.gov.uz/registration-start-linear-object-v1/rest-api'),
         'login' => env('MY_GOV_LOGIN', 'qurilish.sohasida.nazorat.inspeksiya.201122919'),
         'password' => env('MY_GOV_PASS', 'Cx8]^]-Gk*mZK@.,S=c.g65>%[$TNRV75bYX<v+_'),
     ],

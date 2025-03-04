@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Enums\ConstructionWork;
 use App\Enums\UserRoleEnum;
 use App\Models\ConstructionTypes;
+use App\Models\DxaResponse;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -20,7 +21,9 @@ class ArticlePalataResource extends JsonResource
     {
         $customer = $this->users()->where('role_id', UserRoleEnum::BUYURTMACHI->value)->first();
         $builder = $this->users()->where('role_id', UserRoleEnum::QURILISH->value)->first();
+        $designer = $this->users()->where('role_id', UserRoleEnum::LOYIHA->value)->first();
         $rating= json_decode($this->rating);
+        $dxa = DxaResponse::query()->where('task_id', $this->task_id)->first();
         return [
             'doc_id' => $this->id,
             'app_date' => $this->created_at->format('Y-m-d'),
@@ -34,7 +37,12 @@ class ArticlePalataResource extends JsonResource
             'customer_tin' => $customer ? $customer->identification_number : null,
             'builder_name' => $builder ? $builder->organization_name : null,
             'builder_tin' => $builder ? $builder->identification_number : null,
-            'rating' => $rating ? ($rating[0]?->qurilish?->reyting_umumiy ?? null) : null,
+            'rating_builder' => $rating ? ($rating[0]?->qurilish?->reyting_umumiy ?? null) : null,
+            'designer_name' => $designer ? $designer->organization_name : null,
+            'designer_tin' => $designer ? $designer->identification_number : null,
+            'rating_designer' => $rating ? ($rating[0]?->loyiha?->reyting_umumiy ?? null) : null,
+            'applicant_name' => $dxa ? $dxa->organization_name : null,
+            'applicant_stir' =>$dxa ? $dxa->stir : null,
             'deadline' => $this->deadline,
             'finish_date' => $this->closed_at ? Carbon::parse($this->closed_at)->format('Y-m-d') : null,
             'obj_type' => $this->objectType ? $this->objectType->name : null,

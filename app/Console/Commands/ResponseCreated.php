@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Log;
 class ResponseCreated extends Command
 {
     private $task_id;
-    const URL = "https://my.gov.uz/notice-beginning-construction-works-v4/rest-api/get-task?id=";
+    const URL = "https://oldmy.gov.uz/notice-beginning-construction-works-v4/rest-api/get-task?id=";
     const USERNAME = "qurilish.sohasida.nazorat.inspeksiya.201122919";
     const PASSWORD = 'Cx8]^]-Gk*mZK@.,S=c.g65>%[$TNRV75bYX<v+_';
     /**
@@ -99,7 +99,7 @@ class ResponseCreated extends Command
         return Http::withBasicAuth(
             'qurilish.sohasida.nazorat.inspeksiya.201122919',
             'Cx8]^]-Gk*mZK@.,S=c.g65>%[$TNRV75bYX<v+_'
-        )->get('https://my.gov.uz/notice-beginning-construction-works-v4/rest-api/get-task?id=' . $taskId);
+        )->get('https://oldmy.gov.uz/notice-beginning-construction-works-v4/rest-api/get-task?id=' . $taskId);
     }
 
     protected function parseResponse($response)

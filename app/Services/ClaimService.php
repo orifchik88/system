@@ -36,7 +36,7 @@ class ClaimService
     private ClaimRepositoryInterface $claimRepository;
     private HistoryService $historyService;
     private ArticleRepositoryInterface $articleRepository;
-    private string $url = 'https://my.gov.uz/completed-buildings-registration-cadastral-v2/rest-api/';
+    private string $url = 'https://oldmy.gov.uz/completed-buildings-registration-cadastral-v2/rest-api/';
 
     public function __construct(
         ClaimRepositoryInterface   $claimRepository,

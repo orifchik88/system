@@ -18,7 +18,7 @@ class DxaLinearResponseService
 {
     const USERNAME = 'qurilish.sohasida.nazorat.inspeksiya.201122919';
     const PASSWORD = 'Cx8]^]-Gk*mZK@.,S=c.g65>%[$TNRV75bYX<v+_';
-    const URL = 'https://my.gov.uz/registration-start-linear-object-v1/rest-api/get-task?id=';
+    const URL = 'https://oldmy.gov.uz/registration-start-linear-object-v1/rest-api/get-task?id=';
 
 
     public function fetchTaskData($taskId = null)

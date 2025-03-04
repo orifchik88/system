@@ -67,7 +67,7 @@ class NetworkResponseCommand extends Command
         return Http::withBasicAuth(
             'qurilish.sohasida.nazorat.inspeksiya.201122919',
             'Cx8]^]-Gk*mZK@.,S=c.g65>%[$TNRV75bYX<v+_'
-        )->get('https://my.gov.uz/registration-start-linear-object-v1/rest-api/get-task?id=' . $taskId);
+        )->get('https://oldmy.gov.uz/registration-start-linear-object-v1/rest-api/get-task?id=' . $taskId);
     }
 
     protected function parseResponse($response)
