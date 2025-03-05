@@ -33,6 +33,7 @@ use App\Http\Controllers\Api\StatisticsController;
 Route::post('login', [LoginController::class, 'login']);
 Route::post('auth', [LoginController::class, 'auth']);
 Route::post('check-user', [InformationController::class, 'checkUser']);
+Route::get('object-count-layout', [InformationController::class, 'objectCount']);
 Route::get('objects-by-pinfl', [InformationController::class, 'userObjects']);
 Route::get('regulation-excel', [InformationController::class, 'regulationExcel']);
 Route::get('version/{type}', [VersionController::class, 'index']);

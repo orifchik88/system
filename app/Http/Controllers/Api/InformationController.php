@@ -18,13 +18,16 @@ use App\Http\Resources\TopicResource;
 use App\Models\Article;
 use App\Models\Basis;
 use App\Models\District;
+use App\Models\Monitoring;
 use App\Models\NormativeDocument;
 use App\Models\NotificationLog;
 use App\Models\Program;
 use App\Models\Region;
+use App\Models\Regulation;
 use App\Models\Sphere;
 use App\Models\Topic;
 use App\Models\User;
+use App\Models\Violation;
 use App\Services\ArticleService;
 use App\Services\InformationService;
 use GuzzleHttp\Client;
@@ -279,6 +282,39 @@ class InformationController extends BaseController
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }
     }
+
+    public function objectCount(): JsonResponse
+    {
+        try {
+            $objectQuery = Article::query()->whereIn('object_status_id', [2, 3, 4]);
+            $regulationQuery = Regulation::query()->whereHas('object', function ($query) {
+                $query->whereIn('object_status_id', [2, 3, 4]);
+            });
+
+            $data = [
+                'object_count' => $objectQuery->count(),
+                'object_amount' => $objectQuery->selectRaw('SUM(cast(construction_cost as numeric))')->value('sum'),
+                'gov_object_amount' => (clone $objectQuery)->where('funding_source_id', 1)->selectRaw('SUM(cast(construction_cost as numeric))')->value('sum'),
+
+//                'object_amount' => $objectQuery->sum('construction_cost'),
+                'gov_object_count' => (clone $objectQuery)->where('funding_source_id', 1)->count(),
+//                'gov_object_amount' => (clone $objectQuery)->where('funding_source_id', 1)->sum('construction_cost'),
+                'monitoring_count' => Monitoring::query()->whereHas('object', function ($query) {
+                    $query->whereIn('object_status_id', [2, 3, 4]);
+                })->count(),
+                'regulation_count' => $regulationQuery->count(),
+                'regulation_com_count' => (clone $regulationQuery)->whereIn('regulation_status_id', [6, 8])->count(),
+                'violation_count' => Violation::query()->whereHas('regulations.object', function ($query) {
+                    $query->whereIn('object_status_id', [2, 3, 4]);
+                })->count(),
+            ];
+
+            return $this->sendSuccess($data, 'Count');
+        } catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage());
+        }
+    }
+
 
     public function expertiseFiles(): JsonResponse
     {
