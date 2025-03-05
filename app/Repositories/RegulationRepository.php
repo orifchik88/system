@@ -46,6 +46,7 @@ class RegulationRepository implements RegulationRepositoryInterface
                     $query->where('organization_name', 'like', '%' . $filters['organization_name'] . '%');
                 });
             })
+
             ->when(isset($filters['funding_source']), function ($q) use ($filters) {
                 $q->whereHas('object', function ($query) use ($filters) {
                     $query->where('funding_source_id', $filters['funding_source']);
