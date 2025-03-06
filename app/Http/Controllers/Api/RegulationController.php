@@ -177,6 +177,7 @@ class RegulationController extends BaseController
             $regulation = Regulation::query()->findOrFaiL($request->post('regulation_id'));
 
             if ($regulation->regulation_status_id == RegulationStatusEnum::IN_LAWYER) throw new Exception('Tasdiqlash imkoni yoq');
+            if ($regulation->lawyer_status_id == RegulationStatusEnum::IN_LAWYER) throw new Exception('Tasdiqlash imkoni yoq');
 
             $act = ActViolation::create([
                 'regulation_id' => $regulation->id,

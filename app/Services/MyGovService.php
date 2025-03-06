@@ -235,7 +235,7 @@ class MyGovService
 
     public function getObjectsRegulations($filters)
     {
-        $objects = $this->articleRepository->findByReestr($filters);
+        $objects = $this->articleRepository->findByReestr($filters)->get();
         if (!$objects)
             return null;
 
@@ -360,5 +360,16 @@ class MyGovService
         }
 
         return null;
+    }
+
+    public function getObjectByReestr($filters)
+    {
+        $object = $this->articleRepository->findByReestr($filters)->lastest();
+        if (!$object)
+            return null;
+
+        $data = [
+
+        ];
     }
 }

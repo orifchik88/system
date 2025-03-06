@@ -131,7 +131,28 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
 
     public function getQuestionList(int $id)
     {
-        return IllegalObjectCheckList::query()->with('question')->where('object_id', $id)->get();
+        return IllegalObjectCheckList::query()
+            ->with(['question.type'])
+            ->where('object_id', $id)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'answer' => $item->answer,
+                    'object_id' => $item->object_id,
+                    'question' => [
+                        'id' => $item->question->id ?? null,
+                        'name' => $item->question->name ?? null,
+                        'role' => $item->question->role ?? null,
+                        'ball' => $item->question->ball ?? null,
+                        'type' => [
+                            'id' => $item->question->type->id ?? null,
+                            'name' => $item->question->type->name ?? null,
+                        ],
+                    ],
+                ];
+            });
+
     }
 
     public function getList(

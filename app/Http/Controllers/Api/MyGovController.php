@@ -120,6 +120,19 @@ class MyGovController extends Controller
         return $data;
     }
 
+    public function getObjectReestr()
+    {
+        $filters = request()->only(['reestr_number']);
+
+        $data = $this->myGovService->getObjectByReestr($filters);
+
+        if (!$data) {
+            return ['success' =>  false, 'message' => "Ma'lumot topilmadi"];
+        }
+
+        return $data;
+    }
+
 
 
 }
