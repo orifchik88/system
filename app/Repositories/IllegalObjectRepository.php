@@ -83,9 +83,25 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                 ->select(DB::raw("
                     regions.id as region_id,
                     regions.name_uz as name_uz,
-                    COUNT(CASE WHEN illegal_objects.status = " . IllegalObjectStatuses::CONFIRMED . " THEN 1 ELSE null END) as count
-                  "))
+                    COUNT(CASE WHEN illegal_objects.status = " . IllegalObjectStatuses::CONFIRMED . " THEN 1 ELSE null END) as count,
+                    COUNT(CASE WHEN (
+                        (SELECT AVG((value->>'ball')::int)
+                         FROM jsonb_array_elements(illegal_objects.score) AS value
+                        ) BETWEEN 0 AND 30
+                    ) THEN 1 ELSE null END) as low_count,
+                    COUNT(CASE WHEN (
+                        (SELECT AVG((value->>'ball')::int)
+                         FROM jsonb_array_elements(illegal_objects.score) AS value
+                        ) BETWEEN 31 AND 60
+                    ) THEN 1 ELSE null END) as middle_count,
+                    COUNT(CASE WHEN (
+                        (SELECT AVG((value->>'ball')::int)
+                         FROM jsonb_array_elements(illegal_objects.score) AS value
+                        ) > 60
+                    ) THEN 1 ELSE null END) as high_count
+                "))
                 ->get();
+
         else
             $results = $this->illegalObject->query()
                 ->rightJoin('districts', 'districts.id', '=', 'illegal_objects.district_id')
@@ -103,8 +119,24 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                     districts.id as district_id,
                     districts.name_uz as name_uz,
                     COUNT(CASE WHEN illegal_objects.status = " . IllegalObjectStatuses::CONFIRMED . " THEN 1 ELSE null END) as count
+                    COUNT(CASE WHEN (
+                        (SELECT AVG((value->>'ball')::int)
+                         FROM jsonb_array_elements(illegal_objects.score) AS value
+                        ) BETWEEN 0 AND 30
+                    ) THEN 1 ELSE null END) as low_count,
+                    COUNT(CASE WHEN (
+                        (SELECT AVG((value->>'ball')::int)
+                         FROM jsonb_array_elements(illegal_objects.score) AS value
+                        ) BETWEEN 31 AND 60
+                    ) THEN 1 ELSE null END) as middle_count,
+                    COUNT(CASE WHEN (
+                        (SELECT AVG((value->>'ball')::int)
+                         FROM jsonb_array_elements(illegal_objects.score) AS value
+                        ) > 60
+                    ) THEN 1 ELSE null END) as high_count
                  "))
                 ->get();
+
 
         return $results;
     }
