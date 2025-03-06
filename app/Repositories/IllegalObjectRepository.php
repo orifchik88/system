@@ -8,9 +8,11 @@ use App\Models\IllegalObject;
 use App\Models\IllegalObjectCheckList;
 use App\Models\IllegalObjectImage;
 use App\Models\IllegalObjectQuestion;
+use App\Models\IllegalQuestionType;
 use App\Repositories\Interfaces\IllegalObjectRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class IllegalObjectRepository implements IllegalObjectRepositoryInterface
 {
@@ -24,13 +26,33 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
 
     public function updateCheckList(UpdateCheckListRequest $request)
     {
-        foreach ($request->get('questions') as $item) {
-            $question = IllegalObjectCheckList::query()->where('id', $item['id'])->first();
-            $question->update(['answer' => $item['answer']]);
-        }
+        DB::beginTransaction();
+        try {
+            $object = IllegalObject::find($request->object['id']);
+            if (!$object) {
+                throw new \Exception('Object not found.');
+            }
 
-        return true;
+            $object->update([
+                'score' => json_encode($request->object['score'])
+            ]);
+
+            $questions = $request->get('questions', []);
+            IllegalObjectCheckList::whereIn('id', collect($questions)->pluck('id'))
+                ->get()
+                ->each(function ($question) use ($questions) {
+                    $answer = collect($questions)->firstWhere('id', $question->id)['answer'] ?? null;
+                    $question->update(['answer' => $answer]);
+                });
+
+            DB::commit();
+            return true;
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            throw $exception;
+        }
     }
+
 
     public function updateObject(int $id)
     {
@@ -126,8 +148,47 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
 
     public function getObject(int $id)
     {
-        return $this->illegalObject->query()->with(['region', 'district', 'images'])->where('id', $id)->first();
+        $object = $this->illegalObject->query()
+            ->with(['region', 'district', 'images'])
+            ->where('id', $id)
+            ->first();
+
+        if (!$object) {
+            return null;
+        }
+
+        return [
+            'id' => $object->id,
+            'address' => $object->address,
+            'lat' => $object->lat,
+            'long' => $object->long,
+            'region' => [
+                'id' => $object->region->id,
+                'name' => $object->region->name_uz,
+            ],
+            'district' => [
+                'id' => $object->district->id,
+                'name' => $object->district->name_uz,
+            ],
+            'status' => $object->status,
+            'score' => collect($object->score)->map(function ($item) {
+                $type = IllegalQuestionType::find($item['type'] ?? null);
+                return [
+                    'id' => $item['type'] ?? null,
+                    'ball' => $item['ball'] ?? null,
+                    'type_name' => $type ? $type->name : null,
+                ];
+            }),
+            'images' => $object->images->map(function ($image) {
+                return [
+                    'id' => $image->id,
+                    'url' => Storage::disk('public')->url($image->image),
+                ];
+            }),
+            'created' => $object->created_at,
+        ];
     }
+
 
     public function getQuestionList(int $id)
     {

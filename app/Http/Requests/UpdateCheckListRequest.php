@@ -23,6 +23,7 @@ class UpdateCheckListRequest extends FormRequest
     {
         return [
             'questions' => 'required',
+            'object' => 'required'
         ];
     }
 }

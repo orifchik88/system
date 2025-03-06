@@ -13,6 +13,10 @@ class IllegalObject extends Model
     protected $table = 'illegal_objects';
     protected $guarded = false;
 
+    protected $casts = [
+        'score' => 'array'
+    ];
+
     public function images()
     {
         return $this->hasMany(IllegalObjectImage::class, 'illegal_object_id');
