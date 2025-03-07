@@ -37,21 +37,6 @@ class CheckListAnswerService
         }
     }
 
-//    private function getCheckListByRole($user, $roleId, $type)
-//    {
-//        $objectIds = $user->objects()->where('role_id', $roleId)->pluck('article_id');
-//
-//        return  CheckListAnswer::query()->whereIn('object_id', $objectIds)->whereHas('workType', function ($query) use($type) {
-//            $query->where('type', $type);
-//        });
-//    }
-
-//    private function getCheckListByRegion($user, $type){
-//        $objectIds = Article::query()->where('region_id', $user->region_id)->pluck('id');
-//        return  CheckListAnswer::query()->whereIn('object_id', $objectIds)->whereHas('workType', function ($query) use($type) {
-//            $query->where('type', $type);
-//        });
-//    }
 
     private function getCheckListByRole($user, $roleId, $type)
     {
@@ -81,6 +66,26 @@ class CheckListAnswerService
             ->when(isset($filters['task_id']), function ($query) use ($filters) {
                 $query->whereHas('object', function ($subQuery) use ($filters) {
                     $subQuery->where('task_id', $filters['task_id']);
+                });
+            })
+            ->when(isset($filters['region_id']), function ($query) use ($filters) {
+                $query->whereHas('object', function ($subQuery) use ($filters) {
+                    $subQuery->where('region_id', $filters['region_id']);
+                });
+            })
+            ->when(isset($filters['district_id']), function ($query) use ($filters) {
+                $query->whereHas('object', function ($subQuery) use ($filters) {
+                    $subQuery->where('district_id', $filters['district_id']);
+                });
+            })
+            ->when(isset($filters['funding_source']), function ($query) use ($filters) {
+                $query->whereHas('object', function ($subQuery) use ($filters) {
+                    $subQuery->where('funding_source_id', $filters['funding_source']);
+                });
+            })
+            ->when(isset($filters['object_type']), function ($query) use ($filters) {
+                $query->whereHas('object', function ($subQuery) use ($filters) {
+                    $subQuery->where('object_type_id', $filters['object_type']);
                 });
             })
             ->when(isset($filters['start_date']) || isset($filters['end_date']), function ($query) use ($filters) {

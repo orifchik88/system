@@ -28,7 +28,7 @@ class ChecklistAnswerController extends BaseController
     {
         try {
             $query = $this->service->getChecklists($this->user, $this->roleId, 1);
-            $filters = request()->only([ 'start_date', 'end_date', 'task_id']);
+            $filters = request()->only([ 'start_date', 'end_date', 'task_id', 'region_id', 'district_id', 'object_type', 'funding_source']);
 
             $checkListAnswers = $this->service->searchCheckList($query, $filters)
                 ->orderBy('created_at', request('sort_by_date', 'DESC'))
