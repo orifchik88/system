@@ -10,6 +10,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 trait UserRoleTrait
 {
+
+    public function roleObjects($roleId)
+    {
+        return $this->objects()->where('role_id', $roleId);
+    }
     public function kadr(): bool
     {
         return $this->roles()->where('role_id', UserRoleEnum::RESKADR->value)->exists();

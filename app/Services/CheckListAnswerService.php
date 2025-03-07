@@ -37,20 +37,42 @@ class CheckListAnswerService
         }
     }
 
+//    private function getCheckListByRole($user, $roleId, $type)
+//    {
+//        $objectIds = $user->objects()->where('role_id', $roleId)->pluck('article_id');
+//
+//        return  CheckListAnswer::query()->whereIn('object_id', $objectIds)->whereHas('workType', function ($query) use($type) {
+//            $query->where('type', $type);
+//        });
+//    }
+
+//    private function getCheckListByRegion($user, $type){
+//        $objectIds = Article::query()->where('region_id', $user->region_id)->pluck('id');
+//        return  CheckListAnswer::query()->whereIn('object_id', $objectIds)->whereHas('workType', function ($query) use($type) {
+//            $query->where('type', $type);
+//        });
+//    }
+
     private function getCheckListByRole($user, $roleId, $type)
     {
-        $objectIds = $user->objects()->where('role_id', $roleId)->pluck('article_id');
-
-        return  CheckListAnswer::query()->whereIn('object_id', $objectIds)->whereHas('workType', function ($query) use($type) {
-            $query->where('type', $type);
-        });
+        return CheckListAnswer::query()
+            ->whereHas('object', function ($query) use ($user, $roleId) {
+                $query->whereIn('id', $user->roleObjects($roleId)->pluck('article_id'));
+            })
+            ->whereHas('workType', function ($query) use ($type) {
+                $query->where('type', $type);
+            });
     }
 
-    private function getCheckListByRegion($user, $type){
-        $objectIds = Article::query()->where('region_id', $user->region_id)->pluck('id');
-        return  CheckListAnswer::query()->whereIn('object_id', $objectIds)->whereHas('workType', function ($query) use($type) {
-            $query->where('type', $type);
-        });
+    private function getCheckListByRegion($user, $type)
+    {
+        return CheckListAnswer::query()
+            ->whereHas('object', function ($query) use ($user) {
+                $query->where('region_id', $user->region_id);
+            })
+            ->whereHas('workType', function ($query) use ($type) {
+                $query->where('type', $type);
+            });
     }
 
     public function searchCheckList($query, $filters)
