@@ -57,26 +57,24 @@ class CheckListAnswerService
     {
         return $query
             ->when(isset($filters['task_id']), function ($query) use ($filters) {
-                $query->whereHas('object', function ($subQuery) use ($filters) {
+                $query->whereHas('article', function ($subQuery) use ($filters) {
                     $subQuery->where('task_id', $filters['task_id']);
                 });
             })
-            ->when(isset($filters['task_id']), function ($query) use ($filters) {
-                $query->where('articles.task_id', $filters['task_id']);
-            })
             ->when(isset($filters['start_date']) || isset($filters['end_date']), function ($query) use ($filters) {
-                $startDate = isset($filters['start_date']) ? $filters['start_date'] . ' 00:00:00' : null;
-                $endDate = isset($filters['end_date']) ? $filters['end_date'] . ' 23:59:59' : null;
+                $startDate = $filters['start_date'] ?? null;
+                $endDate = $filters['end_date'] ?? null;
 
                 if ($startDate && $endDate) {
-                    $query->whereBetween('created_at', [$startDate, $endDate]);
+                    $query->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
                 } elseif ($startDate) {
-                    $query->where('created_at', '>=', $startDate);
+                    $query->where('created_at', '>=', $startDate . ' 00:00:00');
                 } elseif ($endDate) {
-                    $query->where('created_at', '<=', $endDate);
+                    $query->where('created_at', '<=', $endDate . ' 23:59:59');
                 }
             });
     }
+
 
 
 }
