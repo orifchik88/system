@@ -79,7 +79,7 @@ class CheckListAnswerService
     {
         return $query
             ->when(isset($filters['task_id']), function ($query) use ($filters) {
-                $query->whereHas('article', function ($subQuery) use ($filters) {
+                $query->whereHas('object', function ($subQuery) use ($filters) {
                     $subQuery->where('task_id', $filters['task_id']);
                 });
             })
