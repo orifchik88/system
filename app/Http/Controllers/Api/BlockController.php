@@ -74,7 +74,7 @@ class BlockController extends BaseController
                 $path = $file->store('documents/block', 'public');
                 $block->documents()->create(['url' => $path]);
             }
-            
+
             return $this->sendSuccess(new BlockResource($block), 'Block created');
         }catch (\Exception $exception){
             DB::rollBack();

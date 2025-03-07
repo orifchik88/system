@@ -21,21 +21,21 @@ class BlockResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $images = [];
-        if ($this->regulationViolationBlockId) {
-            $regulationViolationBlock = RegulationViolationBlock::query()->find($this->regulationViolationBlockId);
-            if ($regulationViolationBlock) {
-                $images = ImageResource::collection($regulationViolationBlock->images);
-            }
-        }
+//        $images = [];
+//        if ($this->regulationViolationBlockId) {
+//            $regulationViolationBlock = RegulationViolationBlock::query()->find($this->regulationViolationBlockId);
+//            if ($regulationViolationBlock) {
+//                $images = ImageResource::collection($regulationViolationBlock->images);
+//            }
+//        }
 
         return [
             'id' => $this->id,
             'name' => $this->name,
             'status' => $this->status,
 //            'comment' => $comment,
-//            'files' => DocumentResource::collection($this->documents),
-            'images' => $images,
+            'files' => DocumentResource::collection($this->documents),
+            'images' => ImageResource::collection($this->images),
         ];
     }
 }
