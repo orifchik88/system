@@ -65,16 +65,21 @@ class BlockController extends BaseController
         try {
             $block = Block::create($request->except(['images', 'files']));
 
-            foreach ($request->file('images') as $image) {
-                $path = $image->store('images/block', 'public');
-                $block->images()->create(['url' => $path]);
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $image) {
+                    $path = $image->store('images/block', 'public');
+                    $block->images()->create(['url' => $path]);
+                }
             }
 
-            foreach ($request->file('files') as $file) {
-                $path = $file->store('documents/block', 'public');
-                $block->documents()->create(['url' => $path]);
+            if ($request->hasFile('files')) {
+                foreach ($request->file('files') as $file) {
+                    $path = $file->store('documents/block', 'public');
+                    $block->documents()->create(['url' => $path]);
+                }
             }
 
+            DB::commit();
             return $this->sendSuccess(new BlockResource($block), 'Block created');
         }catch (\Exception $exception){
             DB::rollBack();
