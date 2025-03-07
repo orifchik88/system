@@ -23,6 +23,16 @@ class Block extends Model
 
     protected $appends = ['end_date', 'task_id'];
 
+    public function documents(): MorphMany
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
+
+    public function images(): MorphMany
+    {
+        return $this->morphMany(Image::class, 'imageable');
+    }
+
     public function getEndDateAttribute()
     {
         $monitoring = ClaimMonitoring::query()
@@ -80,11 +90,6 @@ class Block extends Model
     public function type(): BelongsTo
     {
         return $this->belongsTo(BlockType::class, 'block_type_id');
-    }
-
-    public function documents(): MorphMany
-    {
-        return $this->morphMany(Document::class, 'documentable');
     }
 
     public function actViolationBlock(): BelongsTo

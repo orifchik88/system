@@ -16,6 +16,7 @@ use App\Models\BlockMode;
 use App\Models\BlockType;
 use App\Models\DxaResponse;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class BlockController extends BaseController
 {
@@ -60,9 +61,26 @@ class BlockController extends BaseController
 
     public function create(BlockRequest $request)
     {
-        $block = Block::create($request->validated());
+        DB::beginTransaction();
+        try {
+            $block = Block::create($request->except(['images', 'files']));
 
-        return $this->sendSuccess(new BlockResource($block), 'Block created');
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('images/block', 'public');
+                $block->images()->create(['url' => $path]);
+            }
+
+            foreach ($request->file('files') as $file) {
+                $path = $file->store('documents/block', 'public');
+                $block->documents()->create(['url' => $path]);
+            }
+            
+            return $this->sendSuccess(new BlockResource($block), 'Block created');
+        }catch (\Exception $exception){
+            DB::rollBack();
+            return $this->sendError('Xatolik aniqlandi', $exception->getMessage());
+        }
+
     }
 
     public function delete(): JsonResponse

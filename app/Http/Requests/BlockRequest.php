@@ -39,6 +39,8 @@ class BlockRequest extends FormRequest
             'status' => 'required|boolean',
             'appearance_type' => 'sometimes|integer',
             'selected_work_type' => 'required|boolean',
+            'images' => 'sometimes|array',
+            'files' => 'sometimes|array',
         ];
     }
 
@@ -47,6 +49,7 @@ class BlockRequest extends FormRequest
         $this->merge([
             'created_by' => Auth::guard('api')->user()->id,
             'status' => true,
+            'selected_work_type' => filter_var($this->selected_work_type, FILTER_VALIDATE_BOOLEAN),
         ]);
     }
 
