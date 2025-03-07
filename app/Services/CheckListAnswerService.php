@@ -56,9 +56,13 @@ class CheckListAnswerService
     public function searchCheckList($query, $filters)
     {
         return $query
-            ->join('articles', 'articles.id', '=', 'check_list_answers.object_id')
             ->when(isset($filters['task_id']), function ($query) use ($filters) {
-                $query->where('articles.task', $filters['task_id']);
+                $query->whereHas('object', function ($subQuery) use ($filters) {
+                    $subQuery->where('task_id', $filters['task_id']);
+                });
+            })
+            ->when(isset($filters['task_id']), function ($query) use ($filters) {
+                $query->where('articles.task_id', $filters['task_id']);
             })
             ->when(isset($filters['start_date']) || isset($filters['end_date']), function ($query) use ($filters) {
                 $startDate = isset($filters['start_date']) ? $filters['start_date'] . ' 00:00:00' : null;
