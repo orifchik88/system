@@ -39,8 +39,8 @@ class BlockRequest extends FormRequest
             'status' => 'required|boolean',
             'appearance_type' => 'sometimes|integer',
             'selected_work_type' => 'required|boolean',
-            'images' => 'sometimes|array',
-            'files' => 'sometimes|array',
+            'images' => 'sometimes',
+            'files' => 'sometimes',
         ];
     }
 
