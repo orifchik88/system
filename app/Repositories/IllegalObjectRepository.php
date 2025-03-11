@@ -4,6 +4,8 @@ namespace App\Repositories;
 
 use App\Helpers\IllegalObjectStatuses;
 use App\Http\Requests\UpdateCheckListRequest;
+use App\Http\Resources\DistrictResource;
+use App\Http\Resources\RegionResource;
 use App\Models\IllegalObject;
 use App\Models\IllegalObjectCheckList;
 use App\Models\IllegalObjectImage;
@@ -292,14 +294,14 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                 ->paginate(request()->get('per_page'))
                 ->through(fn($item) => [
                     'id' => $item->id,
-                    'district_id' => $item->district_id,
-                    'region_id' => $item->region_id,
+                    'district' => $item->district ? collect($item->district)->only(['id', 'name_uz']) : null,
+                    'region' => $item->region ? collect($item->region)->only(['id', 'name_uz']) : null,
                     'status' => $item->status,
                     'lat' => $item->lat,
                     'long' => $item->long,
                     'address' => $item->address,
                     'score' => $item->question_type,
-                    'created_by' => $item->created_by,
+                    'created_by' => $item->user ? collect($item->user)->only(['id', 'name', 'surname', 'middle_name']) : null,
                     'created_at' => $item->created_at,
                 ]);
         else
@@ -337,14 +339,14 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                 ->paginate(request()->get('per_page'))
                 ->through(fn($item) => [
                     'id' => $item->id,
-                    'district_id' => $item->district_id,
-                    'region_id' => $item->region_id,
+                    'district' => $item->district ? collect($item->district)->only(['id', 'name_uz']) : null,
+                    'region' => $item->region ? collect($item->region)->only(['id', 'name_uz']) : null,
                     'status' => $item->status,
                     'lat' => $item->lat,
                     'long' => $item->long,
                     'address' => $item->address,
                     'score' => $item->question_type,
-                    'created_by' => $item->created_by,
+                    'created_by' => $item->user ? collect($item->user)->only(['id', 'name', 'surname', 'middle_name']) : null,
                     'created_at' => $item->created_at,
                 ]);
     }
