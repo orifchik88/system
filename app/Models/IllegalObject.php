@@ -17,6 +17,15 @@ class IllegalObject extends Model
         'score' => 'array'
     ];
 
+    public function getQuestionTypeAttribute()
+    {
+        $scores = $this->score ?? [];
+        foreach ($scores as &$score) {
+            $score['type_name'] = IllegalQuestionType::find($score['type'])->name ?? null;
+        }
+        return $scores;
+    }
+
     public function images()
     {
         return $this->hasMany(IllegalObjectImage::class, 'illegal_object_id');

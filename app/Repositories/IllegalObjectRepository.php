@@ -289,7 +289,19 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                     'illegal_objects.created_by as created_by',
                     'illegal_objects.created_at as created_at'
                 ])
-                ->paginate(request()->get('per_page'));
+                ->paginate(request()->get('per_page'))
+                ->through(fn($item) => [
+                    'id' => $item->id,
+                    'district_id' => $item->district_id,
+                    'region_id' => $item->region_id,
+                    'status' => $item->status,
+                    'lat' => $item->lat,
+                    'long' => $item->long,
+                    'address' => $item->address,
+                    'score' => $item->question_type,
+                    'created_by' => $item->created_by,
+                    'created_at' => $item->created_at,
+                ]);
         else
             return $this->illegalObject->query()
                 ->with(['region', 'district', 'images'])
@@ -322,6 +334,18 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                     'illegal_objects.created_by as created_by',
                     'illegal_objects.created_at as created_at'
                 ])
-                ->paginate(request()->get('per_page'));
+                ->paginate(request()->get('per_page'))
+                ->through(fn($item) => [
+                    'id' => $item->id,
+                    'district_id' => $item->district_id,
+                    'region_id' => $item->region_id,
+                    'status' => $item->status,
+                    'lat' => $item->lat,
+                    'long' => $item->long,
+                    'address' => $item->address,
+                    'score' => $item->question_type,
+                    'created_by' => $item->created_by,
+                    'created_at' => $item->created_at,
+                ]);
     }
 }
