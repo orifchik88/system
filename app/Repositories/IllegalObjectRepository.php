@@ -36,7 +36,7 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
             }
 
             $object->update([
-                'score' => json_encode($request->object['score'])
+                'score' => $request->object['score']
             ]);
 
             $questions = $request->get('questions', []);
