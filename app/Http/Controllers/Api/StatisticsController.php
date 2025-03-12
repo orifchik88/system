@@ -461,7 +461,7 @@ class StatisticsController extends BaseController
             $seysmik = '';
 
             if (!in_array($claim->status, [ClaimStatuses::TASK_STATUS_ACCEPTANCE, ClaimStatuses::TASK_STATUS_ATTACH_OBJECT, ClaimStatuses::TASK_STATUS_SENT_ORGANIZATION])) {
-                $historyConc = $history->first(fn($item) => data_get(json_decode($item->content, true), 'status') == 3);
+                $historyConc = $history->first(fn($item) => data_get(json_decode($item->content, true), 'role') == 3);
 
                 if (in_array($claim->status, [ClaimStatuses::TASK_STATUS_CONFIRMED])) {
                     $konstruktiv = $questions->where('question_id', 69)->first()?->comment;
