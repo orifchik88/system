@@ -8,7 +8,7 @@ interface IllegalObjectRepositoryInterface
 {
 
     public function updateCheckList(UpdateCheckListRequest $request);
-    public function createObject($data);
+    public function createObject($data, $user, $roleId);
     public function updateObject(int $id);
     public function getStatistics(
         ?int    $regionId,
@@ -19,11 +19,8 @@ interface IllegalObjectRepositoryInterface
     public function getObject(int $id);
 
     public function getList(
-        ?int    $regionId,
-        ?int    $id,
-        ?int    $districtId,
-        ?string $sortBy,
-        ?int    $status,
-        ?int    $role_id
+        ?object $user,
+        ?int $roleId,
+        ?array $filters
     );
 }

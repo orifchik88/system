@@ -143,7 +143,7 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
         return $results;
     }
 
-    public function createObject($data)
+    public function createObject($data, $user, $roleId)
     {
         $object = $this->illegalObject->query()->create(
             [
@@ -151,8 +151,9 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                 'long' => $data->get('long'),
                 'address' => $data->get('address'),
                 'district_id' => $data->get('district_id'),
-                'region_id' => Auth::user()->region_id,
-                'created_by' => Auth::user()->id
+                'region_id' => $user->region_id,
+                'created_by' => $user->id,
+                'created_by_role' => $roleId
             ]
         );
 
@@ -251,34 +252,30 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
     }
 
     public function getList(
-        ?int    $regionId,
-        ?int    $id,
-        ?int    $districtId,
-        ?string $sortBy,
-        ?int    $status,
-        ?int    $role_id
+        ?object $user,
+        ?int    $roleId,
+        ?array    $filters,
     )
     {
-        if ($role_id == null)
             return $this->illegalObject->query()
                 ->with(['region', 'district', 'user', 'images'])
                 ->join('regions', 'regions.id', '=', 'illegal_objects.region_id')
                 ->join('districts', 'districts.id', '=', 'illegal_objects.district_id')
-                ->when($regionId, function ($q) use ($regionId) {
-                    $q->where('regions.id', $regionId);
+                ->when($filters['region_id'], function ($q) use($filters){
+                    $q->where('regions.id', $filters['region_id']);
                 })
-                ->when($districtId, function ($q) use ($districtId) {
-                    $q->where('districts.id', $districtId);
+                ->when($filters['district_id'], function ($q) use ($filters) {
+                    $q->where('districts.id', $filters['district_id']);
                 })
-                ->when($id, function ($q) use ($id) {
-                    $q->where('illegal_objects.id', 'LIKE', '%' . $id . '%');
+                ->when($filters['id'], function ($q) use ($filters) {
+                    $q->where('illegal_objects.id', 'LIKE', '%' . $filters['id'] . '%');
                 })
-                ->when($status, function ($q) use ($status) {
-                    $q->where('illegal_objects.status', $status);
+                ->when($filters['status'], function ($q) use ($filters) {
+                    $q->where('illegal_objects.status', $filters['status']);
                 })
                 ->where('illegal_objects.status', '<>', IllegalObjectStatuses::DRAFT)
                 ->groupBy('illegal_objects.id')
-                ->orderBy('illegal_objects.created_at', strtoupper($sortBy))
+                ->orderBy('illegal_objects.created_at', strtoupper($filters['order_by'] ?? 'desc'))
                 ->select([
                     'illegal_objects.id as id',
                     'illegal_objects.district_id as district_id',
@@ -291,7 +288,7 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                     'illegal_objects.created_by as created_by',
                     'illegal_objects.created_at as created_at'
                 ])
-                ->paginate(request()->get('per_page'))
+                ->paginate(request('per_page'))
                 ->through(fn($item) => [
                     'id' => $item->id,
                     'district' => $item->district ? collect($item->district)->only(['id', 'name_uz']) : null,
@@ -301,51 +298,10 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                     'long' => $item->long,
                     'address' => $item->address,
                     'score' => $item->question_type,
-                    'created_by' => $item->user ? collect($item->user)->only(['id', 'name', 'surname', 'middle_name']) : null,
-                    'created_at' => $item->created_at,
-                ]);
-        else
-            return $this->illegalObject->query()
-                ->with(['region', 'district', 'images'])
-                ->join('regions', 'regions.id', '=', 'illegal_objects.region_id')
-                ->join('districts', 'districts.id', '=', 'illegal_objects.district_id')
-                ->when($regionId, function ($q) use ($regionId) {
-                    $q->where('regions.id', $regionId);
-                })
-                ->when($districtId, function ($q) use ($districtId) {
-                    $q->where('districts.id', $districtId);
-                })
-                ->when($id, function ($q) use ($id) {
-                    $q->where('illegal_objects.id', 'LIKE', '%' . $id . '%');
-                })
-                ->when($status, function ($q) use ($status) {
-                    $q->where('illegal_objects.status', $status);
-                })
-                ->where('illegal_objects.created_by', Auth::user()->id)
-                ->groupBy('illegal_objects.id')
-                ->orderBy('illegal_objects.created_at', strtoupper($sortBy))
-                ->select([
-                    'illegal_objects.id as id',
-                    'illegal_objects.district_id as district_id',
-                    'illegal_objects.region_id as region_id',
-                    'illegal_objects.status as status',
-                    'illegal_objects.lat as lat',
-                    'illegal_objects.long as long',
-                    'illegal_objects.address as address',
-                    'illegal_objects.score as score',
-                    'illegal_objects.created_by as created_by',
-                    'illegal_objects.created_at as created_at'
-                ])
-                ->paginate(request()->get('per_page'))
-                ->through(fn($item) => [
-                    'id' => $item->id,
-                    'district' => $item->district ? collect($item->district)->only(['id', 'name_uz']) : null,
-                    'region' => $item->region ? collect($item->region)->only(['id', 'name_uz']) : null,
-                    'status' => $item->status,
-                    'lat' => $item->lat,
-                    'long' => $item->long,
-                    'address' => $item->address,
-                    'score' => $item->question_type,
+                    'images' => $item->images ? collect($item->images)->map(fn($image) => [
+                        'id' => $image->id,
+                        'url' => Storage::disk('public')->url($image->image),
+                    ]) : null,
                     'created_by' => $item->user ? collect($item->user)->only(['id', 'name', 'surname', 'middle_name']) : null,
                     'created_at' => $item->created_at,
                 ]);
