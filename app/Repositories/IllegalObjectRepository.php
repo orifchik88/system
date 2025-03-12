@@ -261,17 +261,23 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                 ->with(['region', 'district', 'user', 'images'])
                 ->join('regions', 'regions.id', '=', 'illegal_objects.region_id')
                 ->join('districts', 'districts.id', '=', 'illegal_objects.district_id')
-                ->when($filters['region_id'], function ($q) use($filters){
+                ->when(isset($filters['region_id']), function ($q) use($filters){
                     $q->where('regions.id', $filters['region_id']);
                 })
-                ->when($filters['district_id'], function ($q) use ($filters) {
+                ->when(isset($filters['district_id']), function ($q) use ($filters) {
                     $q->where('districts.id', $filters['district_id']);
                 })
-                ->when($filters['id'], function ($q) use ($filters) {
+                ->when(isset($filters['id']), function ($q) use ($filters) {
                     $q->where('illegal_objects.id', 'LIKE', '%' . $filters['id'] . '%');
                 })
-                ->when($filters['status'], function ($q) use ($filters) {
+                ->when(isset($filters['status']), function ($q) use ($filters) {
                     $q->where('illegal_objects.status', $filters['status']);
+                })
+                ->when(isset($roleId), function ($q) use ($roleId) {
+                    $q->where('illegal_objects.created_by_role', $roleId);
+                })
+                ->when(isset($user), function ($q) use ($user) {
+                    $q->where('illegal_objects.created_by', $user->id);
                 })
                 ->where('illegal_objects.status', '<>', IllegalObjectStatuses::DRAFT)
                 ->groupBy('illegal_objects.id')
