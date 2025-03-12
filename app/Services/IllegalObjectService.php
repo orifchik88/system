@@ -62,7 +62,7 @@ class IllegalObjectService
             case UserRoleEnum::KVARTIRA_INSPECTOR->value:
             case UserRoleEnum::GASN_INSPECTOR->value:
             case UserRoleEnum::SUV_INSPECTOR->value:
-                return $this->getByUserId($user, $filters);
+                return $this->getByUser($user, $roleId, $filters);
             case UserRoleEnum::RESPUBLIKA_KUZATUVCHI->value:
                 return $this->getAll($filters);
             default:
@@ -70,17 +70,10 @@ class IllegalObjectService
         }
     }
 
-    private function getByUserId($user, $filters)
+    private function getByUser($user, $roleId,  $filters)
     {
         return $this->illegalObjectRepository->getList(
-            user: $user, roleId: null, filters: $filters
-        );
-    }
-
-    private function getByRoleId($roleId, $filters)
-    {
-        return $this->illegalObjectRepository->getList(
-            user: null, roleId: $roleId, filters: $filters
+            user: $user, roleId: $roleId, filters: $filters
         );
     }
 
