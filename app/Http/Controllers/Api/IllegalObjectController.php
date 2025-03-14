@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Enums\UserRoleEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateIllegalObjectRequest;
+use App\Http\Requests\IllegalObjectUpdateRequest;
 use App\Http\Requests\UpdateCheckListRequest;
 use App\Models\District;
 use App\Services\IllegalObjectService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
 class IllegalObjectController extends BaseController
@@ -23,7 +25,7 @@ class IllegalObjectController extends BaseController
 
     public function updateCheckList(UpdateCheckListRequest $request)
     {
-        $response = $this->illegalObjectService->updateCheckList(request: $request);
+        $response = $this->illegalObjectService->updateCheckList(request: $request, user: $this->user, roleId: $this->roleId);
 
         if ($response) {
             return $this->sendSuccess($response, 'Success');
@@ -32,7 +34,7 @@ class IllegalObjectController extends BaseController
         }
     }
 
-    public function createObject(CreateIllegalObjectRequest $request)
+    public function createObject(CreateIllegalObjectRequest $request): JsonResponse
     {
         $response = $this->illegalObjectService->createObject($request, $this->user, $this->roleId);
 
@@ -41,6 +43,17 @@ class IllegalObjectController extends BaseController
         } else {
             return $this->sendError("API ERROR", "message");
         }
+    }
+
+    public function updateObject($id, IllegalObjectUpdateRequest $request): JsonResponse
+    {
+        $response = $this->illegalObjectService->updateObject($id, $request, $this->user, $this->roleId);
+        if ($response) {
+            return $this->sendSuccess($response, 'Success');
+        } else {
+            return $this->sendError("API ERROR", "message");
+        }
+
     }
 
     public function saveObject($id)

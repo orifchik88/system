@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('object_user_histories', function (Blueprint $table) {
+        Schema::create('illegal_object_histories', function (Blueprint $table) {
             $table->id();
             $table->foreignId('object_id')->constrained('articles');
             $table->foreignId('user_id')->constrained('users');
@@ -21,8 +21,11 @@ return new class extends Migration
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::dropIfExists('object_user_histories');
+        Schema::dropIfExists('illegal_object_histories');
     }
 };

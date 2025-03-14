@@ -414,6 +414,7 @@ class ArticleService
             'frozen' => $query->clone()->where('object_status_id', ObjectStatusEnum::FROZEN)->count(),
             'suspended' => $query->clone()->where('object_status_id', ObjectStatusEnum::SUSPENDED)->count(),
             'submitted' => $query->clone()->where('object_status_id', ObjectStatusEnum::SUBMITTED)->count(),
+            'canceled' => $query->clone()->where('object_status_id', ObjectStatusEnum::CANCELED)->count(),
         ];
     }
 

@@ -3,16 +3,18 @@
 namespace App\Repositories;
 
 use App\Helpers\IllegalObjectStatuses;
+use App\Http\Requests\IllegalObjectUpdateRequest;
 use App\Http\Requests\UpdateCheckListRequest;
-use App\Http\Resources\DistrictResource;
-use App\Http\Resources\RegionResource;
 use App\Models\IllegalObject;
 use App\Models\IllegalObjectCheckList;
+use App\Models\IllegalObjectCheckListHistory;
+use App\Models\IllegalObjectHistory;
 use App\Models\IllegalObjectImage;
 use App\Models\IllegalObjectQuestion;
 use App\Models\IllegalQuestionType;
+use App\Models\User;
 use App\Repositories\Interfaces\IllegalObjectRepositoryInterface;
-use Illuminate\Support\Facades\Auth;
+use App\Services\HistoryService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -26,26 +28,56 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
         $this->illegalObject = $illegalObject;
     }
 
-    public function updateCheckList(UpdateCheckListRequest $request)
+    public function updateCheckList(UpdateCheckListRequest $request, $user, $roleId)
     {
         DB::beginTransaction();
         try {
-            $object = IllegalObject::find($request->object['id']);
-            if (!$object) {
-                throw new \Exception('Object not found.');
+            $object = IllegalObject::query()->findOrFail($request->object['id']);
+
+            $questions = collect($request->get('questions', []));
+            $histories = [];
+
+            $allAnswersTrue = true;
+
+            IllegalObjectCheckList::query()->whereIn('id', $questions->pluck('id'))
+                ->get()
+                ->each(function ($question) use ($questions, $user, $roleId, &$histories, &$allAnswersTrue) {
+                    $data = $questions->firstWhere('id', $question->id);
+                    $answer = $data['answer'] ?? null;
+
+                    $question->update(['answer' => $answer]);
+                    if ($answer !== true) {
+                        $allAnswersTrue = false;
+                    }
+
+                    $history = new HistoryService('illegal_object_check_list_histories');
+                    $tableId = $history->createHistory(
+                        guId: $question->id,
+                        status: $answer,
+                        type: 1,
+                        date: null,
+                        comment: 'Checklist to\'ldirildi',
+                        additionalInfo: ['user_id' => $user->id, 'role_id' => $roleId]
+                    );
+
+                    $histories[$tableId] = $data['files'] ?? [];
+                });
+
+            foreach ($histories as $tableId => $files) {
+                if (!empty($files)) {
+                    $checkListHistory = IllegalObjectCheckListHistory::query()->find($tableId);
+                    $documents = collect($files)->map(fn($file) => ['url' => $file->store('documents/illegal-checklist', 'public')])->all();
+                    $checkListHistory->documents()->createMany($documents);
+                }
             }
 
-            $object->update([
-                'score' => $request->object['score']
-            ]);
+            $attachUserId = $this->attachUser($user, $object);
 
-            $questions = $request->get('questions', []);
-            IllegalObjectCheckList::whereIn('id', collect($questions)->pluck('id'))
-                ->get()
-                ->each(function ($question) use ($questions) {
-                    $answer = collect($questions)->firstWhere('id', $question->id)['answer'] ?? null;
-                    $question->update(['answer' => $answer]);
-                });
+            $object->update([
+                'status' => $allAnswersTrue ? IllegalObjectStatuses::CONFIRMED : IllegalObjectStatuses::NEW,
+                'score' => $request->object['score'],
+                'attach_user_id' => $attachUserId,
+            ]);
 
             DB::commit();
             return true;
@@ -56,14 +88,57 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
     }
 
 
+
     public function updateObject(int $id)
     {
-        return $this->illegalObject->query()->where('id', $id)->update(
-            [
-                'status' => IllegalObjectStatuses::NEW
-            ]
-        );
+//        return $this->illegalObject->query()->where('id', $id)->update(
+//            [
+//                'status' => IllegalObjectStatuses::NEW
+//            ]
+//        );
     }
+
+    public function insertObject($id, IllegalObjectUpdateRequest $request, $user, $roleId)
+    {
+        DB::beginTransaction();
+        try {
+            $object = IllegalObject::query()->findOrFail($id);
+            $attachUserId = $this->attachUser($user, $object);
+            $object->update([
+                'score' => null,
+                'status' =>  IllegalObjectStatuses::DRAFT,
+                'created_by' => $user->id,
+                'attach_user_id' => $attachUserId,
+            ]);
+
+
+            $history = new HistoryService('illegal_object_histories');
+            $tableId = $history->createHistory(
+                guId: $object->id,
+                status: IllegalObjectStatuses::DRAFT,
+                type: 2,
+                date: null,
+                comment: 'Fayl biriktirildi',
+                additionalInfo: ['user_id' => $user->id, 'role_id' => $roleId]
+            );
+
+            if ($request->hasFile('files')) {
+                $documents = collect($request->file('files'))->map(fn($file) => [
+                    'url' => $file->store('documents/illegal-object', 'public')
+                ])->all();
+
+                IllegalObjectHistory::query()->findOrFail($tableId)->documents()->createMany($documents);
+            }
+
+            DB::commit();
+            return true;
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            throw $exception;
+        }
+    }
+
+
 
     public function getStatistics(
         ?int    $regionId,
@@ -145,8 +220,9 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
 
     public function createObject($data, $user, $roleId)
     {
-        $object = $this->illegalObject->query()->create(
-            [
+        DB::beginTransaction();
+        try {
+            $object = $this->illegalObject->create([
                 'lat' => $data->get('lat'),
                 'long' => $data->get('long'),
                 'address' => $data->get('address'),
@@ -154,32 +230,44 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                 'region_id' => $user->region_id,
                 'created_by' => $user->id,
                 'created_by_role' => $roleId
-            ]
-        );
+            ]);
 
-        if ($data->hasFile('images')) {
-            foreach ($data->file('images') as $image) {
-                $imagePath = $image->store('documents/illegal_object', 'public');
-                IllegalObjectImage::query()->create([
+            if ($data->hasFile('images')) {
+                $images = collect($data->file('images'))->map(fn($image) => [
                     'illegal_object_id' => $object->id,
-                    'image' => $imagePath,
+                    'image' => $image->store('documents/illegal_object', 'public')
                 ]);
+                IllegalObjectImage::insert($images->toArray());
             }
-        }
 
-        $roleId = Auth::user()->getRoleFromToken() ?? null;
-        $questions = IllegalObjectQuestion::query()->where('role', $roleId)->get();
-        foreach ($questions as $question) {
-            IllegalObjectCheckList::query()->create(
-                [
+            $checkLists = IllegalObjectQuestion::where('role', $roleId)
+                ->get()
+                ->map(fn($question) => [
                     'question_id' => $question->id,
                     'object_id' => $object->id,
+                ]);
+            IllegalObjectCheckList::insert($checkLists->toArray());
+
+            (new HistoryService('illegal_object_histories'))->createHistory(
+                guId: $object->id,
+                status: IllegalObjectStatuses::DRAFT,
+                type: 1,
+                date: null,
+                comment: "Obyekt yaratildi",
+                additionalInfo: [
+                    'user_id' => $user->id,
+                    'role_id' => $roleId,
+                    'score' => $object->score
                 ]
             );
+            DB::commit();
+            return $object;
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            throw $exception;
         }
-
-        return $object;
     }
+
 
     public function getObject(int $id)
     {
@@ -311,5 +399,15 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                     'created_by' => $item->user ? collect($item->user)->only(['id', 'name', 'surname', 'middle_name']) : null,
                     'created_at' => $item->created_at,
                 ]);
+    }
+    private function attachUser($user, $object)
+    {
+        $users = User::query()->where('region_id', $user->region_id)
+            ->whereHas('roles', fn($q) => $q->where('id', $object->created_by_role))
+            ->where('id', '!=', $user->id)
+            ->pluck('id');
+
+        return  $users->count() === 1 ? $user->id : ($users->isNotEmpty() ? $users->random() : null);
+
     }
 }

@@ -11,18 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('object_user_histories', function (Blueprint $table) {
+        Schema::create('illegal_object_check_list_histories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('object_id')->constrained('articles');
-            $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('role_id')->constrained('roles');
-            $table->date('check_at');
+            $table->jsonb('content');
+            $table->integer('type');
+            $table->bigInteger('gu_id')->index();
             $table->timestamps();
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::dropIfExists('object_user_histories');
+        Schema::dropIfExists('illegal_object_check_list_histories');
     }
 };

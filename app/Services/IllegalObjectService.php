@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\UserRoleEnum;
 use App\Http\Requests\CreateIllegalObjectRequest;
+use App\Http\Requests\IllegalObjectUpdateRequest;
 use App\Http\Requests\UpdateCheckListRequest;
 use App\Models\Article;
 use App\Repositories\Interfaces\IllegalObjectRepositoryInterface;
@@ -17,14 +18,19 @@ class IllegalObjectService
         $this->illegalObjectRepository = $illegalObjectRepository;
     }
 
-    public function updateCheckLIst(UpdateCheckListRequest $request)
+    public function updateCheckLIst(UpdateCheckListRequest $request, $user, $roleId)
     {
-        return $this->illegalObjectRepository->updateCheckList(request: $request);
+        return $this->illegalObjectRepository->updateCheckList(request: $request, user: $user, roleId: $roleId);
     }
 
     public function createObject(CreateIllegalObjectRequest $request, $user, $roleId)
     {
         return $this->illegalObjectRepository->createObject(data: $request, user: $user, roleId: $roleId);
+    }
+
+    public function updateObject($id, IllegalObjectUpdateRequest $request, $user, $roleId)
+    {
+        return $this->illegalObjectRepository->insertObject(id:$id, request: $request, user: $user, roleId: $roleId);
     }
 
     public function saveObject($id)

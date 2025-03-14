@@ -9,4 +9,5 @@ enum ObjectStatusEnum: int
     case FROZEN = 3;
     case SUSPENDED = 4;
     case SUBMITTED = 5;
+    case CANCELED = 6;
 }

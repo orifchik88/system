@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class IllegalObject extends Model
 {
@@ -30,6 +31,11 @@ class IllegalObject extends Model
     {
         return $this->hasMany(IllegalObjectImage::class, 'illegal_object_id');
     }
+    public function documents(): MorphMany
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
+
 
     public function user(): BelongsTo
     {
