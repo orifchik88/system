@@ -98,11 +98,11 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
 //        );
     }
 
-    public function insertObject($id, IllegalObjectUpdateRequest $request, $user, $roleId)
+    public function insertObject(IllegalObjectUpdateRequest $request, $user, $roleId)
     {
         DB::beginTransaction();
         try {
-            $object = IllegalObject::query()->findOrFail($id);
+            $object = IllegalObject::query()->findOrFail($request->object_id);
             $attachUserId = $this->attachUser($user, $object);
             $object->update([
                 'score' => null,

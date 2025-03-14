@@ -45,9 +45,9 @@ class IllegalObjectController extends BaseController
         }
     }
 
-    public function updateObject($id, IllegalObjectUpdateRequest $request): JsonResponse
+    public function updateObject(IllegalObjectUpdateRequest $request): JsonResponse
     {
-        $response = $this->illegalObjectService->updateObject($id, $request, $this->user, $this->roleId);
+        $response = $this->illegalObjectService->updateObject($request, $this->user, $this->roleId);
         if ($response) {
             return $this->sendSuccess($response, 'Success');
         } else {

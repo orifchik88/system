@@ -233,7 +233,7 @@ Route::group([
         Route::get('object/{id}', [IllegalObjectController::class, 'getObject']);
         Route::get('districts', [IllegalObjectController::class, 'districtList']);
         Route::post('create-object', [IllegalObjectController::class, 'createObject']);
-        Route::post('update-object/{id}', [IllegalObjectController::class, 'updateObject']);
+        Route::post('update-object', [IllegalObjectController::class, 'updateObject']);
 //        Route::post('save-object/{id}', [IllegalObjectController::class, 'saveObject']);
         Route::post('update-checklist', [IllegalObjectController::class, 'updateCheckList']);
     });

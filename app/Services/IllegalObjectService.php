@@ -28,9 +28,9 @@ class IllegalObjectService
         return $this->illegalObjectRepository->createObject(data: $request, user: $user, roleId: $roleId);
     }
 
-    public function updateObject($id, IllegalObjectUpdateRequest $request, $user, $roleId)
+    public function updateObject(IllegalObjectUpdateRequest $request, $user, $roleId)
     {
-        return $this->illegalObjectRepository->insertObject(id:$id, request: $request, user: $user, roleId: $roleId);
+        return $this->illegalObjectRepository->insertObject(request: $request, user: $user, roleId: $roleId);
     }
 
     public function saveObject($id)

@@ -11,7 +11,7 @@ interface IllegalObjectRepositoryInterface
     public function updateCheckList(UpdateCheckListRequest $request, $user, $roleId);
     public function createObject($data, $user, $roleId);
 
-    public function insertObject($id, IllegalObjectUpdateRequest $request, $user, $roleId);
+    public function insertObject(IllegalObjectUpdateRequest $request, $user, $roleId);
     public function updateObject(int $id);
     public function getStatistics(
         ?int    $regionId,

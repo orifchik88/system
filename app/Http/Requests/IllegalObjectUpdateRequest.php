@@ -22,6 +22,7 @@ class IllegalObjectUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'object_id' => 'required|exists:illegal_objects,id',
             'files' => 'required|array',
         ];
     }
