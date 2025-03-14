@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Helpers\IllegalObjectHistoryType;
 use App\Helpers\IllegalObjectStatuses;
 use App\Http\Requests\IllegalObjectUpdateRequest;
 use App\Http\Requests\UpdateCheckListRequest;
@@ -54,7 +55,7 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                     $tableId = $history->createHistory(
                         guId: $question->id,
                         status: $answer,
-                        type: 1,
+                        type: IllegalObjectHistoryType::CHECKLIST_FILLED,
                         date: null,
                         comment: 'Checklist to\'ldirildi',
                         additionalInfo: ['user_id' => $user->id, 'role_id' => $roleId]
@@ -116,7 +117,7 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
             $tableId = $history->createHistory(
                 guId: $object->id,
                 status: IllegalObjectStatuses::DRAFT,
-                type: 2,
+                type: IllegalObjectHistoryType::FILE_ATTACHED,
                 date: null,
                 comment: 'Fayl biriktirildi',
                 additionalInfo: ['user_id' => $user->id, 'role_id' => $roleId]
@@ -237,21 +238,21 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                     'illegal_object_id' => $object->id,
                     'image' => $image->store('documents/illegal_object', 'public')
                 ]);
-                IllegalObjectImage::insert($images->toArray());
+                IllegalObjectImage::query()->insert($images->toArray());
             }
 
-            $checkLists = IllegalObjectQuestion::where('role', $roleId)
+            $checkLists = IllegalObjectQuestion::query()->where('role', $roleId)
                 ->get()
                 ->map(fn($question) => [
                     'question_id' => $question->id,
                     'object_id' => $object->id,
                 ]);
-            IllegalObjectCheckList::insert($checkLists->toArray());
+            IllegalObjectCheckList::query()->insert($checkLists->toArray());
 
             (new HistoryService('illegal_object_histories'))->createHistory(
                 guId: $object->id,
                 status: IllegalObjectStatuses::DRAFT,
-                type: 1,
+                type: IllegalObjectHistoryType::CREATE,
                 date: null,
                 comment: "Obyekt yaratildi",
                 additionalInfo: [
@@ -361,11 +362,14 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                 ->when(isset($filters['status']), function ($q) use ($filters) {
                     $q->where('illegal_objects.status', $filters['status']);
                 })
+                ->when(isset($filters['type']) && $filters['type'] == 2, function ($q) use ($user) {
+                    $q->where('illegal_objects.attach_user_id', $user->id);
+                })
                 ->when(isset($roleId), function ($q) use ($roleId) {
                     $q->where('illegal_objects.created_by_role', $roleId);
                 })
                 ->when(isset($user), function ($q) use ($user, $roleId) {
-                    $q->where('illegal_objects.created_by', $user->id);
+                    $q->where('illegal_objects.region_id', $user->region_id);
                 })
 //                ->where('illegal_objects.status', '<>', IllegalObjectStatuses::DRAFT)
                 ->groupBy('illegal_objects.id')
