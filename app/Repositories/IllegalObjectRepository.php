@@ -230,7 +230,8 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                 'district_id' => $data->get('district_id'),
                 'region_id' => $user->region_id,
                 'created_by' => $user->id,
-                'created_by_role' => $roleId
+                'created_by_role' => $roleId,
+                'attach_user_id' => $user->id
             ]);
 
             if ($data->hasFile('images')) {
@@ -406,12 +407,22 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
     }
     private function attachUser($user, $object)
     {
-        $users = User::query()->where('region_id', $user->region_id)
+        $users = User::query()
+            ->where('region_id', $user->region_id)
             ->whereHas('roles', fn($q) => $q->where('id', $object->created_by_role))
-            ->where('id', '!=', $user->id)
             ->pluck('id');
 
-        return  $users->count() === 1 ? $user->id : ($users->isNotEmpty() ? $users->random() : null);
+        if ($users->count() === 1) {
+            $newAttachUserId = $users->first();
+        } elseif ($users->count() === 2) {
+            $lastActionUserId = $object->attach_user_id;
+            $newAttachUserId = $users->firstWhere(fn($id) => $id !== $lastActionUserId);
+        } else {
+            $lastActionUserId = $object->attach_user_id;
+            $availableUsers = $users->reject(fn($id) => $id === $lastActionUserId);
+            $newAttachUserId = $availableUsers->random();
+        }
+        return  $newAttachUserId;
 
     }
 }
