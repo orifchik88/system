@@ -13,10 +13,9 @@ return new class extends Migration
     {
         Schema::create('illegal_object_histories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('object_id')->constrained('articles');
-            $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('role_id')->constrained('roles');
-            $table->date('check_at');
+            $table->jsonb('content');
+            $table->integer('type');
+            $table->bigInteger('gu_id')->index();
             $table->timestamps();
         });
     }

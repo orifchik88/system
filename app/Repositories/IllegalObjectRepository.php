@@ -233,6 +233,7 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                 'created_by_role' => $roleId,
                 'attach_user_id' => $user->id
             ]);
+            dd($object);
 
             if ($data->hasFile('images')) {
                 $images = collect($data->file('images'))->map(fn($image) => [
@@ -410,6 +411,7 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
         $users = User::query()
             ->where('region_id', $user->region_id)
             ->whereHas('roles', fn($q) => $q->where('id', $object->created_by_role))
+            ->get(['id'])
             ->pluck('id');
 
         if ($users->count() === 1) {
