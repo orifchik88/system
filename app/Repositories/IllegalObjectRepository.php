@@ -290,11 +290,11 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
             'attach_user_id' =>$object->attach_user_id,
             'region' => [
                 'id' => $object->region->id,
-                'name' => $object->region->name_uz,
+                'name_uz' => $object->region->name_uz,
             ],
             'district' => [
                 'id' => $object->district->id,
-                'name' => $object->district->name_uz,
+                'name_uz' => $object->district->name_uz,
             ],
             'status' => $object->status,
             'score' => collect($object->score)->map(function ($item) {
