@@ -22,6 +22,8 @@ class CreateIllegalObjectRequest extends FormRequest
             'long' => 'required',
             'address' => 'required',
             'district_id' => 'required',
+            'inn' => 'required',
+            'organization_name' => 'required',
             'images.*' =>  'required|image|mimes:jpeg,png,jpg,gif',
         ];
     }
