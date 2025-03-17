@@ -44,7 +44,8 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                 ->get()
                 ->each(function ($question) use ($questions, $user, $roleId, &$histories, &$allAnswersTrue) {
                     $data = $questions->firstWhere('id', $question->id);
-                    $answer = filter_var($data['answer'], FILTER_VALIDATE_BOOLEAN) ?? null;
+                    $answer = filter_var($data['answer'], FILTER_VALIDATE_BOOLEAN);
+
 
                     $question->update(['answer' => $answer]);
                     if ($answer !== true) {
@@ -73,7 +74,6 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
             }
 
             $attachUserId = $this->attachUser($user, $object);
-
             $object->update([
                 'status' => $allAnswersTrue ? IllegalObjectStatuses::CONFIRMED : IllegalObjectStatuses::NEW,
                 'score' => $request->object['score'],
