@@ -385,8 +385,10 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                     'illegal_objects.long as long',
                     'illegal_objects.address as address',
                     'illegal_objects.score as score',
+                    'illegal_objects.attach_user_id as attach_user_id',
                     'illegal_objects.created_by as created_by',
-                    'illegal_objects.created_at as created_at'
+                    'illegal_objects.created_at as created_at',
+
                 ])
                 ->paginate(request('per_page'))
                 ->through(fn($item) => [
