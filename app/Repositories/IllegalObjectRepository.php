@@ -309,6 +309,8 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                 'name_uz' => $object->district->name_uz,
             ],
             'status' => $object->status,
+            'inn' => $object->inn,
+            'organization_name' => $object->organization_name,
             'score' => collect($object->score)->map(function ($item) {
                 $type = IllegalQuestionType::find($item['type'] ?? null);
                 return [
@@ -394,6 +396,8 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                     'illegal_objects.region_id as region_id',
                     'illegal_objects.status as status',
                     'illegal_objects.lat as lat',
+                    'illegal_objects.inn as inn',
+                    'illegal_objects.organization_name as organization_name',
                     'illegal_objects.long as long',
                     'illegal_objects.address as address',
                     'illegal_objects.score as score',
@@ -411,6 +415,8 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                     'lat' => $item->lat,
                     'long' => $item->long,
                     'address' => $item->address,
+                    'inn' => $item->inn,
+                    'organization_name' => $item->organization_name,
                     'score' => $item->question_type,
                     'attach_user_id' =>$item->attach_user_id,
                     'images' => $item->images ? collect($item->images)->map(fn($image) => [
