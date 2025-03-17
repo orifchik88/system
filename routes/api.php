@@ -236,6 +236,7 @@ Route::group([
         Route::post('update-object', [IllegalObjectController::class, 'updateObject']);
 //        Route::post('save-object/{id}', [IllegalObjectController::class, 'saveObject']);
         Route::post('update-checklist', [IllegalObjectController::class, 'updateCheckList']);
+        Route::get('object-history/{id}', [IllegalObjectController::class, 'objectHistory']);
     });
 
     Route::group(['prefix' => 'claim'], function () {

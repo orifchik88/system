@@ -80,6 +80,16 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                 'attach_user_id' => $attachUserId,
             ]);
 
+            $history = new HistoryService('illegal_object_histories');
+            $history->createHistory(
+                guId: $object->id,
+                status: $allAnswersTrue ? IllegalObjectStatuses::CONFIRMED : IllegalObjectStatuses::NEW,
+                type: IllegalObjectHistoryType::CHECKLIST_FILLED,
+                date: null,
+                comment: $allAnswersTrue ? 'Obyekt yakunlandi' : 'Checklist to\'ldirildi',
+                additionalInfo: ['user_id' => $user->id, 'role_id' => $roleId, 'score' => $request->object['score']]
+            );
+
             DB::commit();
             return true;
         } catch (\Exception $exception) {
@@ -430,4 +440,48 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
         return  $newAttachUserId;
 
     }
+
+    public function getObjectHistory($id)
+    {
+        $object = $this->illegalObject->query()
+            ->with(['histories'])
+            ->where('id', $id)
+            ->first();
+
+        if (!$object)  return null;
+
+        return $object->histories->map(function ($history) {
+            $content = $history->content ?? [];
+            return [
+                'id' => $history->id,
+                'type' => $history->type,
+                'user' => User::query()->find($history->content['user'])->only(['id', 'name', 'surname', 'middle_name']),
+                'date' => $content['date'] ?? null,
+                'status' => $content['status'] ?? null,
+                'comment' => $content['comment'] ?? null,
+                'addInfo' => $content['additionalInfo'] ?? [],
+            ];
+        });
+    }
+
+    public function getChecklistHistory($id)
+    {
+        $checklist = IllegalObjectCheckList::query()->find($id);
+
+        if (!$checklist)  return null;
+
+        return $checklist->histories->map(function ($history) {
+            $content = $history->content ?? [];
+            return [
+                'id' => $history->id,
+                'type' => $history->type,
+                'user' => User::query()->find($history->content['user'])->only(['id', 'name', 'surname', 'middle_name']) ?? null,
+                'date' => $content['date'] ?? null,
+                'status' => $content['status'] ?? null,
+                'comment' => $content['comment'] ?? null,
+                'addInfo' => $content['additionalInfo'] ?? [],
+            ];
+        });
+    }
+
 }

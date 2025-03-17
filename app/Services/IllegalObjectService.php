@@ -90,6 +90,17 @@ class IllegalObjectService
             );
     }
 
+    public function getObjectHistory($id)
+    {
+        return $this->illegalObjectRepository->getObjectHistory($id);
+    }
+
+    public function getChecklistHistory($id)
+    {
+        return $this->illegalObjectRepository->getChecklistHistory($id);
+
+    }
+
 
 
 }

@@ -118,4 +118,18 @@ class IllegalObjectController extends BaseController
 
         return $this->sendSuccess($data->items(), 'Successfully sent!', pagination($data));
     }
+
+    public function objectHistory($id)
+    {
+        $data = $this->illegalObjectService->getObjectHistory($id);
+
+        return $this->sendSuccess($data, 'Successfully sent!');
+    }
+
+    public function checklistHistory($id)
+    {
+        $data = $this->illegalObjectService->getChecklistHistory($id);
+
+        return $this->sendSuccess($data, 'Successfully sent!');
+    }
 }

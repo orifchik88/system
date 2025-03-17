@@ -26,4 +26,7 @@ interface IllegalObjectRepositoryInterface
         ?int $roleId,
         ?array $filters
     );
+
+    public function getObjectHistory($id);
+    public function getChecklistHistory($id);
 }

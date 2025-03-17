@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class IllegalObject extends Model
@@ -50,5 +51,10 @@ class IllegalObject extends Model
     public function district(): BelongsTo
     {
         return $this->belongsTo(District::class, 'district_id', 'id')->select('name_uz', 'soato', 'id');
+    }
+
+    public function histories() : HasMany
+    {
+        return $this->hasMany(IllegalObjectHistory::class, 'gu_id');
     }
 }
