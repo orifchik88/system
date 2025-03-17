@@ -44,7 +44,7 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                 ->get()
                 ->each(function ($question) use ($questions, $user, $roleId, &$histories, &$allAnswersTrue) {
                     $data = $questions->firstWhere('id', $question->id);
-                    $answer = $data['answer'] ?? null;
+                    $answer = (bool)$data['answer'] ?? null;
 
                     $question->update(['answer' => $answer]);
                     if ($answer !== true) {
@@ -233,7 +233,6 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                 'created_by_role' => $roleId,
                 'attach_user_id' => $user->id
             ]);
-            dd($object);
 
             if ($data->hasFile('images')) {
                 $images = collect($data->file('images'))->map(fn($image) => [
@@ -410,9 +409,9 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
     {
         $users = User::query()
             ->where('region_id', $user->region_id)
-            ->whereHas('roles', fn($q) => $q->where('id', $object->created_by_role))
-            ->get(['id'])
+            ->whereHas('roles', fn($q) => $q->where('roles.id', 31))
             ->pluck('id');
+
 
         if ($users->count() === 1) {
             $newAttachUserId = $users->first();
