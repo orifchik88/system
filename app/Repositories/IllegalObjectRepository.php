@@ -44,7 +44,7 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                 ->get()
                 ->each(function ($question) use ($questions, $user, $roleId, &$histories, &$allAnswersTrue) {
                     $data = $questions->firstWhere('id', $question->id);
-                    $answer = (bool)$data['answer'] ?? null;
+                    $answer = filter_var($data['answer'], FILTER_VALIDATE_BOOLEAN) ?? null;
 
                     $question->update(['answer' => $answer]);
                     if ($answer !== true) {
@@ -287,6 +287,7 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
             'address' => $object->address,
             'lat' => $object->lat,
             'long' => $object->long,
+            'attach_user_id' =>$object->attach_user_id,
             'region' => [
                 'id' => $object->region->id,
                 'name' => $object->region->name_uz,
@@ -397,6 +398,7 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                     'long' => $item->long,
                     'address' => $item->address,
                     'score' => $item->question_type,
+                    'attach_user_id' =>$item->attach_user_id,
                     'images' => $item->images ? collect($item->images)->map(fn($image) => [
                         'id' => $image->id,
                         'url' => Storage::disk('public')->url($image->image),
