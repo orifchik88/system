@@ -241,8 +241,8 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                 'region_id' => $user->region_id,
                 'created_by' => $user->id,
                 'created_by_role' => $roleId,
-                'inn' => $data('inn'),
-                'organization_name' => $data('organization_name'),
+                'inn' => $data->inn,
+                'organization_name' => $data->organization_name,
                 'attach_user_id' => $user->id
             ]);
 
