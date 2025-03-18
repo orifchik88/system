@@ -491,12 +491,12 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                 'status' => $content['status'] ?? null,
                 'comment' => $content['comment'] ?? null,
                 'addInfo' => $content['additionalInfo'] ?? [],
-                'files' => $history->documents->map(function ($document) {
+                'files' => $history->documents ? $history->documents->map(function ($document) {
                     return [
                         'id' => $document->id,
                         'url' => Storage::disk('public')->url($document->file),
                     ];
-                }),
+                }) : null,
             ];
         });
     }
