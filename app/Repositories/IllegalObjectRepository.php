@@ -29,6 +29,8 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
         $this->illegalObject = $illegalObject;
     }
 
+
+
     public function updateCheckList(UpdateCheckListRequest $request, $user, $roleId)
     {
         DB::beginTransaction();
@@ -38,19 +40,19 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
             $questions = collect($request->get('questions', []));
             $histories = [];
 
-            $allAnswersTrue = true;
+            $allAnswersTrue = false;
 
             IllegalObjectCheckList::query()->whereIn('id', $questions->pluck('id'))
                 ->get()
                 ->each(function ($question) use ($questions, $user, $roleId, &$histories, &$allAnswersTrue) {
                     $data = $questions->firstWhere('id', $question->id);
-                    $answer = filter_var($data['answer'], FILTER_VALIDATE_BOOLEAN);
+                    $answer = isset($data['answer']) && ($data['answer'] === true || $data['answer'] === 'true' || $data['answer'] === 1 || $data['answer'] === '1');
 
-
-                    $question->update(['answer' => $answer]);
-                    if ($answer !== true) {
+                    if (!$answer) {
                         $allAnswersTrue = false;
                     }
+
+                    $question->update(['answer' => $answer]);
 
                     $history = new HistoryService('illegal_object_check_list_histories');
                     $tableId = $history->createHistory(
@@ -58,7 +60,7 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                         status: $answer,
                         type: IllegalObjectHistoryType::CHECKLIST_FILLED,
                         date: null,
-                        comment: 'Checklist to\'ldirildi',
+                        comment: "Checklist to'ldirildi",
                         additionalInfo: ['user_id' => $user->id, 'role_id' => $roleId]
                     );
 
@@ -72,6 +74,7 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                     $checkListHistory->documents()->createMany($documents);
                 }
             }
+            dd($allAnswersTrue);
 
             $attachUserId = $this->attachUser($user, $object);
             $object->update([
@@ -86,7 +89,7 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                 status: $allAnswersTrue ? IllegalObjectStatuses::CONFIRMED : IllegalObjectStatuses::NEW,
                 type: IllegalObjectHistoryType::CHECKLIST_FILLED,
                 date: null,
-                comment: $allAnswersTrue ? 'Obyekt yakunlandi' : 'Checklist to\'ldirildi',
+                comment: $allAnswersTrue ? 'Obyekt yakunlandi' : "Checklist to'ldirildi",
                 additionalInfo: ['user_id' => $user->id, 'role_id' => $roleId, 'score' => $request->object['score']]
             );
 
@@ -97,6 +100,7 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
             throw $exception;
         }
     }
+
 
 
 

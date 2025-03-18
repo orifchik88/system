@@ -48,7 +48,8 @@ class UserController extends BaseController
 
     public function users(): JsonResponse
     {
-        $query = $this->service->getAllUsers($this->user, $this->roleId);
+        $type = request('type', null);
+        $query = $this->service->getAllUsers($this->user, $this->roleId, $type);
         $filters = request()->only(['search', 'region_id', 'district_id', 'status', 'role_id']);
         $users = $this->service->searchByUser($query, $filters)->paginate(request('per_page', 10));
         return $this->sendSuccess(new UserResourceCollection($users), 'All Users', pagination($users));
@@ -76,7 +77,8 @@ class UserController extends BaseController
     public function count(): JsonResponse
     {
         try {
-            return $this->sendSuccess($this->service->getCountByUsers($this->user, $this->roleId), 'All users count');
+            $type = request('type', null);
+            return $this->sendSuccess($this->service->getCountByUsers($this->user, $this->roleId, $type), 'All users count');
         } catch (\Exception $exception) {
             return $this->sendError($exception->getMessage(), $exception->getCode());
         }

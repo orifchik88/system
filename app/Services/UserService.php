@@ -15,7 +15,7 @@ class UserService
     {
     }
 
-    public function getAllUsers($user, $roleId)
+    public function getAllUsers($user, $roleId, $type = null)
     {
         switch ($roleId) {
             case UserRoleEnum::BUYURTMACHI->value:
@@ -29,16 +29,19 @@ class UserService
                 })->where('region_id', $user->region_id);
 
             case UserRoleEnum::RESKADR->value:
-                return User::query()->whereHas('roles', function ($query) {
-                    $query->whereNotIn('role_id', [
-                        UserRoleEnum::BUYURTMACHI->value,
-                        UserRoleEnum::LOYIHA->value,
-                        UserRoleEnum::QURILISH->value,
-                        UserRoleEnum::ICHKI->value,
-                        UserRoleEnum::TEXNIK->value,
-                        UserRoleEnum::MUALLIF->value,
-                    ]);
+                $excludedRoles = [
+                    UserRoleEnum::BUYURTMACHI->value,
+                    UserRoleEnum::LOYIHA->value,
+                    UserRoleEnum::QURILISH->value,
+                    UserRoleEnum::ICHKI->value,
+                    UserRoleEnum::TEXNIK->value,
+                    UserRoleEnum::MUALLIF->value,
+                ];
+
+                return User::query()->whereHas('roles', function ($query) use ($type, $excludedRoles) {
+                    $query->{$type ? 'whereIn' : 'whereNotIn'}('role_id', $excludedRoles);
                 });
+
             case UserRoleEnum::REGISTRATOR->value:
                 return User::query()->whereHas('roles', function ($query) {
                     $query->whereIn('role_id', [
@@ -131,9 +134,9 @@ class UserService
             });
     }
 
-    public function getCountByUsers($user, $roleId): array
+    public function getCountByUsers($user, $roleId, $type): array
     {
-        $query = $this->getAllUsers($user, $roleId)->getQuery();
+        $query = $this->getAllUsers($user, $roleId, $type)->getQuery();
         return [
             'all' => (clone $query)->count(),
             'active' => (clone $query)->where('user_status_id', UserStatusEnum::ACTIVE)->count(),
