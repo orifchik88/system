@@ -40,7 +40,7 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
             $questions = collect($request->get('questions', []));
             $histories = [];
 
-            $allAnswersTrue = false;
+            $allAnswersTrue = true;
 
             IllegalObjectCheckList::query()->whereIn('id', $questions->pluck('id'))
                 ->get()
@@ -74,7 +74,6 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                     $checkListHistory->documents()->createMany($documents);
                 }
             }
-            dd($allAnswersTrue);
 
             $attachUserId = $this->attachUser($user, $object);
             $object->update([
