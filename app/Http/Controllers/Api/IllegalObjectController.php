@@ -110,7 +110,7 @@ class IllegalObjectController extends BaseController
 
     public function objectsList()
     {
-        $filters = request()->only(['status', 'id', 'sort_by', 'role_id', 'region_id', 'district_id']);
+        $filters = request()->only(['status', 'id', 'sort_by', 'type', 'role_id', 'region_id', 'district_id']);
 
         $data = $this->illegalObjectService->getObjectList(
             user: $this->user, roleId: $this->roleId, filters: $filters

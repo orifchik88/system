@@ -34,6 +34,7 @@ class LoginController extends BaseController
            $token = JWTAuth::claims(['role_id' => $roleId])->fromUser($user);
 
            $success['token'] = $token;
+           $success['id'] = $user->id;
            $success['full_name'] = $user->full_name;
            $success['pinfl'] = $user->pinfl;
            $success['role'] = new RoleResource($role);
