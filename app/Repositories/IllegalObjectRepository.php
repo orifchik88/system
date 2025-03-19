@@ -37,7 +37,7 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
         try {
             $object = IllegalObject::query()->findOrFail($request->object['id']);
 
-            $questions = collect($request->get('questions', []));
+            $questions = collect($request->questions);
             $histories = [];
 
             $allAnswersTrue = true;
@@ -494,7 +494,7 @@ class IllegalObjectRepository implements IllegalObjectRepositoryInterface
                 'files' => $history->documents ? $history->documents->map(function ($document) {
                     return [
                         'id' => $document->id,
-                        'url' => Storage::disk('public')->url($document->file),
+                        'url' => Storage::disk('public')->url($document->url),
                     ];
                 }) : null,
             ];
