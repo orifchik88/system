@@ -335,7 +335,7 @@ class StatisticsController extends BaseController
 
     public function excelTask()
     {
-        ini_set('max_execution_time', 300);
+        ini_set('max_execution_time', 0);
         $filters = request()->only(['region_id', 'start_date', 'end_date']);
 
         $claims = Claim::query()
@@ -453,6 +453,7 @@ class StatisticsController extends BaseController
             $inspectorConcDate = '-';
             $inspectorSentDate = '-';
             $directorSentDate = '-';
+            $historySentOrg = '-';
             $rejectReason = '-';
             $endRoleName = '-';
 
@@ -480,6 +481,7 @@ class StatisticsController extends BaseController
                 ));
 
                 $historySentInspector = $history->first(fn($item) => data_get(json_decode($item->content, true), 'status') == 5);
+                $historySentOrganization = $history->first(fn($item) => data_get(json_decode($item->content, true), 'status') == 4);
 
                 $historySentDirector = $history->first(fn($item) => data_get(json_decode($item->content, true), 'status') == 13);;
 
@@ -491,6 +493,9 @@ class StatisticsController extends BaseController
 
                 if ($historySentDirector)
                     $directorSentDate = $historySentDirector->created_at;
+
+                if ($historySentOrganization)
+                    $historySentOrg = $historySentOrganization->created_at;
 
                 if ($historyReject)
                     $rejectReason = json_decode($historyReject->content, true)['comment'];
@@ -610,6 +615,7 @@ class StatisticsController extends BaseController
                 'qurilish_osti_yakka' => (string)$areaSum['yakka'],
 
                 'inskepsiya_kelgan_vaqt' => $claim->created_at,
+                'tashkilotga_yuborilgan_sana' => $historySentOrg,
                 'oxirgi_tashkilot_sanasi' => $lastOrgConcDate,
                 'inspektor_hulosa_vaqti' => $inspectorConcDate,
                 'inspektor' => $claim->user_name,
