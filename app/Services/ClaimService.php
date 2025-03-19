@@ -580,7 +580,6 @@ class ClaimService
         $claimObject->update(
             [
                 'status' => ClaimStatuses::TASK_STATUS_ATTACH_OBJECT,
-                'end_date' => Carbon::now()->format('Y-m-d H:i:s')
             ]
         );
 

@@ -63,6 +63,7 @@ class ClaimTaskExcel implements FromCollection, WithColumnFormatting, WithHeadin
             "Yakka tartibdagi",
 
             'Inspeksiyaga kelgan vaqt',
+            'Tashkilotlarga yuborilgan vaqt',
             'Oxirgi tashkilot hulosa bergan vaqti',
             'Inspektor hulosa bergan vaqat',
             'Inspektor',
@@ -126,11 +127,11 @@ class ClaimTaskExcel implements FromCollection, WithColumnFormatting, WithHeadin
             'H' => 50,
             'X' => 50,
             'C' => 50,
-            'AO' => 50,
-            'AX' => 50,
-            'AZ' => 50,
+            'AP' => 50,
+            'AY' => 50,
             'BA' => 50,
             'BB' => 50,
+            'BC' => 50,
 
             // kerakli ustunlarga kenglik bering
         ];
@@ -146,7 +147,7 @@ class ClaimTaskExcel implements FromCollection, WithColumnFormatting, WithHeadin
 
                 //$event->sheet->getDelegate()->getRowDimension('1')->setRowHeight(40);
 
-                $event->sheet->getDelegate()->getStyle('A:BB')->getAlignment()->setHorizontal(
+                $event->sheet->getDelegate()->getStyle('A:BC')->getAlignment()->setHorizontal(
                     Alignment::HORIZONTAL_CENTER
                 )->setVertical(Alignment::VERTICAL_CENTER)->setWrapText(true);
 
@@ -157,7 +158,7 @@ class ClaimTaskExcel implements FromCollection, WithColumnFormatting, WithHeadin
                 $event->sheet->getStyle('AB1:AE1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'FF8000']]);
                 $event->sheet->getStyle('AF1:AI1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'CCFFCC']]);
 
-                $event->sheet->getDelegate()->getStyle('A1:BB1')->getAlignment()->setVertical(
+                $event->sheet->getDelegate()->getStyle('A1:BC1')->getAlignment()->setVertical(
                     Alignment::VERTICAL_CENTER
                 )->setHorizontal(Alignment::HORIZONTAL_CENTER)->setWrapText(true);
             }
