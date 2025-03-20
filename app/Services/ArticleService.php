@@ -110,11 +110,11 @@ class ArticleService
         $histories = $object->histories->map(function ($history) {
             return [
                 'id' => $history->id,
-                'user' => User::query()->find($history->content->user, ['name', 'surname', 'middle_name']),
-                'role' => Role::query()->find($history->content->role, ['name', 'description']),
-                'status' => ObjectStatus::query()->find($history->content->status, ['id', 'name']),
+                'user' => $history->content->user ? User::query()->find($history->content->user, ['name', 'surname', 'middle_name']) : null,
+                'role' => $history->content->role ? Role::query()->find($history->content->role, ['name', 'description']) : null,
+                'status' => $history->content->status ?  ObjectStatus::query()->find($history->content->status, ['id', 'name']) : null,
                 'type' => $history->type,
-                'is_change' => LogType::getLabel($history->type),
+                'is_change' => $history->type ? LogType::getLabel($history->type) : null,
                 'created_at' => $history->created_at,
             ];
         })->sortByDesc('created_at')->values();
