@@ -284,7 +284,7 @@ class MyGovService
         $object = $this->articleRepository->findById($objectId);
         if (!$object) return null;
 
-        if ($object->funding_source_id != 1 && $object->object_type_id != 1) {
+//        if ($object->funding_source_id != 1 && $object->object_type_id != 1) {
             $customer = $object->users()->where('role_id', UserRoleEnum::BUYURTMACHI->value)->first();
             $builder = $object->users()->where('role_id', UserRoleEnum::QURILISH->value)->first();
 
@@ -293,36 +293,24 @@ class MyGovService
             $blockWorkTypes = $blocks->map(function ($block) {
                 $works = $this->questionService->getQuestionList(
                     blockId: $block->id,
-                    type: null,
-                    block_type: 2
+                    block_type: $block->block_mode_id
                 );
 
                 $workTypes = collect($works)
                     ->reject(fn($item) => in_array($item['work_type_id'], [14]))
                     ->flatMap(function ($item) {
-                        $title = $item['name'];
-                        $questions = $item['questions'];
+                        return collect($item['questions'])
+                            ->groupBy('floor')
+                            ->flatMap(function ($questions, $floor) use ($item) {
+                                $name = $floor ? "$floor - {$item['name']}" : $item['name'];
 
-                        $filteredQuestions = collect($questions)->groupBy('floor');
-
-                        return $filteredQuestions->map(function ($questions, $floor) use ($title) {
-                            $name = $floor && $floor != '' ? $floor . ' - ' . $title : $title;
-
-                            $firstQuestion = $questions->first();
-                            if (!$firstQuestion || $firstQuestion['work_type_status']->value != 2) {
-                                return null;
-                            }
-
-                            return [
-                                'name' => $name,
-                            ];
-                        })->filter();
+                                return $questions->contains(fn($q) => $q['work_type_status']->value == 2)
+                                    ? [['name' => $name]]
+                                    : [];
+                            });
                     })
                     ->values()
                     ->toArray();
-
-
-
 
                 return [
                     'id' => $block->id,
@@ -335,7 +323,7 @@ class MyGovService
             $data = [
                 'object_id' => $object->id,
                 'object_name' => $object->name,
-                'created_at' => $object->created_at,
+                'created_at' => date_format($object->created_at, 'Y-m-d H:i:s'),
                 'closed_at' => $object->closed_at,
                 'customer_name' => $customer?->organization_name ?? '',
                 'builder_name' => $builder?->organization_name ?? '',
@@ -357,9 +345,9 @@ class MyGovService
             ];
 
             return response()->json($data, 200);
-        }
+//        }
 
-        return null;
+//        return null;
     }
 
     public function getObjectByReestr($filters)

@@ -455,7 +455,7 @@ class ArticleService
 
             $this->acceptResponse($response);
 
-//             $this->sendTax($article);
+             $this->sendTax($article);
 
             DB::commit();
 
