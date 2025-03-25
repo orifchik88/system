@@ -400,7 +400,7 @@ class ArticleService
                 $history->documents()->create(['url' => $path]);
             }
             DB::commit();
-            return true;
+            return $object;
 
         }catch (\Exception $exception) {
             DB::rollBack();

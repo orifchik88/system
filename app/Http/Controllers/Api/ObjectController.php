@@ -161,8 +161,8 @@ class ObjectController extends BaseController
     public function deadlineChange(): JsonResponse
     {
         try{
-            $this->service->deadlineChange($this->user, $this->roleId);
-            return $this->sendSuccess([], 'Object deadline changed successfully.');
+            $object = $this->service->deadlineChange($this->user, $this->roleId);
+            return $this->sendSuccess(ArticleResource::make($object), 'Object deadline changed successfully.');
         }catch (\Exception $exception){
             return $this->sendError('Xatolik yuz berdi!', $exception->getMessage());
         }
