@@ -158,6 +158,16 @@ class ObjectController extends BaseController
         }
     }
 
+    public function deadlineChange(): JsonResponse
+    {
+        try{
+            $this->service->deadlineChange($this->user, $this->roleId);
+            return $this->sendSuccess([], 'Object deadline changed successfully.');
+        }catch (\Exception $exception){
+            return $this->sendError('Xatolik yuz berdi!', $exception->getMessage());
+        }
+    }
+
     public function objectByParams(): JsonResponse
     {
         try {

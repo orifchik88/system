@@ -469,7 +469,6 @@ class RegulationController extends BaseController
                 $status = 1;
             } elseif ($demand->act_violation_type_id = 2) {
                 $status = 3;
-
             } else {
                 $status = 1;
             }

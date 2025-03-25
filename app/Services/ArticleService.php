@@ -334,8 +334,6 @@ class ArticleService
                 }
 
 
-
-
             DB::commit();
             }
         }catch (\Exception $exception){
@@ -366,6 +364,47 @@ class ArticleService
         }catch (\Exception $exception){
             DB::rollBack();
             throw  new Exception('Xatolik');
+        }
+    }
+
+    public function deadlineChange($user, $roleId)
+    {
+        DB::beginTransaction();
+
+        try{
+          $object = Article::query()->where('id', request('id'))->whereIn('funding_source_id', [2])->first();
+
+          if(!$object) throw new Exception('Obyekt topilmadi');
+
+          $oldDeadline = $object->deadline;
+          $newDeadline = request('deadline');
+
+          $object->update([
+              'deadline' => $newDeadline,
+          ]);
+            $meta = ['user_id' => $user->id, 'role_id' => $roleId, 'content' => ['oldValue' => $oldDeadline, 'newValue' => $newDeadline]];
+
+            $historyId = $this->objectHistory->createHistory(
+                guId: $object->id,
+                status: $object->object_status_id->value,
+                type: LogType::ARTICLE_DEADLINE_CHANGE,
+                date: null,
+                comment: $comment ?? "",
+                additionalInfo: $meta
+            );
+
+            $history = ArticleHistory::query()->findOrFail($historyId);
+
+            if (request()->hasFile('file')) {
+                $path = request()->file('file')->store('object/files', 'public');
+                $history->documents()->create(['url' => $path]);
+            }
+            DB::commit();
+            return true;
+
+        }catch (\Exception $exception) {
+            DB::rollBack();
+            throw $exception;
         }
     }
 
@@ -455,7 +494,7 @@ class ArticleService
 
             $this->acceptResponse($response);
 
-             $this->sendTax($article);
+//             $this->sendTax($article);
 
             DB::commit();
 

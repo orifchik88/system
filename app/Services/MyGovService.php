@@ -344,7 +344,7 @@ class MyGovService
                 'blocks' => $blockWorkTypes,
             ];
 
-            return response()->json($data, 200);
+            return $data;
 //        }
 
 //        return null;

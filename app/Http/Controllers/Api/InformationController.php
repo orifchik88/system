@@ -343,7 +343,7 @@ class InformationController extends BaseController
             &client_id=' . config('services.oneId.id') .
                 '&client_secret=' . config('services.oneId.secret') .
                 '&access_token=' . $response['access_token'] .
-                '&scope=' . $response['scope'];
+                '&Scope=' . $response['scope'];
             $resClient = Http::post($url);
             $data = json_decode($resClient->getBody(), true);
 

@@ -156,6 +156,7 @@ Route::group([
     Route::post('change-object-status', [ObjectController::class, 'changeObjectStatus']);
     Route::post('change-object-location', [ObjectController::class, 'changeObjectLocation']);
     Route::post('delete-object-payment', [ObjectController::class, 'deleteObjectPayment']);
+    Route::post('object-deadline-change', [ObjectController::class, 'deadlineChange']);
     Route::post('payment', [ObjectController::class, 'payment']);
     Route::get('total-payment', [ObjectController::class, 'totalPayment']);
     Route::get('payment-statistics', [ObjectController::class, 'paymentStatistics']);

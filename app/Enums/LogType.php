@@ -18,6 +18,7 @@ class LogType
     const ARTICLE_MONITORING = 10;
 
     const ARTICLE_PAYMENT_CREATE = 11;
+    const ARTICLE_DEADLINE_CHANGE = 12;
 
     public static function getLabel($type): string
     {
@@ -38,6 +39,8 @@ class LogType
                 return 'Obyektda inspektor o\'zgardi';
             case self::ARTICLE_MONITORING:
                 return 'Obyektda monitoring o\'tkazildi';
+            case self::ARTICLE_DEADLINE_CHANGE:
+                return 'Obyekt muddati o\'zgartirildi';
             default:
                 return 'Noma’lum tur';
         }

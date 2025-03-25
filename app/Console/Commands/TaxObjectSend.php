@@ -30,14 +30,14 @@ class TaxObjectSend extends Command
 
             Article::query()
                 ->whereBetween('created_at', ['2025-01-01 00:00:00', '2025-02-28 23:59:59'])
-                ->whereNull('send_tax')
+                ->where('send_tax', true)
                 ->each(function ($article) use ($authUsername, $authPassword) {
                     $data = $this->service->getObjectTax($article->id);
 
                     Http::withBasicAuth($authUsername, $authPassword)
                         ->post('https://api.shaffofqurilish.uz/api/v1/constructionSave', $data);
 
-                    $article->update(['send_tax' => true]);
+                    $article->update(['send_tax' => false]);
                 });
 
         } catch (\Exception $exception) {
