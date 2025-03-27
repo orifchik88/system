@@ -27,6 +27,7 @@ use App\Models\RegulationEvent;
 use App\Models\RegulationFine;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\UserRole;
 use App\Notifications\InspectorNotification;
 use App\Services\MessageTemplate;
 use App\Services\RegulationService;
@@ -522,11 +523,30 @@ class RegulationController extends BaseController
 
     public function createRegulation()
     {
+        DB::beginTransaction();
         try {
-            $regulation = AuthorRegulation::query()->create([
+            foreach (request()->file('images') as $image) {
+                $path = $image->store('images/author-regulation', 'public');
+                $meta[] = $path;
+            }
+            $object = Article::query()->findOrFail(request('object_id'));
 
+            AuthorRegulation::query()->create([
+                'object_id' => $object->id,
+                'author_comment' => request('comment'),
+                'author_id' => Auth::id(),
+                'block_id' => request('block_id'),
+                'deadline' => request('deadline'),
+                'author_role_id' => UserRoleEnum::MUALLIF->value,
+                'author_images' => json_encode($meta),
+                'user_id' => $object->users()->wherePivot('role_id', UserRoleEnum::ICHKI->value)->pluck('users.id')->first(),
+                'role_id' => UserRoleEnum::ICHKI->value,
             ]);
+            DB::commit();
+            return $this->sendSuccess([], 'Data saved successfully');
+
         }catch (Exception $exception){
+            DB::rollBack();
             return $this->sendError('Xatolik aniqlandi', $exception->getMessage());
         }
     }
