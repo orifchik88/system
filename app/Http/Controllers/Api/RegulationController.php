@@ -64,7 +64,7 @@ class RegulationController extends BaseController
                 ->when(
                     !empty($filters['regulation_status_id']) && $filters['regulation_status_id'] == 6,
                     function ($query) {
-                        $query->orderBy('deadline', request('sort_by_date', 'desc'));
+                        $query->orderBy('updated_at', request('sort_by_date', 'desc'));
                     }
                 )
                 ->orderBy(
