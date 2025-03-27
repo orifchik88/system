@@ -55,7 +55,7 @@ class RegulationResource extends JsonResource
             ],
             'fine' => RegulationFineResource::make($this->fine),
 
-            'events' => empty( $this->events) ? RegulationEventResource::collection($this->events) : null
+            'events' => !empty($this->events) ? RegulationEventResource::collection($this->events) : null
         ];
     }
 }
