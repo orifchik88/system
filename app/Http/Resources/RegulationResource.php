@@ -26,6 +26,7 @@ class RegulationResource extends JsonResource
         $responsibleUser = $this->regulationUser ? User::query()->find($this->regulationUser->to_user_id): null;
         $responsibleRole = $this->regulationUser ? Role::query()->find($this->regulationUser->to_role_id) : null;
 
+
         return [
             'id' => $this->id,
             'object_name' => $this->object->name ?? null,
@@ -53,7 +54,8 @@ class RegulationResource extends JsonResource
                 'fish' => $responsibleUser ? "{$responsibleUser->surname} {$responsibleUser->name} {$responsibleUser->middle_name}" : null,
             ],
             'fine' => RegulationFineResource::make($this->fine),
-            'events' => $this->events ? RegulationEventResource::collection($this->events) : null
+
+            'events' => empty( $this->events) ? RegulationEventResource::collection($this->events) : null
         ];
     }
 }

@@ -12,16 +12,16 @@ class RegulationEventResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'comment' => $this->comment,
-            'role' => $this->role ? RoleResource::make($this->role) : null,
-            'user' => [
-                'id' => $this->user_id,
-                'name' => $this->user?->name,
-                'surname' => $this->user?->surname,
-                'middle_name' => $this->user?->middle_name,
-            ],
-            'images' => $this->images ? ImageResource::collection($this->images) : null,
-            'files' => $this->documents ? DocumentResource::collection($this->document) : null,
+//            'comment' => $this->comment,
+//            'role' => $this->role ? RoleResource::make($this->role) : null,
+//            'user' => [
+//                'id' => $this->user_id,
+//                'name' => $this->user?->name,
+//                'surname' => $this->user?->surname,
+//                'middle_name' => $this->user?->middle_name,
+//            ],
+//            'images' => $this->images ? ImageResource::collection($this->images) : null,
+//            'files' => $this->documents ? DocumentResource::collection($this->document) : null,
         ];
     }
 }
