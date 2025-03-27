@@ -37,15 +37,6 @@ class RegulationService
                 });
             case UserRoleEnum::TEXNIK->value:
                 $objectIds = $user->objects()->where('role_id', UserRoleEnum::TEXNIK->value)->pluck('article_id')->toArray();
-//                return Regulation::query()
-//                    ->where(function ($q) use ($user, $roleId) {
-//                        $q->where('role_id', $roleId)
-////                        ->where('user_id', $user->id)
-//                            ->orWhere(function ($query) use ($user, $roleId) {
-//                                $query->where('created_by_role_id', $roleId);
-////                                    ->where('created_by_user_id', $user->id);
-//                            });
-//                    });
 
                 return Regulation::query()
                     ->where(function ($query) use ($objectIds) {

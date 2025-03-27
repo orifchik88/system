@@ -14,6 +14,7 @@ use App\Http\Requests\RegulationDemandRequest;
 use App\Http\Requests\RegulationEventRequest;
 use App\Http\Requests\RegulationFineRequest;
 use App\Http\Resources\AuthorRegulationResource;
+use App\Http\Resources\RegulationListResource;
 use App\Http\Resources\RegulationResource;
 use App\Models\ActViolation;
 use App\Models\Article;
@@ -67,7 +68,7 @@ class RegulationController extends BaseController
                 ->paginate(request('per_page', 10));
 
             return $this->sendSuccess(
-                RegulationResource::collection($regulations),
+                RegulationListResource::collection($regulations),
                 'Regulations',
                 pagination($regulations)
             );
