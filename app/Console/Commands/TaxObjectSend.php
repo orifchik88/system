@@ -9,6 +9,7 @@ use App\Services\ArticleService;
 use App\Services\MyGovService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -24,25 +25,27 @@ class TaxObjectSend extends Command
 
     public function handle()
     {
-        try {
-            $authUsername = config('app.passport.login');
-            $authPassword = config('app.passport.password');
+        $authUsername = config('app.passport.login');
+        $authPassword = config('app.passport.password');
 
-            Article::query()
-                ->whereBetween('created_at', ['2025-01-01 00:00:00', '2025-02-28 23:59:59'])
-                ->where('send_tax', true)
-                ->each(function ($article) use ($authUsername, $authPassword) {
-                    $data = $this->service->getObjectTax($article->id);
+        $articles = Article::whereNull('send_tax')->get();
 
-                    Http::withBasicAuth($authUsername, $authPassword)
-                        ->post('https://api.shaffofqurilish.uz/api/v1/constructionSave', $data);
+        foreach ($articles as $article) {
+            try {
+                $data = $this->service->getObjectTax($article->id);
 
-                    $article->update(['send_tax' => false]);
-                });
+                $response = Http::withBasicAuth($authUsername, $authPassword)
+                    ->post('https://api.shaffofqurilish.uz/api/v1/constructionSave', $data);
 
-        } catch (\Exception $exception) {
-            echo $exception->getMessage();
-            Log::error('Tax Error: ' . $exception->getMessage());
+                if ($response->successful()) {
+                    $article->update(['send_tax' => true]);
+                } else {
+                    Log::error('API Error: ' . $response->body());
+                }
+
+            } catch (\Exception $exception) {
+                Log::error('Tax Error: ' . $exception->getMessage());
+            }
         }
     }
 
