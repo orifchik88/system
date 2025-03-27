@@ -9,11 +9,7 @@ use Illuminate\Support\Facades\Storage;
 
 class AuthorRegulationResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
+
     public function toArray(Request $request): array
     {
         $authorImages = collect(json_decode($this->author_images, true))->map(function ($image) {
@@ -29,10 +25,10 @@ class AuthorRegulationResource extends JsonResource
         return [
             'id' => $this->id,
             'object_name' => $this->object->name,
-            'block_name' => $this->block->name,
-            'author' => UserResource::make($this->author),
-            'bases' => BasisResource::make($this->bases),
-            'work_type' => WorkTypeResource::make($this->workType),
+            'block_name' => $this->block ? $this->block->name : null,
+            'author' => $this->author ? UserResource::make($this->author) : null,
+            'bases' => $this->bases ? BasisResource::make($this->bases) : null,
+            'work_type' =>  $this->workType ? WorkTypeResource::make($this->workType) : null,
             'author_comment' => $this->author_comment,
             'comment' => $this->comment,
             'author_images' => $authorImages,

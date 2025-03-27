@@ -523,7 +523,9 @@ class RegulationController extends BaseController
     public function createRegulation()
     {
         try {
+            $regulation = AuthorRegulation::query()->create([
 
+            ]);
         }catch (Exception $exception){
             return $this->sendError('Xatolik aniqlandi', $exception->getMessage());
         }
