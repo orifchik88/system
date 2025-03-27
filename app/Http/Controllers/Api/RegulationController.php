@@ -61,6 +61,12 @@ class RegulationController extends BaseController
             $filters = request()->only(['object_name', 'is_fined', 'start_date', 'end_date',  'regulation_number', 'task_id', 'created_by_role', 'region_id', 'district_id', 'organization_name', 'funding_source', 'category', 'status', 'lawyer_status', 'deadline_asked']);
 
             $regulations = $this->regulationService->searchRegulations($query, $filters)
+                ->when(
+                    !empty($filters['regulation_status_id']) && $filters['regulation_status_id'] == 6,
+                    function ($query) {
+                        $query->orderBy('deadline', request('sort_by_date', 'desc'));
+                    }
+                )
                 ->orderBy(
                     request('sort_by_date') ? 'created_at' : 'deadline',
                     request('sort_by_date') ? 'DESC' : 'ASC'
