@@ -101,6 +101,11 @@ class Regulation extends Model
         return $this->belongsTo(Question::class);
     }
 
+    public function events(): HasMany
+    {
+       return $this->hasMany(RegulationEvent::class, 'regulation_id');
+    }
+
     public function checklist(): BelongsTo
     {
         return $this->belongsTo(CheckListAnswer::class, 'checklist_id');

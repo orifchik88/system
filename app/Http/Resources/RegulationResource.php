@@ -52,7 +52,8 @@ class RegulationResource extends JsonResource
                 'phone' => $responsibleUser ? $responsibleUser->phone : null,
                 'fish' => $responsibleUser ? "{$responsibleUser->surname} {$responsibleUser->name} {$responsibleUser->middle_name}" : null,
             ],
-            'fine' => RegulationFineResource::make($this->fine)
+            'fine' => RegulationFineResource::make($this->fine),
+            'events' => $this->events ? RegulationEventResource::collection($this->events) : null
         ];
     }
 }
