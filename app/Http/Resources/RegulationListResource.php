@@ -34,6 +34,7 @@ class RegulationListResource extends JsonResource
             'violation_count' => $this->violations()->count(),
             'created_at' => $this->created_at,
             'deadline_asked' => $this->deadline_asked,
+            'act_status' => ActStatusResource::make($this->actStatus),
             'from_user' => [
                 'role' => $fromRole ? RoleResource::make($fromRole) : null,
                 'phone' => $fromUser ? $fromUser->phone : null,
