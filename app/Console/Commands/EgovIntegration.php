@@ -38,8 +38,8 @@ class EgovIntegration extends Command
      */
     public function handle()
     {
-        $this->testFunction(18128);
-        //$this->migrateObjects();
+        //$this->testFunction(18128);
+        $this->migrateObjects();
         //$this->migrateRegulations();
     }
 
