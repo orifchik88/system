@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Log;
 class TaxObjectSend extends Command
 {
 
-    protected $signature = 'tax:send';
+    protected $signature = 'tax:sent';
 
     public function __construct(protected  MyGovService $service)
     {
@@ -32,7 +32,7 @@ class TaxObjectSend extends Command
 
         foreach ($articles as $article) {
             try {
-                $data = $this->service->getObjectTax($article->id);
+                $data = $this->service->getObjectTax(39352);
 
                 $response = Http::withBasicAuth($authUsername, $authPassword)
                     ->post('https://api.shaffofqurilish.uz/api/v1/constructionSave', $data);
@@ -40,7 +40,7 @@ class TaxObjectSend extends Command
                 if ($response->successful()) {
                     $article->update(['send_tax' => true]);
                 } else {
-                    Log::error('API Error: ' . $response->body());
+                    Log::error('API Error: article_id: '.$article->id .'  ' . $response->body());
                 }
 
             } catch (\Exception $exception) {
