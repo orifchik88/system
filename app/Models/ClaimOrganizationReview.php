@@ -29,4 +29,11 @@ class ClaimOrganizationReview extends Model
 
         return ($answers != null) ? $answers['conclusion_act'] : null;
     }
+
+    public function getAnswerArrayAttribute()
+    {
+        $answers = ($this->attributes['answer']) ? json_decode(gzuncompress(base64_decode($this->attributes['answer'])), true) : null;
+
+        return ($answers != null) ? $answers : null;
+    }
 }
