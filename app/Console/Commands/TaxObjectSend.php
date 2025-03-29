@@ -32,7 +32,7 @@ class TaxObjectSend extends Command
 
         foreach ($articles as $article) {
             try {
-                $data = $this->service->getObjectTax(39352);
+                $data = $this->service->getObjectTax($article->id);
 
                 $response = Http::withBasicAuth($authUsername, $authPassword)
                     ->post('https://api.shaffofqurilish.uz/api/v1/constructionSave', $data);
