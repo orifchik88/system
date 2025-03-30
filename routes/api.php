@@ -41,6 +41,7 @@ Route::post('version-update', [VersionController::class, 'update']);
 
 
 
+
 Route::get('{module}/{api}/responses', [ResponseController::class, 'receive']);
 
 Route::get('pdf-generation', [PdfController::class, 'generation']);
@@ -87,6 +88,7 @@ Route::group([
 
     Route::get('statistics', [StatisticsController::class, 'statistics']);
     Route::get('reports', [StatisticsController::class, 'reports']);
+    Route::get('register-list', [StatisticsController::class, 'registerList']);
     Route::get('excelClaim', [StatisticsController::class, 'excel']);
     Route::get('excelTaskClaim', [StatisticsController::class, 'excelTask']);
 

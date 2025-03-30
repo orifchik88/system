@@ -7,6 +7,7 @@ use App\Enums\RegulationStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Exports\ClaimExcel;
 use App\Exports\ClaimTaskExcel;
+use App\Exports\DxaResponsesExport;
 use App\Helpers\ClaimStatuses;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ArticlePalataResource;
@@ -17,6 +18,7 @@ use App\Models\Claim;
 use App\Models\ClaimMonitoring;
 use App\Models\ClaimOrganizationReview;
 use App\Models\District;
+use App\Models\DxaResponse;
 use App\Models\Monitoring;
 use App\Models\Region;
 use App\Models\Regulation;
@@ -807,5 +809,17 @@ class StatisticsController extends BaseController
             new ClaimExcel($array),
             'statistic.xlsx'
         );
+    }
+
+    public function registerList(Request $request)
+    {
+        try {
+            $filters = $request->only(['region', 'district', 'date_from', 'date_to', 'status', 'inspector']);
+            return Excel::download(new DxaResponsesExport($filters), 'registers.xlsx');
+
+
+        } catch (\Exception $exception) {
+            return $this->sendError($exception->getMessage(), $exception->getLine());
+        }
     }
 }

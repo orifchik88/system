@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Log;
 class TaxObjectSend extends Command
 {
 
-    protected $signature = 'tax:sent';
+    protected $signature = 'tax:send';
 
     public function __construct(protected  MyGovService $service)
     {
