@@ -100,8 +100,8 @@ class DxaResponsesExport implements FromQuery, WithHeadings, WithMapping
         if (!empty($this->filters['district_id'])) {
             $query->where('dx.district_id', $this->filters['district_id']);
         }
-        if (!empty($this->filters['inspector_id'])) {
-            $query->where('dx.inspector_id', $this->filters['inspector_id']);
+        if (!empty($this->filters['inspector'])) {
+            $query->where('dx.inspector_id', $this->filters['inspector']);
         }
         if (!empty($this->filters['status'])) {
             $query->where('dxs.status', $this->filters['status']);
