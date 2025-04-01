@@ -36,6 +36,7 @@ class DxaResponsesExport implements FromQuery, WithHeadings, WithMapping
                 'dx.inspector_sent_at as inspektorga_yuborilgan_sana',
                 'dx.inspector_answered_at as inpektor_registratorga_yuborgan_sana',
                 'dx.confirmed_at as arizaga_javob_berilgan_sana',
+                'dx.rejected_at as arizaga_rad_berilgan_sana',
                 DB::raw("CASE
                     WHEN dx.confirmed_at > dx.deadline OR dx.rejected_at > dx.deadline THEN 'Ha'
                     ELSE 'Yo‘q'
