@@ -128,7 +128,7 @@ class DxaResponsesExport implements FromQuery, WithHeadings, WithMapping
             'Inspektor tanlagan', 'Inspektor yozgan comment', 'Murakkablik toifasi',
             'Kengash xulosasi', 'Expertiza', 'Ariza kelib tushgan sana',
             'Inspektorga yuborilgan sana', 'Inspektor registratorga yuborgan sana',
-            'Arizaga javob berilgan sana', 'Muddat buzilishi', 'Status',
+            'Arizaga javob berilgan sana', 'Arizaga rad berilgan sana', 'Muddat buzilishi', 'Status',
             'Rad berilgan sana', 'Qurilish-montaj qiymati', 'GASN summasi',
             'Soha', 'Dastur', 'Moliyalashtirish manbai', 'Kadastr',
             'Buyurtmachi nomi', 'Buyurtmachi INN', 'Loyihachi nomi', 'Loyihachi INN',
@@ -153,7 +153,7 @@ class DxaResponsesExport implements FromQuery, WithHeadings, WithMapping
             $row->inspektor_tanlagan, $row->inspektor_yozgan_comment, $row->murakkablik_toifasi,
             $row->kengash_xulosasi, $row->expertiza, $row->ariza_kelib_tushgan_sana,
             $row->inspektorga_yuborilgan_sana, $row->inpektor_registratorga_yuborgan_sana,
-            $row->arizaga_javob_berilgan_sana, $row->muddat_buzilishi, $row->status,
+            $row->arizaga_javob_berilgan_sana, $row->arizaga_rad_berilgan_sana, $row->muddat_buzilishi, $row->status,
             $row->rad_berilgan_sana, $row->qurilish_montaj_qiymati, $row->gasn_summasi,
             $row->soha, $row->dastur, $row->moliyalashtirish_manbai, $row->kadastr
         ]);
