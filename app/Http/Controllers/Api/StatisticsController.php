@@ -814,7 +814,7 @@ class StatisticsController extends BaseController
     public function registerList(Request $request)
     {
         try {
-            $filters = $request->only(['region', 'district', 'date_from', 'date_to', 'status', 'inspector']);
+            $filters = $request->only(['region', 'district', 'date_from', 'date_to', 'status', 'inspector','type']);
             return Excel::download(new DxaResponsesExport($filters), 'registers.xlsx');
 
 
